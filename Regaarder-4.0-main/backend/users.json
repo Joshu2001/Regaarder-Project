@@ -1,0 +1,60 @@
+[
+  {
+    "id": "user-1766857658728",
+    "email": "jshsajous@gmail.com",
+    "name": "Joshuar",
+    "passwordHash": "$2a$10$qxV674/gnxSih1CY3rXjjOw441ufnAILbG4E48OogNsynCnjUb94S",
+    "createdAt": "2025-12-27T17:47:38.728Z",
+    "token": "d1302612ffdb9a6f979afc5c609c95ea",
+    "isCreator": true,
+    "creatorSince": "2025-12-31T18:20:16.251Z",
+    "image": "http://localhost:4000/uploads/intro-1767691091607-53684.png",
+    "price": "788",
+    "bio": "Christ is King",
+    "tagline": "",
+    "following": [
+      "user-1767159330204",
+      "user-1766857658728"
+    ],
+    "introVideo": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
+    "streak": 1,
+    "lastStreakDate": "2026-01-07"
+  },
+  {
+    "id": "user-1767159330204",
+    "email": "js@gmail.com",
+    "name": "js",
+    "passwordHash": "$2a$10$eY4Ki8gngjW3rsToIWVfmOffujEFgrCNXA2JZT0./wr2yA2jfBXVi",
+    "createdAt": "2025-12-31T05:35:30.204Z",
+    "token": "d6ee93d7a807c03e530ac44ade007afe",
+    "isCreator": true,
+    "creatorSince": "2025-12-31T05:35:35.473Z"
+  },
+  {
+    "id": "user-1767166657751",
+    "email": "john@john.com",
+    "name": "John",
+    "passwordHash": "$2a$10$Lu9pC2MjD8thsXEceYUai.Ktgly8Bn0ZFouihOTnAvFyklnyYKxtq",
+    "createdAt": "2025-12-31T07:37:37.751Z",
+    "token": "e8c38620090e3ad7b78e385322ed7b89",
+    "isCreator": true,
+    "creatorSince": "2025-12-31T07:37:44.251Z"
+  },
+  {
+    "id": "user-1767585399609",
+    "email": "paul@regaarder.com",
+    "name": "Paul",
+    "passwordHash": "$2a$10$3scbR.60iq4sY22opnPw8O8Ar0GvjkLI7i2GdYaWLhH0PbLyVLKnS",
+    "createdAt": "2026-01-05T03:56:39.609Z",
+    "token": "5a9ace2d8e6bbf594fcedb4e2274d886",
+    "isCreator": true,
+    "creatorSince": "2026-01-06T11:40:52.979Z",
+    "image": "http://localhost:4000/uploads/intro-1767699650608-178239.jpg",
+    "following": [
+      "user-1767585399609",
+      "user-1766857658728"
+    ],
+    "streak": 1,
+    "lastStreakDate": "2026-01-09"
+  }
+]

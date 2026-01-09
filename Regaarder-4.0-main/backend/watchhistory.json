@@ -1,0 +1,66 @@
+[
+  {
+    "videoId": "Video",
+    "userId": "user-1767585399609",
+    "lastWatchedTime": 3,
+    "duration": 5,
+    "timestamp": "2026-01-09T04:45:55.662Z",
+    "isComplete": false
+  },
+  {
+    "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
+    "userId": "user-1767585399609",
+    "lastWatchedTime": 5,
+    "duration": 5,
+    "timestamp": "2026-01-06T17:18:22.166Z",
+    "isComplete": true
+  },
+  {
+    "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
+    "userId": "user-1766857658728",
+    "lastWatchedTime": 0,
+    "duration": 5,
+    "timestamp": "2026-01-06T09:18:41.518Z",
+    "isComplete": false
+  },
+  {
+    "videoId": "http://localhost:4000/uploads/intro-1767449989259-750420.mp4",
+    "userId": "user-1766857658728",
+    "lastWatchedTime": 208,
+    "duration": 597,
+    "timestamp": "2026-01-06T08:21:57.817Z",
+    "isComplete": false
+  },
+  {
+    "videoId": "http://localhost:4000/uploads/intro-1767452730683-679882.mp4",
+    "userId": "user-1766857658728",
+    "lastWatchedTime": 1,
+    "duration": 5,
+    "timestamp": "2026-01-06T05:59:14.029Z",
+    "isComplete": false
+  },
+  {
+    "videoId": "http://localhost:4000/uploads/intro-1767630827699-278564.mp4",
+    "userId": "user-1766857658728",
+    "lastWatchedTime": 5,
+    "duration": 5,
+    "timestamp": "2026-01-06T08:27:31.427Z",
+    "isComplete": true
+  },
+  {
+    "videoId": "http://localhost:4000/uploads/intro-1767451116575-327618.mp4",
+    "userId": "anonymous",
+    "lastWatchedTime": 0,
+    "duration": 0,
+    "timestamp": "2026-01-05T11:23:57.269Z",
+    "isComplete": false
+  },
+  {
+    "videoId": "http://localhost:4000/uploads/intro-1767452730683-679882.mp4",
+    "userId": "anonymous",
+    "lastWatchedTime": 1,
+    "duration": 5,
+    "timestamp": "2026-01-05T13:06:58.606Z",
+    "isComplete": false
+  }
+]

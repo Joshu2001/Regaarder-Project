@@ -1,0 +1,2961 @@
+/* eslint-disable no-empty */
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Home, FileText, File as FileIcon, Pencil, MoreHorizontal, MoreVertical, Pin, Star, TrendingUp, Trophy, User, Zap, Video, Clock, BarChart, Upload, Lightbulb, Headphones, Copy, LineChart, CheckCircle, Search, Globe, Link2, Image, Lock, Link, Eye } from 'lucide-react';
+import RequestsFeed from './requests.jsx';
+import { getTranslation, translations } from './translations.js';
+
+// No per-page CSS vars here — let the page inherit the global :root variables
+const customStyle = {};
+
+// Utility style for clamping long titles to 2 lines (copied from `home.jsx`)
+const clamp2 = {
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden'
+};
+
+// Composed User+Star icon for a premium header mark. This composes the
+// existing lucide `User` icon with a small filled star so we don't rely on a
+// non-existent export from the lucide package and avoid reference-order bugs.
+const UserStar = ({ size = 24, className = '', ...props }) => {
+    const starSize = Math.round(size * 0.5);
+    return (
+        <span style={{ position: 'relative', display: 'inline-block', width: size, height: size }}>
+            <User size={size} className={className} {...props} />
+            <span
+                style={{
+                    position: 'absolute',
+                    right: -2,
+                    bottom: -2,
+                    width: starSize,
+                    height: starSize,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pointerEvents: 'none'
+                }}
+            >
+                <svg
+                    width={starSize}
+                    height={starSize}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden
+                >
+                    <path
+                        d="M12 17.27L18.18 21l-1.63-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.45 4.73L5.82 21z"
+                        fill="var(--color-gold)"
+                    />
+                </svg>
+            </span>
+        </span>
+    );
+};
+
+// Composed double-check icon for the Claimed Requests tab
+const CheckCheck = ({ size = 20, className = '', strokeWidth = 2, ...props }) => {
+    const checkSize = size;
+    const small = Math.round(checkSize * 0.55);
+    return (
+        <span style={{ position: 'relative', display: 'inline-block', width: checkSize, height: checkSize }} className={className} {...props}>
+            <svg width={checkSize} height={checkSize} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span style={{ position: 'absolute', right: -2, bottom: -2, width: small, height: small, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                <svg width={small} height={small} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                    <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth={Math.max(1, Math.round(strokeWidth - 0.5))} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            </span>
+        </span>
+    );
+};
+
+// Reusable Toast component with smooth entry/exit, white background and
+// a green circular check icon to match the standard toaster look.
+const Toast = ({ message, duration = 2000, bottom = true }) => {
+    const [visible, setVisible] = useState(Boolean(message));
+    const [exiting, setExiting] = useState(false);
+    const [swipeOffset, setSwipeOffset] = useState(0);
+    const dragStartX = useRef(0);
+    const toastRef = useRef(null);
+
+    useEffect(() => {
+        let hideTimer = null;
+        if (message) {
+            setVisible(true);
+            setExiting(false);
+            hideTimer = setTimeout(() => setExiting(true), duration);
+        } else {
+            if (visible) setExiting(true);
+        }
+        return () => { if (hideTimer) clearTimeout(hideTimer); };
+    }, [message, duration]);
+
+    useEffect(() => {
+        if (exiting) {
+            const t = setTimeout(() => setVisible(false), 260);
+            return () => clearTimeout(t);
+        }
+        return undefined;
+    }, [exiting]);
+
+    const handleTouchStart = (e) => {
+        dragStartX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchMove = (e) => {
+        const currentX = e.touches[0].clientX;
+        const diff = currentX - dragStartX.current;
+        setSwipeOffset(diff);
+    };
+
+    const handleTouchEnd = () => {
+        if (Math.abs(swipeOffset) > 80) {
+            setExiting(true);
+        } else {
+            setSwipeOffset(0);
+        }
+    };
+
+    const handleMouseDown = (e) => {
+        dragStartX.current = e.clientX;
+        if (toastRef.current) toastRef.current.style.cursor = 'grabbing';
+    };
+
+    const handleMouseMove = (e) => {
+        if (dragStartX.current === 0) return;
+        const diff = e.clientX - dragStartX.current;
+        setSwipeOffset(diff);
+    };
+
+    const handleMouseUp = () => {
+        if (Math.abs(swipeOffset) > 80) {
+            setExiting(true);
+        } else {
+            setSwipeOffset(0);
+        }
+        dragStartX.current = 0;
+        if (toastRef.current) toastRef.current.style.cursor = 'grab';
+    };
+
+    if (!visible) return null;
+
+    const positionClass = bottom
+        ? 'bottom-6 left-1/2 transform -translate-x-1/2'
+        : 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2';
+
+    return (
+        <div className={`fixed ${positionClass} z-50 pointer-events-auto ${exiting ? 'toast-exit' : 'toast-enter'}`}>
+            <style>{`
+                /* Bottom toast: slide up/out */
+                @keyframes toastInUp { from { transform: translateY(14px) scale(0.98); opacity: 0 } to { transform: translateY(0) scale(1); opacity: 1 } }
+                @keyframes toastOutDown { from { transform: translateY(0) scale(1); opacity: 1 } to { transform: translateY(12px) scale(0.98); opacity: 0 } }
+                /* Center toast: scale/fade */
+                @keyframes toastInCenter { from { transform: scale(0.96); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+                @keyframes toastOutCenter { from { transform: scale(1); opacity: 1 } to { transform: scale(0.96); opacity: 0 } }
+                /* Top slide down animation */
+                @keyframes toastSlideDown {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-20px) scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+
+                .toast-enter { animation: ${bottom ? 'toastInUp 280ms cubic-bezier(.2,.8,.2,1) both' : 'toastSlideDown 400ms cubic-bezier(.16,1,.3,1) both'}; }
+                .toast-exit { animation: ${bottom ? 'toastOutDown 220ms cubic-bezier(.2,.8,.2,1) both' : 'toastOutCenter 180ms cubic-bezier(.2,.8,.2,1) both'}; }
+            `}</style>
+
+            <div 
+                ref={toastRef}
+                className="bg-white text-sm px-4 py-2 rounded-md shadow-lg flex items-center gap-3 cursor-grab select-none" 
+                style={{ 
+                    minWidth: 220, 
+                    transform: `translateX(${swipeOffset}px)`,
+                    transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
+                }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+            >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: '#10B981', flex: '0 0 auto' }}>
+                    <svg width="16" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                        <path d="M20 6L9 17l-5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </div>
+                <div className="text-gray-900">{message}</div>
+            </div>
+        </div>
+    );
+};
+const ClaimStatusPanel = ({
+    title = 'A night tour of taipei',
+    requesterName = 'AllVater',
+    requesterRole = 'Requester',
+    requesterAvatar = null,
+    currentStep = 1,
+    onClose = () => {},
+    onUpdateProgress = () => {},
+    pendingReuploadItem = null,
+    clearPendingReupload = () => {},
+}) => {
+    const [showModal, setShowModal] = useState(false);
+    const [message, setMessage] = useState('');
+    const [videoFile, setVideoFile] = useState(null);
+    const [videoPreview, setVideoPreview] = useState(null);
+    const [thumbnailFile, setThumbnailFile] = useState(null);
+    const [thumbnailPreview, setThumbnailPreview] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [validationError, setValidationError] = useState('');
+    const [linkCopied, setLinkCopied] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [selectedLanguage, setSelectedLanguage] = useState(() => localStorage.getItem('selectedLanguage') || 'English');
+    const [videoTitle, setVideoTitle] = useState(title || '');
+    const [category, setCategory] = useState('');
+    const categories = ['Travel', 'Education', 'Entertainment', 'Music', 'Sports'];
+    const [categoryOpen, setCategoryOpen] = useState(false);
+    const categoryRef = useRef(null);
+    const [scriptOpen, setScriptOpen] = useState(false);
+    const scriptRef = useRef(null);
+    const [appearance, setAppearance] = useState('public');
+    const [scriptType, setScriptType] = useState('');
+    const scriptTypes = ['Narration', 'Interview', 'Vlog', 'Explainer', 'Other'];
+    const [scriptFile, setScriptFile] = useState(null);
+    const [scriptOther, setScriptOther] = useState('');
+    const scriptInputRef = useRef(null);
+    const [changeNote, setChangeNote] = useState('');
+    const [isReuploading, setIsReuploading] = useState(false);
+    const [videoFormat, setVideoFormat] = useState('one-time');
+    const formats = [
+        { key: 'one-time', label: getTranslation('One-Time', selectedLanguage), fullLabel: getTranslation('One-Time Video', selectedLanguage), desc: getTranslation('Single video delivery', selectedLanguage), icon: '🎬' },
+        { key: 'recurrent', label: getTranslation('Recurrent', selectedLanguage), desc: getTranslation('Ongoing video series', selectedLanguage), icon: '🔁' },
+        { key: 'series', label: getTranslation('Series', selectedLanguage), desc: getTranslation('Fixed episode count', selectedLanguage), icon: '🎞️' },
+        { key: 'catalogue', label: getTranslation('Catalogue', selectedLanguage), desc: getTranslation('Collection of videos', selectedLanguage), icon: '📁' },
+    ];
+    const [formatOpen, setFormatOpen] = useState(false);
+    const formatRef = useRef(null);
+
+    // Currently selected format object (falls back to first format)
+    const selectedFormat = formats.find(f => f.key === videoFormat) || formats[0];
+
+    // Status steps for the claim workflow (used to render the tracker and labels)
+    const steps = [
+        'Request Received',
+        'Under Review',
+        'In Production',
+        'Preview Ready',
+        'Published',
+        'Completed'
+    ];
+    const [finished, setFinished] = useState(false);
+    const [celebrate, setCelebrate] = useState(false);
+
+    const videoInputRef = useRef(null);
+    const thumbInputRef = useRef(null);
+
+    // Thumbnail adjust state and refs
+    const [showAdjustModal, setShowAdjustModal] = useState(false);
+    const [adjustScale, setAdjustScale] = useState(1);
+    const [adjustPos, setAdjustPos] = useState({ x: 0, y: 0 });
+    const adjustContainerRef = useRef(null);
+    const adjustImageRef = useRef(null);
+    const draggingRef = useRef(false);
+    const dragStartRef = useRef({ x: 0, y: 0 });
+    const pinchRef = useRef({ initialDist: null, initialScale: 1 });
+    const zoomIntervalRef = useRef(null);
+    // Track how many times a video has been published for this request
+    const [publishedCount, setPublishedCount] = useState(0);
+    const [publishedItems, setPublishedItems] = useState([]);
+    // Load persisted published items (if any) so Published tab reflects prior publishes
+    useEffect(() => {
+        try {
+            const raw = (typeof localStorage !== 'undefined') && localStorage.getItem('publishedItems');
+            if (raw) {
+                const arr = JSON.parse(raw);
+                if (Array.isArray(arr)) setPublishedItems(arr);
+            }
+        } catch (e) {
+            // ignore parse errors
+        }
+    }, []);
+
+    // Persist published items to localStorage so other UI (Published tab) can read them
+    useEffect(() => {
+        try {
+            if (typeof localStorage !== 'undefined') {
+                localStorage.setItem('publishedItems', JSON.stringify(publishedItems || []));
+            }
+        } catch (e) {
+            // ignore storage errors
+        }
+    }, [publishedItems]);
+    const seriesLimit = 5;
+    const catalogueLimit = 5;
+    const [lastPublished, setLastPublished] = useState(null);
+    // Two-step publish flow state: 'form' or 'preview'
+    const [publishStep, setPublishStep] = useState('form');
+    const [previewData, setPreviewData] = useState(null);
+    const [creatorName, setCreatorName] = useState('CreatorName');
+    const [creatorHandle, setCreatorHandle] = useState(null);
+    // If the parent requests a reupload, we'll open preview with this item
+    // Parent (App) passes `pendingReuploadItem` and `clearPendingReupload` props.
+    useEffect(() => {
+        // handled below via props — placeholder so linter doesn't warn
+    }, []);
+
+    useEffect(() => {
+        try {
+            // Try common global names first (some pages expose profile on window)
+            const g = (typeof window !== 'undefined') && (window.__PROFILE__ || window.__CREATOR__ || window.creatorProfile || window.profile || window.currentUser);
+            if (g && typeof g === 'object') {
+                setCreatorName(g.name || g.username || g.handle || 'CreatorName');
+                setCreatorHandle(g.handle || g.username || null);
+                return;
+            }
+
+            // Try common localStorage keys used to persist profile info
+            const keys = ['creatorProfile', 'profile', 'user', 'currentUser'];
+            for (const k of keys) {
+                const raw = (typeof localStorage !== 'undefined') && localStorage.getItem(k);
+                if (raw) {
+                    try {
+                        const obj = JSON.parse(raw);
+                        if (obj && typeof obj === 'object') {
+                            setCreatorName(obj.name || obj.username || obj.handle || 'CreatorName');
+                            setCreatorHandle(obj.handle || obj.username || null);
+                            return;
+                        }
+                    } catch (e) {
+                        // not JSON — skip
+                    }
+                }
+            }
+        } catch (e) {
+            // ignore errors — keep fallback
+        }
+    }, []);
+
+    // Mouse/touch handler wrappers
+    const handleAdjustMouseDown = (e) => { e.preventDefault(); startAdjustDrag(e.clientX, e.clientY); };
+    const handleAdjustMouseMove = (e) => { if (draggingRef.current) onAdjustPointerMove(e.clientX, e.clientY); };
+    const handleAdjustMouseUp = () => { endAdjustDrag(); };
+
+    const handleAdjustTouchStart = (e) => {
+        if (!e.touches) return;
+        if (e.touches.length === 1) {
+            const t = e.touches[0];
+            startAdjustDrag(t.clientX, t.clientY);
+        } else if (e.touches.length === 2) {
+            const t0 = e.touches[0];
+            const t1 = e.touches[1];
+            const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+            pinchRef.current.initialDist = dist;
+            pinchRef.current.initialScale = adjustScale;
+            // midpoint for potential panning during pinch
+            dragStartRef.current = { x: (t0.clientX + t1.clientX) / 2, y: (t0.clientY + t1.clientY) / 2 };
+        }
+    };
+
+    const handleAdjustTouchMove = (e) => {
+        if (!e.touches) return;
+        if (e.touches.length === 1) {
+            const t = e.touches[0];
+            if (draggingRef.current) onAdjustPointerMove(t.clientX, t.clientY);
+        } else if (e.touches.length === 2) {
+            const t0 = e.touches[0];
+            const t1 = e.touches[1];
+            const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+            const initial = pinchRef.current.initialDist || dist;
+            const ratio = dist / initial;
+            const newScale = Math.max(0.2, Math.min(3, pinchRef.current.initialScale * ratio));
+            // update pos so midpoint remains stable
+            const midX = (t0.clientX + t1.clientX) / 2;
+            const midY = (t0.clientY + t1.clientY) / 2;
+            const dx = midX - dragStartRef.current.x;
+            const dy = midY - dragStartRef.current.y;
+            setAdjustPos((p) => ({ x: p.x + dx, y: p.y + dy }));
+            dragStartRef.current = { x: midX, y: midY };
+            setAdjustScale(newScale);
+            e.preventDefault();
+        }
+    };
+
+    const handleAdjustTouchEnd = (e) => {
+        if (!e.touches || e.touches.length === 0) {
+            endAdjustDrag();
+            pinchRef.current.initialDist = null;
+        }
+    };
+
+    const handleResetAdjust = () => {
+        // Compute a fit-to-crop scale so the full image is visible inside the 16:9 crop
+        const img = adjustImageRef.current;
+        const container = adjustContainerRef.current;
+        if (img && container) {
+            const imgRect = img.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            // Compute centered 16:9 crop (same logic as save)
+            let cropW = containerRect.width;
+            let cropH = (cropW * 9) / 16;
+            if (cropH > containerRect.height) {
+                cropH = containerRect.height;
+                cropW = (cropH * 16) / 9;
+            }
+            // Fit image inside crop area
+            const fitScale = Math.min(cropW / img.naturalWidth, cropH / img.naturalHeight);
+            // Prevent extremely small values
+            const clamped = Math.max(0.1, Math.min(3, fitScale));
+            setAdjustScale(clamped);
+        } else {
+            setAdjustScale(1);
+        }
+        setAdjustPos({ x: 0, y: 0 });
+        pinchRef.current = { initialDist: null, initialScale: 1 };
+    };
+
+    const stopZoomRepeat = () => {
+        if (zoomIntervalRef.current) {
+            clearInterval(zoomIntervalRef.current);
+            zoomIntervalRef.current = null;
+        }
+    };
+
+    const startZoomRepeat = (delta) => {
+        // delta is +/-0.1 per step
+        stopZoomRepeat();
+        // apply immediate change
+        setAdjustScale((s) => Math.max(0.2, Math.min(3, +(s + delta).toFixed(3))));
+        // then start repeating every 120ms for faster change
+        zoomIntervalRef.current = setInterval(() => {
+            setAdjustScale((s) => Math.max(0.2, Math.min(3, +(s + delta).toFixed(3))));
+        }, 120);
+    };
+
+    // Cleanup object URLs when component unmounts
+    useEffect(() => {
+        return () => {
+            if (videoPreview) URL.revokeObjectURL(videoPreview);
+            if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
+        };
+    }, [videoPreview, thumbnailPreview]);
+
+    // Close format dropdown when clicking outside
+    useEffect(() => {
+        const handler = (e) => {
+            if (formatRef.current && !formatRef.current.contains(e.target)) {
+                setFormatOpen(false);
+            }
+        };
+        if (formatOpen) {
+            document.addEventListener('mousedown', handler);
+            document.addEventListener('touchstart', handler);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handler);
+            document.removeEventListener('touchstart', handler);
+        };
+    }, [formatOpen]);
+
+    // Close category dropdown when clicking outside
+    useEffect(() => {
+        const handler = (e) => {
+            if (categoryRef.current && !categoryRef.current.contains(e.target)) {
+                setCategoryOpen(false);
+            }
+        };
+        if (categoryOpen) {
+            document.addEventListener('mousedown', handler);
+            document.addEventListener('touchstart', handler);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handler);
+            document.removeEventListener('touchstart', handler);
+        };
+    }, [categoryOpen]);
+
+    // Close script dropdown when clicking outside
+    useEffect(() => {
+        const handler = (e) => {
+            if (scriptRef.current && !scriptRef.current.contains(e.target)) {
+                setScriptOpen(false);
+            }
+        };
+        if (scriptOpen) {
+            document.addEventListener('mousedown', handler);
+            document.addEventListener('touchstart', handler);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handler);
+            document.removeEventListener('touchstart', handler);
+        };
+    }, [scriptOpen]);
+
+    // Clear toast after a short time
+    useEffect(() => {
+        if (!toastMessage) return undefined;
+        const t = setTimeout(() => setToastMessage(''), 2000);
+        return () => clearTimeout(t);
+    }, [toastMessage]);
+
+    const computeShareLink = () => {
+        try {
+            const base = window && window.location ? window.location.origin : 'https://app.example.com';
+            const slug = (videoTitle || title || 'your-video').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'your-video';
+            return `${base}/videos/${slug}`;
+        } catch (e) {
+            return 'https://app.example.com/videos/your-video';
+        }
+    };
+
+    const handleCopyLink = async () => {
+        const link = computeShareLink();
+        try {
+            if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(link);
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = link;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                ta.setSelectionRange(0, ta.value.length);
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                if (!ok) throw new Error('execCommand returned false');
+            }
+            setLinkCopied(true);
+            setToastMessage('Copied');
+            setTimeout(() => setLinkCopied(false), 1200);
+        } catch (err) {
+            // Last-resort fallback: show a prompt so users can copy manually (works on many mobile browsers)
+            try {
+                // window.prompt may be blocked in some embedded contexts; wrap in try/catch
+                // eslint-disable-next-line no-alert
+                window.prompt && window.prompt('Copy this link', link);
+                setToastMessage('Copy ready — paste manually');
+                setTimeout(() => setToastMessage(''), 2000);
+            } catch (e) {
+                setToastMessage('Copy failed');
+                setTimeout(() => setToastMessage(''), 1500);
+            }
+        }
+    };
+
+    // Thumbnail adjust handlers: pan (drag) and zoom (scale)
+    const startAdjustDrag = (clientX, clientY) => {
+        draggingRef.current = true;
+        dragStartRef.current = { x: clientX, y: clientY };
+    };
+
+    // If parent set a pending reupload item, open the publish modal prefilled
+    // The parent can provide `openInForm: true` to open the modal in the
+    // 'form' step (allowing the creator to upload a video), otherwise the
+    // modal opens in the 'preview' step for re-uploads / quick previews.
+    useEffect(() => {
+        if (!pendingReuploadItem) return;
+        try {
+            const item = pendingReuploadItem;
+            setVideoTitle(item.title || '');
+            setThumbnailPreview(item.thumbnail || null);
+            setCategory(item.category || category || '');
+            setScriptType(item.scriptType || scriptType || '');
+
+            if (item.openInForm) {
+                // Open the publish modal on the form step so the user can upload
+                // a video from the Claims modal (used when coming from Upload tab).
+                setPreviewData(null);
+                setPublishStep('form');
+                setIsReuploading(Boolean(item.isReupload));
+                setShowModal(true);
+            } else {
+                // Default behaviour: open preview mode for re-uploads
+                setPreviewData({
+                    title: item.title || '',
+                    thumbnail: item.thumbnail || null,
+                    time: 'Just now',
+                    format: item.format || videoFormat,
+                    category: item.category || category,
+                    scriptType: item.scriptType || scriptType,
+                });
+                setPublishStep('preview');
+                setIsReuploading(true);
+                setShowModal(true);
+            }
+        } catch (e) {
+            console.warn('Failed to open reupload preview', e);
+        } finally {
+            try { clearPendingReupload(); } catch (e) {}
+        }
+    }, [pendingReuploadItem]);
+
+    // Open publish modal prefilled when parent requests a re-upload
+    useEffect(() => {
+        try {
+            if (typeof arguments !== 'undefined') {
+                // arguments is available; actual pendingReuploadItem comes from props
+            }
+        } catch (e) {}
+    }, []);
+
+    const onAdjustPointerMove = (clientX, clientY) => {
+        if (!draggingRef.current) return;
+        const dx = clientX - dragStartRef.current.x;
+        const dy = clientY - dragStartRef.current.y;
+        dragStartRef.current = { x: clientX, y: clientY };
+        setAdjustPos((p) => ({ x: p.x + dx, y: p.y + dy }));
+    };
+
+    const endAdjustDrag = () => {
+        draggingRef.current = false;
+    };
+
+    const handleSaveAdjustedThumbnail = async () => {
+        try {
+            const img = adjustImageRef.current;
+            const container = adjustContainerRef.current;
+            if (!img || !container) return;
+
+            const imgRect = img.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            // Enforce a centered 16:9 crop that fits within the visible container
+            let cropW = containerRect.width;
+            let cropH = (cropW * 9) / 16;
+            if (cropH > containerRect.height) {
+                cropH = containerRect.height;
+                cropW = (cropH * 16) / 9;
+            }
+            const cropLeft = containerRect.left + (containerRect.width - cropW) / 2;
+            const cropTop = containerRect.top + (containerRect.height - cropH) / 2;
+
+            // portion of the image visible within the crop (CSS pixels)
+            const sxCss = cropLeft - imgRect.left;
+            const syCss = cropTop - imgRect.top;
+            const swCss = cropW;
+            const shCss = cropH;
+
+            // Map CSS pixel coordinates to image natural pixels
+            const sx = (sxCss / imgRect.width) * img.naturalWidth;
+            const sy = (syCss / imgRect.height) * img.naturalHeight;
+            const sw = (swCss / imgRect.width) * img.naturalWidth;
+            const sh = (shCss / imgRect.height) * img.naturalHeight;
+
+            const canvasW = 1280;
+            const canvasH = Math.round((canvasW * 9) / 16);
+            const canvas = document.createElement('canvas');
+            canvas.width = canvasW;
+            canvas.height = canvasH;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvasW, canvasH);
+
+            if (sw > 0 && sh > 0) {
+                ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvasW, canvasH);
+            } else {
+                // fallback: draw full image scaled to canvas
+                ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, canvasW, canvasH);
+            }
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            setThumbnailPreview(dataUrl);
+
+            try {
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                const file = new File([blob], 'thumbnail.jpg', { type: blob.type });
+                setThumbnailFile(file);
+            } catch (e) {
+                // ignore file creation errors; preview is set
+            }
+
+            setShowAdjustModal(false);
+            setAdjustScale(1);
+            setAdjustPos({ x: 0, y: 0 });
+        } catch (e) {
+            // If anything fails, close modal and keep current thumbnail
+            console.warn('Thumbnail adjust failed', e);
+            setShowAdjustModal(false);
+        }
+    };
+
+    return (
+        <div className="rounded-2xl border border-[#F3E8D0] bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between">
+                <h3 className="text-[18px] font-semibold text-gray-900">{title}</h3>
+                <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+
+            <div className="mt-4 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+                    {requesterAvatar ? (
+                        <img src={requesterAvatar} alt={requesterName} className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="text-sm text-gray-500">{requesterName.charAt(0)}</div>
+                    )}
+                </div>
+                <div>
+                    <div className="text-sm font-semibold text-gray-900">{requesterName}</div>
+                    <div className="text-xs text-gray-400">{requesterRole}</div>
+                </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-between">
+                <div className="text-sm font-semibold text-gray-900">Status Tracker</div>
+                {(() => {
+                    const publishStage = steps.findIndex((s) => s === 'Preview Ready') + 1; // step number for 'Preview Ready' -> show 'Publish Video'
+                    const isPublishStage = currentStep === publishStage;
+                    return (
+                        <button onClick={() => setShowModal(true)} className="bg-[var(--color-gold)] text-white px-4 py-2 rounded-lg shadow-sm flex items-center gap-2">
+                            {isPublishStage ? (
+                                        <React.Fragment>
+                                            <Star size={14} className="mr-1" />
+                                            <span className="font-semibold text-[13px]">Publish Video</span>
+                                        </React.Fragment>
+                            ) : (
+                                <React.Fragment>
+                                    <span className="text-[14px]">→</span>
+                                    <span className="font-semibold text-[13px]">Update Progress</span>
+                                </React.Fragment>
+                            )}
+                        </button>
+                    );
+                })()}
+            </div>
+
+            <div className="mt-5 border-l-2 border-gray-100 pl-6">
+                {/* Embedded styles for the pulsing ring used on the active step */}
+                <style>{`
+                    @keyframes pulseRing {
+                        0% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 0 0 rgba(0,0,0,0.06); }
+                        50% { transform: scale(1.45); opacity: 0.55; box-shadow: 0 12px 28px 0 rgba(0,0,0,0.08); }
+                        100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 0 0 rgba(0,0,0,0.06); }
+                    }
+                    .pulse-ring { animation: pulseRing 1.4s ease-out infinite; border-radius: 9999px; }
+                `}</style>
+
+                {steps.map((label, idx) => {
+                    const step = idx + 1;
+                    const isActive = step === currentStep;
+                    const isCompleted = step < currentStep || (finished && step === steps.length);
+
+                    return (
+                        <div key={label} className="mb-6 relative">
+                            <div className="absolute -left-10 top-0">
+                                {isCompleted ? (
+                                    <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-md">
+                                        <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                            <path d="M1 5L5 8L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    </div>
+                                ) : isActive ? (
+                                    <div className="relative w-8 h-8 flex items-center justify-center">
+                                        <span className="absolute inset-0 rounded-full" style={{ background: 'rgba(203,138,0,0.08)' }} />
+                                        <span className="absolute inset-0 rounded-full pulse-ring" style={{ background: 'rgba(107,114,128,0.08)' }} />
+                                        <div className="relative w-8 h-8 rounded-full bg-[var(--color-gold)] flex items-center justify-center shadow-md">
+                                            <span className="text-[13px] font-semibold text-white">{step}</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ border: '2px solid #E5E7EB', background: '#fff' }}>
+                                        <span className="text-[13px] text-gray-500 font-semibold">{step}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div>
+                                            <div className={`text-sm font-semibold ${isActive ? 'text-[var(--color-gold-darker)]' : isCompleted ? 'text-gray-500' : 'text-gray-900'}`}>{label}</div>
+                                            <div className="text-xs text-gray-400 mt-1">—</div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+            {/* Modal: Advance Request Status */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black opacity-60" onClick={() => setShowModal(false)} />
+
+                    {/* Modal container */}
+                    <div className="relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 z-10 max-h-[80vh] flex flex-col overflow-hidden">
+                        {/* Scrollable content area - user asked this modal be scrollable */}
+                        <div className="p-6 overflow-y-auto flex-1">
+                            {(currentStep === 5 || isReuploading) ? (
+                                <React.Fragment>
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="text-[22px] text-[var(--color-gold)]">✨</div>
+                                                <h3 className="text-[20px] font-semibold text-gray-900">Publish Your Video</h3>
+                                            </div>
+                                            <div className="text-sm text-gray-400 mt-2">Upload your video, add interactive elements, and publish to the community</div>
+                                        </div>
+                                        <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+                                    </div>
+
+                                    {publishStep !== 'preview' && (
+                                    <div className="mt-4 rounded-lg border border-[var(--color-gold-light)] bg-[var(--color-gold-light-bg)] p-4 mb-6">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-8 h-8 rounded-md bg-[var(--color-gold-cream)] flex items-center justify-center text-[var(--color-gold)]">🎬</div>
+                                            <div>
+                                                <div className="text-sm font-semibold text-[var(--color-gold-darker)]">Publishing Request</div>
+                                                <div className="text-xs text-gray-600 mt-1">Requester: {requesterName} · Creator: You</div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3">
+                                                <div className="relative" ref={formatRef}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormatOpen((s) => !s)}
+                                                        aria-haspopup="listbox"
+                                                        aria-expanded={formatOpen}
+                                                        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-white flex items-center justify-between"
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="text-lg">{selectedFormat?.icon}</div>
+                                                            <div className={videoFormat ? 'text-gray-900' : 'text-gray-400'}>{selectedFormat?.fullLabel || selectedFormat?.label}</div>
+                                                        </div>
+                                                        <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                                    </button>
+
+                                                    {formatOpen && (
+                                                        <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
+                                                            <div className="p-2">
+                                                                <div className="text-lg font-semibold text-gray-900 mb-2 px-3">Select Video Format</div>
+                                                                <div className="flex flex-col">
+                                                                    {formats.map((f) => {
+                                                                        const selected = f.key === videoFormat;
+                                                                        return (
+                                                                            <button
+                                                                                key={f.key}
+                                                                                onClick={() => { setVideoFormat(f.key); setFormatOpen(false); }}
+                                                                                className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
+                                                                            >
+                                                                                <div className="flex items-center gap-3">
+                                                                                    <div className="w-10 h-10 rounded-md bg-white flex items-center justify-center text-[20px]">{f.icon}</div>
+                                                                                    <div>
+                                                                                        <div className="font-semibold text-gray-900">{f.label}</div>
+                                                                                        <div className="text-xs text-gray-500">{f.desc}</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                {selected && <div className="text-[var(--color-gold-darker)]">✓</div>}
+                                                                            </button>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                        </div>
+                                    </div>
+                                    )}
+
+                                    {/* Preview of the most recently published item (card-style preview copied from home.jsx) */}
+                                    {(publishStep === 'preview' && previewData) && (
+                                        <div className="mb-6">
+                                            <div className="mx-5 mb-5 bg-white rounded-xl shadow-lg transition-shadow duration-300 overflow-visible">
+                                                <div className="relative w-full pb-[75%]">
+                                                    <img
+                                                        src={(publishStep === 'preview' ? previewData : lastPublished)?.thumbnail || thumbnailPreview || 'https://placehold.co/600x400/333333/ffffff?text=Video+Image+Unavailable'}
+                                                        alt={(publishStep === 'preview' ? previewData : lastPublished)?.title || videoTitle || 'Published thumbnail'}
+                                                        className="absolute top-0 left-0 w-full h-full object-cover rounded-t-xl"
+                                                    />
+
+                                                    {/* Pin badge (top-left) */}
+                                                    {((publishStep === 'preview' ? previewData : lastPublished)?.pinned && (publishStep === 'preview' ? previewData : lastPublished)?.pinnedDays) && (
+                                                        <div className="absolute top-3 left-3 flex items-center rounded-lg px-2 py-1 shadow-md" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
+                                                            <Pin size={14} className="text-red-500 mr-1" />
+                                                            <span className="text-sm font-bold text-white">{(publishStep === 'preview' ? previewData : lastPublished)?.pinnedDays}d</span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="relative">
+                                                        <div className="absolute top-3 right-3">
+                                                            <div className="relative flex items-center rounded-lg px-2 py-1 shadow-md text-sm font-semibold text-black" style={{ backgroundColor: 'var(--color-gold)' }}>
+                                                                <Pencil size={14} className="text-black mr-1" />
+                                                                Requested
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Optional small tooltip removed for preview copy */}
+                                                    </div>
+
+                                                    <div className="absolute bottom-3 right-3 bg-black bg-opacity-70 rounded-lg px-2 py-1">
+                                                        <span className="text-sm font-bold text-white">{(publishStep === 'preview' ? previewData : lastPublished)?.time || 'Just now'}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-4 relative">
+                                                    <h3 className="text-lg font-semibold text-gray-900 mb-2" style={clamp2}>{(publishStep === 'preview' ? previewData : lastPublished)?.title || videoTitle || 'Untitled'}</h3>
+
+                                                    {/* Creator placeholder (matches home.jsx 'by' line) */}
+                                                    <p className="text-sm text-gray-600 mb-1 leading-5">
+                                                        {getTranslation('by', selectedLanguage)}{' '}
+                                                        <button
+                                                            className="font-medium underline hover:text-gray-800"
+                                                            style={{ color: 'var(--color-gold)', background: 'transparent', padding: 0 }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                try {
+                                                                    if (creatorHandle) {
+                                                                        // navigate to profile with handle if available
+                                                                        window.location.href = `/creatorprofile.jsx?handle=${encodeURIComponent(creatorHandle)}`;
+                                                                    } else {
+                                                                        // fallback to the profile page
+                                                                        window.location.href = '/creatorprofile.jsx';
+                                                                    }
+                                                                } catch (err) {
+                                                                    console.warn('Navigation failed', err);
+                                                                }
+                                                            }}
+                                                        >
+                                                            {creatorName}
+                                                        </button>
+                                                    </p>
+
+                                                    <div className="flex justify-between items-center mt-2">
+                                                        <div className="text-xs text-gray-500">
+                                                            {(publishStep === 'preview' ? previewData : lastPublished)?.date || 'Just now'} &middot; {getTranslation('Requested by', selectedLanguage)}
+                                                            <button className="text-gray-600 font-medium underline hover:text-gray-800 ml-1 bg-transparent p-0">{requesterName}</button>
+                                                        </div>
+
+                                                        {/* Three-dot button placed on the card (no outside share button) */}
+                                                        <div className="flex items-center space-x-2">
+                                                            <button className="p-1 text-gray-400 hover:text-gray-600">
+                                                                <MoreVertical size={20} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-center p-2 pt-0">
+                                                    <span className="block w-2 h-2 mx-1 rounded-full bg-gray-300"></span>
+                                                    <span className="block w-2 h-2 mx-1 rounded-full bg-gray-300"></span>
+                                                    <span className="block w-2 h-2 mx-1 rounded-full bg-gray-300"></span>
+                                                    <span className="block w-2 h-2 mx-1 rounded-full bg-gray-300"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Toast message (simple) inside modal container */}
+                                    {toastMessage && (
+                                        <Toast message={toastMessage} bottom={false} />
+                                    )}
+
+                                    {publishStep !== 'preview' && (
+                                    <>
+                                    <div className="mb-6">
+                                        <div className="text-sm font-medium text-gray-700 mb-2">Upload Video <span className="text-red-500">*</span></div>
+                                        <input ref={videoInputRef} type="file" accept="video/mp4,video/quicktime,video/webm" className="hidden" onChange={(e) => {
+                                            const file = e.target.files && e.target.files[0];
+                                            if (file) {
+                                                setVideoFile(file);
+                                                const url = URL.createObjectURL(file);
+                                                setVideoPreview(url);
+                                            }
+                                        }} />
+
+                                        <div onClick={() => videoInputRef.current && videoInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-44 flex items-center justify-center cursor-pointer">
+                                            {videoPreview ? (
+                                                <video src={videoPreview} className="max-h-[160px] max-w-full" controls />
+                                            ) : (
+                                                <div className="text-center text-gray-500">
+                                                    <div className="w-12 h-12 rounded-md bg-[var(--color-gold-light-bg)] mx-auto mb-3 flex items-center justify-center text-[var(--color-gold)]">
+                                                        <Video size={20} className="text-[var(--color-gold)]" />
+                                                    </div>
+                                                    <div>Click to upload video</div>
+                                                    <div className="text-xs text-gray-400 mt-1">MP4, MOV or WebM · Max 500MB</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {videoFile && <div className="text-xs text-gray-500 mt-2">Selected: {videoFile.name} ({Math.round(videoFile.size/1024/1024)} MB)</div>}
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <div className="text-sm font-medium text-gray-700 mb-2">Video Thumbnail <span className="text-red-500">*</span></div>
+                                        <input ref={thumbInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                            const file = e.target.files && e.target.files[0];
+                                            if (file) {
+                                                setThumbnailFile(file);
+                                                const url = URL.createObjectURL(file);
+                                                setThumbnailPreview(url);
+                                            }
+                                        }} />
+
+                                        <div onClick={() => thumbInputRef.current && thumbInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-32 flex items-center justify-center cursor-pointer overflow-hidden bg-white">
+                                            {thumbnailPreview ? (
+                                                <img src={thumbnailPreview} alt="Video thumbnail preview" className="object-cover w-full h-full" loading="lazy" />
+                                            ) : (
+                                                <div className="text-gray-400 flex flex-col items-center justify-center">
+                                                    <Image size={36} className="text-gray-300 mb-2" />
+                                                    <div>Click to upload thumbnail</div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {thumbnailFile && <div className="text-xs text-gray-500 mt-2">Selected: {thumbnailFile.name} ({Math.round(thumbnailFile.size/1024)} KB)</div>}
+
+                                        {/* Adjust thumbnail control */}
+                                        {thumbnailPreview && (
+                                            <div className="mt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowAdjustModal(true)}
+                                                    className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-gray-200 bg-white text-sm"
+                                                >
+                                                    Adjust thumbnail
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {/* Thumbnail adjust modal */}
+                                        {showAdjustModal && thumbnailPreview && (
+                                            <div className="fixed inset-0 z-50 flex items-center justify-center">
+                                                <div className="absolute inset-0 bg-black opacity-60" onClick={() => setShowAdjustModal(false)} />
+                                                <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 z-10 p-4">
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <div className="font-semibold">Adjust Thumbnail</div>
+                                                        <button onClick={() => setShowAdjustModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+                                                    </div>
+
+                                                    <div className="flex flex-col md:flex-row gap-4">
+                                                        <div className="flex-1">
+                                                            <div ref={adjustContainerRef} className="w-full h-64 bg-gray-100 overflow-hidden relative touch-action-none" style={{ borderRadius: 8 }}
+                                                                 onMouseDown={handleAdjustMouseDown}
+                                                                 onMouseUp={handleAdjustMouseUp}
+                                                                 onMouseMove={handleAdjustMouseMove}
+                                                                 onMouseLeave={handleAdjustMouseUp}
+                                                                 onTouchStart={handleAdjustTouchStart}
+                                                                 onTouchMove={handleAdjustTouchMove}
+                                                                 onTouchEnd={handleAdjustTouchEnd}
+                                                            >
+                                                                <img
+                                                                    ref={adjustImageRef}
+                                                                    src={thumbnailPreview}
+                                                                    alt="Adjustable thumbnail"
+                                                                    loading="lazy"
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        left: '50%',
+                                                                        top: '50%',
+                                                                        transform: `translate(-50%, -50%) translate(${adjustPos.x}px, ${adjustPos.y}px) scale(${adjustScale})`,
+                                                                        transformOrigin: 'center center',
+                                                                        userSelect: 'none',
+                                                                        touchAction: 'none',
+                                                                        maxWidth: 'none',
+                                                                    }}
+                                                                />
+
+                                                                {/* 16:9 crop overlay (centered) - uses large inset shadow to dim outside */}
+                                                                <div style={{
+                                                                    position: 'absolute',
+                                                                    left: '50%',
+                                                                    top: '50%',
+                                                                    transform: 'translate(-50%, -50%)',
+                                                                    width: '90%',
+                                                                    aspectRatio: '16/9',
+                                                                    border: '2px dashed rgba(255,255,255,0.9)',
+                                                                    boxShadow: '0 0 0 100vmax rgba(0,0,0,0.45)',
+                                                                    borderRadius: 8,
+                                                                    pointerEvents: 'none'
+                                                                }} />
+                                                            </div>
+                                                        </div>
+
+                                                            <div className="w-40 flex-shrink-0 flex flex-col gap-3">
+                                                                <div>
+                                                                    <label className="text-xs text-gray-600">Zoom</label>
+                                                                    <input type="range" min="0.2" max="3" step="0.05" value={adjustScale} onChange={(e) => setAdjustScale(Number(e.target.value))} className="w-full mt-1" />
+                                                                    <div className="text-xs text-gray-500 mt-1">{Math.round(adjustScale * 100)}%</div>
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        onMouseDown={() => startZoomRepeat(-0.1)}
+                                                                        onMouseUp={() => stopZoomRepeat()}
+                                                                        onMouseLeave={() => stopZoomRepeat()}
+                                                                        onTouchStart={() => startZoomRepeat(-0.1)}
+                                                                        onTouchEnd={() => stopZoomRepeat()}
+                                                                        className="px-3 py-2 bg-gray-100 rounded-md"
+                                                                    >-</button>
+                                                                    <button
+                                                                        onMouseDown={() => startZoomRepeat(0.1)}
+                                                                        onMouseUp={() => stopZoomRepeat()}
+                                                                        onMouseLeave={() => stopZoomRepeat()}
+                                                                        onTouchStart={() => startZoomRepeat(0.1)}
+                                                                        onTouchEnd={() => stopZoomRepeat()}
+                                                                        className="px-3 py-2 bg-gray-100 rounded-md"
+                                                                    >+</button>
+                                                                </div>
+                                                            <div className="mt-2">
+                                                                <button onClick={handleResetAdjust} className="w-full px-3 py-2 rounded-md border border-gray-200 bg-white mb-2">Reset</button>
+                                                                <div className="mt-auto">
+                                                                    <button onClick={handleSaveAdjustedThumbnail} className="w-full bg-[var(--color-gold)] text-white px-3 py-2 rounded-md">Save</button>
+                                                                    <button onClick={() => setShowAdjustModal(false)} className="w-full mt-2 px-3 py-2 rounded-md border border-gray-200 bg-white">Cancel</button>
+                                                                </div>
+                                                            </div>
+                                                            </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Video metadata fields (title, category, appearance) shown after thumbnail */}
+                                    <div className="mb-6">
+                                        <div className="text-sm font-medium text-gray-700 mb-2">Video Title <span className="text-red-500">*</span></div>
+                                        <input
+                                            value={videoTitle}
+                                            onChange={(e) => {
+                                                const v = e.target.value.slice(0, 100);
+                                                setVideoTitle(v);
+                                            }}
+                                            placeholder="Add a title for your video"
+                                            className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm"
+                                        />
+                                        <div className="text-xs text-gray-400 mt-1">{videoTitle.length}/100 characters</div>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <div className="text-sm font-medium text-gray-700 mb-2">Category <span className="text-red-500">*</span></div>
+                                        <div className="relative" ref={categoryRef}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setCategoryOpen((s) => !s)}
+                                                aria-haspopup="listbox"
+                                                aria-expanded={categoryOpen}
+                                                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-white flex items-center justify-between"
+                                            >
+                                                <span className={category ? 'text-gray-900' : 'text-gray-400'}>{category || 'Select a category for your video'}</span>
+                                                <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                            </button>
+
+                                            {categoryOpen && (
+                                                <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
+                                                    {categories.map((c) => {
+                                                        const selected = c === category;
+                                                        return (
+                                                            <button
+                                                                key={c}
+                                                                type="button"
+                                                                onClick={() => { setCategory(c); setCategoryOpen(false); }}
+                                                                className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
+                                                            >
+                                                                <span className="text-sm text-gray-900">{c}</span>
+                                                                {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <div className="text-sm font-medium text-gray-700 mb-3">How it appears</div>
+                                        <div className="flex flex-col gap-3">
+                                            <button type="button" onClick={() => setAppearance('public')} className={`text-left p-4 rounded-lg border ${appearance === 'public' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-start gap-3">
+                                                        <Globe size={20} className="text-[var(--color-gold-darker)] mt-1" />
+                                                        <div>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="font-semibold">Public</div>
+                                                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">Recommended</span>
+                                                            </div>
+                                                            <div className="text-xs text-gray-500">Video appears on home page after completion. Best for maximum reach.</div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        {appearance === 'public' && <div className="text-[var(--color-gold-darker)]">✓</div>}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                            <button type="button" onClick={() => setAppearance('unlisted')} className={`text-left p-4 rounded-lg border ${appearance === 'unlisted' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-start gap-3">
+                                                        <Link2 size={20} className="text-gray-700 mt-1" />
+                                                        <div>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="font-semibold">Unlisted</div>
+                                                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">For Review</span>
+                                                            </div>
+                                                            <div className="text-xs text-gray-500">Shareable via link only. Not visible on home page.</div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        {appearance === 'unlisted' && <div className="text-[var(--color-gold-darker)]">✓</div>}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                            <button type="button" onClick={() => setAppearance('private')} className={`text-left p-4 rounded-lg border ${appearance === 'private' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-start gap-3">
+                                                        <Lock size={20} className="text-gray-700 mt-1" />
+                                                        <div>
+                                                            <div className="font-semibold">Private</div>
+                                                            <div className="text-xs text-gray-500">Only visible to you and the requester.</div>
+                                                        </div>
+                                                    </div>
+                                                    {appearance === 'private' && <div className="text-[var(--color-gold-darker)]">✓</div>}
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Your Video Link + Script fields (appear after 'How it appears') */}
+                                    <div className="mb-6">
+                                        <div className="rounded-lg border border-[var(--color-gold-light)] bg-[var(--color-gold-light-bg)] p-4 mb-4 flex items-center justify-between">
+                                            <div className="flex items-start gap-3">
+                                                <Link size={20} className="text-[var(--color-gold-darker)] mt-1" />
+                                                <div>
+                                                    <div className="font-semibold text-[var(--color-gold-darker)]">Your Video Link</div>
+                                                    <div className="text-sm text-gray-600 mt-1">✨ A permanent link will be generated when you publish</div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button type="button" onClick={handleCopyLink} className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md">
+                                                    {linkCopied ? <Copy size={16} className="text-[var(--color-gold-darker)]" /> : <Link size={16} className="text-[var(--color-gold-darker)]" />}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="text-sm font-medium text-gray-700 mb-2">Script Type <span className="text-red-500">*</span></div>
+                                        <div className="relative mb-4" ref={scriptRef}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setScriptOpen((s) => !s)}
+                                                aria-haspopup="listbox"
+                                                aria-expanded={scriptOpen}
+                                                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-white flex items-center justify-between"
+                                            >
+                                                <span className={scriptType ? 'text-gray-900' : 'text-gray-400'}>{scriptType || 'Select the script style used'}</span>
+                                                <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                            </button>
+
+                                            {scriptOpen && (
+                                                <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
+                                                    {scriptTypes.map((s) => {
+                                                        const selected = s === scriptType;
+                                                        return (
+                                                            <button
+                                                                key={s}
+                                                                type="button"
+                                                                onClick={() => { setScriptType(s); setScriptOpen(false); }}
+                                                                className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
+                                                            >
+                                                                <span className="text-sm text-gray-900">{s}</span>
+                                                                {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="text-sm font-medium text-gray-700">Upload Script File <span className="text-xs text-gray-400">Optional</span></div>
+                                        </div>
+
+                                        <input ref={scriptInputRef} type="file" accept=".txt,.doc,.docx,.pdf" className="hidden" onChange={(e) => {
+                                            const file = e.target.files && e.target.files[0];
+                                            if (file) {
+                                                setScriptFile(file);
+                                            }
+                                        }} />
+
+                                        <div onClick={() => scriptInputRef.current && scriptInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-36 flex items-center justify-center cursor-pointer overflow-hidden bg-white">
+                                            {scriptFile ? (
+                                                <div className="text-sm text-gray-700">Selected: {scriptFile.name} ({Math.round(scriptFile.size/1024)} KB)</div>
+                                            ) : (
+                                                <div className="text-center text-gray-500">
+                                                    <div className="w-12 h-12 rounded-md bg-[var(--color-gold-light-bg)] mx-auto mb-3 flex items-center justify-center text-[var(--color-gold)]">
+                                                        <FileIcon size={20} className="text-[var(--color-gold)]" />
+                                                    </div>
+                                                    <div className="font-medium">Upload Script File</div>
+                                                    <div className="text-xs text-gray-400 mt-1">TXT, DOC, DOCX, or PDF · Max 10MB</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                        {/* If user selected "Other" allow them to describe it */}
+                                        {scriptType === 'Other' && (
+                                            <div className="mb-4">
+                                                <div className="text-sm font-medium text-gray-700 mb-2">Please describe the script type</div>
+                                                <input
+                                                    value={scriptOther}
+                                                    onChange={(e) => setScriptOther(e.target.value)}
+                                                    placeholder="Describe the script type"
+                                                    className="w-full p-3 border border-gray-200 rounded-lg text-sm"
+                                                />
+                                            </div>
+                                        )}
+
+                                    {/* Duplicate CTA removed — fixed action area below handles Next/Cancel */}
+                                    </>
+                                    )}
+                                </React.Fragment>
+                            ) : (
+                                <React.Fragment>
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div>
+                                            <h3 className="text-[20px] font-semibold text-gray-900">Advance Request Status</h3>
+                                            <div className="text-sm text-gray-400">Update the status and notify the requester</div>
+                                        </div>
+                                        <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+                                    </div>
+
+                                    <div className="flex items-center justify-center gap-6 my-4">
+                                        <div className="text-center">
+                                            <div className="text-xs text-gray-400">Current Status</div>
+                                            <div className="text-lg font-semibold mt-2">{steps[Math.max(0, currentStep - 1)]}</div>
+                                        </div>
+                                        <div className="text-2xl text-gray-400">→</div>
+                                        <div className="text-center">
+                                            <div className="text-xs text-gray-400">Next Status</div>
+                                            <div className="text-lg font-semibold mt-2">{currentStep < steps.length ? steps[currentStep] : steps[steps.length - 1]}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <label className="text-sm font-medium text-gray-700">Progress Update Message (Optional)</label>
+                                        <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Add a custom message for the requester..." className="w-full mt-2 p-3 border border-gray-200 rounded-lg min-h-[120px] text-sm" />
+                                    </div>
+
+                                    <div className="mt-4 p-4 bg-blue-50 rounded-lg flex items-start gap-3">
+                                        <div className="text-blue-600">🔔</div>
+                                        <div className="text-sm text-blue-900">{requesterName} will be notified via email and app notification</div>
+                                    </div>
+
+                                    <div className="mt-6 flex flex-col gap-3">
+                                        <button
+                                            onClick={() => {
+                                                // If we're on the final step, treat this as the final Update Progress action
+                                                if (currentStep === steps.length) {
+                                                    try {
+                                                        // inform parent we're finishing
+                                                        onUpdateProgress(currentStep, message);
+                                                    } catch (e) {}
+                                                    setShowModal(false);
+                                                    setFinished(true);
+                                                    setCelebrate(true);
+                                                    // auto-dismiss celebration after 3s
+                                                    setTimeout(() => { setCelebrate(false); }, 3000);
+                                                    return;
+                                                }
+
+                                                // compute next step (cap at length)
+                                                const next = Math.min(steps.length, currentStep + 1);
+                                                try {
+                                                    onUpdateProgress(next, message);
+                                                } catch (e) {}
+                                                setShowModal(false);
+                                            }}
+                                            disabled={currentStep > steps.length}
+                                            className={`w-full px-4 py-3 rounded-lg text-white font-semibold ${currentStep > steps.length ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+                                        >
+                                            <span className="mr-2">✔</span>
+                                            {currentStep === steps.length ? 'Update Progress' : (currentStep === steps.length - 1 ? 'Publish Video' : 'Update Status')}
+                                        </button>
+                                        <button onClick={() => setShowModal(false)} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white">Cancel</button>
+                                    </div>
+                                </React.Fragment>
+                            )}
+                        </div>
+
+                        {/* Fixed action area for publish modal (keeps buttons visible while content scrolls) */}
+                        {(currentStep === 5 || isReuploading) && (
+                            <div className="p-4 border-t bg-white">
+                                {validationError && <div className="text-sm text-red-600 mb-3">{validationError}</div>}
+                                {/* Two-step actions: form (Next: Preview) -> preview (Publish) */}
+                                {publishStep === 'form' ? (
+                                    <>
+                                        <button
+                                            onClick={async () => {
+                                                setValidationError('');
+                                                // basic validation (same as before)
+                                                if (!videoFile) { setValidationError('Please upload a video before continuing.'); return; }
+                                                if (!thumbnailFile) { setValidationError('Please upload a thumbnail before continuing.'); return; }
+                                                if (!videoTitle || videoTitle.trim().length === 0) { setValidationError('Please add a video title before continuing.'); return; }
+                                                if (!category) { setValidationError('Please select a category for your video.'); return; }
+                                                // Script type and script file are now optional - no validation needed
+                                                // if (!scriptType) { setValidationError('Please select a Script Type for your video.'); return; }
+                                                // if (scriptType === 'Other' && (!scriptOther || scriptOther.trim().length === 0)) { setValidationError('Please describe the script type when "Other" is selected.'); return; }
+
+                                                // enforce format-specific limits
+                                                if (videoFormat === 'one-time' && publishedCount >= 1) {
+                                                    setValidationError('This one-time video has already been published.');
+                                                    return;
+                                                }
+                                                if (videoFormat === 'series' && publishedCount >= seriesLimit) {
+                                                    setValidationError(`Series limit reached (${seriesLimit}).`);
+                                                    return;
+                                                }
+                                                if (videoFormat === 'catalogue' && publishedCount >= catalogueLimit) {
+                                                    setValidationError(`Catalogue limit reached (${catalogueLimit}).`);
+                                                    return;
+                                                }
+
+                                                // prepare preview data and move to preview step
+                                                setPreviewData({
+                                                    title: videoTitle,
+                                                    file: videoFile,
+                                                    thumbnail: thumbnailPreview || (thumbnailFile ? (typeof thumbnailFile === 'string' ? thumbnailFile : thumbnailFile.name) : null),
+                                                    time: 'Just now',
+                                                    format: videoFormat,
+                                                    category,
+                                                    scriptType,
+                                                });
+                                                setPublishStep('preview');
+                                            }}
+                                            disabled={(videoFormat === 'one-time' && publishedCount >= 1) || (videoFormat === 'series' && publishedCount >= seriesLimit) || (videoFormat === 'catalogue' && publishedCount >= catalogueLimit)}
+                                            className={`w-full bg-[var(--color-gold)] text-white px-4 py-3 rounded-lg font-semibold mb-3`}
+                                        >
+                                            Next: Preview
+                                        </button>
+                                        <button onClick={() => setShowModal(false)} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white">Cancel</button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={async () => {
+                                                    // run publish flow using previewData if available, otherwise fallback to current fields
+                                                    const pd = previewData || { title: videoTitle, file: videoFile, thumbnail: thumbnailFile ? thumbnailFile.name : null, format: videoFormat };
+                                                    setValidationError('');
+
+                                                    // Compute file metadata for duplicate detection
+                                                    const fileObj = pd.file || videoFile || null;
+                                                    const fileName = fileObj ? (fileObj.name || '') : '';
+                                                    const fileSize = fileObj ? (fileObj.size || 0) : 0;
+                                                    const fileType = fileObj ? (fileObj.type || '') : '';
+                                                    const titleStr = (pd.title || videoTitle || '').trim();
+                                                    const titleNormalized = titleStr.toLowerCase();
+
+                                                    // Duplicate detection: prevent publishing if an item with same title (normalized), fileName and size already exists
+                                                    // Duplicate detection: prevent publishing if an item with same title (normalized), fileName and size already exists
+                                                    // Skip duplicate detection when performing a re-upload (we will replace the original item)
+                                                    let dup = null;
+                                                    if (!isReuploading) {
+                                                        dup = publishedItems && publishedItems.find((it) => {
+                                                            if (!it) return false;
+                                                            const itTitle = (it.title || '').toString().trim().toLowerCase();
+                                                            const itName = it.fileName || '';
+                                                            const itSize = it.fileSize || 0;
+                                                            return itTitle === titleNormalized && itName === fileName && itSize === fileSize;
+                                                        });
+                                                    }
+                                                    if (dup) {
+                                                        setValidationError('Duplicate upload detected — a video with the same title and file size has already been published. Delete the previous item to re-upload.');
+                                                        return;
+                                                    }
+
+                                                    // If this is a re-upload, require a change note describing edits
+                                                    if (isReuploading && (!changeNote || changeNote.trim().length === 0)) {
+                                                        setValidationError('Please provide a short change note describing the re-upload.');
+                                                        return;
+                                                    }
+                                                    setUploading(true);
+                                                    setUploadProgress(0);
+                                                    try {
+                                                        for (let p = 10; p <= 100; p += 10) {
+                                                            // eslint-disable-next-line no-await-in-loop
+                                                            await new Promise((res) => setTimeout(res, 80));
+                                                            setUploadProgress(p);
+                                                        }
+
+                                                        const publishedMeta = {
+                                                            id: Date.now().toString() + '-' + Math.random().toString(36).slice(2),
+                                                            title: titleStr || videoTitle,
+                                                            titleNormalized,
+                                                            fileName,
+                                                            fileSize,
+                                                            fileType,
+                                                            thumbnail: pd.thumbnail || (thumbnailFile ? thumbnailFile.name : null),
+                                                            time: Date.now(),
+                                                            format: pd.format || videoFormat,
+                                                            changeNote: changeNote || null,
+                                                        };
+
+                                                        // POST to backend to save video
+                                                        // Upload video and thumbnail files to server first
+                                                        try {
+                                                            const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                                                            const token = localStorage.getItem('regaarder_token');
+                                                            
+                                                            console.log('Uploading files to backend:', {
+                                                                backend: BACKEND,
+                                                                hasToken: !!token,
+                                                                hasVideo: !!videoFile,
+                                                                hasThumbnail: !!thumbnailFile
+                                                            });
+                                                            
+                                                            // Upload thumbnail
+                                                            let thumbnailUrl = thumbnailPreview;
+                                                            if (thumbnailFile && thumbnailFile instanceof File) {
+                                                                const thumbFormData = new FormData();
+                                                                thumbFormData.append('photo', thumbnailFile);
+                                                                
+                                                                const thumbResponse = await fetch(`${BACKEND}/creator/photo`, {
+                                                                    method: 'POST',
+                                                                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                                                                    body: thumbFormData
+                                                                });
+                                                                
+                                                                if (thumbResponse.ok) {
+                                                                    const thumbData = await thumbResponse.json();
+                                                                    thumbnailUrl = thumbData.url;
+                                                                    console.log('Thumbnail uploaded:', thumbnailUrl);
+                                                                } else {
+                                                                    console.warn('Thumbnail upload failed, using preview');
+                                                                }
+                                                            }
+                                                            
+                                                            // Upload video
+                                                            let videoUrl = videoPreview;
+                                                            if (videoFile && videoFile instanceof File) {
+                                                                const videoFormData = new FormData();
+                                                                videoFormData.append('video', videoFile);
+                                                                
+                                                                const videoResponse = await fetch(`${BACKEND}/creator/intro-video`, {
+                                                                    method: 'POST',
+                                                                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                                                                    body: videoFormData
+                                                                });
+                                                                
+                                                                if (videoResponse.ok) {
+                                                                    const videoData = await videoResponse.json();
+                                                                    videoUrl = videoData.url;
+                                                                    console.log('Video uploaded:', videoUrl);
+                                                                } else {
+                                                                    console.warn('Video upload failed, using preview');
+                                                                }
+                                                            }
+                                                            
+                                                            // Calculate video duration from the video file
+                                                            let videoDuration = '0:00';
+                                                            if (videoFile) {
+                                                                try {
+                                                                    const videoElement = document.createElement('video');
+                                                                    videoElement.preload = 'metadata';
+                                                                    
+                                                                    // Create object URL from the file for reliable duration reading
+                                                                    const objectUrl = URL.createObjectURL(videoFile);
+                                                                    videoElement.src = objectUrl;
+                                                                    
+                                                                    await new Promise((resolve, reject) => {
+                                                                        const timeout = setTimeout(() => {
+                                                                            URL.revokeObjectURL(objectUrl);
+                                                                            resolve(); // Don't fail, just continue with 0:00
+                                                                        }, 5000); // 5 second timeout
+                                                                        
+                                                                        videoElement.onloadedmetadata = () => {
+                                                                            clearTimeout(timeout);
+                                                                            const duration = Math.floor(videoElement.duration);
+                                                                            const minutes = Math.floor(duration / 60);
+                                                                            const seconds = duration % 60;
+                                                                            videoDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                                                                            console.log('Video duration calculated:', videoDuration);
+                                                                            URL.revokeObjectURL(objectUrl);
+                                                                            resolve();
+                                                                        };
+                                                                        
+                                                                        videoElement.onerror = (e) => {
+                                                                            clearTimeout(timeout);
+                                                                            console.warn('Video metadata load error:', e);
+                                                                            URL.revokeObjectURL(objectUrl);
+                                                                            resolve(); // Continue even if we can't get duration
+                                                                        };
+                                                                    });
+                                                                } catch (err) {
+                                                                    console.warn('Could not calculate video duration:', err);
+                                                                }
+                                                            }
+                                                            
+                                                            const response = await fetch(`${BACKEND}/videos/publish`, {
+                                                                method: 'POST',
+                                                                headers: {
+                                                                    'Content-Type': 'application/json',
+                                                                    'Authorization': token ? `Bearer ${token}` : ''
+                                                                },
+                                                                body: JSON.stringify({
+                                                                    title: titleStr || videoTitle,
+                                                                    thumbnail: thumbnailUrl || null,
+                                                                    videoUrl: videoUrl || null,
+                                                                    category: category || 'General',
+                                                                    format: pd.format || videoFormat,
+                                                                    time: videoDuration,
+                                                                    requester: requesterName || null
+                                                                })
+                                                            });
+                                                            
+                                                            if (response.ok) {
+                                                                const result = await response.json();
+                                                                console.log('Video published successfully:', result);
+                                                                
+                                                                // Show success toast with option to view
+                                                                setToastMessage('Video published! Refresh home page to see it.');
+                                                            } else {
+                                                                console.error('Failed to publish video to backend. Status:', response.status);
+                                                                const errorText = await response.text();
+                                                                console.error('Error details:', errorText);
+                                                                setToastMessage('Failed to publish video. Please try again.');
+                                                            }
+                                                        } catch (err) {
+                                                            console.error('Error publishing video to backend:', err);
+                                                        }
+
+                                                        // Behavior differs by format
+                                                        if (pd.format === 'recurrent') {
+                                                            const newCount = publishedCount + 1;
+                                                            setPublishedCount(newCount);
+                                                            setPublishedItems((arr) => [...arr, publishedMeta]);
+                                                            setLastPublished(publishedMeta);
+                                                            setToastMessage(`Published video #${newCount}`);
+
+                                                            // Reset upload fields so user can add another
+                                                            setVideoFile(null);
+                                                            if (videoPreview) { URL.revokeObjectURL(videoPreview); setVideoPreview(null); }
+                                                            setThumbnailPreview(null);
+                                                            setThumbnailFile(null);
+                                                            setScriptFile(null);
+                                                            setScriptOther('');
+                                                            setPreviewData(null);
+                                                            setUploadProgress(0);
+                                                            setPublishStep('form');
+
+                                                        } else if (pd.format === 'series') {
+                                                            const prevCount = publishedCount;
+                                                            const newCount = prevCount + 1;
+                                                            setPublishedCount(newCount);
+                                                            setPublishedItems((arr) => [...arr, publishedMeta]);
+                                                            setLastPublished(publishedMeta);
+                                                            setToastMessage(`Published episode #${newCount}`);
+
+                                                            // Auto-increment title for next episode: strip existing (Part N) and add next
+                                                            const baseTitle = (titleStr || videoTitle || '').replace(/\s*\(Part\s*\d+\)\s*$/i, '').trim();
+                                                            const nextTitle = baseTitle ? `${baseTitle} (Part ${newCount + 1})` : `Part ${newCount + 1}`;
+                                                            setVideoTitle(nextTitle);
+
+                                                            // Reset upload fields so user can add the next episode
+                                                            setVideoFile(null);
+                                                            if (videoPreview) { URL.revokeObjectURL(videoPreview); setVideoPreview(null); }
+                                                            setThumbnailPreview(null);
+                                                            setThumbnailFile(null);
+                                                            setScriptFile(null);
+                                                            setScriptOther('');
+                                                            setPreviewData(null);
+                                                            setUploadProgress(0);
+                                                            setPublishStep('form');
+                                                            // Clear reupload state and note after successful re-upload
+                                                            setIsReuploading(false);
+                                                            setChangeNote('');
+
+                                                        } else if (pd.format === 'catalogue') {
+                                                            const newCount = publishedCount + 1;
+                                                            setPublishedCount(newCount);
+                                                            setPublishedItems((arr) => [...arr, publishedMeta]);
+                                                            setLastPublished(publishedMeta);
+                                                            setToastMessage(`Published item #${newCount}`);
+
+                                                            // Reset upload fields for next catalogue item
+                                                            setVideoFile(null);
+                                                            if (videoPreview) { URL.revokeObjectURL(videoPreview); setVideoPreview(null); }
+                                                            setThumbnailPreview(null);
+                                                            setThumbnailFile(null);
+                                                            setScriptFile(null);
+                                                            setScriptOther('');
+                                                            setPreviewData(null);
+                                                            setUploadProgress(0);
+                                                            setPublishStep('form');
+                                                            // Clear reupload state and note after successful re-upload
+                                                            setIsReuploading(false);
+                                                            setChangeNote('');
+
+                                                        } else {
+                                                            // one-time default behaviour: publish once and advance
+                                                            if (isReuploading && pendingReuploadItem && pendingReuploadItem.id) {
+                                                                // Replace the original published item instead of appending
+                                                                const existingId = pendingReuploadItem.id;
+                                                                // preserve previous id
+                                                                publishedMeta.id = existingId;
+                                                                setPublishedItems((arr) => {
+                                                                    const found = arr && arr.some((it) => it && it.id === existingId);
+                                                                    if (found) {
+                                                                        return arr.map((it) => (it && it.id === existingId ? publishedMeta : it));
+                                                                    }
+                                                                    return [...(arr || []), publishedMeta];
+                                                                });
+                                                                setLastPublished(publishedMeta);
+                                                                setToastMessage('Updated published video');
+                                                                try { onUpdateProgress(Math.min(steps.length, currentStep + 1), `Re-uploaded video:${publishedMeta.fileName} thumb:${publishedMeta.thumbnail || ''}`); } catch (e) {}
+                                                            } else {
+                                                                const newCount = publishedCount + 1;
+                                                                setPublishedCount(newCount);
+                                                                setPublishedItems((arr) => [...arr, publishedMeta]);
+                                                                setLastPublished(publishedMeta);
+                                                                try { onUpdateProgress(Math.min(steps.length, currentStep + 1), `Uploaded video:${publishedMeta.fileName} thumb:${publishedMeta.thumbnail || ''}`); } catch (e) {}
+                                                            }
+                                                            // keep modal open to show preview — user can close when ready
+                                                            setPublishStep('form');
+                                                            setIsReuploading(false);
+                                                            setChangeNote('');
+                                                        }
+                                                    } finally {
+                                                        setUploading(false);
+                                                        setUploadProgress(0);
+                                                    }
+                                                }}
+                                            disabled={uploading}
+                                            className={`w-full ${uploading ? 'bg-gray-300 cursor-not-allowed' : 'bg-[var(--color-gold)] text-white'} px-4 py-3 rounded-lg font-semibold mb-3`}
+                                        >
+                                            {uploading ? ('Uploading ' + uploadProgress + '%') : (
+                                                (() => {
+                                                    const nextIndex = publishedCount + 1;
+                                                    const fmt = (previewData && previewData.format) || videoFormat;
+                                                    if (fmt === 'recurrent') return (<React.Fragment><span className="mr-2">✨</span>Publish video #{nextIndex}</React.Fragment>);
+                                                    if (fmt === 'series') return (<React.Fragment><span className="mr-2">✨</span>Publish episode #{nextIndex}</React.Fragment>);
+                                                    if (fmt === 'catalogue') return (<React.Fragment><span className="mr-2">✨</span>Publish item #{nextIndex}</React.Fragment>);
+                                                    // one-time
+                                                    return (<React.Fragment><span className="mr-2">✨</span>{publishedCount === 0 ? 'Publish Video' : 'Published'}</React.Fragment>);
+                                                })()
+                                            )}
+                                        </button>
+                                        <button onClick={() => { setPublishStep('form'); }} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white">Back</button>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+        {/* Confetti + Success toast when celebration occurs */}
+        {celebrate && (
+            <>
+                <style>{`
+                    @keyframes confettiFall {
+                        0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+                        100% { transform: translateY(110vh) rotate(360deg); opacity: 0.95; }
+                    }
+                    @keyframes confettiSwing {
+                        0% { transform: translateY(0) translateX(0) rotate(0deg); }
+                        50% { transform: translateY(20px) translateX(8px) rotate(90deg); }
+                        100% { transform: translateY(0) translateX(0) rotate(180deg); }
+                    }
+                `}</style>
+
+                <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
+                    {/* Render a handful of confetti pieces with varied positions/delays */}
+                    {(() => {
+                        const colors = ['#F59E0B','#10B981','#3B82F6','#EF4444','#8B5CF6','#06B6D4'];
+                        const pieces = [];
+                        for (let i = 0; i < 28; i++) {
+                            const left = Math.round(Math.random() * 100);
+                            const delay = Math.round(Math.random() * 800);
+                            const dur = 1400 + Math.round(Math.random() * 800);
+                            const w = 6 + Math.round(Math.random() * 8);
+                            const h = 10 + Math.round(Math.random() * 12);
+                            const color = colors[i % colors.length];
+                            pieces.push(
+                                <div
+                                    key={i}
+                                    style={{
+                                        position: 'absolute',
+                                        left: `${left}%`,
+                                        top: '-8%',
+                                        width: w,
+                                        height: h,
+                                        background: color,
+                                        borderRadius: 2,
+                                        transformOrigin: 'center',
+                                        animation: `confettiFall ${dur}ms cubic-bezier(.2,.7,.2,1) ${delay}ms forwards`,
+                                        opacity: 0.95,
+                                    }}
+                                />
+                            );
+                        }
+                        return pieces;
+                    })()}
+                </div>
+
+                {/* Prominent success toast at bottom-center (uses Toast for animations) */}
+                <Toast message={"Your video has been successfully completed. We're proud of you !"} bottom={false} duration={3500} />
+            </>
+        )}
+        </div>
+    );
+};
+
+
+
+
+// Bottom navigation bar — copied from `home.jsx` footer to match exact styling
+const BottomBar = () => {
+    const [activeTab, setActiveTab] = useState('Home');
+    const navigatedRef = useRef(false);
+
+    // The Requests tab should always be available in the footer. Tooltip
+    // visibility for the Requested badge is handled at the App/ContentCard level
+    // via the `hasSeenRequests` localStorage flag — do not hide the footer tab.
+    const tabs = [
+        { name: 'Home', icon: 'home' },
+        { name: 'Requests', icon: 'requests' },
+        // Changed 'Ideas' to 'Pencil' icon
+        { name: 'Ideas', icon: 'pencil' },
+        { name: 'More', icon: 'more' },
+    ];
+
+    const inactiveColor = 'rgb(107 114 128)';
+
+        return (
+        <div
+            // Changed bg-white to bg-gray-50 for a softer, off-white look
+            className="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 shadow-2xl z-10"
+            style={{
+                paddingTop: '10px',
+                // Increase bottom padding so icons sit above phone nav/home indicators.
+                paddingBottom: 'calc(44px + env(safe-area-inset-bottom))'
+            }}
+        >
+            <div className="flex justify-around max-w-md mx-auto">
+                {tabs.map((tab) => {
+                    const isSelected = tab.name === activeTab;
+
+                    const activeColorStyle = isSelected
+                        ? { color: 'var(--color-gold)' }
+                        : { color: inactiveColor };
+
+                    const textWeight = isSelected ? 'font-semibold' : 'font-normal';
+
+                    let wrapperStyle = {};
+                    if (isSelected) {
+                        wrapperStyle.textShadow = `0 0 8px var(--color-gold-light)`;
+                    }
+
+                    const navigateToTab = (tabName) => {
+                        try {
+                            if (tabName === 'Home') {
+                                window.location.href = '/home.jsx';
+                                return;
+                            }
+                            if (tabName === 'Requests') {
+                                window.location.href = '/requests.jsx';
+                                return;
+                            }
+                            if (tabName === 'Ideas') {
+                                window.location.href = '/ideas.jsx';
+                                return;
+                            }
+                            if (tabName === 'More') {
+                                window.location.href = '/more.jsx';
+                                return;
+                            }
+                        } catch (e) {
+                            console.warn('Navigation failed', e);
+                        }
+                    };
+
+                    return (
+                        <div
+                            key={tab.name}
+                            className={`relative flex flex-col items-center w-1/4 focus:outline-none`}
+                            style={wrapperStyle}
+                        >
+                            <button
+                                className="flex flex-col items-center w-full"
+                                onMouseDown={() => {
+                                    setActiveTab(tab.name);
+                                    if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); }
+                                }}
+                                onTouchStart={() => {
+                                    setActiveTab(tab.name);
+                                    if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); }
+                                }}
+                                onClick={(e) => {
+                                    if (navigatedRef.current) { navigatedRef.current = false; e.preventDefault(); return; }
+                                    setActiveTab(tab.name);
+                                    navigateToTab(tab.name);
+                                }}
+                            >
+                                                <div className="w-11 h-11 flex items-center justify-center">
+                                                    {(() => {
+                                                        const IconMap = { home: Home, requests: FileText, pencil: Pencil, more: MoreHorizontal };
+                                                        const IconComp = IconMap[tab.icon] || Home;
+                                                        const iconStyle = isSelected ? { color: 'var(--color-gold)' } : { color: inactiveColor };
+                                                        return <IconComp size={22} strokeWidth={1} style={iconStyle} />;
+                                                    })()}
+                                                </div>
+                                                <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
+                                                    {tab.name}
+                                                </span>
+                            </button>
+
+                            {/* Tooltip is rendered next to the first Requested badge inside ContentCard. */}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+// Main pixel-perfect dashboard
+const App = () => {
+    const navigate = useNavigate();
+    const [activeTopTab, setActiveTopTab] = useState('Overview');
+
+    // DOM-based translation pass for Chinese Traditional to translate visible text nodes.
+    useEffect(() => {
+        try {
+            if (typeof window === 'undefined') return;
+            const lang = window.localStorage.getItem('regaarder_language') || 'English';
+            if (lang !== 'Chinese Traditional') return;
+            const map = translations && translations['Chinese Traditional'] ? translations['Chinese Traditional'] : {};
+            if (!map || Object.keys(map).length === 0) return;
+            const container = document.querySelector('[data-creatordashboard-root]') || document.body;
+            const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
+            const keys = Object.keys(map).sort((a,b) => b.length - a.length);
+            let node;
+            while ((node = walker.nextNode())) {
+                const txt = node.nodeValue;
+                if (!txt || !txt.trim()) continue;
+                let changed = txt;
+                for (let i = 0; i < keys.length; i++) {
+                    const k = keys[i];
+                    const v = map[k];
+                    if (!k || typeof v !== 'string') continue;
+                    if (changed.indexOf(k) !== -1) changed = changed.split(k).join(v);
+                }
+                if (changed !== txt) node.nodeValue = changed;
+            }
+        } catch (e) { /* ignore */ }
+    }, []);
+
+    
+    // Check URL parameters on mount to navigate to specific tab
+    useEffect(() => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const tabParam = params.get('tab');
+            if (tabParam && baseTopTabs.includes(tabParam)) {
+                setActiveTopTab(tabParam);
+            }
+        } catch (e) {
+            console.error('Error parsing URL params:', e);
+        }
+    }, []);
+    
+    // Listen for claim events from RequestsFeed
+    useEffect(() => {
+        const handleClaim = (event) => {
+            try {
+                const claimData = event.detail;
+                if (claimData) {
+                    // Switch to Claims tab
+                    setActiveTopTab('Claims');
+                    // Set the claimed request data
+                    setClaimedRequest({
+                        id: claimData.requestId,
+                        title: claimData.title,
+                        requesterName: claimData.requesterName,
+                        requesterAvatar: claimData.requesterAvatar,
+                        funding: claimData.funding,
+                        description: claimData.description,
+                        currentStep: claimData.currentStep || 1,
+                        claimedAt: claimData.claimedAt
+                    });
+                    // Ensure panel is expanded
+                    setClaimsMinimized(false);
+                }
+            } catch (e) {
+                console.error('Error handling claim event:', e);
+            }
+        };
+        
+        window.addEventListener('request:claimed', handleClaim);
+        return () => window.removeEventListener('request:claimed', handleClaim);
+    }, []);
+    
+    // Base list of top tabs (kept as canonical order) — display order can change based on search
+    const baseTopTabs = ['Overview','Requests','Claims','Published','Analytics','Upload','Insights','Support','Templates'];
+    // Dashboard search state (controls ordering of cards and tabs)
+    const [dashboardSearch, setDashboardSearch] = useState('');
+    const [selectedLanguage, setSelectedLanguage] = useState(() => localStorage.getItem('selectedLanguage') || 'English');
+    const getTopTabs = () => {
+        const normalized = (dashboardSearch || '').toString().trim().toLowerCase();
+        if (!normalized) return baseTopTabs;
+        const matches = baseTopTabs.filter(t => t.toLowerCase().includes(normalized));
+        const others = baseTopTabs.filter(t => !t.toLowerCase().includes(normalized));
+        return [...matches, ...others];
+    };
+    const [claimedRequest, setClaimedRequest] = useState(null);
+    const [pendingReuploadItem, setPendingReuploadItem] = useState(null);
+    const [claimsMinimized, setClaimsMinimized] = useState(false);
+    // Published list stored in local state (backed by localStorage)
+    const [publishedList, setPublishedList] = useState(() => {
+        try {
+            if (typeof localStorage !== 'undefined') {
+                const raw = localStorage.getItem('publishedItems');
+                return raw ? JSON.parse(raw) : [];
+            }
+        } catch (e) { /* ignore */ }
+        return [];
+    });
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [uploadFile, setUploadFile] = useState(null);
+    const [uploadTitle, setUploadTitle] = useState('');
+    const [uploadThumbPreview, setUploadThumbPreview] = useState(null);
+    const [uploadThumbFile, setUploadThumbFile] = useState(null);
+    const [uploadingLocal, setUploadingLocal] = useState(false);
+    // Requests list received from RequestsFeed (used to compute active counts and earnings)
+    const [requestsList, setRequestsList] = useState([]);
+    
+    const [appToast, setAppToast] = useState('');
+    const [deletingId, setDeletingId] = useState(null);
+    const [pressedId, setPressedId] = useState(null);
+    const [deleteCandidate, setDeleteCandidate] = useState(null);
+
+    const handleDeletePressStart = (id) => {
+        setPressedId(id);
+    };
+
+    const handleDeletePressEnd = () => {
+        setPressedId(null);
+    };
+
+    // Swipe navigation state (use refs to avoid re-renders)
+    const swipeRef = useRef({ active: false, startX: 0, startY: 0, lastX: 0 });
+
+    const onTouchStart = (e) => {
+        try {
+            if (!e.touches || e.touches.length !== 1) return;
+            const t = e.touches[0];
+            swipeRef.current.active = true;
+            swipeRef.current.startX = t.clientX;
+            swipeRef.current.startY = t.clientY;
+            swipeRef.current.lastX = t.clientX;
+        } catch (err) {
+            swipeRef.current.active = false;
+        }
+    };
+
+    const onTouchMove = (e) => {
+        try {
+            if (!swipeRef.current.active || !e.touches || e.touches.length !== 1) return;
+            swipeRef.current.lastX = e.touches[0].clientX;
+        } catch (err) {
+            swipeRef.current.active = false;
+        }
+    };
+
+    const finishSwipe = (endX, endY) => {
+        try {
+            if (!swipeRef.current.active) return;
+            const dx = endX - swipeRef.current.startX;
+            const dy = endY - swipeRef.current.startY;
+            const absDx = Math.abs(dx);
+            const absDy = Math.abs(dy);
+            const threshold = 60; // minimum px to count as a swipe
+            const verticalLimit = 80; // max vertical movement allowed
+            if (absDx > threshold && absDy < verticalLimit) {
+                const currentTabs = getTopTabs();
+                const idx = currentTabs.indexOf(activeTopTab);
+                if (dx < 0 && idx >= 0 && idx < currentTabs.length - 1) {
+                    // swipe left -> next tab
+                    setActiveTopTab(currentTabs[idx + 1]);
+                } else if (dx > 0 && idx > 0) {
+                    // swipe right -> previous tab
+                    setActiveTopTab(currentTabs[idx - 1]);
+                }
+            }
+        } catch (err) {
+            // swallow errors to avoid blanking the UI
+            console.warn('Swipe handling failed', err);
+        } finally {
+            swipeRef.current.active = false;
+        }
+    };
+
+    const onTouchEnd = (e) => {
+        try {
+            if (!e.changedTouches || e.changedTouches.length === 0) { swipeRef.current.active = false; return; }
+            const t = e.changedTouches[0];
+            finishSwipe(t.clientX, t.clientY);
+        } catch (err) {
+            swipeRef.current.active = false;
+        }
+    };
+
+    // Mouse support (desktop): treat mouse drag as swipe
+    const onMouseDown = (e) => {
+        try {
+            swipeRef.current.active = true;
+            swipeRef.current.startX = e.clientX;
+            swipeRef.current.startY = e.clientY;
+            swipeRef.current.lastX = e.clientX;
+            // attach listeners to window for move/up to ensure we capture outside the element
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+        } catch (err) {
+            swipeRef.current.active = false;
+        }
+    };
+
+    const onMouseMove = (e) => {
+        try {
+            if (!swipeRef.current.active) return;
+            swipeRef.current.lastX = e.clientX;
+        } catch (err) {
+            swipeRef.current.active = false;
+        }
+    };
+
+    const onMouseUp = (e) => {
+        if (!swipeRef.current.active) return;
+        finishSwipe(e.clientX, e.clientY);
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    // reload published list when storage changes or when switching to Published tab
+    useEffect(() => {
+        const onStorage = (e) => {
+            if (e.key === 'publishedItems') {
+                try { setPublishedList(e.newValue ? JSON.parse(e.newValue) : []); } catch (err) {}
+            }
+        };
+        window.addEventListener('storage', onStorage);
+        return () => window.removeEventListener('storage', onStorage);
+    }, []);
+
+    useEffect(() => {
+        // refresh when switching to Published tab in same window (storage event not fired)
+        if (activeTopTab === 'Published') {
+            try {
+                const raw = localStorage.getItem('publishedItems');
+                setPublishedList(raw ? JSON.parse(raw) : []);
+            } catch (e) {}
+        }
+    }, [activeTopTab]);
+
+    const persistPublishedList = (arr) => {
+        try {
+            setPublishedList(arr);
+            if (typeof localStorage !== 'undefined') localStorage.setItem('publishedItems', JSON.stringify(arr));
+        } catch (e) { /* ignore */ }
+    };
+
+    const handleDeletePublished = (id) => {
+        try {
+            setDeletingId(id);
+            const next = publishedList.filter((i) => i.id !== id);
+            persistPublishedList(next);
+            setAppToast('Deleted');
+            setTimeout(() => setAppToast(''), 1800);
+        } finally {
+            // slight delay so user sees deleting state
+            setTimeout(() => setDeletingId(null), 300);
+        }
+    };
+
+    // Re-upload flow: set `pendingReuploadItem` and switch to Claims so ClaimStatusPanel can open the publish modal
+    const openReupload = (item) => {
+        setPendingReuploadItem(item);
+        // Ensure Claims tab shows the Publish UI by setting a claimed request
+        try {
+            setClaimedRequest((prev) => ({
+                ...(prev || {}),
+                title: item && item.title ? item.title : (prev && prev.title) || 'Untitled',
+                requesterName: item && item.requesterName ? item.requesterName : (prev && prev.requesterName) || 'Requester',
+                requesterAvatar: item && item.requesterAvatar ? item.requesterAvatar : (prev && prev.requesterAvatar) || null,
+                currentStep: 5,
+            }));
+        } catch (e) {
+            // ignore
+        }
+        setActiveTopTab('Claims');
+    };
+
+    // Callback passed to RequestsFeed so it can tell the parent to switch to Claimed
+    // Optionally accepts a `request` object with details (title, requester, avatar, currentStep)
+    const handleRequestClaim = (request) => {
+        setActiveTopTab('Claims');
+        if (request && typeof request === 'object') setClaimedRequest(request);
+    };
+
+    // Called when the ClaimStatusPanel modal advances the status
+    const handleUpdateClaimStatus = (nextStep, message) => {
+        setClaimedRequest((prev) => {
+            if (!prev) {
+                return { title: 'A night tour of taipei', requesterName: 'AllVater', requesterAvatar: null, currentStep: nextStep };
+            }
+            return { ...prev, currentStep: nextStep };
+        });
+        // Ensure this request is considered active in the Requests list so
+        // the Active Requests card and the Claims view reflect the update.
+        try {
+            setRequestsList((prev) => {
+                const list = Array.isArray(prev) ? prev.slice() : [];
+                if (!claimedRequest) return list;
+
+                // try to find by id first
+                let idx = -1;
+                if (claimedRequest.id) {
+                    idx = list.findIndex((r) => r && r.id && r.id === claimedRequest.id);
+                }
+                // fallback to title match
+                if (idx === -1) {
+                    const t = (claimedRequest.title || '').toString().trim().toLowerCase();
+                    idx = list.findIndex((r) => ((r.title || '').toString().trim().toLowerCase() === t));
+                }
+
+                if (idx !== -1) {
+                    // update existing entry's step (preserve other fields)
+                    const updated = { ...(list[idx] || {}), currentStep: nextStep };
+                    list.splice(idx, 1, updated);
+                    return list;
+                }
+
+                // not found — add to the front as an active request
+                const newReq = { ...(claimedRequest || {}), currentStep: nextStep };
+                return [newReq, ...list];
+            });
+        } catch (e) {
+            // swallow errors — still proceed
+            console.warn('Failed to mark request active', e);
+        }
+        // Optionally store or send `message` to server here.
+        console.log('Status updated to', nextStep, 'message:', message);
+
+        // Update server and notify requester
+        try {
+            const token = localStorage.getItem('regaarder_token');
+            const rid = (claimedRequest && claimedRequest.id);
+            if (token && rid) {
+                const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                fetch(`${BACKEND}/requests/${rid}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ step: nextStep, message })
+                }).then(res => {
+                    if (res.ok) setToastMessage('Status updated & requester notified');
+                }).catch(err => console.error('Status update failed', err));
+            }
+        } catch (e) {
+            console.error('Failed to update status on server', e);
+        }
+        // Try to resync published list from localStorage in case the publish
+        // occurred inside ClaimStatusPanel (which writes to localStorage).
+        try {
+            const raw = (typeof localStorage !== 'undefined') && localStorage.getItem('publishedItems');
+            if (raw) setPublishedList(JSON.parse(raw));
+        } catch (e) {}
+    };
+
+    // Header navigation guard and active state for header buttons (prevents double navigation)
+    const headerNavigatedRef = useRef(false);
+    const [profileActive, setProfileActive] = useState(false);
+    // Separate active state for Settings so tapping it doesn't affect Profile
+    const [settingsActive, setSettingsActive] = useState(false);
+    
+    // First-time user welcome popup
+    const [showWelcomePopup, setShowWelcomePopup] = useState(() => {
+        try {
+            const seen = localStorage.getItem('creatorDashboardWelcomeSeen');
+            return !seen;
+        } catch (e) {
+            return true;
+        }
+    });
+    
+    const closeWelcomePopup = () => {
+        setShowWelcomePopup(false);
+        try {
+            localStorage.setItem('creatorDashboardWelcomeSeen', 'true');
+        } catch (e) {
+            // ignore
+        }
+    };
+
+    const topActiveClass = "flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--color-gold-light-bg)] text-[var(--color-gold)] font-semibold text-[15px] shadow-sm min-w-[160px] whitespace-nowrap";
+    const topInactiveClass = "flex items-center gap-2 px-5 py-2 rounded-xl bg-white border border-[var(--color-gold-light-bg)] text-gray-900 font-semibold text-[15px] shadow-sm min-w-[160px] whitespace-nowrap";
+
+    // Cards — base definitions. We'll reorder these so any card matching the search moves to the front.
+    const normalizedCardsSearch = (dashboardSearch || '').toString().trim().toLowerCase();
+    const cardsBase = [
+        {
+            id: 'earnings',
+            title: 'Total Earnings',
+            jsx: (
+                <div key="earnings" className="snap-start min-w-full flex-shrink-0">
+                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
+                         <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
+                         <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                         <div className="flex items-center gap-3 mb-3 relative z-10">
+                             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
+                                 <Trophy size={22} className="text-white" fill="white" />
+                             </div>
+                             <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>Total Earnings</span>
+                         </div>
+                         <div className="flex-1 flex flex-col justify-center relative z-10">
+                             <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
+                             <span className="text-[13px] text-gray-600 font-medium">Start earning today</span>
+                         </div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            id: 'requests',
+            title: getTranslation('Active Requests', selectedLanguage),
+            jsx: (
+                <div key="requests" className="snap-start min-w-full flex-shrink-0">
+                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
+                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
+                     <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                     <div className="flex items-center gap-3 mb-3 relative z-10">
+                         <div className="flex items-center gap-2">
+                             <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Active Requests', selectedLanguage)}</span>
+                             <span className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>NEW</span>
+                         </div>
+                     </div>
+                    {(() => {
+                        try {
+                            const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title||'')||'').toString().trim().toLowerCase() === ((r.title||'')||'').toString().trim().toLowerCase())));
+                            const activeCount = unpublished.length;
+                            const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
+                            return (
+                                <div className="flex-1 flex flex-col justify-center relative z-10">
+                                    <div className="text-[40px] font-normal text-gray-900 mb-2 leading-none">{activeCount}</div>
+                                    <span className="text-[13px] text-gray-600 font-medium">{activeCount ? `${activeCount} ${getTranslation('active request', selectedLanguage)}${activeCount === 1 ? '' : 's'}` : getTranslation('No active requests', selectedLanguage)}</span>
+                                </div>
+                            );
+                        } catch (e) {
+                            return (
+                                <div className="flex-1 flex flex-col justify-center relative z-10">
+                                    <div className="text-[40px] font-normal text-gray-900 mb-2 leading-none">0</div>
+                                    <span className="text-[13px] text-gray-600 font-medium">{getTranslation('No active requests', selectedLanguage)}</span>
+                                </div>
+                            );
+                        }
+                    })()}
+                    </div>
+                </div>
+            )
+        },
+        {
+            id: 'rating',
+            title: 'Avg Rating',
+            jsx: (
+                <div key="rating" className="snap-start min-w-full flex-shrink-0">
+                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
+                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
+                     <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                     <div className="flex items-center gap-3 mb-3 relative z-10">
+                         <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
+                             <Star size={22} className="text-white" fill="white" />
+                         </div>
+                         <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>Avg Rating</span>
+                     </div>
+                     <div className="flex-1 flex flex-col justify-center relative z-10">
+                         <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
+                         <span className="text-[14px] text-gray-600 font-semibold">Not rated yet ⭐</span>
+                     </div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            id: 'response',
+            title: 'Response Time',
+            jsx: (
+                <div key="response" className="snap-start min-w-full flex-shrink-0">
+                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
+                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
+                     <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                     <div className="flex items-center gap-3 mb-3 relative z-10">
+                         <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
+                             <Zap size={22} className="text-white" fill="white" />
+                         </div>
+                         <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>Response Time</span>
+                     </div>
+                     <div className="flex-1 flex flex-col justify-center relative z-10">
+                         <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
+                         <span className="text-[14px] text-gray-600 font-semibold">Start responding ⚡</span>
+                     </div>
+                    </div>
+                </div>
+            )
+        }
+    ];
+    const orderedCards = normalizedCardsSearch
+        ? [...cardsBase.filter(c => c.title.toLowerCase().includes(normalizedCardsSearch)), ...cardsBase.filter(c => !c.title.toLowerCase().includes(normalizedCardsSearch))]
+        : cardsBase;
+
+    return (
+        <div
+            data-creatordashboard-root
+            className="w-full max-w-[640px] mx-auto min-h-screen bg-white font-sans relative overflow-y-auto"
+            style={{ ...customStyle, paddingBottom: 'calc(115px + env(safe-area-inset-bottom))' }}
+        >
+            {/* Header */}
+            <div className="px-6 pt-7 pb-3">
+                {/* Three buttons in a horizontal row */}
+                <div className="flex items-center gap-4">
+                    <span className="px-3 py-2 rounded-lg bg-green-100 text-green-700 text-[13px] font-bold shadow text-center">Available</span>
+                    <button
+                        className={`px-3 py-2 rounded-lg border border-gray-200 text-gray-700 text-[13px] font-medium flex items-center justify-center shadow-sm ${settingsActive ? 'bg-[var(--color-gold-light-bg)]' : 'bg-white'}`}
+                        onClick={() => {
+                            try {
+                                navigate('/settings');
+                            } catch (e) {
+                                console.warn('Navigation failed', e);
+                            }
+                        }}
+                    >
+                        <Star size={16} className="mr-1" />
+                        Settings
+                    </button>
+                    <button
+                        className={`px-3 py-2 rounded-lg border border-gray-200 text-gray-700 text-[13px] font-medium flex items-center justify-center shadow-sm ${profileActive ? 'bg-[var(--color-gold-light-bg)]' : 'bg-white'}`}
+                        onMouseDown={() => {
+                            setProfileActive(true);
+                            if (!headerNavigatedRef.current) { headerNavigatedRef.current = true; try { window.location.href = '/creatorprofile.jsx'; } catch (e) { console.warn('Navigation failed', e); }
+                            }
+                        }}
+                        onTouchStart={() => {
+                            setProfileActive(true);
+                            if (!headerNavigatedRef.current) { headerNavigatedRef.current = true; try { window.location.href = '/creatorprofile.jsx'; } catch (e) { /* ignore */ } }
+                        }}
+                        onClick={(e) => {
+                            if (headerNavigatedRef.current) { headerNavigatedRef.current = false; e.preventDefault(); setProfileActive(false); return; }
+                            setProfileActive(false);
+                            try { window.location.href = '/creatorprofile.jsx'; } catch (e) { console.warn('Navigation failed', e); }
+                        }}
+                        onMouseUp={() => setProfileActive(false)}
+                        onTouchEnd={() => setProfileActive(false)}
+                    >
+                        <User size={16} className="mr-1" />
+                        Profile
+                    </button>
+                </div>
+            </div>
+            
+            {/* Welcome popup for first-time users */}
+            {showWelcomePopup && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black opacity-60" onClick={closeWelcomePopup} />
+                    <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 z-10 p-6">
+                        <button onClick={closeWelcomePopup} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
+                        
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-14 h-14 rounded-xl bg-[var(--color-gold)] flex items-center justify-center shadow-md">
+                                <Video size={24} className="text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-[20px] font-semibold text-gray-900">Welcome to Creator Dashboard</h3>
+                            </div>
+                        </div>
+                        
+                        <p className="text-[15px] text-gray-600 leading-relaxed mb-6">
+                            Manage your video requests and grow your audience. Track your earnings, respond to requests, and publish amazing content all in one place.
+                        </p>
+                        
+                        <div className="space-y-3 mb-6">
+                            <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--color-gold-light-bg)]">
+                                <div className="w-8 h-8 rounded-lg bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <FileText size={16} className="text-white" />
+                                </div>
+                                <div>
+                                    <div className="font-semibold text-gray-900 text-sm">Browse Requests</div>
+                                    <div className="text-xs text-gray-600 mt-0.5">Find video requests that match your skills</div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--color-gold-light-bg)]">
+                                <div className="w-8 h-8 rounded-lg bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <Video size={16} className="text-white" />
+                                </div>
+                                <div>
+                                    <div className="font-semibold text-gray-900 text-sm">Create & Publish</div>
+                                    <div className="text-xs text-gray-600 mt-0.5">Upload your videos and track their performance</div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--color-gold-light-bg)]">
+                                <div className="w-8 h-8 rounded-lg bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <Star size={16} className="text-white" />
+                                </div>
+                                <div>
+                                    <div className="font-semibold text-gray-900 text-sm">Earn Money</div>
+                                    <div className="text-xs text-gray-600 mt-0.5">Get paid for fulfilling video requests</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button 
+                            onClick={closeWelcomePopup}
+                            className="w-full bg-[var(--color-gold)] text-white px-6 py-3 rounded-lg font-semibold shadow-md"
+                        >
+                            Get Started
+                        </button>
+                    </div>
+                </div>
+            )}
+            {/* Search bar */}
+            <div className="px-6 mt-5">
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder={getTranslation('Search requests, videos, or creators...', selectedLanguage)}
+                        value={dashboardSearch}
+                        onChange={(e) => setDashboardSearch(e.target.value)}
+                        className="w-full px-4 py-3 pl-11 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-gold-light)] shadow-sm"
+                    />
+                    <Search size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                </div>
+            </div>
+
+            {/* Cards Row */}
+            {/* Cards Row — horizontal swipeable, one card per screen */}
+            <div
+                className="px-6 mt-5 overflow-x-auto hide-scrollbar snap-x snap-mandatory flex gap-5"
+                style={{ WebkitOverflowScrolling: 'touch', paddingLeft: '21px', scrollPaddingLeft: '26px' }}
+            >
+                {orderedCards.map(c => c.jsx)}
+            </div>
+            {/* Tabs - horizontally scrollable */}
+            <div className="px-6 mt-8">
+                <div className="flex gap-2 overflow-x-auto flex-nowrap hide-scrollbar pb-2">
+                    {getTopTabs().map((tabName) => {
+                        const isActive = activeTopTab === tabName;
+                        const cls = isActive ? topActiveClass : topInactiveClass;
+                        return (
+                            <button key={tabName} onClick={() => setActiveTopTab(tabName)} className={cls}>
+                                {(() => {
+                                    switch (tabName) {
+                                        case 'Overview': return (<><TrendingUp size={17} className="mr-1" />{getTranslation('Overview', selectedLanguage)}</>);
+                                        case 'Requests': return (<><FileText size={17} className="mr-1" />{getTranslation('Requests', selectedLanguage)}</>);
+                                        case 'Claims': return (<div className="flex items-center gap-2"><CheckCheck size={17} className="mr-1 text-current" /><span className="truncate max-w-[120px]">{getTranslation('Claims', selectedLanguage)}</span></div>);
+                                        case 'Published': return (<div className="flex items-center gap-2"><Video size={17} className="mr-1 text-current" /><span className="truncate max-w-[120px]">{getTranslation('Published', selectedLanguage)}</span></div>);
+                                        case 'Analytics': return (<><LineChart size={17} className="mr-1" />{getTranslation('Analytics', selectedLanguage)}</>);
+                                        case 'Upload': return (<><Upload size={17} className="mr-1" />{getTranslation('Upload', selectedLanguage)}</>);
+                                        case 'Insights': return (<><Lightbulb size={17} className="mr-1" />{getTranslation('Insights', selectedLanguage)}</>);
+                                        case 'Support': return (<><Headphones size={17} className="mr-1" />{getTranslation('Support', selectedLanguage)}</>);
+                                        case 'Templates': return (<><Copy size={17} className="mr-1" />{getTranslation('Templates', selectedLanguage)}</>);
+                                        default: return (<span>{getTranslation(tabName, selectedLanguage)}</span>);
+                                    }
+                                })()}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+            {/* Content area — show RequestsFeed when Requests tab is active, otherwise show overview placeholders */}
+            {activeTopTab === 'Requests' ? (
+                <div className="mt-7">
+                    <RequestsFeed onClaim={handleRequestClaim} onData={setRequestsList} />
+                </div>
+            ) : activeTopTab === 'Claims' ? (
+                <div className="px-6 mt-7">
+                    <h3 className="text-[18px] font-semibold text-gray-900 mb-2">Claims</h3>
+                    {/* Active requests (not yet matched to published items) and total potential earnings */}
+                    {(() => {
+                        const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title||'')||'').toString().trim().toLowerCase() === ((r.title||'')||'').toString().trim().toLowerCase())));
+                        const activeCount = unpublished.length;
+                        const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
+                        return (
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="text-sm text-gray-600">Active requests: <span className="font-semibold text-gray-900">{activeCount}</span></div>
+                                <div className="text-sm text-gray-600">Potential earnings: <span className="font-semibold text-gray-900">${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</span></div>
+                            </div>
+                        );
+                    })()}
+                    <div>
+                        {!claimedRequest ? (
+                            <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
+                                <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
+                                    <CheckCheck size={32} className="text-[var(--color-gold)]" />
+                                </div>
+                                <h4 className="text-lg font-bold text-gray-900 mb-2">No Active Claims</h4>
+                                <p className="text-sm text-gray-600 text-center max-w-sm mb-6">
+                                    Claim a request from the Requests tab to start working on it and track your progress here.
+                                </p>
+                                <button 
+                                    onClick={() => setActiveTopTab('Requests')} 
+                                    className="px-5 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-md"
+                                    style={{ backgroundColor: 'var(--color-gold)' }}
+                                >
+                                    Browse Requests
+                                </button>
+                            </div>
+                        ) : claimsMinimized ? (
+                            <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-md bg-[var(--color-gold-light-bg)] flex items-center justify-center">
+                                        <Video size={18} className="text-[var(--color-gold)]" />
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-gray-900">
+                                            {(() => {
+                                                try {
+                                                    const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title||'')||'').toString().trim().toLowerCase() === ((r.title||'')||'').toString().trim().toLowerCase())));
+                                                    const total = Math.max(1, (unpublished && unpublished.length) || 0);
+                                                    if (!claimedRequest) {
+                                                        const n = 1;
+                                                        return (<><span>{`Request #${n}`}</span><span className="ml-2 text-xs text-gray-500">{`#${n} of ${total}`}</span></>);
+                                                    }
+                                                    // Prefer matching by id when available
+                                                    let idx = -1;
+                                                    if (claimedRequest && claimedRequest.id) {
+                                                        idx = unpublished.findIndex((r) => r && r.id && r.id === claimedRequest.id);
+                                                    }
+                                                    // Fallback to title match (normalized)
+                                                    if (idx === -1) {
+                                                        const targetTitle = (claimedRequest.title || '').toString().trim().toLowerCase();
+                                                        idx = unpublished.findIndex((r) => ((r.title||'').toString().trim().toLowerCase() === targetTitle));
+                                                    }
+                                                    const n = Math.max(1, (idx === -1 ? 0 : idx) + 1);
+                                                    return (<><span>{`Request #${n}`}</span><span className="ml-2 text-xs text-gray-500">{`#${n} of ${total}`}</span></>);
+                                                } catch (e) {
+                                                    return (<><span>Request #1</span><span className="ml-2 text-xs text-gray-500">#1 of 1</span></>);
+                                                }
+                                            })()}
+                                        </div>
+                                        <div className="text-xs text-gray-500 truncate max-w-[260px]">{claimedRequest ? (claimedRequest.title || 'Active claim') : 'No active claim'}</div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setClaimsMinimized(false)} className="px-3 py-1 rounded-md border border-gray-200 bg-white text-sm">Expand</button>
+                                    <button onClick={() => { setClaimsMinimized(false); setClaimedRequest(null); }} className="px-3 py-1 rounded-md border border-gray-200 bg-white text-sm">Close</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <ClaimStatusPanel
+                                title={claimedRequest ? claimedRequest.title : undefined}
+                                requesterName={claimedRequest ? claimedRequest.requesterName : undefined}
+                                requesterAvatar={claimedRequest ? claimedRequest.requesterAvatar : undefined}
+                                currentStep={claimedRequest ? (claimedRequest.currentStep || 1) : undefined}
+                                onClose={() => setClaimsMinimized(true)}
+                                onUpdateProgress={handleUpdateClaimStatus}
+                                pendingReuploadItem={pendingReuploadItem}
+                                clearPendingReupload={() => setPendingReuploadItem(null)}
+                            />
+                        )}
+                    </div>
+                </div>
+            ) : activeTopTab === 'Published' ? (
+                <div className="px-6 mt-7">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-[18px] font-semibold text-gray-900">Published</h3>
+                            <button onClick={() => { setActiveTopTab('Upload'); }} className="text-[var(--color-gold)] font-medium">Upload New</button>
+                        </div>
+
+                        {publishedList && publishedList.length > 0 ? (
+                            <div className="space-y-4">
+                                {publishedList.map((item) => (
+                                    <div key={item.id} className="bg-white rounded-2xl p-4 border border-[var(--color-gold-light-bg)] shadow-sm flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-20 h-12 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                                                {item.thumbnail ? (
+                                                    <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <Video size={20} />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="font-semibold text-gray-900">{item.title}</div>
+                                                <div className="text-xs text-gray-500">{new Date(item.time).toLocaleString()} {item.changeNote ? `• Updated: ${item.changeNote}` : ''}</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                        <button onClick={() => openReupload(item)} className="px-3 py-1 rounded-md border border-gray-200 text-sm text-gray-700">Re-upload</button>
+                                        <button
+                                            onClick={() => setDeleteCandidate(item)}
+                                            onMouseDown={() => handleDeletePressStart(item.id)}
+                                            onTouchStart={() => handleDeletePressStart(item.id)}
+                                            onMouseUp={handleDeletePressEnd}
+                                            onMouseLeave={handleDeletePressEnd}
+                                            onTouchEnd={handleDeletePressEnd}
+                                            disabled={deletingId === item.id}
+                                            className={`px-3 py-1 rounded-md text-sm transition-colors duration-150 ${deletingId === item.id ? 'bg-red-100 text-red-400 border border-red-100 cursor-not-allowed' : pressedId === item.id ? 'bg-red-50 text-red-700 border border-red-200' : 'border border-red-200 text-red-600'}`}
+                                        >
+                                            {deletingId === item.id ? 'Deleting...' : (pressedId === item.id ? 'Delete' : 'Delete')}
+                                        </button>
+                                    </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[160px]">
+                                <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
+                                    <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
+                                        <Video size={24} className="text-[var(--color-gold)]" />
+                                    </div>
+                                </div>
+                                <h3 className="text-[20px] font-semibold text-gray-900 mb-3">No Published Videos Yet</h3>
+                                <p className="text-sm text-gray-500 text-center max-w-[320px]">Your published videos will appear here</p>
+                            </div>
+                        )}
+
+                        {/* Reupload modal */}
+                        {deleteCandidate && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center">
+                                <div className="absolute inset-0 bg-black opacity-60" onClick={() => setDeleteCandidate(null)} />
+                                <div className="relative bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 z-10 p-4">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div>
+                                            <h3 className="text-[18px] font-semibold text-gray-900">Delete Published Video?</h3>
+                                            <div className="text-sm text-gray-500 mt-1">This action cannot be undone. Are you sure you want to delete this video?</div>
+                                        </div>
+                                        <button onClick={() => setDeleteCandidate(null)} className="text-gray-400 hover:text-gray-600">✕</button>
+                                    </div>
+
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-16 h-10 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                                            {deleteCandidate.thumbnail ? <img src={deleteCandidate.thumbnail} alt={deleteCandidate.title} className="w-full h-full object-cover" /> : <Video size={20} />}
+                                        </div>
+                                        <div>
+                                            <div className="font-semibold">{deleteCandidate.title}</div>
+                                            <div className="text-xs text-gray-500">{new Date(deleteCandidate.time).toLocaleString()}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <button onClick={() => { handleDeletePublished(deleteCandidate.id); setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white">Delete</button>
+                                        <button onClick={() => { setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg border border-gray-200 bg-white">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    
+
+                        {/* small toast (moved to top-right for better visibility) */}
+                        {appToast && (
+                            <Toast message={appToast} bottom={false} />
+                        )}
+                    </div>
+            ) : activeTopTab === 'Upload' ? (
+                <div className="px-6 mt-7">
+                    <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
+                        <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
+                            <div className="w-12 h-12 rounded-lg bg-[var(--color-gold-light-bg)] flex items-center justify-center">
+                                <Upload size={24} className="text-[var(--color-gold)]" />
+                            </div>
+                        </div>
+                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">Upload</h3>
+                        <p className="text-sm text-gray-500 text-center max-w-[320px] mb-6">Upload videos independently without waiting for requests. Available exclusively for Premium creators.</p>
+                        <div className="flex flex-col gap-3 items-center">
+                            {(() => {
+                                try {
+                                    const uploadedCount = (publishedList || []).length;
+                                    const allowed = uploadedCount < 1;
+                                    if (allowed) {
+                                        return (
+                                            <>
+                                                <button onClick={() => {
+                                                    // Open the Claims tab and show the publish modal (form step)
+                                                    try {
+                                                        setClaimedRequest((prev) => ({ ...(prev || {}), title: '', requesterName: 'You', requesterAvatar: null, currentStep: 5 }));
+                                                    } catch (e) {}
+                                                    setPendingReuploadItem({ title: '', thumbnail: null, openInForm: true, isReupload: false });
+                                                    setActiveTopTab('Claims');
+                                                }} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">Upload Video</button>
+                                                <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] text-gray-700 bg-white">View Published</button>
+                                            </>
+                                        );
+                                    }
+                                    return (
+                                        <>
+                                            <div className="text-center max-w-[320px] text-sm text-gray-700">You have reached the free upload limit. Subscribe to upload more videos.</div>
+                                            <div className="flex gap-3 mt-4">
+                                                <button onClick={() => { window.location.href = '/subscriptions.jsx'; }} className="px-4 py-2 rounded-lg bg-[var(--color-gold)] text-white">Subscribe</button>
+                                                <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] bg-white">View Published</button>
+                                            </div>
+                                        </>
+                                    );
+                                } catch (e) {
+                                    return (<button onClick={() => { try { setClaimedRequest((prev) => ({ ...(prev || {}), title: '', requesterName: 'You', requesterAvatar: null, currentStep: 5 })); } catch (err) {} setPendingReuploadItem({ title: '', thumbnail: null, openInForm: true, isReupload: false }); setActiveTopTab('Claims'); }} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">Upload Video</button>);
+                                }
+                            })()}
+                        </div>
+                    </div>
+
+                </div>
+            ) : activeTopTab === 'Insights' ? (
+                <div className="px-6 mt-7">
+                    <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
+                        <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
+                            <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
+                                <Lightbulb size={24} className="text-[var(--color-gold)]" />
+                            </div>
+                        </div>
+                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">Insights Coming Soon</h3>
+                        <p className="text-sm text-gray-500 text-center max-w-[340px] mb-6">Complete your first few requests to unlock personalized insights, tips, and recommendations to grow your creator business.</p>
+                        <button className="flex items-center gap-3 bg-[var(--color-gold)] text-white px-6 py-3 rounded-lg shadow-md">
+                            <Pencil className="w-4 h-4" />
+                            <span className="font-semibold">Complete Your Profile</span>
+                        </button>
+                    </div>
+                </div>
+            ) : activeTopTab === 'Support' ? (
+                <div className="px-6 mt-7">
+                    <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
+                        <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
+                            <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
+                                <Headphones size={24} className="text-[var(--color-gold)]" />
+                            </div>
+                        </div>
+                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">We're Here to Help</h3>
+                        <p className="text-sm text-gray-500 text-center max-w-[340px] mb-6">Get personalized support for everything from technical issues to creative guidance. Our creator success team is dedicated to your growth.</p>
+
+                        <div className="flex flex-col gap-3 w-full max-w-[360px]">
+                            <div className="flex items-center gap-3 bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] rounded-lg px-4 py-3">
+                                <Clock size={16} className="text-[var(--color-accent-text)]" />
+                                <div className="text-sm text-gray-700">Avg response: <span className="font-semibold">2 hours</span></div>
+                            </div>
+
+                            <div className="flex items-center gap-3 bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] rounded-lg px-4 py-3">
+                                <CheckCircle size={16} className="text-[var(--color-accent-text)]" />
+                                <div className="text-sm text-gray-700">98% satisfaction rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : activeTopTab === 'Templates' ? (
+                <div className="px-6 mt-7">
+                    <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
+                        <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
+                            <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
+                                <Copy size={24} className="text-[var(--color-gold)]" />
+                            </div>
+                        </div>
+                        <h3 className="text-[20px] font-semibold text-gray-900 mb-1">Response Templates</h3>
+                        <div className="text-sm text-gray-500 mb-4">Coming Soon</div>
+                        <p className="text-sm text-gray-500 text-center max-w-[340px]">Save and reuse templates for common responses, video scripts, and messages to streamline your workflow.</p>
+                    </div>
+                </div>
+            ) : activeTopTab === 'Analytics' ? (
+                // New Analytics empty state block
+                <div className="px-6 mt-7">
+                    <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-6 min-h-[260px]">
+                        <div className="flex items-center justify-between mb-5">
+                            <div>
+                                <h3 className="text-[18px] font-semibold text-gray-900">Analytics</h3>
+                                <p className="text-[13px] text-gray-500 mt-1">Track performance metrics across your videos and requests</p>
+                            </div>
+                            <button className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] text-gray-900 font-semibold text-[13px] shadow-sm h-9">
+                                <BarChart size={16} className="mr-1 text-[var(--color-accent-text)]" />
+                                Export
+                            </button>
+                        </div>
+
+                        <div className="flex flex-col md:flex-row gap-6">
+                            <div className="flex-1 rounded-lg bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] p-5 flex flex-col items-start justify-center min-h-[160px]">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 rounded-md bg-[var(--color-gold-light-bg)] flex items-center justify-center">
+                                        <LineChart size={20} className="text-[var(--color-gold)]" />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-semibold text-gray-900">Views & Watch Time</div>
+                                        <div className="text-[13px] text-gray-400">No data available yet</div>
+                                    </div>
+                                </div>
+                                <div className="text-[14px] text-gray-500">Accept and publish videos to start collecting analytics like views, watch time, and engagement.</div>
+                            </div>
+
+                            <div className="flex-1 rounded-lg bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] p-5 flex flex-col items-start justify-center min-h-[160px]">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 rounded-md bg-[var(--color-gold-light-bg)] flex items-center justify-center">
+                                        <TrendingUp size={20} className="text-[var(--color-gold)]" />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-semibold text-gray-900">Growth</div>
+                                        <div className="text-[13px] text-gray-400">No growth data yet</div>
+                                    </div>
+                                </div>
+                                <div className="text-[14px] text-gray-500">Complete requests and share videos to begin tracking follower and audience growth.</div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 flex items-center gap-3">
+                            <button onClick={() => setActiveTopTab('Requests')} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">View Requests</button>
+                            <button onClick={() => setActiveTopTab('Upload')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] text-gray-700 bg-white">Upload Video</button>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <React.Fragment>
+                    {/* Performance Metrics Empty State */}
+                    <div className="px-6 mt-7">
+                        <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[220px]">
+                            <div className="flex justify-between w-full mb-6">
+                                <div>
+                                    <div className="text-[18px] font-semibold text-gray-900">Performance Metrics</div>
+                                    <div className="text-[14px] text-gray-400 font-normal">Track your success over time</div>
+                                </div>
+                                <button className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] text-gray-900 font-semibold text-[15px] shadow-sm h-10">
+                                    <BarChart size={20} className="mr-1 text-[var(--color-accent-text)]" />
+                                    Export
+                                </button>
+                            </div>
+                            <div className="flex flex-col items-center justify-center flex-1">
+                                <div className="w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center mb-4">
+                                    <BarChart size={40} className="text-[var(--color-accent-text)]" />
+                                </div>
+                                <div className="text-[16px] text-gray-500 font-medium mb-1">No data to display yet</div>
+                                <div className="text-[14px] text-gray-400 font-normal text-center">Start accepting and completing requests to see your performance metrics</div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Recent Activity Empty State */}
+                    <div className="px-6 mt-7">
+                        <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[220px]">
+                            <div className="text-[18px] font-semibold text-gray-900 mb-6 self-start">Recent Activity</div>
+                            <div className="flex flex-col items-center justify-center flex-1">
+                                <div className="w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center mb-4">
+                                    <Clock size={40} className="text-[var(--color-accent-text)]" />
+                                </div>
+                                <div className="text-[16px] text-gray-500 font-medium mb-1">No active requests in progress</div>
+                                <div className="text-[14px] text-gray-400 font-normal">Accept requests from the marketplace to see activity here</div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Earnings Overview Empty State */}
+                    <div className="px-6 mt-7">
+                        <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[220px]">
+                            <div className="text-[18px] font-semibold text-gray-900 mb-6 self-start">Earnings Overview</div>
+                            <div className="flex flex-col items-center justify-center flex-1">
+                                <div className="w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center mb-4">
+                                    <span className="text-[32px] text-[var(--color-accent-text)] font-bold">$</span>
+                                </div>
+                                <div className="text-[16px] text-gray-500 font-medium mb-1">No earnings yet</div>
+                                <div className="text-[14px] text-gray-400 font-normal text-center">Complete your first video request to start earning</div>
+                            </div>
+                        </div>
+                    </div>
+                                </React.Fragment>
+                            )}
+            {/* Footer */}
+            <BottomBar />
+            
+        </div>
+    );
+};
+
+export default App;

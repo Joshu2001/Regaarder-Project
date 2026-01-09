@@ -1,0 +1,237 @@
+import React, { useState, useRef } from 'react';
+import { Home, FileText, Pencil, MoreHorizontal, Crown, Sparkles } from 'lucide-react';
+
+const getCssVar = (name, fallback) => {
+    try { 
+        const v = getComputedStyle(document.documentElement).getPropertyValue(name); 
+        return v ? v.trim() : fallback; 
+    } catch (e) { 
+        return fallback; 
+    }
+};
+
+const ACCENT_COLOR = getCssVar('--color-accent', '#CA8A04');
+const HIGHLIGHT_COLOR = getCssVar('--color-accent-soft', 'rgba(202, 138, 4, 0.12)');
+const ICON_BACKGROUND = getCssVar('--color-gold-light-bg', 'rgba(202, 138, 4, 0.1)');
+
+// Bottom navigation bar component
+const BottomBar = () => {
+    const [activeTab, setActiveTab] = useState(null);
+    const navigatedRef = useRef(false);
+
+    const tabs = [
+        { name: 'Home', Icon: Home },
+        { name: 'Requests', Icon: FileText },
+        { name: 'Ideas', Icon: Pencil },
+        { name: 'More', Icon: MoreHorizontal },
+    ];
+
+    const inactiveColor = 'rgb(107 114 128)';
+
+    return (
+        <div
+            className="fixed bottom-0 left-0 right-0 border-t shadow-2xl z-10"
+            style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                borderTopColor: `rgba(var(--color-gold-rgb, 202, 138, 4), 0.15)`
+            }}
+            style={{
+                paddingTop: '10px',
+                paddingBottom: 'calc(44px + env(safe-area-inset-bottom))'
+            }}
+        >
+            <div className="flex justify-around max-w-md mx-auto">
+                {tabs.map((tab) => {
+                    const isSelected = tab.name === activeTab;
+                    const activeColorStyle = isSelected
+                        ? { color: 'var(--color-accent)' }
+                        : { color: inactiveColor };
+                    const textWeight = isSelected ? 'font-semibold' : 'font-normal';
+
+                    let wrapperStyle = {};
+                    if (isSelected) {
+                        wrapperStyle.textShadow = `0 0 8px var(--color-accent-soft)`;
+                    }
+
+                    const navigateToTab = (tabName) => {
+                        try {
+                            if (tabName === 'Home') {
+                                window.location.href = '/home.jsx';
+                                return;
+                            }
+                            if (tabName === 'Requests') {
+                                window.location.href = '/requests.jsx';
+                                return;
+                            }
+                            if (tabName === 'Ideas') {
+                                window.location.href = '/ideas.jsx';
+                                return;
+                            }
+                            if (tabName === 'More') {
+                                window.location.href = '/more.jsx';
+                                return;
+                            }
+                        } catch (e) {
+                            console.warn('Navigation failed', e);
+                        }
+                    };
+
+                    return (
+                        <div
+                            key={tab.name}
+                            className={`relative flex flex-col items-center w-1/4 focus:outline-none`}
+                            style={wrapperStyle}
+                        >
+                            <button
+                                className="flex flex-col items-center w-full"
+                                onMouseDown={() => {
+                                    setActiveTab(tab.name);
+                                    if (!navigatedRef.current) { 
+                                        navigatedRef.current = true; 
+                                        navigateToTab(tab.name); 
+                                    }
+                                }}
+                                onTouchStart={() => {
+                                    setActiveTab(tab.name);
+                                    if (!navigatedRef.current) { 
+                                        navigatedRef.current = true; 
+                                        navigateToTab(tab.name); 
+                                    }
+                                }}
+                                onClick={(e) => {
+                                    if (navigatedRef.current) { 
+                                        navigatedRef.current = false; 
+                                        e.preventDefault(); 
+                                        return; 
+                                    }
+                                    setActiveTab(tab.name);
+                                    navigateToTab(tab.name);
+                                }}
+                            >
+                                <div className="w-11 h-11 flex items-center justify-center">
+                                    <tab.Icon className="w-5 h-5" strokeWidth={1.5} style={activeColorStyle} />
+                                </div>
+                                <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
+                                    {tab.name}
+                                </span>
+                            </button>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+const Subscriptions = () => {
+    const handleUpgrade = () => {
+        try {
+            window.location.href = '/sponsorship.jsx';
+        } catch (e) {
+            console.warn('Navigation failed', e);
+        }
+    };
+
+    return (
+        <div className="min-h-screen text-gray-900" style={{ background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb, 202, 138, 4), 0.03) 0%, white 50%)' }}>
+            <div className="max-w-md mx-auto px-4 pt-6 pb-28">
+                {/* Header */}
+                <div className="flex items-center justify-center space-x-3 mb-6">
+                    <Crown className="w-6 h-6" style={{ color: ACCENT_COLOR }} />
+                    <h1 className="text-xl font-semibold">Subscriptions</h1>
+                </div>
+
+                {/* Empty State Content */}
+                <div className="flex-grow flex flex-col items-center justify-center text-center space-y-6 pt-16">
+                    
+                    {/* Icon with gradient background */}
+                    <div 
+                        className="w-24 h-24 rounded-2xl flex items-center justify-center"
+                        style={{
+                            background: `linear-gradient(135deg, ${HIGHLIGHT_COLOR} 0%, rgba(255,255,255,0.3) 100%)`,
+                            boxShadow: '0 4px 12px rgba(203,138,0,0.1)'
+                        }}
+                    >
+                        <Crown className="w-12 h-12" style={{ color: ACCENT_COLOR }} />
+                    </div>
+                    
+                    {/* Main Empty State Text */}
+                    <div className="space-y-2">
+                        <h2 className="text-xl font-bold text-gray-800">
+                            No Active Subscription
+                        </h2>
+                        <p className="text-sm text-gray-500 max-w-xs mx-auto leading-relaxed">
+                            You haven't upgraded your plan yet. Unlock premium features and exclusive benefits!
+                        </p>
+                    </div>
+
+                    {/* Benefits Preview */}
+                    <div className="w-full max-w-sm space-y-3 pt-4">
+                        <div className="flex items-start space-x-3 p-3 rounded-xl" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
+                            <div 
+                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                style={{ backgroundColor: ICON_BACKGROUND }}
+                            >
+                                <Sparkles className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-semibold text-gray-800">Premium Content</p>
+                                <p className="text-xs text-gray-500">Access exclusive videos and features</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-start space-x-3 p-3 rounded-xl" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
+                            <div 
+                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                style={{ backgroundColor: ICON_BACKGROUND }}
+                            >
+                                <Crown className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-semibold text-gray-800">Priority Support</p>
+                                <p className="text-xs text-gray-500">Get help faster with 24/7 priority support</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-start space-x-3 p-3 rounded-xl" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
+                            <div 
+                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                style={{ backgroundColor: ICON_BACKGROUND }}
+                            >
+                                <FileText className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-semibold text-gray-800">Unlimited Requests</p>
+                                <p className="text-xs text-gray-500">Request as many videos as you want</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <div className="pt-6 w-full max-w-sm">
+                        <button 
+                            onClick={handleUpgrade}
+                            className="w-full py-4 rounded-xl text-white font-semibold text-base transition-all hover:opacity-90 shadow-lg flex items-center justify-center space-x-2"
+                            style={{ 
+                                backgroundColor: ACCENT_COLOR,
+                                boxShadow: `0 4px 12px rgba(203, 138, 0, 0.3)`
+                            }}
+                        >
+                            <Crown className="w-5 h-5" />
+                            <span>Upgrade Your Plan</span>
+                        </button>
+                        
+                        <p className="text-xs text-gray-400 mt-3">
+                            Start your premium journey today
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom Navigation Bar */}
+            <BottomBar />
+        </div>
+    );
+};
+
+export default Subscriptions;

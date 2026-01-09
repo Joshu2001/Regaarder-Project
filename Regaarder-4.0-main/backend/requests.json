@@ -1,0 +1,1172 @@
+[
+  {
+    "id": "req_1767780460031",
+    "title": "Powerss",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 15,
+    "funding": 15,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-07T10:07:40.031Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1767696907072",
+    "title": "La corde the zordes",
+    "description": "kfnpknpgrpgnprwngpnrwg",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 2857,
+    "funding": 2857,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Paul",
+    "companyInitial": "P",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767585399609",
+      "name": "Paul",
+      "email": "paul@regaarder.com"
+    },
+    "createdBy": "user-1767585399609",
+    "createdAt": "2026-01-06T10:55:07.072Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-06T11:02:39.525Z",
+    "currentStep": 3,
+    "updatedAt": "2026-01-06T11:03:22.890Z"
+  },
+  {
+    "id": "req_1767690823115",
+    "title": "Du Sag pour ous",
+    "description": "kfnpknpgrpgnprwngpnrwg",
+    "likes": 2,
+    "comments": 2,
+    "boosts": 0,
+    "amount": 1924,
+    "funding": 1924,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Paul",
+    "companyInitial": "P",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767585399609",
+      "name": "Paul",
+      "email": "paul@regaarder.com"
+    },
+    "createdBy": "user-1767585399609",
+    "createdAt": "2026-01-06T09:13:43.115Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "extended",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-06T09:14:37.051Z"
+  },
+  {
+    "id": "req_1767543768001",
+    "title": " wanna make a request now",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 25,
+    "funding": 25,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-04T16:22:48.001Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-05T16:33:01.063Z"
+  },
+  {
+    "id": "req_1767543120759",
+    "title": " wanna make a request now",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 25,
+    "funding": 25,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-04T16:12:00.759Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-06T08:03:52.280Z"
+  },
+  {
+    "id": "req_1767457228972",
+    "title": "es el hombe mas fuerte",
+    "description": "bbbbbfr;kjfp'irnf",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 5000,
+    "funding": 5000,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T16:20:28.972Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1767456145719",
+    "title": "hhhrthwth",
+    "description": " .b b/bjbjblj",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 15,
+    "funding": 15,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-03T16:02:25.719Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1767452534088",
+    "title": "es el hombe mas fuerte",
+    "description": "bbbbbfr;kjfp'irnf",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 5000,
+    "funding": 5000,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T15:02:14.088Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-04T10:51:08.692Z"
+  },
+  {
+    "id": "req_1767452467138",
+    "title": "i am the fastest man alive",
+    "description": "nrgnnerg plelfm rkpkwfnn qteqvrvreqer  nf'pinwefnpifn",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 5000,
+    "funding": 5000,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T15:01:07.138Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-03T15:02:39.139Z"
+  },
+  {
+    "id": "req_1767449902051",
+    "title": "la meare nkjwenjnrfpk",
+    "description": "nrgnnerg plelfm rkpkwfnn qteqvrvreqer qt",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 100,
+    "funding": 100,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T14:18:22.051Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-03T14:18:52.131Z"
+  },
+  {
+    "id": "req_1767449857635",
+    "title": "la meare ",
+    "description": "nrgnnerg plelfm rkpkwfnn",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 100,
+    "funding": 100,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T14:17:37.635Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "extended",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-03T14:37:24.348Z"
+  },
+  {
+    "id": "req_1767447797137",
+    "title": "gergqrggq",
+    "description": "rioni3ni34ntn34rru43",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 100,
+    "funding": 100,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T13:43:17.137Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-03T13:43:46.955Z"
+  },
+  {
+    "id": "req_1767447759293",
+    "title": "gergqrggq",
+    "description": "rioni3ni34ntn34rru43",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 15,
+    "funding": 15,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T13:42:39.293Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": null,
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-03T13:51:17.781Z"
+  },
+  {
+    "id": "req_1767444784447",
+    "title": "gergqrggq",
+    "description": "rioni3ni34ntn34rru43",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 15,
+    "funding": 15,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T12:53:04.448Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-03T13:56:54.561Z"
+  },
+  {
+    "id": "req_1767437042007",
+    "title": "gergqrggq",
+    "description": "rioni3ni34ntn34rru43",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 15,
+    "funding": 15,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T10:44:02.007Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-03T10:44:20.972Z"
+  },
+  {
+    "id": "req_1767436980284",
+    "title": "gergqrggq",
+    "description": "rioni3ni34ntn34rru43",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 15,
+    "funding": 15,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T10:43:00.284Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-03T10:43:09.278Z"
+  },
+  {
+    "id": "req_1767434181627",
+    "title": "gergqrggq",
+    "description": "rioni3ni34ntn34rru43",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 100,
+    "funding": 100,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "js",
+    "companyInitial": "j",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767159330204"
+    },
+    "createdAt": "2026-01-03T09:56:21.628Z",
+    "meta": {
+      "selectedTones": [
+        "professional"
+      ],
+      "selectedVideoLength": "extended",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-03T09:56:54.957Z"
+  },
+  {
+    "id": "req_1767325104306",
+    "title": "l'mllm'lm",
+    "description": "k/ lJnjnjLjnj",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 25,
+    "funding": 25,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-02T03:38:24.306Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-02T03:39:40.067Z"
+  },
+  {
+    "id": "req_1767320344297",
+    "title": "l'mllm'lm",
+    "description": "k/ lJnjnjLjnj",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 2828,
+    "funding": 2828,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-02T02:19:04.297Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-02T02:19:43.290Z"
+  },
+  {
+    "id": "req_1767320048442",
+    "title": "l'mllm'lm",
+    "description": "k/ lJnjnjLjnj",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 2420,
+    "funding": 2420,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-02T02:14:08.442Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-02T02:20:34.515Z"
+  },
+  {
+    "id": "req_1767249593644",
+    "title": "jnrtnen",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 7888,
+    "funding": 7888,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-01T06:39:53.644Z",
+    "meta": {
+      "selectedTones": [
+        "professional"
+      ],
+      "selectedVideoLength": "extended",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-01T21:09:00.273Z"
+  },
+  {
+    "id": "req_1767240490130",
+    "title": "rekng;krwwk",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 7888,
+    "funding": 7888,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-01T04:08:10.130Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-01T22:57:28.888Z"
+  },
+  {
+    "id": "req_1767239671737",
+    "title": "rekng;krwwk",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 7888,
+    "funding": 7888,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-01T03:54:31.737Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-02T01:19:43.007Z"
+  },
+  {
+    "id": "req_1767238254018",
+    "title": "rekng;krwwk",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 7888,
+    "funding": 7888,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-01T03:30:54.018Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-02T01:20:25.925Z"
+  },
+  {
+    "id": "req_1767206003860",
+    "title": "rekng;krwwk",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 7888,
+    "funding": 7888,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2025-12-31T18:33:23.860Z",
+    "meta": {
+      "selectedTones": [
+        "professional"
+      ],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "unlisted"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-02T01:24:34.552Z"
+  },
+  {
+    "id": "req_1767205618069",
+    "title": "rekng;krwwk",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 7888,
+    "funding": 7888,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2025-12-31T18:26:58.069Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-02T01:32:49.681Z"
+  },
+  {
+    "id": "req_1767205269087",
+    "title": "rekng;krwwk",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 7888,
+    "funding": 7888,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2025-12-31T18:21:09.087Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-02T01:47:42.478Z"
+  },
+  {
+    "id": "req_1767184902964",
+    "title": "rekng;krwwk",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshua",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T12:41:42.964Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "long-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-01T21:38:34.015Z"
+  },
+  {
+    "id": "req_1767184286884",
+    "title": "Why does everything feel more overwhelming now?",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshua",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T12:31:26.884Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-02T02:01:33.022Z"
+  },
+  {
+    "id": "req_1767182205157",
+    "title": "Why does everything feel more overwhelming now?",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Community",
+    "companyInitial": "C",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T11:56:45.157Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "long-form",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1767181270609",
+    "title": "Why does everything feel more overwhelming now?",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Community",
+    "companyInitial": "C",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T11:41:10.610Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "long-form",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1767180865681",
+    "title": "Why does everything feel more overwhelming now?",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Community",
+    "companyInitial": "C",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T11:34:25.681Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1767179352494",
+    "title": "Why does everything feel more overwhelming now?",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "@joshua",
+    "companyInitial": "@",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T11:09:12.494Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "extended",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1767178295712",
+    "title": "Why does everything feel more overwhelming now?",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "@joshua",
+    "companyInitial": "@",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T10:51:35.712Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "long-form",
+      "selectedPrivacy": "public"
+    },
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshua",
+      "image": ""
+    }
+  },
+  {
+    "id": "req_1767177668622",
+    "title": "Why does everything feel more overwhelming now?",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "@john",
+    "companyInitial": "@",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T10:41:08.623Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "long-form",
+      "selectedPrivacy": "public"
+    },
+    "creator": {
+      "id": "user-1767166657751",
+      "name": "John",
+      "image": ""
+    }
+  },
+  {
+    "id": "req_1767177359888",
+    "title": "Why does everything feel more overwhelming now?",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "@john",
+    "companyInitial": "@",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T10:35:59.889Z",
+    "meta": {
+      "selectedTones": [
+        "professional",
+        "casual"
+      ],
+      "selectedVideoLength": "extended",
+      "selectedPrivacy": "public"
+    },
+    "creator": {
+      "id": "user-1767166657751",
+      "name": "John",
+      "image": ""
+    }
+  },
+  {
+    "id": "req_1767176689754",
+    "title": "Why does everything feel more overwhelming now?",
+    "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "@john",
+    "companyInitial": "@",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T10:24:49.754Z",
+    "meta": {
+      "selectedTones": [
+        "professional"
+      ],
+      "selectedVideoLength": "long-form",
+      "selectedPrivacy": "public"
+    },
+    "creator": {
+      "id": "user-1767166657751",
+      "name": "John",
+      "image": ""
+    }
+  },
+  {
+    "id": "req_1767175815075",
+    "title": "Why do smart people still make obvious mistakes?",
+    "description": "Maybe it’s just me, but I’ve noticed this a lot. Some of the smartest people I know still make really basic mistakes, like stuff that seems obvious in hindsight. Is there a psychology reason for this? I’d love a proper video from someone who’s actually studied psychology breaking this down.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "@john",
+    "companyInitial": "@",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T10:10:15.075Z",
+    "meta": {
+      "selectedTones": [
+        "analytical"
+      ],
+      "selectedVideoLength": "extended",
+      "selectedPrivacy": "public"
+    },
+    "creator": {
+      "id": "user-1767166657751",
+      "name": "John",
+      "image": ""
+    }
+  },
+  {
+    "id": "req_1767175504378",
+    "title": "iaksncipsncn",
+    "description": "knonninnunou",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "@john",
+    "companyInitial": "@",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "createdAt": "2025-12-31T10:05:04.378Z",
+    "meta": {
+      "selectedTones": [
+        "inspirational"
+      ],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "creator": {
+      "id": "user-1767166657751",
+      "name": "John",
+      "image": ""
+    }
+  },
+  {
+    "id": 1,
+    "title": "Unknown",
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshua"
+    },
+    "claimedAt": "2025-12-31T03:52:18.484Z"
+  },
+  {
+    "id": 2,
+    "title": "Unknown",
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshua"
+    },
+    "claimedAt": "2025-12-31T05:02:26.425Z"
+  },
+  {
+    "id": 4,
+    "title": "Unknown",
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767159330204",
+      "name": "js"
+    },
+    "claimedAt": "2025-12-31T06:05:56.009Z",
+    "comments": 1
+  }
+]
