@@ -19,8 +19,9 @@ const VideoPlayer = () => {
 	const playerPlay = player.play;
 
 	// Playlist/navigation refs so the separate videoplayer route can navigate the same list as home
-	const currentPlaylistRef = useRef([]); // array of ids or urls
+	const currentSourceRef = useRef([]); // array of ids or urls
 	const currentIndexRef = useRef(-1);
+	const [currentIndex, setCurrentIndex] = useState(-1);
 	const lastWheelTimeRef = useRef(0);
 
 	useEffect(() => {
@@ -81,25 +82,36 @@ const VideoPlayer = () => {
 					if (raw) {
 						const list = JSON.parse(raw);
 						if (Array.isArray(list) && list.length) {
-							currentPlaylistRef.current = list;
-							let idx = -1;
+							currentSourceRef.current = list; // Update the correct ref
+							
+							// Always try to match the current video to the list first to ensure sync
 							const key = info.id || info.src || info.url || info.videoUrl || info.title;
-							idx = list.findIndex(x => String(x) === String(key) || String(x) === String(info.url) || String(x) === String(info.src));
-							if (idx === -1 && Array.isArray(list)) {
-								// try to resolve via home.VIDEOS
-								try {
-									const mod = await import('./home.jsx');
-									const VIDEOS = mod.VIDEOS || mod.default?.VIDEOS || mod.homeVideos || mod.discoverItems || null;
-									if (Array.isArray(VIDEOS)) {
-										const found = VIDEOS.findIndex(v => (v.id && String(v.id) === String(key)) || (v.url && String(v.url) === String(key)) || (v.src && String(v.src) === String(key)));
-										if (found !== -1) idx = found;
+							let idx = list.findIndex(x => String(x) === String(key) || String(x) === String(info.url) || String(x) === String(info.src) || (typeof x === 'object' && (String(x.id) === String(key) || String(x.url) === String(key))));
+							
+							// If explicit index provided and valid, prioritize it but verify it matches
+							if (rawIdx != null && rawIdx !== undefined && !isNaN(parseInt(rawIdx, 10))) {
+								const storedIdx = parseInt(rawIdx, 10);
+								if (storedIdx >= 0 && storedIdx < list.length) {
+									// If the video at storedIdx matches our current video, trust it
+									// Otherwise trust the found idx (user might have deep linked to a different video while old state persisted)
+									const itemAtIdx = list[storedIdx];
+									const itemKey = typeof itemAtIdx === 'object' ? (itemAtIdx.id || itemAtIdx.url) : itemAtIdx;
+									
+									// Loose matching
+									if (idx === -1 || String(itemKey) === String(key) || String(itemKey) === String(info.url)) {
+										idx = storedIdx;
 									}
-								} catch (e) {}
+								}
 							}
-							if (rawIdx != null && rawIdx !== undefined && !isNaN(parseInt(rawIdx,10))) {
-								currentIndexRef.current = parseInt(rawIdx,10);
-							} else {
+							
+							if (idx !== -1) {
 								currentIndexRef.current = idx;
+								setCurrentIndex(idx);
+							} else {
+								// If not found in list, maybe prepend it? Or just reset to 0?
+								// For now, if not in list, we can't navigate previous/next effectively in that list.
+								currentIndexRef.current = 0;
+								setCurrentIndex(0);
 							}
 						}
 					}
@@ -3107,16 +3119,56 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			// Detect upward swipe (next video) when vertical movement is large
 			if (dy < -80 && Math.abs(dx) < 140 && !nextSwipeTriggeredRef.current) {
 				nextSwipeTriggeredRef.current = true;
-				// No hardcoded next video; notify user and reset swipe
-				// play next item from the current homepage/source list
-								const src = currentSourceRef.current || []; const idx = currentIndex; const nextIdx = (typeof idx === 'number' ? idx + 1 : 0);
-								if (nextIdx < src.length && src[nextIdx]) {
-									const next = src[nextIdx];
-									setVideoTitle(next.title || 'Video'); setCreatorName(next.creator || ''); setVideoUrl(next.url); setControlsVisible(true); showCenterTemporarily(1600); setToastMessage('Next video'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); setCurrentIndex(nextIdx);
-									setTimeout(async () => { try { const v = videoRef.current; if (v) { if (next.url) v.src = next.url; v.currentTime = 0; const p = v.play(); if (p && p.catch) p.catch(() => {}); setIsPlaying(true); } } catch (err) {} }, 120);
-								} else { setToastMessage('No next video'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); }
-				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+				const src = currentSourceRef.current || [];
+				let idx = currentIndex;
+				let nextIdx = (typeof idx === 'number' ? idx + 1 : 0);
+
+				if (nextIdx < src.length && src[nextIdx]) {
+					let next = src[nextIdx];
+					// If it's a string ID, try to resolve it (legacy fallback), otherwise use object directly
+					if (typeof next === 'string') {
+						if (discoverItemsData) {
+							const found = discoverItemsData.find(v => String(v.id) === String(next) || String(v.url) === String(next) || String(v.src) === String(next));
+							if (found) next = found;
+							else if (next.includes('/') || next.startsWith('http')) next = { url: next, title: 'Video', creator: '' };
+						} else if (next.includes('/') || next.startsWith('http')) {
+							next = { url: next, title: 'Video', creator: '' };
+						}
+					}
+					
+					if (next && (next.url || next.src || next.videoUrl)) {
+						setVideoTitle(next.title || 'Video');
+						setCreatorName(next.creator || '');
+						setVideoUrl(next.url || next.src || next.videoUrl);
+						setControlsVisible(true);
+						showCenterTemporarily(1600);
+						setToastMessage('Next video');
+						if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+						toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+						setCurrentIndex(nextIdx);
+						setTimeout(async () => {
+							try {
+								const v = videoRef.current;
+								if (v) {
+									const u = next.url || next.src || next.videoUrl;
+									if (u) v.src = u;
+									v.currentTime = 0;
+									const p = v.play();
+									if (p && p.catch) p.catch(() => {});
+									setIsPlaying(true);
+								}
+							} catch (err) {}
+						}, 120);
+					} else {
+						setToastMessage('No next video');
+						if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+						toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+					}
+				} else {
+					setToastMessage('No next video');
+					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+				}
 				resetSwipe();
 				return;
 			}
@@ -3124,10 +3176,55 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			// Detect downward swipe (previous video) when vertical movement is large
 			if (dy > 80 && Math.abs(dx) < 140 && !prevSwipeTriggeredRef.current) {
 				prevSwipeTriggeredRef.current = true;
-				// No hardcoded previous video; notify user and reset swipe
-				setToastMessage('No previous video');
-				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+				const src = currentSourceRef.current || [];
+				let idx = currentIndex;
+				let prevIdx = (typeof idx === 'number' ? idx - 1 : -1);
+
+				if (prevIdx >= 0 && src[prevIdx]) {
+					let prev = src[prevIdx];
+					if (typeof prev === 'string') {
+						if (discoverItemsData) {
+							const found = discoverItemsData.find(v => String(v.id) === String(prev) || String(v.url) === String(prev) || String(v.src) === String(prev));
+							if (found) prev = found;
+							else if (prev.includes('/') || prev.startsWith('http')) prev = { url: prev, title: 'Video', creator: '' };
+						} else if (prev.includes('/') || prev.startsWith('http')) {
+							prev = { url: prev, title: 'Video', creator: '' };
+						}
+					}
+
+					if (prev && (prev.url || prev.src || prev.videoUrl)) {
+						setVideoTitle(prev.title || 'Video');
+						setCreatorName(prev.creator || '');
+						setVideoUrl(prev.url || prev.src || prev.videoUrl);
+						setControlsVisible(true);
+						showCenterTemporarily(1600);
+						setToastMessage('Previous video');
+						if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+						toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+						setCurrentIndex(prevIdx);
+						setTimeout(async () => {
+							try {
+								const v = videoRef.current;
+								if (v) {
+									const u = prev.url || prev.src || prev.videoUrl;
+									if (u) v.src = u;
+									v.currentTime = 0;
+									const p = v.play();
+									if (p && p.catch) p.catch(() => {});
+									setIsPlaying(true);
+								}
+							} catch (err) {}
+						}, 120);
+					} else {
+						setToastMessage('No previous video');
+						if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+						toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+					}
+				} else {
+					setToastMessage('No previous video');
+					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+				}
 				resetSwipe();
 				return;
 			}
@@ -3276,6 +3373,59 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				}
 			} catch (e) {}
 		}, [showCarbonCopy, isSwiping]);
+
+		// --- Video Ended / Autoplay Handler ---
+		const handleVideoEnded = () => {
+			setIsPlaying(false);
+			if (loopVideo) return; // loop logic handled by useEffect
+
+			const src = currentSourceRef.current || [];
+			let idx = currentIndex;
+			let nextIdx = (typeof idx === 'number' ? idx + 1 : 0);
+
+			if (nextIdx < src.length && src[nextIdx]) {
+				let next = src[nextIdx];
+				// If it's a string ID, try to resolve it (legacy fallback), otherwise use object directly
+				if (typeof next === 'string') {
+					if (discoverItemsData) {
+						const found = discoverItemsData.find(v => String(v.id) === String(next) || String(v.url) === String(next) || String(v.src) === String(next));
+						if (found) next = found;
+						else if (next.includes('/') || next.startsWith('http')) next = { url: next, title: 'Video', creator: '' };
+					} else if (next.includes('/') || next.startsWith('http')) {
+						next = { url: next, title: 'Video', creator: '' };
+					}
+				}
+				
+				if (next && (next.url || next.src || next.videoUrl)) {
+					setVideoTitle(next.title || 'Video');
+					setCreatorName(next.creator || '');
+					setVideoUrl(next.url || next.src || next.videoUrl);
+					setControlsVisible(true);
+					showCenterTemporarily(1600);
+					setToastMessage('Playing next video');
+					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+					setCurrentIndex(nextIdx);
+					setTimeout(async () => {
+						try {
+							const v = videoRef.current;
+							if (v) {
+								const u = next.url || next.src || next.videoUrl;
+								if (u) v.src = u;
+								v.currentTime = 0;
+								const p = v.play();
+								if (p && p.catch) p.catch(() => {});
+								setIsPlaying(true);
+							}
+						} catch (err) {}
+					}, 120);
+				} else {
+					setShowSuggestionCard(true);
+				}
+			} else {
+				setShowSuggestionCard(true);
+			}
+		};
 
 		// --- Render ---
 		return (
@@ -3855,7 +4005,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							onTimeUpdate={(e) => {
 								try { if (!draggingRef.current) setProgress(e.target.currentTime / (e.target.duration || 1)); } catch (err) {}
 							}}
-							onEnded={() => setIsPlaying(false)}
+							onEnded={handleVideoEnded}
 							onPause={() => setIsPlaying(false)}
 							onPlay={() => setIsPlaying(true)}
 						/>

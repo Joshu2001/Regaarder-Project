@@ -3890,8 +3890,16 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                     if (e.target === e.currentTarget || e.target.closest('.card-content')) {
                         try {
                             // persist the current playlist and index so the videoplayer can navigate sequentially
-                            const list = Array.isArray(allVideos) && allVideos.length ? allVideos.map(v => (v.id || v.url || v.src || v.videoUrl || v.title)) : [];
-                            const idx = list.findIndex(x => String(x) === String(video.id || video.url || video.src || video.videoUrl || video.title));
+                            // Save complete objects (minimized) so the player has URLs/metadata without needing lookups
+                            const list = Array.isArray(allVideos) && allVideos.length ? allVideos.map(v => ({
+                                id: v.id,
+                                title: v.title,
+                                url: v.videoUrl || v.url || v.src,
+                                creator: v.author || v.creator || '',
+                                thumbnail: v.imageUrl || v.thumbnail
+                            })) : [];
+                            const idx = list.findIndex(x => String(x.id) === String(video.id) || String(x.url) === String(video.videoUrl || video.url));
+                            
                             try { localStorage.setItem('videoplayer_source', JSON.stringify(list)); } catch (e) {}
                             try { localStorage.setItem('videoplayer_index', String(Math.max(0, idx))); } catch (e) {}
                         } catch (e) {}
