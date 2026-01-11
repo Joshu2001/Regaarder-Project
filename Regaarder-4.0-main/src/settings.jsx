@@ -6,8 +6,8 @@ import { getTranslation } from './translations.js';
 import { ChevronLeft, Download, Trash, Lock, Mail, X, Eye, EyeOff } from 'lucide-react';
 import { clearWatchHistory } from './watchhistory.jsx';
 
-const timeAgo = (iso) => {
-  if (!iso) return 'Unknown';
+const timeAgo = (iso, lang = 'English') => {
+  if (!iso) return getTranslation('Unknown', lang);
   try {
     const t = new Date(iso).getTime();
     const now = Date.now();
@@ -20,7 +20,7 @@ const timeAgo = (iso) => {
     if (days > 0) return `${days} day${days>1?'s':''} ago`;
     if (hours > 0) return `${hours} hour${hours>1?'s':''} ago`;
     return `${mins} minute${mins!==1?'s':''} ago`;
-  } catch { return 'Unknown'; }
+  } catch { return getTranslation('Unknown', lang); }
 };
 
 const Settings = () => {
@@ -247,7 +247,7 @@ const Settings = () => {
                 <Lock className="w-6 h-6" style={{ color: 'var(--color-gold)' }} />
                 <div className="text-left">
                   <div className="text-base font-medium text-gray-800">{getTranslation('Password', selectedLanguage)}</div>
-                  <div className="text-sm text-gray-500">{getTranslation('Last changed', selectedLanguage)} {timeAgo(user.passwordChangedAt)}</div>
+                  <div className="text-sm text-gray-500">{getTranslation('Last changed', selectedLanguage)} {timeAgo(user.passwordChangedAt, selectedLanguage)}</div>
                 </div>
               </div>
               <button className="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-800 text-sm font-semibold" onClick={() => { setError(''); setShowPasswordModal(true); }}>

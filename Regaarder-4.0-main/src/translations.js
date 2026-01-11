@@ -179,6 +179,15 @@ export const translations = {
     'General': 'General',
     'Language': 'Language',
     'Theme': 'Theme',
+    'Choose Your Theme': 'Choose Your Theme',
+    'Select how Regaarder looks on your device': 'Select how Regaarder looks on your device',
+    'Bright and clean': 'Bright and clean',
+    'Low-light friendly': 'Low-light friendly',
+    'System': 'System',
+    'Follow device settings': 'Follow device settings',
+    'Accent Color': 'Accent Color',
+    "Customize the app's highlight color": "Customize the app's highlight color",
+    'Apply': 'Apply',
     'Advertise with Us': 'Advertise with Us',
     'Policies': 'Policies',
     'Light': 'Light',
@@ -1807,6 +1816,14 @@ export const translations = {
     'New Notification': 'Thông báo mới',
     'Status Update from Creator': 'Cập nhật trạng thái từ người sáng tạo',
     'Request Fulfilled!': 'Yêu cầu đã hoàn thành!',
+    'All caught up!': 'Tất cả đã xem hết!',
+    "You don't have any notifications right now. We'll let you know when something important happens.": "Bạn chưa có thông báo nào. Chúng tôi sẽ thông báo cho bạn khi có điều gì quan trọng xảy ra.",
+    'Request Updates': 'Cập nhật Yêu cầu',
+    'Get notified when creators start or complete your requests': 'Nhận thông báo khi nhà sáng tạo bắt đầu hoặc hoàn thành yêu cầu của bạn',
+    'Viral Rewards': 'Phần thưởng Lan truyền',
+    'Earn money when your requests go viral': 'Kiếm tiền khi yêu cầu của bạn trở nên phổ biến',
+    'Milestones & Achievements': 'Cột mốc & Thành tựu',
+    'Celebrate your progress and unlock rewards': 'Kỷ niệm tiến độ của bạn và mở khóa phần thưởng',
     'Export Your Data': 'Xuất dữ liệu của bạn',
     'Download all your information': 'Tải xuống tất cả thông tin của bạn',
     'Delete Account': 'Xóa tài khoản',
@@ -2038,6 +2055,17 @@ export const translations = {
     'Continue to Tone & Style': 'Tiếp tục đến Tông màu & Phong cách',
     'Continue to Privacy': 'Tiếp tục đến Quyền riêng tư',
     'Continue to Configuration': 'Tiếp tục đến Cấu hình',
+
+    // Theme
+    'Choose Your Theme': 'Chọn giao diện',
+    'Select how Regaarder looks on your device': 'Chọn hiển thị giao diện',
+    'Bright and clean': 'Sáng và rõ ràng',
+    'Low-light friendly': 'Thân thiện với mắt',
+    'System': 'Hệ thống',
+    'Follow device settings': 'Theo cài đặt thiết bị',
+    'Accent Color': 'Màu điểm nhấn',
+    "Customize the app's highlight color": 'Tùy chỉnh màu nổi bật',
+    'Apply': 'Áp dụng',
   },
 
   'Filipino': {
@@ -2525,6 +2553,30 @@ export const translations = {
     'Profile Settings': 'Ajustes de perfil',
     'Payment Methods': 'Métodos de pago',
     'Help & Support': 'Ayuda y soporte',
+
+    // Settings Page
+    'Data & Account': 'Datos y cuenta',
+    'Delete Your Data': 'Eliminar tus datos',
+    'Delete all your data but keep your account': 'Elimina todos tus datos pero mantén tu cuenta',
+    'Password': 'Contraseña',
+    'Last changed': 'Último cambio',
+    'Change': 'Cambiar',
+    'Email': 'Correo electrónico',
+    'Change Password': 'Cambiar contraseña',
+    'Current password': 'Contraseña actual',
+    'New password': 'Nueva contraseña',
+    'Confirm new password': 'Confirmar nueva contraseña',
+    'Save': 'Guardar',
+    'Saving...': 'Guardando...',
+    'Change Email': 'Cambiar correo',
+    'New email': 'Nuevo correo',
+    'Please re-enter your password to confirm deleting your data': 'Por favor, reingresa tu contraseña para confirmar el borrado de datos',
+    'Delete My Data': 'Borrar mis datos',
+    'Deleting...': 'Borrando...',
+    'Your data has been deleted': 'Tus datos han sido eliminados',
+    'Permanently delete your account?': '¿Eliminar permanentemente tu cuenta?',
+    'Unknown': 'Desconocido',
+
     
     // Requests Page
     'Date': 'Fecha',
@@ -3228,3 +3280,11 @@ export const translations = {
     'Continue to Privacy': 'Jätka privaatsusega',
     'Continue to Configuration': 'Jätka seadistamisega',
   },
+};
+
+export const getTranslation = (key, language = 'English') => {
+  if (!translations[language]) return translations['English'][key] || key;
+  return translations[language][key] || translations['English'][key] || key;
+};
+
+

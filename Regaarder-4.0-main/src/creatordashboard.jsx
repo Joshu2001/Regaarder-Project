@@ -201,7 +201,7 @@ const Toast = ({ message, duration = 2000, bottom = true }) => {
 const ClaimStatusPanel = ({
     title = 'A night tour of taipei',
     requesterName = 'AllVater',
-    requesterRole = 'Requester',
+    requesterRole = getTranslation('Requester', localStorage.getItem('selectedLanguage') || 'English'),
     requesterAvatar = null,
     currentStep = 1,
     onClose = () => {},
@@ -537,7 +537,7 @@ const ClaimStatusPanel = ({
                 if (!ok) throw new Error('execCommand returned false');
             }
             setLinkCopied(true);
-            setToastMessage('Copied');
+            setToastMessage(getTranslation('Copied', selectedLanguage));
             setTimeout(() => setLinkCopied(false), 1200);
         } catch (err) {
             // Last-resort fallback: show a prompt so users can copy manually (works on many mobile browsers)
@@ -545,10 +545,10 @@ const ClaimStatusPanel = ({
                 // window.prompt may be blocked in some embedded contexts; wrap in try/catch
                 // eslint-disable-next-line no-alert
                 window.prompt && window.prompt('Copy this link', link);
-                setToastMessage('Copy ready — paste manually');
+                setToastMessage(getTranslation('Copy ready — paste manually', selectedLanguage));
                 setTimeout(() => setToastMessage(''), 2000);
             } catch (e) {
-                setToastMessage('Copy failed');
+                setToastMessage(getTranslation('Copy failed', selectedLanguage));
                 setTimeout(() => setToastMessage(''), 1500);
             }
         }
@@ -1001,12 +1001,12 @@ const ClaimStatusPanel = ({
                                             ) : (
                                                 <div className="text-gray-400 flex flex-col items-center justify-center">
                                                     <Image size={36} className="text-gray-300 mb-2" />
-                                                    <div>Click to upload thumbnail</div>
+                                                    <div>{getTranslation('Click to upload thumbnail', selectedLanguage)}</div>
                                                 </div>
                                             )}
                                         </div>
 
-                                        {thumbnailFile && <div className="text-xs text-gray-500 mt-2">Selected: {thumbnailFile.name} ({Math.round(thumbnailFile.size/1024)} KB)</div>}
+                                        {thumbnailFile && <div className="text-xs text-gray-500 mt-2">{getTranslation('Selected:', selectedLanguage)} {thumbnailFile.name} ({Math.round(thumbnailFile.size/1024)} KB)</div>}
 
                                         {/* Adjust thumbnail control */}
                                         {thumbnailPreview && (
@@ -1016,7 +1016,7 @@ const ClaimStatusPanel = ({
                                                     onClick={() => setShowAdjustModal(true)}
                                                     className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-gray-200 bg-white text-sm"
                                                 >
-                                                    Adjust thumbnail
+                                                    {getTranslation('Adjust thumbnail', selectedLanguage)}
                                                 </button>
                                             </div>
                                         )}
@@ -1027,7 +1027,7 @@ const ClaimStatusPanel = ({
                                                 <div className="absolute inset-0 bg-black opacity-60" onClick={() => setShowAdjustModal(false)} />
                                                 <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 z-10 p-4">
                                                     <div className="flex items-center justify-between mb-3">
-                                                        <div className="font-semibold">Adjust Thumbnail</div>
+                                                        <div className="font-semibold">{getTranslation('Adjust Thumbnail', selectedLanguage)}</div>
                                                         <button onClick={() => setShowAdjustModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
                                                     </div>
 
@@ -1077,7 +1077,7 @@ const ClaimStatusPanel = ({
 
                                                             <div className="w-40 flex-shrink-0 flex flex-col gap-3">
                                                                 <div>
-                                                                    <label className="text-xs text-gray-600">Zoom</label>
+                                                                    <label className="text-xs text-gray-600">{getTranslation('Zoom', selectedLanguage)}</label>
                                                                     <input type="range" min="0.2" max="3" step="0.05" value={adjustScale} onChange={(e) => setAdjustScale(Number(e.target.value))} className="w-full mt-1" />
                                                                     <div className="text-xs text-gray-500 mt-1">{Math.round(adjustScale * 100)}%</div>
                                                                 </div>
@@ -1100,10 +1100,10 @@ const ClaimStatusPanel = ({
                                                                     >+</button>
                                                                 </div>
                                                             <div className="mt-2">
-                                                                <button onClick={handleResetAdjust} className="w-full px-3 py-2 rounded-md border border-gray-200 bg-white mb-2">Reset</button>
+                                                                <button onClick={handleResetAdjust} className="w-full px-3 py-2 rounded-md border border-gray-200 bg-white mb-2">{getTranslation('Reset', selectedLanguage)}</button>
                                                                 <div className="mt-auto">
-                                                                    <button onClick={handleSaveAdjustedThumbnail} className="w-full bg-[var(--color-gold)] text-white px-3 py-2 rounded-md">Save</button>
-                                                                    <button onClick={() => setShowAdjustModal(false)} className="w-full mt-2 px-3 py-2 rounded-md border border-gray-200 bg-white">Cancel</button>
+                                                                    <button onClick={handleSaveAdjustedThumbnail} className="w-full bg-[var(--color-gold)] text-white px-3 py-2 rounded-md">{getTranslation('Save', selectedLanguage)}</button>
+                                                                    <button onClick={() => setShowAdjustModal(false)} className="w-full mt-2 px-3 py-2 rounded-md border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
                                                                 </div>
                                                             </div>
                                                             </div>
@@ -1115,21 +1115,21 @@ const ClaimStatusPanel = ({
 
                                     {/* Video metadata fields (title, category, appearance) shown after thumbnail */}
                                     <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-2">Video Title <span className="text-red-500">*</span></div>
+                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Video Title', selectedLanguage)} <span className="text-red-500">*</span></div>
                                         <input
                                             value={videoTitle}
                                             onChange={(e) => {
                                                 const v = e.target.value.slice(0, 100);
                                                 setVideoTitle(v);
                                             }}
-                                            placeholder="Add a title for your video"
+                                            placeholder={getTranslation('Add a title for your video', selectedLanguage)}
                                             className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm"
                                         />
-                                        <div className="text-xs text-gray-400 mt-1">{videoTitle.length}/100 characters</div>
+                                        <div className="text-xs text-gray-400 mt-1">{videoTitle.length}/100 {getTranslation('characters', selectedLanguage)}</div>
                                     </div>
 
                                     <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-2">Category <span className="text-red-500">*</span></div>
+                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Category', selectedLanguage)} <span className="text-red-500">*</span></div>
                                         <div className="relative" ref={categoryRef}>
                                             <button
                                                 type="button"
@@ -1138,7 +1138,7 @@ const ClaimStatusPanel = ({
                                                 aria-expanded={categoryOpen}
                                                 className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-white flex items-center justify-between"
                                             >
-                                                <span className={category ? 'text-gray-900' : 'text-gray-400'}>{category || 'Select a category for your video'}</span>
+                                                <span className={category ? 'text-gray-900' : 'text-gray-400'}>{getTranslation(category || 'Select a category for your video', selectedLanguage)}</span>
                                                 <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                             </button>
 
@@ -1153,7 +1153,7 @@ const ClaimStatusPanel = ({
                                                                 onClick={() => { setCategory(c); setCategoryOpen(false); }}
                                                                 className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
                                                             >
-                                                                <span className="text-sm text-gray-900">{c}</span>
+                                                                <span className="text-sm text-gray-900">{getTranslation(c, selectedLanguage)}</span>
                                                                 {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
                                                             </button>
                                                         );
@@ -1164,7 +1164,7 @@ const ClaimStatusPanel = ({
                                     </div>
 
                                     <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-3">How it appears</div>
+                                        <div className="text-sm font-medium text-gray-700 mb-3">{getTranslation('How it appears', selectedLanguage)}</div>
                                         <div className="flex flex-col gap-3">
                                             <button type="button" onClick={() => setAppearance('public')} className={`text-left p-4 rounded-lg border ${appearance === 'public' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
                                                 <div className="flex items-center justify-between">
@@ -1172,10 +1172,10 @@ const ClaimStatusPanel = ({
                                                         <Globe size={20} className="text-[var(--color-gold-darker)] mt-1" />
                                                         <div>
                                                             <div className="flex items-center gap-3">
-                                                                <div className="font-semibold">Public</div>
-                                                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">Recommended</span>
+                                                                <div className="font-semibold">{getTranslation('Public', selectedLanguage)}</div>
+                                                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">{getTranslation('Recommended', selectedLanguage)}</span>
                                                             </div>
-                                                            <div className="text-xs text-gray-500">Video appears on home page after completion. Best for maximum reach.</div>
+                                                            <div className="text-xs text-gray-500">{getTranslation('Video appears on home page after completion. Best for maximum reach.', selectedLanguage)}</div>
                                                         </div>
                                                     </div>
                                                     <div>
@@ -1189,10 +1189,10 @@ const ClaimStatusPanel = ({
                                                         <Link2 size={20} className="text-gray-700 mt-1" />
                                                         <div>
                                                             <div className="flex items-center gap-3">
-                                                                <div className="font-semibold">Unlisted</div>
-                                                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">For Review</span>
+                                                                <div className="font-semibold">{getTranslation('Unlisted', selectedLanguage)}</div>
+                                                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">{getTranslation('For Review', selectedLanguage)}</span>
                                                             </div>
-                                                            <div className="text-xs text-gray-500">Shareable via link only. Not visible on home page.</div>
+                                                            <div className="text-xs text-gray-500">{getTranslation('Shareable via link only. Not visible on home page.', selectedLanguage)}</div>
                                                         </div>
                                                     </div>
                                                     <div>
@@ -1205,8 +1205,8 @@ const ClaimStatusPanel = ({
                                                     <div className="flex items-start gap-3">
                                                         <Lock size={20} className="text-gray-700 mt-1" />
                                                         <div>
-                                                            <div className="font-semibold">Private</div>
-                                                            <div className="text-xs text-gray-500">Only visible to you and the requester.</div>
+                                                            <div className="font-semibold">{getTranslation('Private', selectedLanguage)}</div>
+                                                            <div className="text-xs text-gray-500">{getTranslation('Only visible to you and the requester.', selectedLanguage)}</div>
                                                         </div>
                                                     </div>
                                                     {appearance === 'private' && <div className="text-[var(--color-gold-darker)]">✓</div>}
@@ -1221,8 +1221,8 @@ const ClaimStatusPanel = ({
                                             <div className="flex items-start gap-3">
                                                 <Link size={20} className="text-[var(--color-gold-darker)] mt-1" />
                                                 <div>
-                                                    <div className="font-semibold text-[var(--color-gold-darker)]">Your Video Link</div>
-                                                    <div className="text-sm text-gray-600 mt-1">✨ A permanent link will be generated when you publish</div>
+                                                    <div className="font-semibold text-[var(--color-gold-darker)]">{getTranslation('Your Video Link', selectedLanguage)}</div>
+                                                    <div className="text-sm text-gray-600 mt-1">{getTranslation('✨ A permanent link will be generated when you publish', selectedLanguage)}</div>
                                                 </div>
                                             </div>
                                             <div>
@@ -1232,7 +1232,7 @@ const ClaimStatusPanel = ({
                                             </div>
                                         </div>
 
-                                        <div className="text-sm font-medium text-gray-700 mb-2">Script Type <span className="text-red-500">*</span></div>
+                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Script Type', selectedLanguage)} <span className="text-red-500">*</span></div>
                                         <div className="relative mb-4" ref={scriptRef}>
                                             <button
                                                 type="button"
@@ -1241,7 +1241,7 @@ const ClaimStatusPanel = ({
                                                 aria-expanded={scriptOpen}
                                                 className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-white flex items-center justify-between"
                                             >
-                                                <span className={scriptType ? 'text-gray-900' : 'text-gray-400'}>{scriptType || 'Select the script style used'}</span>
+                                                <span className={scriptType ? 'text-gray-900' : 'text-gray-400'}>{getTranslation(scriptType || 'Select the script style used', selectedLanguage)}</span>
                                                 <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                             </button>
 
@@ -1256,7 +1256,7 @@ const ClaimStatusPanel = ({
                                                                 onClick={() => { setScriptType(s); setScriptOpen(false); }}
                                                                 className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
                                                             >
-                                                                <span className="text-sm text-gray-900">{s}</span>
+                                                                <span className="text-sm text-gray-900">{getTranslation(s, selectedLanguage)}</span>
                                                                 {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
                                                             </button>
                                                         );
@@ -1266,7 +1266,7 @@ const ClaimStatusPanel = ({
                                         </div>
 
                                         <div className="flex items-center justify-between mb-2">
-                                            <div className="text-sm font-medium text-gray-700">Upload Script File <span className="text-xs text-gray-400">Optional</span></div>
+                                            <div className="text-sm font-medium text-gray-700">{getTranslation('Upload Script File', selectedLanguage)} <span className="text-xs text-gray-400">{getTranslation('Optional', selectedLanguage)}</span></div>
                                         </div>
 
                                         <input ref={scriptInputRef} type="file" accept=".txt,.doc,.docx,.pdf" className="hidden" onChange={(e) => {
@@ -1278,14 +1278,14 @@ const ClaimStatusPanel = ({
 
                                         <div onClick={() => scriptInputRef.current && scriptInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-36 flex items-center justify-center cursor-pointer overflow-hidden bg-white">
                                             {scriptFile ? (
-                                                <div className="text-sm text-gray-700">Selected: {scriptFile.name} ({Math.round(scriptFile.size/1024)} KB)</div>
+                                                <div className="text-sm text-gray-700">{getTranslation('Selected:', selectedLanguage)} {scriptFile.name} ({Math.round(scriptFile.size/1024)} KB)</div>
                                             ) : (
                                                 <div className="text-center text-gray-500">
                                                     <div className="w-12 h-12 rounded-md bg-[var(--color-gold-light-bg)] mx-auto mb-3 flex items-center justify-center text-[var(--color-gold)]">
                                                         <FileIcon size={20} className="text-[var(--color-gold)]" />
                                                     </div>
-                                                    <div className="font-medium">Upload Script File</div>
-                                                    <div className="text-xs text-gray-400 mt-1">TXT, DOC, DOCX, or PDF · Max 10MB</div>
+                                                    <div className="font-medium">{getTranslation('Upload Script File', selectedLanguage)}</div>
+                                                    <div className="text-xs text-gray-400 mt-1">{getTranslation('TXT, DOC, DOCX, or PDF · Max 10MB', selectedLanguage)}</div>
                                                 </div>
                                             )}
                                         </div>
@@ -1294,11 +1294,11 @@ const ClaimStatusPanel = ({
                                         {/* If user selected "Other" allow them to describe it */}
                                         {scriptType === 'Other' && (
                                             <div className="mb-4">
-                                                <div className="text-sm font-medium text-gray-700 mb-2">Please describe the script type</div>
+                                                <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Please describe the script type', selectedLanguage)}</div>
                                                 <input
                                                     value={scriptOther}
                                                     onChange={(e) => setScriptOther(e.target.value)}
-                                                    placeholder="Describe the script type"
+                                                    placeholder={getTranslation('Describe the script type', selectedLanguage)}
                                                     className="w-full p-3 border border-gray-200 rounded-lg text-sm"
                                                 />
                                             </div>
@@ -1312,32 +1312,32 @@ const ClaimStatusPanel = ({
                                 <React.Fragment>
                                     <div className="flex items-start justify-between mb-4">
                                         <div>
-                                            <h3 className="text-[20px] font-semibold text-gray-900">Advance Request Status</h3>
-                                            <div className="text-sm text-gray-400">Update the status and notify the requester</div>
+                                            <h3 className="text-[20px] font-semibold text-gray-900">{getTranslation('Advance Request Status', selectedLanguage)}</h3>
+                                            <div className="text-sm text-gray-400">{getTranslation('Update the status and notify the requester', selectedLanguage)}</div>
                                         </div>
                                         <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
                                     </div>
 
                                     <div className="flex items-center justify-center gap-6 my-4">
                                         <div className="text-center">
-                                            <div className="text-xs text-gray-400">Current Status</div>
-                                            <div className="text-lg font-semibold mt-2">{steps[Math.max(0, currentStep - 1)]}</div>
+                                            <div className="text-xs text-gray-400">{getTranslation('Current Status', selectedLanguage)}</div>
+                                            <div className="text-lg font-semibold mt-2">{getTranslation(steps[Math.max(0, currentStep - 1)], selectedLanguage)}</div>
                                         </div>
                                         <div className="text-2xl text-gray-400">→</div>
                                         <div className="text-center">
-                                            <div className="text-xs text-gray-400">Next Status</div>
-                                            <div className="text-lg font-semibold mt-2">{currentStep < steps.length ? steps[currentStep] : steps[steps.length - 1]}</div>
+                                            <div className="text-xs text-gray-400">{getTranslation('Next Status', selectedLanguage)}</div>
+                                            <div className="text-lg font-semibold mt-2">{getTranslation(currentStep < steps.length ? steps[currentStep] : steps[steps.length - 1], selectedLanguage)}</div>
                                         </div>
                                     </div>
 
                                     <div className="mt-4">
-                                        <label className="text-sm font-medium text-gray-700">Progress Update Message (Optional)</label>
-                                        <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Add a custom message for the requester..." className="w-full mt-2 p-3 border border-gray-200 rounded-lg min-h-[120px] text-sm" />
+                                        <label className="text-sm font-medium text-gray-700">{getTranslation('Progress Update Message (Optional)', selectedLanguage)}</label>
+                                        <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={getTranslation('Add a custom message for the requester...', selectedLanguage)} className="w-full mt-2 p-3 border border-gray-200 rounded-lg min-h-[120px] text-sm" />
                                     </div>
 
                                     <div className="mt-4 p-4 bg-blue-50 rounded-lg flex items-start gap-3">
                                         <div className="text-blue-600">🔔</div>
-                                        <div className="text-sm text-blue-900">{requesterName} will be notified via email and app notification</div>
+                                        <div className="text-sm text-blue-900">{requesterName} {getTranslation('will be notified via email and app notification', selectedLanguage)}</div>
                                     </div>
 
                                     <div className="mt-6 flex flex-col gap-3">
@@ -1368,9 +1368,9 @@ const ClaimStatusPanel = ({
                                             className={`w-full px-4 py-3 rounded-lg text-white font-semibold ${currentStep > steps.length ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
                                         >
                                             <span className="mr-2">✔</span>
-                                            {currentStep === steps.length ? 'Update Progress' : (currentStep === steps.length - 1 ? 'Publish Video' : 'Update Status')}
+                                            {currentStep === steps.length ? getTranslation('Update Progress', selectedLanguage) : (currentStep === steps.length - 1 ? getTranslation('Publish Video', selectedLanguage) : getTranslation('Update Status', selectedLanguage))}
                                         </button>
-                                        <button onClick={() => setShowModal(false)} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white">Cancel</button>
+                                        <button onClick={() => setShowModal(false)} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
                                     </div>
                                 </React.Fragment>
                             )}
@@ -1379,7 +1379,7 @@ const ClaimStatusPanel = ({
                         {/* Fixed action area for publish modal (keeps buttons visible while content scrolls) */}
                         {(currentStep === 5 || isReuploading) && (
                             <div className="p-4 border-t bg-white">
-                                {validationError && <div className="text-sm text-red-600 mb-3">{validationError}</div>}
+                                {validationError && <div className="text-sm text-red-600 mb-3">{getTranslation(validationError, selectedLanguage)}</div>}
                                 {/* Two-step actions: form (Next: Preview) -> preview (Publish) */}
                                 {publishStep === 'form' ? (
                                     <>
@@ -1401,11 +1401,11 @@ const ClaimStatusPanel = ({
                                                     return;
                                                 }
                                                 if (videoFormat === 'series' && publishedCount >= seriesLimit) {
-                                                    setValidationError(`Series limit reached (${seriesLimit}).`);
+                                                    setValidationError('Series limit reached');
                                                     return;
                                                 }
                                                 if (videoFormat === 'catalogue' && publishedCount >= catalogueLimit) {
-                                                    setValidationError(`Catalogue limit reached (${catalogueLimit}).`);
+                                                    setValidationError('Catalogue limit reached');
                                                     return;
                                                 }
 
@@ -1424,9 +1424,9 @@ const ClaimStatusPanel = ({
                                             disabled={(videoFormat === 'one-time' && publishedCount >= 1) || (videoFormat === 'series' && publishedCount >= seriesLimit) || (videoFormat === 'catalogue' && publishedCount >= catalogueLimit)}
                                             className={`w-full bg-[var(--color-gold)] text-white px-4 py-3 rounded-lg font-semibold mb-3`}
                                         >
-                                            Next: Preview
+                                            {getTranslation('Next: Preview', selectedLanguage)}
                                         </button>
-                                        <button onClick={() => setShowModal(false)} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white">Cancel</button>
+                                        <button onClick={() => setShowModal(false)} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
                                     </>
                                 ) : (
                                     <>
@@ -1606,12 +1606,12 @@ const ClaimStatusPanel = ({
                                                                 console.log('Video published successfully:', result);
                                                                 
                                                                 // Show success toast with option to view
-                                                                setToastMessage('Video published! Refresh home page to see it.');
+                                                                setToastMessage(getTranslation('Video published! Refresh home page to see it.', selectedLanguage));
                                                             } else {
                                                                 console.error('Failed to publish video to backend. Status:', response.status);
                                                                 const errorText = await response.text();
                                                                 console.error('Error details:', errorText);
-                                                                setToastMessage('Failed to publish video. Please try again.');
+                                                                setToastMessage(getTranslation('Failed to publish video. Please try again.', selectedLanguage));
                                                             }
                                                         } catch (err) {
                                                             console.error('Error publishing video to backend:', err);
@@ -1623,7 +1623,7 @@ const ClaimStatusPanel = ({
                                                             setPublishedCount(newCount);
                                                             setPublishedItems((arr) => [...arr, publishedMeta]);
                                                             setLastPublished(publishedMeta);
-                                                            setToastMessage(`Published video #${newCount}`);
+                                                            setToastMessage(`${getTranslation('Published video', selectedLanguage)} #${newCount}`);
 
                                                             // Reset upload fields so user can add another
                                                             setVideoFile(null);
@@ -1642,7 +1642,7 @@ const ClaimStatusPanel = ({
                                                             setPublishedCount(newCount);
                                                             setPublishedItems((arr) => [...arr, publishedMeta]);
                                                             setLastPublished(publishedMeta);
-                                                            setToastMessage(`Published episode #${newCount}`);
+                                                            setToastMessage(`${getTranslation('Published episode', selectedLanguage)} #${newCount}`);
 
                                                             // Auto-increment title for next episode: strip existing (Part N) and add next
                                                             const baseTitle = (titleStr || videoTitle || '').replace(/\s*\(Part\s*\d+\)\s*$/i, '').trim();
@@ -1668,7 +1668,7 @@ const ClaimStatusPanel = ({
                                                             setPublishedCount(newCount);
                                                             setPublishedItems((arr) => [...arr, publishedMeta]);
                                                             setLastPublished(publishedMeta);
-                                                            setToastMessage(`Published item #${newCount}`);
+                                                            setToastMessage(`${getTranslation('Published item', selectedLanguage)} #${newCount}`);
 
                                                             // Reset upload fields for next catalogue item
                                                             setVideoFile(null);
@@ -1699,7 +1699,7 @@ const ClaimStatusPanel = ({
                                                                     return [...(arr || []), publishedMeta];
                                                                 });
                                                                 setLastPublished(publishedMeta);
-                                                                setToastMessage('Updated published video');
+                                                                setToastMessage(getTranslation('Updated published video', selectedLanguage));
                                                                 try { onUpdateProgress(Math.min(steps.length, currentStep + 1), `Re-uploaded video:${publishedMeta.fileName} thumb:${publishedMeta.thumbnail || ''}`); } catch (e) {}
                                                             } else {
                                                                 const newCount = publishedCount + 1;
@@ -2162,7 +2162,7 @@ const App = () => {
             setDeletingId(id);
             const next = publishedList.filter((i) => i.id !== id);
             persistPublishedList(next);
-            setAppToast('Deleted');
+            setAppToast(getTranslation('Deleted', selectedLanguage));
             setTimeout(() => setAppToast(''), 1800);
         } finally {
             // slight delay so user sees deleting state
@@ -2300,7 +2300,7 @@ const App = () => {
     const cardsBase = [
         {
             id: 'earnings',
-            title: 'Total Earnings',
+            title: getTranslation('Total Earnings', selectedLanguage),
             jsx: (
                 <div key="earnings" className="snap-start min-w-full flex-shrink-0">
                     <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
@@ -2310,11 +2310,11 @@ const App = () => {
                              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
                                  <Trophy size={22} className="text-white" fill="white" />
                              </div>
-                             <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>Total Earnings</span>
+                             <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Total Earnings', selectedLanguage)}</span>
                          </div>
                          <div className="flex-1 flex flex-col justify-center relative z-10">
                              <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
-                             <span className="text-[13px] text-gray-600 font-medium">Start earning today</span>
+                             <span className="text-[13px] text-gray-600 font-medium">{getTranslation('Start earning today', selectedLanguage)}</span>
                          </div>
                     </div>
                 </div>
@@ -2360,7 +2360,7 @@ const App = () => {
         },
         {
             id: 'rating',
-            title: 'Avg Rating',
+            title: getTranslation('Avg Rating', selectedLanguage),
             jsx: (
                 <div key="rating" className="snap-start min-w-full flex-shrink-0">
                     <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
@@ -2370,11 +2370,11 @@ const App = () => {
                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
                              <Star size={22} className="text-white" fill="white" />
                          </div>
-                         <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>Avg Rating</span>
+                         <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Avg Rating', selectedLanguage)}</span>
                      </div>
                      <div className="flex-1 flex flex-col justify-center relative z-10">
                          <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
-                         <span className="text-[14px] text-gray-600 font-semibold">Not rated yet ⭐</span>
+                         <span className="text-[14px] text-gray-600 font-semibold">{getTranslation('Not rated yet ⭐', selectedLanguage)}</span>
                      </div>
                     </div>
                 </div>
@@ -2382,7 +2382,7 @@ const App = () => {
         },
         {
             id: 'response',
-            title: 'Response Time',
+            title: getTranslation('Response Time', selectedLanguage),
             jsx: (
                 <div key="response" className="snap-start min-w-full flex-shrink-0">
                     <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
@@ -2392,11 +2392,11 @@ const App = () => {
                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
                              <Zap size={22} className="text-white" fill="white" />
                          </div>
-                         <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>Response Time</span>
+                         <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Response Time', selectedLanguage)}</span>
                      </div>
                      <div className="flex-1 flex flex-col justify-center relative z-10">
                          <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
-                         <span className="text-[14px] text-gray-600 font-semibold">Start responding ⚡</span>
+                         <span className="text-[14px] text-gray-600 font-semibold">{getTranslation('Start responding ⚡', selectedLanguage)}</span>
                      </div>
                     </div>
                 </div>
@@ -2417,7 +2417,7 @@ const App = () => {
             <div className="px-6 pt-7 pb-3">
                 {/* Three buttons in a horizontal row */}
                 <div className="flex items-center gap-4">
-                    <span className="px-3 py-2 rounded-lg bg-green-100 text-green-700 text-[13px] font-bold shadow text-center">Available</span>
+                    <span className="px-3 py-2 rounded-lg bg-green-100 text-green-700 text-[13px] font-bold shadow text-center">{getTranslation('Available', selectedLanguage)}</span>
                     <button
                         className={`px-3 py-2 rounded-lg border border-gray-200 text-gray-700 text-[13px] font-medium flex items-center justify-center shadow-sm ${settingsActive ? 'bg-[var(--color-gold-light-bg)]' : 'bg-white'}`}
                         onClick={() => {
@@ -2429,7 +2429,7 @@ const App = () => {
                         }}
                     >
                         <Star size={16} className="mr-1" />
-                        Settings
+                        {getTranslation('Settings', selectedLanguage)}
                     </button>
                     <button
                         className={`px-3 py-2 rounded-lg border border-gray-200 text-gray-700 text-[13px] font-medium flex items-center justify-center shadow-sm ${profileActive ? 'bg-[var(--color-gold-light-bg)]' : 'bg-white'}`}
@@ -2451,7 +2451,7 @@ const App = () => {
                         onTouchEnd={() => setProfileActive(false)}
                     >
                         <User size={16} className="mr-1" />
-                        Profile
+                        {getTranslation('Profile', selectedLanguage)}
                     </button>
                 </div>
             </div>
@@ -2468,12 +2468,12 @@ const App = () => {
                                 <Video size={24} className="text-white" />
                             </div>
                             <div>
-                                <h3 className="text-[20px] font-semibold text-gray-900">Welcome to Creator Dashboard</h3>
+                                <h3 className="text-[20px] font-semibold text-gray-900">{getTranslation('Welcome to Creator Dashboard', selectedLanguage)}</h3>
                             </div>
                         </div>
                         
                         <p className="text-[15px] text-gray-600 leading-relaxed mb-6">
-                            Manage your video requests and grow your audience. Track your earnings, respond to requests, and publish amazing content all in one place.
+                            {getTranslation('Manage your video requests and grow your audience. Track your earnings, respond to requests, and publish amazing content all in one place.', selectedLanguage)}
                         </p>
                         
                         <div className="space-y-3 mb-6">
@@ -2482,8 +2482,8 @@ const App = () => {
                                     <FileText size={16} className="text-white" />
                                 </div>
                                 <div>
-                                    <div className="font-semibold text-gray-900 text-sm">Browse Requests</div>
-                                    <div className="text-xs text-gray-600 mt-0.5">Find video requests that match your skills</div>
+                                    <div className="font-semibold text-gray-900 text-sm">{getTranslation('Browse Requests', selectedLanguage)}</div>
+                                    <div className="text-xs text-gray-600 mt-0.5">{getTranslation('Find video requests that match your skills', selectedLanguage)}</div>
                                 </div>
                             </div>
                             
@@ -2492,8 +2492,8 @@ const App = () => {
                                     <Video size={16} className="text-white" />
                                 </div>
                                 <div>
-                                    <div className="font-semibold text-gray-900 text-sm">Create & Publish</div>
-                                    <div className="text-xs text-gray-600 mt-0.5">Upload your videos and track their performance</div>
+                                    <div className="font-semibold text-gray-900 text-sm">{getTranslation('Create & Publish', selectedLanguage)}</div>
+                                    <div className="text-xs text-gray-600 mt-0.5">{getTranslation('Upload your videos and track their performance', selectedLanguage)}</div>
                                 </div>
                             </div>
                             
@@ -2502,8 +2502,8 @@ const App = () => {
                                     <Star size={16} className="text-white" />
                                 </div>
                                 <div>
-                                    <div className="font-semibold text-gray-900 text-sm">Earn Money</div>
-                                    <div className="text-xs text-gray-600 mt-0.5">Get paid for fulfilling video requests</div>
+                                    <div className="font-semibold text-gray-900 text-sm">{getTranslation('Earn Money', selectedLanguage)}</div>
+                                    <div className="text-xs text-gray-600 mt-0.5">{getTranslation('Get paid for fulfilling video requests', selectedLanguage)}</div>
                                 </div>
                             </div>
                         </div>
@@ -2512,7 +2512,7 @@ const App = () => {
                             onClick={closeWelcomePopup}
                             className="w-full bg-[var(--color-gold)] text-white px-6 py-3 rounded-lg font-semibold shadow-md"
                         >
-                            Get Started
+                            {getTranslation('Get Started', selectedLanguage)}
                         </button>
                     </div>
                 </div>
@@ -2573,7 +2573,7 @@ const App = () => {
                 </div>
             ) : activeTopTab === 'Claims' ? (
                 <div className="px-6 mt-7">
-                    <h3 className="text-[18px] font-semibold text-gray-900 mb-2">Claims</h3>
+                    <h3 className="text-[18px] font-semibold text-gray-900 mb-2">{getTranslation('Claims', selectedLanguage)}</h3>
                     {/* Active requests (not yet matched to published items) and total potential earnings */}
                     {(() => {
                         const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title||'')||'').toString().trim().toLowerCase() === ((r.title||'')||'').toString().trim().toLowerCase())));
@@ -2581,8 +2581,8 @@ const App = () => {
                         const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
                         return (
                             <div className="flex items-center justify-between mb-4">
-                                <div className="text-sm text-gray-600">Active requests: <span className="font-semibold text-gray-900">{activeCount}</span></div>
-                                <div className="text-sm text-gray-600">Potential earnings: <span className="font-semibold text-gray-900">${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</span></div>
+                                <div className="text-sm text-gray-600">{getTranslation('Active requests:', selectedLanguage)} <span className="font-semibold text-gray-900">{activeCount}</span></div>
+                                <div className="text-sm text-gray-600">{getTranslation('Potential earnings:', selectedLanguage)} <span className="font-semibold text-gray-900">${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</span></div>
                             </div>
                         );
                     })()}
@@ -2592,16 +2592,16 @@ const App = () => {
                                 <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
                                     <CheckCheck size={32} className="text-[var(--color-gold)]" />
                                 </div>
-                                <h4 className="text-lg font-bold text-gray-900 mb-2">No Active Claims</h4>
+                                <h4 className="text-lg font-bold text-gray-900 mb-2">{getTranslation('No Active Claims', selectedLanguage)}</h4>
                                 <p className="text-sm text-gray-600 text-center max-w-sm mb-6">
-                                    Claim a request from the Requests tab to start working on it and track your progress here.
+                                    {getTranslation('Claim a request from the Requests tab to start working on it and track your progress here.', selectedLanguage)}
                                 </p>
                                 <button 
                                     onClick={() => setActiveTopTab('Requests')} 
                                     className="px-5 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-md"
                                     style={{ backgroundColor: 'var(--color-gold)' }}
                                 >
-                                    Browse Requests
+                                    {getTranslation('Browse Requests', selectedLanguage)}
                                 </button>
                             </div>
                         ) : claimsMinimized ? (
@@ -2641,8 +2641,8 @@ const App = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <button onClick={() => setClaimsMinimized(false)} className="px-3 py-1 rounded-md border border-gray-200 bg-white text-sm">Expand</button>
-                                    <button onClick={() => { setClaimsMinimized(false); setClaimedRequest(null); }} className="px-3 py-1 rounded-md border border-gray-200 bg-white text-sm">Close</button>
+                                    <button onClick={() => setClaimsMinimized(false)} className="px-3 py-1 rounded-md border border-gray-200 bg-white text-sm">{getTranslation('Expand', selectedLanguage)}</button>
+                                    <button onClick={() => { setClaimsMinimized(false); setClaimedRequest(null); }} className="px-3 py-1 rounded-md border border-gray-200 bg-white text-sm">{getTranslation('Close', selectedLanguage)}</button>
                                 </div>
                             </div>
                         ) : (
@@ -2662,8 +2662,8 @@ const App = () => {
             ) : activeTopTab === 'Published' ? (
                 <div className="px-6 mt-7">
                         <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-[18px] font-semibold text-gray-900">Published</h3>
-                            <button onClick={() => { setActiveTopTab('Upload'); }} className="text-[var(--color-gold)] font-medium">Upload New</button>
+                            <h3 className="text-[18px] font-semibold text-gray-900">{getTranslation('Published', selectedLanguage)}</h3>
+                            <button onClick={() => { setActiveTopTab('Upload'); }} className="text-[var(--color-gold)] font-medium">{getTranslation('Upload New', selectedLanguage)}</button>
                         </div>
 
                         {publishedList && publishedList.length > 0 ? (
@@ -2680,11 +2680,11 @@ const App = () => {
                                             </div>
                                             <div>
                                                 <div className="font-semibold text-gray-900">{item.title}</div>
-                                                <div className="text-xs text-gray-500">{new Date(item.time).toLocaleString()} {item.changeNote ? `• Updated: ${item.changeNote}` : ''}</div>
+                                                <div className="text-xs text-gray-500">{new Date(item.time).toLocaleString()} {item.changeNote ? `• ${getTranslation('Updated:', selectedLanguage)} ${item.changeNote}` : ''}</div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                        <button onClick={() => openReupload(item)} className="px-3 py-1 rounded-md border border-gray-200 text-sm text-gray-700">Re-upload</button>
+                                        <button onClick={() => openReupload(item)} className="px-3 py-1 rounded-md border border-gray-200 text-sm text-gray-700">{getTranslation('Re-upload', selectedLanguage)}</button>
                                         <button
                                             onClick={() => setDeleteCandidate(item)}
                                             onMouseDown={() => handleDeletePressStart(item.id)}
@@ -2695,7 +2695,7 @@ const App = () => {
                                             disabled={deletingId === item.id}
                                             className={`px-3 py-1 rounded-md text-sm transition-colors duration-150 ${deletingId === item.id ? 'bg-red-100 text-red-400 border border-red-100 cursor-not-allowed' : pressedId === item.id ? 'bg-red-50 text-red-700 border border-red-200' : 'border border-red-200 text-red-600'}`}
                                         >
-                                            {deletingId === item.id ? 'Deleting...' : (pressedId === item.id ? 'Delete' : 'Delete')}
+                                            {deletingId === item.id ? getTranslation('Deleting...', selectedLanguage) : (pressedId === item.id ? getTranslation('Delete', selectedLanguage) : getTranslation('Delete', selectedLanguage))}
                                         </button>
                                     </div>
                                     </div>
@@ -2708,8 +2708,8 @@ const App = () => {
                                         <Video size={24} className="text-[var(--color-gold)]" />
                                     </div>
                                 </div>
-                                <h3 className="text-[20px] font-semibold text-gray-900 mb-3">No Published Videos Yet</h3>
-                                <p className="text-sm text-gray-500 text-center max-w-[320px]">Your published videos will appear here</p>
+                                <h3 className="text-[20px] font-semibold text-gray-900 mb-3">{getTranslation('No Published Videos Yet', selectedLanguage)}</h3>
+                                <p className="text-sm text-gray-500 text-center max-w-[320px]">{getTranslation('Your published videos will appear here', selectedLanguage)}</p>
                             </div>
                         )}
 
@@ -2720,8 +2720,8 @@ const App = () => {
                                 <div className="relative bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 z-10 p-4">
                                     <div className="flex items-start justify-between mb-4">
                                         <div>
-                                            <h3 className="text-[18px] font-semibold text-gray-900">Delete Published Video?</h3>
-                                            <div className="text-sm text-gray-500 mt-1">This action cannot be undone. Are you sure you want to delete this video?</div>
+                                            <h3 className="text-[18px] font-semibold text-gray-900">{getTranslation('Delete Published Video?', selectedLanguage)}</h3>
+                                            <div className="text-sm text-gray-500 mt-1">{getTranslation('This action cannot be undone. Are you sure you want to delete this video?', selectedLanguage)}</div>
                                         </div>
                                         <button onClick={() => setDeleteCandidate(null)} className="text-gray-400 hover:text-gray-600">✕</button>
                                     </div>
@@ -2737,8 +2737,8 @@ const App = () => {
                                     </div>
 
                                     <div className="flex gap-2">
-                                        <button onClick={() => { handleDeletePublished(deleteCandidate.id); setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white">Delete</button>
-                                        <button onClick={() => { setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg border border-gray-200 bg-white">Cancel</button>
+                                        <button onClick={() => { handleDeletePublished(deleteCandidate.id); setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white">{getTranslation('Delete', selectedLanguage)}</button>
+                                        <button onClick={() => { setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
                                     </div>
                                 </div>
                             </div>
@@ -2758,8 +2758,8 @@ const App = () => {
                                 <Upload size={24} className="text-[var(--color-gold)]" />
                             </div>
                         </div>
-                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">Upload</h3>
-                        <p className="text-sm text-gray-500 text-center max-w-[320px] mb-6">Upload videos independently without waiting for requests. Available exclusively for Premium creators.</p>
+                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">{getTranslation('Upload', selectedLanguage)}</h3>
+                        <p className="text-sm text-gray-500 text-center max-w-[320px] mb-6">{getTranslation('Upload videos independently without waiting for requests. Available exclusively for Premium creators.', selectedLanguage)}</p>
                         <div className="flex flex-col gap-3 items-center">
                             {(() => {
                                 try {
@@ -2775,22 +2775,22 @@ const App = () => {
                                                     } catch (e) {}
                                                     setPendingReuploadItem({ title: '', thumbnail: null, openInForm: true, isReupload: false });
                                                     setActiveTopTab('Claims');
-                                                }} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">Upload Video</button>
-                                                <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] text-gray-700 bg-white">View Published</button>
+                                                }} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>
+                                                <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] text-gray-700 bg-white">{getTranslation('View Published', selectedLanguage)}</button>
                                             </>
                                         );
                                     }
                                     return (
                                         <>
-                                            <div className="text-center max-w-[320px] text-sm text-gray-700">You have reached the free upload limit. Subscribe to upload more videos.</div>
+                                            <div className="text-center max-w-[320px] text-sm text-gray-700">{getTranslation('You have reached the free upload limit. Subscribe to upload more videos.', selectedLanguage)}</div>
                                             <div className="flex gap-3 mt-4">
-                                                <button onClick={() => { window.location.href = '/subscriptions.jsx'; }} className="px-4 py-2 rounded-lg bg-[var(--color-gold)] text-white">Subscribe</button>
-                                                <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] bg-white">View Published</button>
+                                                <button onClick={() => { window.location.href = '/subscriptions.jsx'; }} className="px-4 py-2 rounded-lg bg-[var(--color-gold)] text-white">{getTranslation('Subscribe', selectedLanguage)}</button>
+                                                <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] bg-white">{getTranslation('View Published', selectedLanguage)}</button>
                                             </div>
                                         </>
                                     );
                                 } catch (e) {
-                                    return (<button onClick={() => { try { setClaimedRequest((prev) => ({ ...(prev || {}), title: '', requesterName: 'You', requesterAvatar: null, currentStep: 5 })); } catch (err) {} setPendingReuploadItem({ title: '', thumbnail: null, openInForm: true, isReupload: false }); setActiveTopTab('Claims'); }} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">Upload Video</button>);
+                                    return (<button onClick={() => { try { setClaimedRequest((prev) => ({ ...(prev || {}), title: '', requesterName: 'You', requesterAvatar: null, currentStep: 5 })); } catch (err) {} setPendingReuploadItem({ title: '', thumbnail: null, openInForm: true, isReupload: false }); setActiveTopTab('Claims'); }} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>);
                                 }
                             })()}
                         </div>
@@ -2805,11 +2805,11 @@ const App = () => {
                                 <Lightbulb size={24} className="text-[var(--color-gold)]" />
                             </div>
                         </div>
-                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">Insights Coming Soon</h3>
-                        <p className="text-sm text-gray-500 text-center max-w-[340px] mb-6">Complete your first few requests to unlock personalized insights, tips, and recommendations to grow your creator business.</p>
+                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">{getTranslation('Insights Coming Soon', selectedLanguage)}</h3>
+                        <p className="text-sm text-gray-500 text-center max-w-[340px] mb-6">{getTranslation('Complete your first few requests to unlock personalized insights, tips, and recommendations to grow your creator business.', selectedLanguage)}</p>
                         <button className="flex items-center gap-3 bg-[var(--color-gold)] text-white px-6 py-3 rounded-lg shadow-md">
                             <Pencil className="w-4 h-4" />
-                            <span className="font-semibold">Complete Your Profile</span>
+                            <span className="font-semibold">{getTranslation('Complete Your Profile', selectedLanguage)}</span>
                         </button>
                     </div>
                 </div>
@@ -2821,18 +2821,18 @@ const App = () => {
                                 <Headphones size={24} className="text-[var(--color-gold)]" />
                             </div>
                         </div>
-                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">We're Here to Help</h3>
-                        <p className="text-sm text-gray-500 text-center max-w-[340px] mb-6">Get personalized support for everything from technical issues to creative guidance. Our creator success team is dedicated to your growth.</p>
+                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">{getTranslation('We\'re Here to Help', selectedLanguage)}</h3>
+                        <p className="text-sm text-gray-500 text-center max-w-[340px] mb-6">{getTranslation('Get personalized support for everything from technical issues to creative guidance. Our creator success team is dedicated to your growth.', selectedLanguage)}</p>
 
                         <div className="flex flex-col gap-3 w-full max-w-[360px]">
                             <div className="flex items-center gap-3 bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] rounded-lg px-4 py-3">
                                 <Clock size={16} className="text-[var(--color-accent-text)]" />
-                                <div className="text-sm text-gray-700">Avg response: <span className="font-semibold">2 hours</span></div>
+                                <div className="text-sm text-gray-700">{getTranslation('Avg response:', selectedLanguage)} <span className="font-semibold">{getTranslation('2 hours', selectedLanguage)}</span></div>
                             </div>
 
                             <div className="flex items-center gap-3 bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] rounded-lg px-4 py-3">
                                 <CheckCircle size={16} className="text-[var(--color-accent-text)]" />
-                                <div className="text-sm text-gray-700">98% satisfaction rate</div>
+                                <div className="text-sm text-gray-700">{getTranslation('98% satisfaction rate', selectedLanguage)}</div>
                             </div>
                         </div>
                     </div>
@@ -2845,9 +2845,9 @@ const App = () => {
                                 <Copy size={24} className="text-[var(--color-gold)]" />
                             </div>
                         </div>
-                        <h3 className="text-[20px] font-semibold text-gray-900 mb-1">Response Templates</h3>
-                        <div className="text-sm text-gray-500 mb-4">Coming Soon</div>
-                        <p className="text-sm text-gray-500 text-center max-w-[340px]">Save and reuse templates for common responses, video scripts, and messages to streamline your workflow.</p>
+                        <h3 className="text-[20px] font-semibold text-gray-900 mb-1">{getTranslation('Response Templates', selectedLanguage)}</h3>
+                        <div className="text-sm text-gray-500 mb-4">{getTranslation('Coming Soon', selectedLanguage)}</div>
+                        <p className="text-sm text-gray-500 text-center max-w-[340px]">{getTranslation('Save and reuse templates for common responses, video scripts, and messages to streamline your workflow.', selectedLanguage)}</p>
                     </div>
                 </div>
             ) : activeTopTab === 'Analytics' ? (
@@ -2856,12 +2856,12 @@ const App = () => {
                     <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-6 min-h-[260px]">
                         <div className="flex items-center justify-between mb-5">
                             <div>
-                                <h3 className="text-[18px] font-semibold text-gray-900">Analytics</h3>
-                                <p className="text-[13px] text-gray-500 mt-1">Track performance metrics across your videos and requests</p>
+                                <h3 className="text-[18px] font-semibold text-gray-900">{getTranslation('Analytics', selectedLanguage)}</h3>
+                                <p className="text-[13px] text-gray-500 mt-1">{getTranslation('Track performance metrics across your videos and requests', selectedLanguage)}</p>
                             </div>
                             <button className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] text-gray-900 font-semibold text-[13px] shadow-sm h-9">
                                 <BarChart size={16} className="mr-1 text-[var(--color-accent-text)]" />
-                                Export
+                                {getTranslation('Export', selectedLanguage)}
                             </button>
                         </div>
 
@@ -2872,11 +2872,11 @@ const App = () => {
                                         <LineChart size={20} className="text-[var(--color-gold)]" />
                                     </div>
                                     <div>
-                                        <div className="text-sm font-semibold text-gray-900">Views & Watch Time</div>
-                                        <div className="text-[13px] text-gray-400">No data available yet</div>
+                                        <div className="text-sm font-semibold text-gray-900">{getTranslation('Views & Watch Time', selectedLanguage)}</div>
+                                        <div className="text-[13px] text-gray-400">{getTranslation('No data available yet', selectedLanguage)}</div>
                                     </div>
                                 </div>
-                                <div className="text-[14px] text-gray-500">Accept and publish videos to start collecting analytics like views, watch time, and engagement.</div>
+                                <div className="text-[14px] text-gray-500">{getTranslation('Accept and publish videos to start collecting analytics like views, watch time, and engagement.', selectedLanguage)}</div>
                             </div>
 
                             <div className="flex-1 rounded-lg bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] p-5 flex flex-col items-start justify-center min-h-[160px]">
@@ -2885,17 +2885,17 @@ const App = () => {
                                         <TrendingUp size={20} className="text-[var(--color-gold)]" />
                                     </div>
                                     <div>
-                                        <div className="text-sm font-semibold text-gray-900">Growth</div>
-                                        <div className="text-[13px] text-gray-400">No growth data yet</div>
+                                        <div className="text-sm font-semibold text-gray-900">{getTranslation('Growth', selectedLanguage)}</div>
+                                        <div className="text-[13px] text-gray-400">{getTranslation('No growth data yet', selectedLanguage)}</div>
                                     </div>
                                 </div>
-                                <div className="text-[14px] text-gray-500">Complete requests and share videos to begin tracking follower and audience growth.</div>
+                                <div className="text-[14px] text-gray-500">{getTranslation('Complete requests and share videos to begin tracking follower and audience growth.', selectedLanguage)}</div>
                             </div>
                         </div>
 
                         <div className="mt-6 flex items-center gap-3">
-                            <button onClick={() => setActiveTopTab('Requests')} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">View Requests</button>
-                            <button onClick={() => setActiveTopTab('Upload')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] text-gray-700 bg-white">Upload Video</button>
+                            <button onClick={() => setActiveTopTab('Requests')} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('View Requests', selectedLanguage)}</button>
+                            <button onClick={() => setActiveTopTab('Upload')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] text-gray-700 bg-white">{getTranslation('Upload Video', selectedLanguage)}</button>
                         </div>
                     </div>
                 </div>
@@ -2906,46 +2906,46 @@ const App = () => {
                         <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[220px]">
                             <div className="flex justify-between w-full mb-6">
                                 <div>
-                                    <div className="text-[18px] font-semibold text-gray-900">Performance Metrics</div>
-                                    <div className="text-[14px] text-gray-400 font-normal">Track your success over time</div>
+                                    <div className="text-[18px] font-semibold text-gray-900">{getTranslation('Performance Metrics', selectedLanguage)}</div>
+                                    <div className="text-[14px] text-gray-400 font-normal">{getTranslation('Track your success over time', selectedLanguage)}</div>
                                 </div>
                                 <button className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[var(--color-gold-light-bg)] border border-[var(--color-gold-light-bg)] text-gray-900 font-semibold text-[15px] shadow-sm h-10">
                                     <BarChart size={20} className="mr-1 text-[var(--color-accent-text)]" />
-                                    Export
+                                    {getTranslation('Export', selectedLanguage)}
                                 </button>
                             </div>
                             <div className="flex flex-col items-center justify-center flex-1">
                                 <div className="w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center mb-4">
                                     <BarChart size={40} className="text-[var(--color-accent-text)]" />
                                 </div>
-                                <div className="text-[16px] text-gray-500 font-medium mb-1">No data to display yet</div>
-                                <div className="text-[14px] text-gray-400 font-normal text-center">Start accepting and completing requests to see your performance metrics</div>
+                                <div className="text-[16px] text-gray-500 font-medium mb-1">{getTranslation('No data to display yet', selectedLanguage)}</div>
+                                <div className="text-[14px] text-gray-400 font-normal text-center">{getTranslation('Start accepting and completing requests to see your performance metrics', selectedLanguage)}</div>
                             </div>
                         </div>
                     </div>
                     {/* Recent Activity Empty State */}
                     <div className="px-6 mt-7">
                         <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[220px]">
-                            <div className="text-[18px] font-semibold text-gray-900 mb-6 self-start">Recent Activity</div>
+                            <div className="text-[18px] font-semibold text-gray-900 mb-6 self-start">{getTranslation('Recent Activity', selectedLanguage)}</div>
                             <div className="flex flex-col items-center justify-center flex-1">
                                 <div className="w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center mb-4">
                                     <Clock size={40} className="text-[var(--color-accent-text)]" />
                                 </div>
-                                <div className="text-[16px] text-gray-500 font-medium mb-1">No active requests in progress</div>
-                                <div className="text-[14px] text-gray-400 font-normal">Accept requests from the marketplace to see activity here</div>
+                                <div className="text-[16px] text-gray-500 font-medium mb-1">{getTranslation('No active requests in progress', selectedLanguage)}</div>
+                                <div className="text-[14px] text-gray-400 font-normal">{getTranslation('Accept requests from the marketplace to see activity here', selectedLanguage)}</div>
                             </div>
                         </div>
                     </div>
                     {/* Earnings Overview Empty State */}
                     <div className="px-6 mt-7">
                         <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[220px]">
-                            <div className="text-[18px] font-semibold text-gray-900 mb-6 self-start">Earnings Overview</div>
+                            <div className="text-[18px] font-semibold text-gray-900 mb-6 self-start">{getTranslation('Earnings Overview', selectedLanguage)}</div>
                             <div className="flex flex-col items-center justify-center flex-1">
                                 <div className="w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center mb-4">
                                     <span className="text-[32px] text-[var(--color-accent-text)] font-bold">$</span>
                                 </div>
-                                <div className="text-[16px] text-gray-500 font-medium mb-1">No earnings yet</div>
-                                <div className="text-[14px] text-gray-400 font-normal text-center">Complete your first video request to start earning</div>
+                                <div className="text-[16px] text-gray-500 font-medium mb-1">{getTranslation('No earnings yet', selectedLanguage)}</div>
+                                <div className="text-[14px] text-gray-400 font-normal text-center">{getTranslation('Complete your first video request to start earning', selectedLanguage)}</div>
                             </div>
                         </div>
                     </div>
