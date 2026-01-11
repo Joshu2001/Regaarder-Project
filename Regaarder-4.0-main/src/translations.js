@@ -134,6 +134,9 @@ export const translations = {
     'Help & Support': 'Help & Support',
     
     // Requests Page
+    'Pending': 'Pending',
+    'In Progress': 'In Progress',
+    'videos': 'videos',
     'Date': 'Date',
     'Status': 'Status',
     'Clear All Filters': 'Clear All Filters',

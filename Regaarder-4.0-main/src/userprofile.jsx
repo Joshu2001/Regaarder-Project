@@ -183,7 +183,7 @@ const RequestCard = ({ title, description, time, timeAgo, creator, status, statu
                 <p className="text-base font-semibold text-stone-800 truncate pr-2">{title}</p>
                 <span className={`text-xs font-bold whitespace-nowrap px-2 py-0.5 rounded-full flex-shrink-0`} style={statusColors}>
                     {requestStatus === "Fulfilled" ? <CheckCircle size={12} className="inline mr-1 -mt-0.5" /> : null}
-                    {requestStatus}
+                    {t(requestStatus)}
                 </span>
             </div>
             
@@ -224,7 +224,7 @@ const FollowingRow = ({ id, name, handle, videos, avatar, onUnfollow }) => (
         <div className="flex-grow text-left min-w-0">
             <p className="text-base font-semibold text-stone-800 truncate">{name}</p>
             <p className="text-sm text-stone-500 truncate">
-                @{handle} • {videos} videos
+                @{handle} • {videos} {t('videos')}
             </p>
         </div>
         <button 
@@ -911,16 +911,7 @@ const App = () => {
                     />
                 </div>
 
-                {/* Primary CTA Button (Large and prominent) - navigates to requests page */}
-                <button onClick={() => { window.location.href = '/requests.jsx'; }} className="relative overflow-hidden w-full bg-[var(--color-gold)] text-stone-900 font-semibold py-4 rounded-lg text-lg tracking-wide shadow-md hover:bg-[var(--color-gold-darker)] transition flex items-center justify-center mb-8">
-                    <div 
-                        className="absolute top-0 h-full w-2/3 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                        style={{ animation: 'shine 6s infinite' }}
-                    ></div>
-                    <Play size={20} fill="currentColor" className="mr-2 relative z-10" />
-                    <span className="relative z-10">{t("Discover What's Next")}</span>
-                    <Zap size={20} fill="currentColor" className="ml-2 relative z-10" />
-                </button>
+
 
                 {/* Bio Description (Editable) */}
                 <div className="flex flex-col items-center mb-6 w-full px-4">
