@@ -201,7 +201,7 @@ const Toast = ({ message, duration = 2000, bottom = true }) => {
 const ClaimStatusPanel = ({
     title = 'A night tour of taipei',
     requesterName = 'AllVater',
-    requesterRole = getTranslation('Requester', localStorage.getItem('selectedLanguage') || 'English'),
+    requesterRole = getTranslation('Requester', (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English'),
     requesterAvatar = null,
     currentStep = 1,
     onClose = () => {},
@@ -220,7 +220,17 @@ const ClaimStatusPanel = ({
     const [validationError, setValidationError] = useState('');
     const [linkCopied, setLinkCopied] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
-    const [selectedLanguage, setSelectedLanguage] = useState(() => localStorage.getItem('selectedLanguage') || 'English');
+    const [selectedLanguage, setSelectedLanguage] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
+
+    useEffect(() => {
+        const handleStorage = () => {
+             const lang = localStorage.getItem('regaarder_language') || 'English';
+             setSelectedLanguage(lang);
+        };
+        window.addEventListener('storage', handleStorage);
+        return () => window.removeEventListener('storage', handleStorage);
+    }, []);
+
     const [videoTitle, setVideoTitle] = useState(title || '');
     const [category, setCategory] = useState('');
     const categories = ['Travel', 'Education', 'Entertainment', 'Music', 'Sports'];
@@ -1916,33 +1926,6 @@ const App = () => {
     const navigate = useNavigate();
     const [activeTopTab, setActiveTopTab] = useState('Overview');
 
-    // DOM-based translation pass for Chinese Traditional to translate visible text nodes.
-    useEffect(() => {
-        try {
-            if (typeof window === 'undefined') return;
-            const lang = window.localStorage.getItem('regaarder_language') || 'English';
-            if (lang !== 'Chinese Traditional') return;
-            const map = translations && translations['Chinese Traditional'] ? translations['Chinese Traditional'] : {};
-            if (!map || Object.keys(map).length === 0) return;
-            const container = document.querySelector('[data-creatordashboard-root]') || document.body;
-            const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
-            const keys = Object.keys(map).sort((a,b) => b.length - a.length);
-            let node;
-            while ((node = walker.nextNode())) {
-                const txt = node.nodeValue;
-                if (!txt || !txt.trim()) continue;
-                let changed = txt;
-                for (let i = 0; i < keys.length; i++) {
-                    const k = keys[i];
-                    const v = map[k];
-                    if (!k || typeof v !== 'string') continue;
-                    if (changed.indexOf(k) !== -1) changed = changed.split(k).join(v);
-                }
-                if (changed !== txt) node.nodeValue = changed;
-            }
-        } catch (e) { /* ignore */ }
-    }, []);
-
     
     // Check URL parameters on mount to navigate to specific tab
     useEffect(() => {
@@ -1992,7 +1975,17 @@ const App = () => {
     const baseTopTabs = ['Overview','Requests','Claims','Published','Analytics','Upload','Insights','Support','Templates'];
     // Dashboard search state (controls ordering of cards and tabs)
     const [dashboardSearch, setDashboardSearch] = useState('');
-    const [selectedLanguage, setSelectedLanguage] = useState(() => localStorage.getItem('selectedLanguage') || 'English');
+    const [selectedLanguage, setSelectedLanguage] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
+
+    useEffect(() => {
+        const handleStorage = () => {
+             const lang = localStorage.getItem('regaarder_language') || 'English';
+             setSelectedLanguage(lang);
+        };
+        window.addEventListener('storage', handleStorage);
+        return () => window.removeEventListener('storage', handleStorage);
+    }, []);
+
     const getTopTabs = () => {
         const normalized = (dashboardSearch || '').toString().trim().toLowerCase();
         if (!normalized) return baseTopTabs;

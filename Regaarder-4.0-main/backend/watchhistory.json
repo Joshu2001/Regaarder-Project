@@ -26,10 +26,10 @@
   {
     "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
     "userId": "user-1767585399609",
-    "lastWatchedTime": 5,
+    "lastWatchedTime": 2,
     "duration": 5,
-    "timestamp": "2026-01-10T12:14:52.307Z",
-    "isComplete": true
+    "timestamp": "2026-01-11T16:25:29.507Z",
+    "isComplete": false
   },
   {
     "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
