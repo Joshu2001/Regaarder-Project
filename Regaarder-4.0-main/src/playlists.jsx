@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ListPlus, Lightbulb, MoreHorizontal, Home, FileText, Pencil, Bookmark } from 'lucide-react';
 import { useAppNavigate } from './navigation.js';
+import { getTranslation } from './translations.js';
 
 // Storage helpers
 const STORAGE_KEY = 'playlists_v1';
@@ -68,6 +69,9 @@ export function removeFromPlaylist(playlistId, itemId) {
 // Page component (Watch History-style)
 export default function PlaylistPage() {
   const navigate = useAppNavigate();
+  const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
+  const t = (key) => getTranslation(key, selectedLanguage);
+
   const [lists, setLists] = useState(getPlaylists());
   const [currentId, setCurrentId] = useState(() => (lists[0]?.id || null));
   const [query, setQuery] = useState('');
@@ -90,9 +94,9 @@ export default function PlaylistPage() {
   const create = () => { setNewName(''); setNameErr(''); setShowCreate(true); };
   const confirmCreate = () => {
     const n = (newName || '').trim();
-    if (!n) { setNameErr('Please enter a name'); return; }
+    if (!n) { setNameErr(t('Please enter a name')); return; }
     const exists = lists.some(l => l.name.toLowerCase() === n.toLowerCase());
-    if (exists) { setNameErr('A playlist with this name already exists'); return; }
+    if (exists) { setNameErr(t('A playlist with this name already exists')); return; }
     const p = createPlaylist(n);
     const all = getPlaylists();
     setLists(all);
@@ -102,14 +106,14 @@ export default function PlaylistPage() {
   const cancelCreate = () => { setShowCreate(false); };
   const rename = () => {
     if (!current) return;
-    const name = prompt('Rename playlist', current.name);
+    const name = prompt(t('Rename playlist'), current.name);
     if (!name) return;
     renamePlaylist(current.id, name);
     setLists(getPlaylists());
   };
   const del = () => {
     if (!current) return;
-    if (!confirm('Delete this playlist?')) return;
+    if (!confirm(t('Delete this playlist?'))) return;
     deletePlaylist(current.id);
     const all = getPlaylists();
     setLists(all);
@@ -134,15 +138,15 @@ export default function PlaylistPage() {
       <div className="w-full flex flex-col bg-white overflow-hidden">
         <header className="p-4 border-b border-gray-100 space-y-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2"><ListPlus className="w-5 h-5 text-gray-500" strokeWidth={1.5} /><span>Playlist</span></h1>
+            <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2"><ListPlus className="w-5 h-5 text-gray-500" strokeWidth={1.5} /><span>{t('Playlist')}</span></h1>
             <div className="flex items-center">
-              <button onClick={create} className="text-sm font-medium hover:opacity-80 transition" style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px', marginLeft: 'auto' }}>New</button>
+              <button onClick={create} className="text-sm font-medium hover:opacity-80 transition" style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px', marginLeft: 'auto' }}>{t('New')}</button>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md px-2 py-2 w-full max-w-md">
               <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" className="bg-transparent outline-none text-sm ml-2 w-full" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('Search')} className="bg-transparent outline-none text-sm ml-2 w-full" />
             </div>
             <select value={current?.id || ''} onChange={(e)=>setCurrentId(e.target.value)} className="ml-4 px-2 py-2 border border-gray-200 rounded-md text-sm">
               {lists.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -154,18 +158,18 @@ export default function PlaylistPage() {
           {lists.length > 0 && (
             <div className="w-full grid grid-cols-2 gap-4">
               {lists.map((l) => {
-                const thumb = (l.items && l.items[0] && (l.items[0].thumbnail || l.items[0].imageUrl)) || 'https://placehold.co/320x180/efefef/777?text=Playlist';
+                const thumb = (l.items && l.items[0] && (l.items[0].thumbnail || l.items[0].imageUrl)) || 'https://placehold.co/320x180/efefef/777?text=' + encodeURIComponent(t('Playlist'));
                 const selected = l.id === (current?.id);
                 return (
                   <button key={l.id} onClick={(e)=>{ if (e.currentTarget.dataset.longpressed === '1') { e.currentTarget.dataset.longpressed = '0'; return; } setCurrentId(l.id); }} className={`w-full text-left bg-white rounded-2xl border ${selected ? 'border-[var(--color-gold)]' : 'border-gray-200'} overflow-hidden hover:border-gray-300 transition`}
-                    onMouseDown={(e)=>{ longPressTimers.current[l.id] = setTimeout(()=>{ try { e.currentTarget.dataset.longpressed = '1'; if (confirm('Delete this playlist?')){ deletePlaylist(l.id); const all = getPlaylists(); setLists(all); setCurrentId(all[0]?.id || null); } } catch (err) {} }, 700); }}
+                    onMouseDown={(e)=>{ longPressTimers.current[l.id] = setTimeout(()=>{ try { e.currentTarget.dataset.longpressed = '1'; if (confirm(t('Delete this playlist?'))){ deletePlaylist(l.id); const all = getPlaylists(); setLists(all); setCurrentId(all[0]?.id || null); } } catch (err) {} }, 700); }}
                     onMouseUp={(e)=>{ clearTimeout(longPressTimers.current[l.id]); }}
                     onMouseLeave={(e)=>{ clearTimeout(longPressTimers.current[l.id]); }}
-                    onTouchStart={(e)=>{ longPressTimers.current[l.id] = setTimeout(()=>{ try { e.currentTarget.dataset.longpressed = '1'; if (confirm('Delete this playlist?')){ deletePlaylist(l.id); const all = getPlaylists(); setLists(all); setCurrentId(all[0]?.id || null); } } catch (err) {} }, 700); }}
+                    onTouchStart={(e)=>{ longPressTimers.current[l.id] = setTimeout(()=>{ try { e.currentTarget.dataset.longpressed = '1'; if (confirm(t('Delete this playlist?'))){ deletePlaylist(l.id); const all = getPlaylists(); setLists(all); setCurrentId(all[0]?.id || null); } } catch (err) {} }, 700); }}
                     onTouchEnd={(e)=>{ clearTimeout(longPressTimers.current[l.id]); }}
                   > 
                     <div className="w-full pb-[56%] relative">
-                      <img src={thumb} alt={l.name} className="absolute inset-0 w-full h-full object-cover" onError={(e)=>{ e.currentTarget.src='https://placehold.co/320x180/efefef/777?text=Playlist'; }} />
+                      <img src={thumb} alt={l.name} className="absolute inset-0 w-full h-full object-cover" onError={(e)=>{ e.currentTarget.src='https://placehold.co/320x180/efefef/777?text=' + encodeURIComponent(t('Playlist')); }} />
                     </div>
                     <div className="px-3 py-2 relative">
                       {editingId === l.id ? (
@@ -175,7 +179,7 @@ export default function PlaylistPage() {
                       )}
                       <button onClick={(e)=>{ e.stopPropagation(); setEditingId(l.id); setEditingName(l.name || ''); }} className="absolute top-2 right-2 p-1 text-gray-600 hover:text-gray-900"><Pencil className="w-4 h-4" /></button>
                       <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                        <span>Private</span>
+                        <span>{t('Private')}</span>
                         <span>•</span>
                         <span>{(l.items||[]).length}</span>
                         <Bookmark className="w-3.5 h-3.5 ml-auto text-gray-400" />
@@ -203,7 +207,7 @@ export default function PlaylistPage() {
                       <div className="text-xs text-gray-500 mt-0.5">{it.author}{it.author && it.requester ? ' • ' : ''}{it.requester}</div>
                       <div className="text-xs text-gray-500 mt-0.5">Added • {new Date(it.addedAt).toLocaleString()}</div>
                     </div>
-                    <button className="p-2 text-gray-600 hover:text-gray-900" aria-label="Share" onClick={(e)=>{ e.stopPropagation(); const link = it.url ? `${window.location.origin}/videoplayer?src=${encodeURIComponent(it.url)}&title=${encodeURIComponent(it.title||'')}` : window.location.href; const payload = { title: it.title||'Watch this', text: it.title||'Watch this', url: link }; if (navigator.share) { navigator.share(payload).catch(()=>{}); } else { try { navigator.clipboard && navigator.clipboard.writeText(link); alert('Share link copied'); } catch {} } }}>
+                    <button className="p-2 text-gray-600 hover:text-gray-900" aria-label="Share" onClick={(e)=>{ e.stopPropagation(); const link = it.url ? `${window.location.origin}/videoplayer?src=${encodeURIComponent(it.url)}&title=${encodeURIComponent(it.title||'')}` : window.location.href; const payload = { title: it.title||'Watch this', text: it.title||'Watch this', url: link }; if (navigator.share) { navigator.share(payload).catch(()=>{}); } else { try { navigator.clipboard && navigator.clipboard.writeText(link); alert(t('Share link copied')); } catch {} } }}>
                       <MoreHorizontal className="w-5 h-5" />
                     </button>
                   </div>
@@ -211,18 +215,18 @@ export default function PlaylistPage() {
               </div>
             ) : (
               <div className="w-full space-y-3">
-                <div className="text-sm text-gray-600">Playlist “{current.name}” has no videos yet.</div>
+                <div className="text-sm text-gray-600">{t('Playlist')} “{current.name}” {t('has no videos yet')}</div>
                 <div className="w-full px-4 py-3 bg-[#F5F5DC] text-gray-700 rounded-xl flex items-start space-x-2" style={{ borderColor: 'var(--color-gold-light)', borderStyle: 'solid', boxShadow: '0 6px 16px rgba(203,138,0,0.06)' }}>
                   <Lightbulb className="w-4 h-4 mt-0.5 text-[var(--color-gold)] flex-shrink-0" />
-                  <p className="text-xs leading-relaxed font-medium">Use “Add to playlist” from a video’s options to start filling this list. Swipe left on items to remove.</p>
+                  <p className="text-xs leading-relaxed font-medium">{t('Use “Add to playlist” from a video’s options to start filling this list. Swipe left on items to remove.')}</p>
                 </div>
               </div>
             )
           ) : (
             <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 pt-8">
               <ListPlus className="w-16 h-16 text-gray-400" strokeWidth={1} />
-              <h2 className="text-lg font-semibold text-gray-700">No playlists yet</h2>
-              <p className="text-sm text-gray-500 max-w-xs">Create your first playlist to organize favorite videos</p>
+              <h2 className="text-lg font-semibold text-gray-700">{t('No playlists yet')}</h2>
+              <p className="text-sm text-gray-500 max-w-xs">{t('Create your first playlist to organize favorite videos')}</p>
             </div>
           )}
         </main>
@@ -234,15 +238,15 @@ export default function PlaylistPage() {
         <div className="fixed inset-0 z-[130] flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} onClick={cancelCreate}>
           <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={(e)=>e.stopPropagation()}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">Create Playlist</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('Create Playlist')}</h3>
               <button className="p-1 text-gray-500 hover:text-gray-700" onClick={cancelCreate}>✕</button>
             </div>
-            <label className="text-sm text-gray-700">Name</label>
-            <input value={newName} onChange={(e)=>{ setNewName(e.target.value); setNameErr(''); }} placeholder="My Playlist" className="mt-1 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md outline-none" />
+            <label className="text-sm text-gray-700">{t('Name')}</label>
+            <input value={newName} onChange={(e)=>{ setNewName(e.target.value); setNameErr(''); }} placeholder={t('My Playlist')} className="mt-1 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md outline-none" />
             {nameErr && <div className="text-xs text-red-600 mt-1">{nameErr}</div>}
             <div className="mt-4 flex justify-end gap-2">
-              <button className="px-3 py-2 text-sm text-gray-700" onClick={cancelCreate}>Cancel</button>
-              <button className="px-3 py-2 text-sm text-white rounded-md" style={{ backgroundColor: 'var(--color-gold)' }} onClick={confirmCreate}>Create</button>
+              <button className="px-3 py-2 text-sm text-gray-700" onClick={cancelCreate}>{t('Cancel')}</button>
+              <button className="px-3 py-2 text-sm text-white rounded-md" style={{ backgroundColor: 'var(--color-gold)' }} onClick={confirmCreate}>{t('Create')}</button>
             </div>
           </div>
         </div>
@@ -253,33 +257,36 @@ export default function PlaylistPage() {
 
 // Bottom bar (copied from watchhistory)
 const BottomBar = () => {
+  const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
+  const t = (key) => getTranslation(key, selectedLanguage);
+
   const [activeTab, setActiveTab] = useState(null);
   const navigatedRef = useRef(false);
-  const tabs = [ { name: 'Home', icon: Home }, { name: 'Requests', icon: FileText }, { name: 'Ideas', icon: Pencil }, { name: 'More', icon: MoreHorizontal } ];
+  const tabs = [ { id: 'Home', name: t('Home'), icon: Home }, { id: 'Requests', name: t('Requests'), icon: FileText }, { id: 'Ideas', name: t('Ideas'), icon: Pencil }, { id: 'More', name: t('More'), icon: MoreHorizontal } ];
   const inactiveColor = 'rgb(107 114 128)';
-  const navigateToTab = (tabName) => {
+  const navigateToTab = (tabId) => {
     try {
-      if (tabName === 'Home') { window.location.href = '/home.jsx'; return; }
-      if (tabName === 'Requests') { window.location.href = '/requests.jsx'; return; }
-      if (tabName === 'Ideas') { window.location.href = '/ideas.jsx'; return; }
-      if (tabName === 'More') { window.location.href = '/more.jsx'; return; }
+      if (tabId === 'Home') { window.location.href = '/home.jsx'; return; }
+      if (tabId === 'Requests') { window.location.href = '/requests.jsx'; return; }
+      if (tabId === 'Ideas') { window.location.href = '/ideas.jsx'; return; }
+      if (tabId === 'More') { window.location.href = '/more.jsx'; return; }
     } catch (e) { console.warn('Navigation failed', e); }
   };
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 shadow-2xl z-10" style={{ paddingTop: '10px', paddingBottom: 'calc(44px + env(safe-area-inset-bottom))' }}>
       <div className="flex justify-around max-w-md mx-auto">
         {tabs.map((tab) => {
-          const isSelected = tab.name === activeTab;
+          const isSelected = tab.id === activeTab;
           const activeColorStyle = isSelected ? { color: 'var(--color-gold)' } : { color: inactiveColor };
           const textWeight = isSelected ? 'font-semibold' : 'font-normal';
           let wrapperStyle = {}; if (isSelected) wrapperStyle.textShadow = `0 0 8px var(--color-gold-light)`;
           const IconComp = tab.icon;
           return (
-            <div key={tab.name} className={`relative flex flex-col items-center w-1/4 focus:outline-none`} style={wrapperStyle}>
+            <div key={tab.id} className={`relative flex flex-col items-center w-1/4 focus:outline-none`} style={wrapperStyle}>
               <button className="flex flex-col items-center w-full"
-                onMouseDown={() => { setActiveTab(tab.name); if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); } }}
-                onTouchStart={() => { setActiveTab(tab.name); if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); } }}
-                onClick={(e) => { if (navigatedRef.current) { navigatedRef.current = false; e.preventDefault(); return; } setActiveTab(tab.name); navigateToTab(tab.name); }}>
+                onMouseDown={() => { setActiveTab(tab.id); if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.id); } }}
+                onTouchStart={() => { setActiveTab(tab.id); if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.id); } }}
+                onClick={(e) => { if (navigatedRef.current) { navigatedRef.current = false; e.preventDefault(); return; } setActiveTab(tab.id); navigateToTab(tab.id); }}>
                 <div className="w-11 h-11 flex items-center justify-center">
                   <IconComp size={22} strokeWidth={1.5} style={activeColorStyle} />
                 </div>
@@ -295,10 +302,13 @@ const BottomBar = () => {
 
 // Lightweight helper for adding via prompt from other places
 export async function promptAddToPlaylist(video) {
+  const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
+  const t = (key) => getTranslation(key, selectedLanguage);
   try {
     const lists = getPlaylists();
     const names = lists.map(l => l.name);
-    const name = prompt(`Add to playlist:\n${names.length ? `Existing: ${names.join(', ')}` : 'No playlists yet'}`, names[0] || 'My Playlist');
+    const msg = t('Add to playlist') + ':\n' + (names.length ? (t('Existing: ') + names.join(', ')) : t('No playlists yet'));
+    const name = prompt(msg, names[0] || t('My Playlist'));
     if (!name) return false;
     const p = ensurePlaylist(name);
     addToPlaylist(p.id, video);

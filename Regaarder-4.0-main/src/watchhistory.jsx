@@ -277,7 +277,7 @@ const App = () => {
   return (
     // Outer container now uses min-h-screen and w-full for fullscreen behavior
     <div className="flex justify-center min-h-screen w-full bg-white relative">
-      <div className="w-full flex flex-col bg-white overflow-hidden">
+      <div className="w-full flex flex-col bg-white overflow-x-hidden">
         
         {/* === 1. Header === */}
         <header className="p-4 border-b border-gray-100 space-y-3">
@@ -298,7 +298,7 @@ const App = () => {
         </header>
 
         {/* === 2. Scrollable Content Area === */}
-        <main className="flex-grow flex flex-col items-center justify-start p-6 space-y-6">
+        <main className="flex-grow flex flex-col items-center justify-start p-6 space-y-6 pb-24">
           
           {/* Content: show list when available, else empty state */}
           {(history && history.length > 0) ? (

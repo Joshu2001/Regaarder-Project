@@ -1812,7 +1812,7 @@ const ClaimStatusPanel = ({
 
 
 // Bottom navigation bar — copied from `home.jsx` footer to match exact styling
-const BottomBar = () => {
+const BottomBar = ({ selectedLanguage = 'English' }) => {
     const [activeTab, setActiveTab] = useState('Home');
     const navigatedRef = useRef(false);
 
@@ -1908,7 +1908,7 @@ const BottomBar = () => {
                                                     })()}
                                                 </div>
                                                 <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
-                                                    {tab.name}
+                                                    {getTranslation(tab.name, selectedLanguage)}
                                                 </span>
                             </button>
 
@@ -2945,7 +2945,7 @@ const App = () => {
                                 </React.Fragment>
                             )}
             {/* Footer */}
-            <BottomBar />
+            <BottomBar selectedLanguage={selectedLanguage} />
             
         </div>
     );
