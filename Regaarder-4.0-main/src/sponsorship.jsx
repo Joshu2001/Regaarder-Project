@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Home, FileText, Pencil, MoreHorizontal, Crown, ArrowLeft, ChevronRight, Shield, Lock, Gift, Star } from 'lucide-react';
+import { getTranslation } from './translations.js';
 
 // Reuse the same accent/color tokens from advertisewithus.jsx
 const getCssVar = (name, fallback) => {
@@ -50,6 +51,8 @@ const alaCarteItems = [
 const BottomBar = () => {
     const [activeTab, setActiveTab] = useState('Home');
     const navigatedRef = useRef(false);
+    const language = localStorage.getItem('regaarder_language') || 'English';
+    const t = (key) => getTranslation(key, language);
 
     const tabs = [
         { name: 'Home', Icon: Home },
@@ -133,7 +136,7 @@ const BottomBar = () => {
                                     <tab.Icon className="w-5 h-5" strokeWidth={1.5} style={activeColorStyle} />
                                 </div>
                                 <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
-                                    {tab.name}
+                                    {t(tab.name)}
                                 </span>
                             </button>
                         </div>
@@ -203,6 +206,16 @@ const Sponsorships = () => {
     const [showCheckoutModal, setShowCheckoutModal] = useState(false);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
     const [processingPayment, setProcessingPayment] = useState(false);
+    const [language, setLanguage] = useState(localStorage.getItem('regaarder_language') || 'English');
+    const t = (key) => getTranslation(key, language);
+
+    useEffect(() => {
+        const handleLanguageChange = () => {
+            setLanguage(localStorage.getItem('regaarder_language') || 'English');
+        };
+        window.addEventListener('storage', handleLanguageChange);
+        return () => window.removeEventListener('storage', handleLanguageChange);
+    }, []);
 
     const toggleAlaCarteSelection = (title) => {
         setSelectedAlaCarte(prev => {
@@ -386,8 +399,8 @@ const Sponsorships = () => {
                     <div className="inline-flex items-center justify-center p-4 rounded-full mb-4" style={{ backgroundColor: ICON_BACKGROUND }}>
                         <Crown className="w-8 h-8" style={{ color: ACCENT_COLOR }} />
                     </div>
-                    <h1 className="text-2xl font-bold mb-2">Upgrade to Premium</h1>
-                    <p className="text-gray-500">Choose the perfect plan for your needs</p>
+                    <h1 className="text-2xl font-bold mb-2">{t('Upgrade to Premium')}</h1>
+                    <p className="text-gray-500">{t('Choose the perfect plan for your needs')}</p>
                 </div>
 
                 <div className="flex justify-center mb-10">
@@ -397,14 +410,14 @@ const Sponsorships = () => {
                             className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200`}
                             style={!showAlaCarte ? { backgroundColor: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', color: '#111827' } : { color: '#6B7280' }}
                         >
-                            Full Plans
+                            {t('Full Plans')}
                         </button>
                         <button 
                             onClick={() => { setShowAlaCarte(true); setVisibleIdx({}); }} 
                             className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200`}
                             style={showAlaCarte ? { backgroundColor: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', color: '#111827' } : { color: '#6B7280' }}
                         >
-                            À La Carte
+                            {t('À La Carte')}
                         </button>
                     </div>
                 </div>
@@ -427,8 +440,8 @@ const Sponsorships = () => {
                         className="flex items-center bg-gray-50 border border-gray-200 rounded-full p-1 pr-2 cursor-pointer hover:border-gray-300 transition-colors" 
                         onClick={() => { setBillingPeriod(prev => prev === 'monthly' ? 'annual' : 'monthly'); setVisibleIdx({}); }}
                     >
-                        <div className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${billingPeriod === 'monthly' ? 'bg-white shadow-sm text-gray-900 ring-1 ring-black/5' : 'text-gray-500'}`}>Monthly</div>
-                        <div className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${billingPeriod === 'annual' ? 'bg-white shadow-sm text-gray-900 ring-1 ring-black/5' : 'text-gray-500'}`}>Annual</div>
+                        <div className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${billingPeriod === 'monthly' ? 'bg-white shadow-sm text-gray-900 ring-1 ring-black/5' : 'text-gray-500'}`}>{t('Monthly')}</div>
+                        <div className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${billingPeriod === 'annual' ? 'bg-white shadow-sm text-gray-900 ring-1 ring-black/5' : 'text-gray-500'}`}>{t('Annual')}</div>
                     </div>
                     <div className="ml-3 text-xs font-bold text-white px-3 py-1.5 rounded-full shadow-sm" style={{ backgroundColor: ACCENT_COLOR }}>
                         SAVE {Math.round(ANNUAL_DISCOUNT*100)}%
@@ -440,8 +453,8 @@ const Sponsorships = () => {
                     {showAlaCarte ? (
                         <>
                             <div className="text-center mt-2 mb-4">
-                                <h2 className="text-xl font-semibold">Build Your Own Plan</h2>
-                                <p className="text-sm text-gray-500">Pick only the features you need without committing to a full plan</p>
+                                <h2 className="text-xl font-semibold">{t('Build Your Own Plan')}</h2>
+                                <p className="text-sm text-gray-500">{t('Pick only the features you need without committing to a full plan')}</p>
                             </div>
                             {alaCarteItems.map((a, aIdx) => {
                                 const idx = aIdx; // separate index space for ala carte
@@ -598,8 +611,8 @@ const Sponsorships = () => {
                     <div className="absolute inset-0 bg-black opacity-40" onClick={() => setShowAddModal(false)} />
                     <div role="dialog" aria-modal="true" className="relative w-full mx-4 bg-white rounded-2xl shadow-xl p-4" style={{ maxWidth: '28rem', maxHeight: '76vh', overflowY: 'auto' }}>
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Add selected À La Carte items</h3>
-                            <button onClick={() => setShowAddModal(false)} className="text-gray-500">Close</button>
+                            <h3 className="text-lg font-semibold">{t('Add selected')} À La Carte {t('items')}</h3>
+                            <button onClick={() => setShowAddModal(false)} className="text-gray-500">{t('Close')}</button>
                         </div>
                         <div className="space-y-3 max-h-64 overflow-auto">
                             {selectedAlaCarte.map((t) => {
@@ -620,15 +633,15 @@ const Sponsorships = () => {
                         </div>
                         <div className="mt-4 flex items-center justify-between">
                             <div>
-                                <div className="text-sm text-gray-600">Items: {selectedAlaCarte.length}</div>
-                                <div className="text-lg font-semibold">Total: {formatPrice(selectedAlaCarte.reduce((sum, t) => {
+                                <div className="text-sm text-gray-600">{t('Items')}: {selectedAlaCarte.length}</div>
+                                <div className="text-lg font-semibold">{t('Total')}: {formatPrice(selectedAlaCarte.reduce((sum, t) => {
                                     const item = alaCarteItems.find(it => it.title === t);
                                     return sum + (item ? item.priceMonthly : 0);
                                 }, 0), billingPeriod, ANNUAL_DISCOUNT)}</div>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <button onClick={() => setShowAddModal(false)} className="px-4 py-2 rounded-xl border">Cancel</button>
-                                <button onClick={() => { setShowAddModal(false); setSelectedAlaCarte([]); }} className="px-4 py-2 rounded-xl bg-[var(--color-accent)] text-white">Confirm Add</button>
+                                <button onClick={() => setShowAddModal(false)} className="px-4 py-2 rounded-xl border">{t('Cancel')}</button>
+                                <button onClick={() => { setShowAddModal(false); setSelectedAlaCarte([]); }} className="px-4 py-2 rounded-xl bg-[var(--color-accent)] text-white">{t('Confirm Add')}</button>
                             </div>
                         </div>
                     </div>
@@ -642,67 +655,67 @@ const Sponsorships = () => {
                         <div className="flex items-start justify-between mb-4">
                             <div>
                                 <h3 className="text-lg font-semibold">Checkout — {selectedPlan.title}</h3>
-                                <div className="text-sm text-gray-500">Secure checkout — choose payment method</div>
+                                <div className="text-sm text-gray-500">{t('Secure checkout — choose payment method')}</div>
                             </div>
-                            <button onClick={() => setShowCheckoutModal(false)} className="text-gray-500">Close</button>
+                            <button onClick={() => setShowCheckoutModal(false)} className="text-gray-500">{t('Close')}</button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <div className="mb-3 font-medium">Payment method</div>
+                                <div className="mb-3 font-medium">{t('Payment method')}</div>
                                 <div className="space-y-2">
                                     <label className={`flex items-center p-3 rounded-lg border ${selectedPaymentMethod === 'card' ? 'border-[var(--color-accent)]' : 'border-gray-100'}`} style={selectedPaymentMethod === 'card' ? { backgroundColor: 'var(--color-accent-soft)' } : {}}>
                                         <input type="radio" name="pm" checked={selectedPaymentMethod === 'card'} onChange={() => setSelectedPaymentMethod('card')} className="mr-3" />
                                         <div>
-                                            <div className="font-medium">Credit / Debit Card</div>
-                                            <div className="text-xs text-gray-500">Visa, Mastercard, Amex</div>
+                                            <div className="font-medium">{t('Credit / Debit Card')}</div>
+                                            <div className="text-xs text-gray-500">{t('Visa, Mastercard, Amex')}</div>
                                         </div>
                                     </label>
                                     <label className={`flex items-center p-3 rounded-lg border ${selectedPaymentMethod === 'paypal' ? 'border-[var(--color-accent)]' : 'border-gray-100'}`} style={selectedPaymentMethod === 'paypal' ? { backgroundColor: 'var(--color-accent-soft)' } : {}}>
                                         <input type="radio" name="pm" checked={selectedPaymentMethod === 'paypal'} onChange={() => setSelectedPaymentMethod('paypal')} className="mr-3" />
                                         <div>
                                             <div className="font-medium">PayPal</div>
-                                            <div className="text-xs text-gray-500">Pay with your PayPal account</div>
+                                            <div className="text-xs text-gray-500">{t('Pay with your PayPal account')}</div>
                                         </div>
                                     </label>
                                     <label className={`flex items-center p-3 rounded-lg border ${selectedPaymentMethod === 'apple' ? 'border-[var(--color-accent)]' : 'border-gray-100'}`} style={selectedPaymentMethod === 'apple' ? { backgroundColor: 'var(--color-accent-soft)' } : {}}>
                                         <input type="radio" name="pm" checked={selectedPaymentMethod === 'apple'} onChange={() => setSelectedPaymentMethod('apple')} className="mr-3" />
                                         <div>
                                             <div className="font-medium">Apple Pay</div>
-                                            <div className="text-xs text-gray-500">Pay with Apple Pay</div>
+                                            <div className="text-xs text-gray-500">{t('Pay with Apple Pay')}</div>
                                         </div>
                                     </label>
                                     <label className={`flex items-center p-3 rounded-lg border ${selectedPaymentMethod === 'gpay' ? 'border-[var(--color-accent)]' : 'border-gray-100'}`} style={selectedPaymentMethod === 'gpay' ? { backgroundColor: 'var(--color-accent-soft)' } : {}}>
                                         <input type="radio" name="pm" checked={selectedPaymentMethod === 'gpay'} onChange={() => setSelectedPaymentMethod('gpay')} className="mr-3" />
                                         <div>
                                             <div className="font-medium">Google Pay</div>
-                                            <div className="text-xs text-gray-500">Pay with Google Pay</div>
+                                            <div className="text-xs text-gray-500">{t('Pay with Google Pay')}</div>
                                         </div>
                                     </label>
                                 </div>
 
                                 {selectedPaymentMethod === 'card' && (
                                     <div className="mt-4 space-y-2">
-                                        <div className="text-sm font-medium">Card details (simulation)</div>
-                                        <input className="w-full border border-gray-200 rounded p-2" placeholder="Card number" />
+                                        <div className="text-sm font-medium">{t('Card details (simulation)')}</div>
+                                        <input className="w-full border border-gray-200 rounded p-2" placeholder={t('Card number')} />
                                         <div className="flex space-x-2">
                                             <input className="flex-1 border border-gray-200 rounded p-2" placeholder="MM/YY" />
                                             <input className="w-24 border border-gray-200 rounded p-2" placeholder="CVC" />
                                         </div>
-                                        <input className="w-full border border-gray-200 rounded p-2" placeholder="Name on card" />
+                                        <input className="w-full border border-gray-200 rounded p-2" placeholder={t('Name on card')} />
                                     </div>
                                 )}
                             </div>
 
                             <div>
-                                <div className="mb-3 font-medium">Order summary</div>
+                                <div className="mb-3 font-medium">{t('Order summary')}</div>
                                 <div className="p-4 rounded-lg border border-gray-100 bg-gray-50">
                                     <div className="flex items-center justify-between mb-2">
-                                        <div className="text-sm text-gray-700">{selectedPlan.title} ({billingPeriod === 'monthly' ? 'Monthly' : 'Annual'})</div>
+                                        <div className="text-sm text-gray-700">{selectedPlan.title} ({billingPeriod === 'monthly' ? t('Monthly') : t('Annual')})</div>
                                         <div className="font-semibold">{billingPeriod === 'monthly' ? formatPrice(selectedPlan.priceMonthly) : formatPrice(selectedPlan.priceMonthly, 'annual', ANNUAL_DISCOUNT)}</div>
                                     </div>
                                     <div className="flex items-center justify-between text-sm text-gray-600">
-                                        <div>Subtotal</div>
+                                        <div>{t('Subtotal')}</div>
                                         <div>{(() => {
                                             const subtotal = billingPeriod === 'monthly' ? selectedPlan.priceMonthly : selectedPlan.priceMonthly * 12;
                                             return `$${subtotal.toFixed(2)}`;
@@ -710,16 +723,16 @@ const Sponsorships = () => {
                                     </div>
                                     {billingPeriod === 'annual' && (
                                         <div className="flex items-center justify-between text-sm text-gray-600">
-                                            <div>Annual discount</div>
+                                            <div>{t('Annual discount')}</div>
                                             <div>-{`$${(selectedPlan.priceMonthly * 12 * ANNUAL_DISCOUNT).toFixed(2)}`}</div>
                                         </div>
                                     )}
                                     <div className="flex items-center justify-between text-sm text-gray-600 mt-2">
-                                        <div>Tax</div>
+                                        <div>{t('Tax')}</div>
                                         <div>{`$${( (billingPeriod === 'monthly' ? selectedPlan.priceMonthly : selectedPlan.priceMonthly * 12) * 0.07 ).toFixed(2)}`}</div>
                                     </div>
                                     <div className="border-t border-gray-200 mt-3 pt-3 flex items-center justify-between">
-                                        <div className="font-medium">Total</div>
+                                        <div className="font-medium">{t('Total')}</div>
                                         <div className="font-semibold text-lg">{(() => {
                                             const subtotal = billingPeriod === 'monthly' ? selectedPlan.priceMonthly : selectedPlan.priceMonthly * 12;
                                             const discount = billingPeriod === 'annual' ? selectedPlan.priceMonthly * 12 * ANNUAL_DISCOUNT : 0;
@@ -740,7 +753,7 @@ const Sponsorships = () => {
                                             // show a simple success — for now use window.alert to simulate confirmation
                                             try { window.alert('Payment simulated — thank you!'); } catch (e) {}
                                         }, 1400);
-                                    }} className="w-full bg-[var(--color-accent)] text-white py-3 rounded-xl font-semibold">{processingPayment ? 'Processing…' : 'Pay now'}</button>
+                                    }} className="w-full bg-[var(--color-accent)] text-white py-3 rounded-xl font-semibold">{processingPayment ? t('Processing...') : t('Pay now')}</button>
                                 </div>
                             </div>
                         </div>

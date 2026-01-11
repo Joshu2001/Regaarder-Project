@@ -2921,6 +2921,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
         setSelectedLanguage(lang);
         try {
             localStorage.setItem('regaarder_language', lang);
+            window.dispatchEvent(new Event('storage'));
         } catch (e) {
             console.warn('Failed to save language preference', e);
         }

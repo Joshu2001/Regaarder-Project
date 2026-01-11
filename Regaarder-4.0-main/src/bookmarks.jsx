@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 import React from 'react';
 import { Bookmark, MoreHorizontal, Search, History, Home, FileText, Pencil } from 'lucide-react';
+import { getTranslation } from './translations';
 
 const GOLD_COLOR = '#CB8B04';
 
@@ -19,6 +20,26 @@ export default function BookmarksPage() {
   const [requests, setRequests] = React.useState([]);
   const [videoMeta, setVideoMeta] = React.useState({});
   const [swipeStates, setSwipeStates] = React.useState({}); // track offset per item id
+  const [language, setLanguage] = React.useState(localStorage.getItem('regaarder_language') || 'English');
+
+  const t = (key) => getTranslation(key, language);
+
+  React.useEffect(() => {
+      const handleLanguageChange = () => {
+          setLanguage(localStorage.getItem('regaarder_language') || 'English');
+      };
+      window.addEventListener('storage', handleLanguageChange);
+      const interval = setInterval(() => {
+          const currentLang = localStorage.getItem('regaarder_language') || 'English';
+          if (currentLang !== language) {
+              setLanguage(currentLang);
+          }
+      }, 1000);
+      return () => {
+          window.removeEventListener('storage', handleLanguageChange);
+          clearInterval(interval);
+      };
+  }, [language]);
 
   const fetchAll = React.useCallback(async () => {
     try {
@@ -88,24 +109,24 @@ export default function BookmarksPage() {
       <div className="w-full flex flex-col bg-white overflow-auto">
         <header className="p-4 border-b border-gray-100 space-y-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2"><Bookmark className="w-5 h-5 text-gray-500" strokeWidth={1.5} /><span>Bookmarks</span></h1>
+            <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2"><Bookmark className="w-5 h-5 text-gray-500" strokeWidth={1.5} /><span>{t('Bookmarks')}</span></h1>
             <button className="p-2 text-gray-600 hover:text-gray-900" aria-label="More"><MoreHorizontal className="w-5 h-5" /></button>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md px-2 py-2 w-full max-w-md">
               <Search className="w-4 h-4 text-gray-500" />
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" className="bg-transparent outline-none text-sm ml-2 w-full" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('Search')} className="bg-transparent outline-none text-sm ml-2 w-full" />
             </div>
-            <p className="text-sm text-gray-500 ml-4 whitespace-nowrap">{segments.length + videos.length + requests.length} items</p>
+            <p className="text-sm text-gray-500 ml-4 whitespace-nowrap">{segments.length + videos.length + requests.length} {t('items')}</p>
           </div>
         </header>
 
         <main className="flex-grow flex flex-col items-center justify-start p-6 space-y-8">
           {/* 1. Timestamped segments */}
           <section className="w-full">
-            <div className="text-sm font-semibold text-gray-700 mb-2">Timestamped Segments</div>
+            <div className="text-sm font-semibold text-gray-700 mb-2">{t('Timestamped Segments')}</div>
             {segments.length === 0 ? (
-              <div className="flex items-center gap-2 text-gray-500"><History className="w-4 h-4" /><span>No timestamped segments yet</span></div>
+              <div className="flex items-center gap-2 text-gray-500"><History className="w-4 h-4" /><span>{t('No timestamped segments yet')}</span></div>
             ) : (
               <div className="space-y-3">
                 {segments.filter(s => matchQuery(s.label) || matchQuery(s.videoUrl)).map((s) => (
@@ -124,9 +145,9 @@ export default function BookmarksPage() {
 
           {/* 2. Videos to watch (normal bookmarks) */}
           <section className="w-full">
-            <div className="text-sm font-semibold text-gray-700 mb-2">Videos to Watch</div>
+            <div className="text-sm font-semibold text-gray-700 mb-2">{t('Videos to Watch')}</div>
             {videos.length === 0 ? (
-              <div className="text-gray-500">No video bookmarks</div>
+              <div className="text-gray-500">{t('No video bookmarks')}</div>
             ) : (
               <div className="space-y-3">
                 {videos.filter(v => matchQuery(v.title) || matchQuery(v.videoUrl)).map((v) => (
@@ -152,9 +173,9 @@ export default function BookmarksPage() {
 
           {/* 3. Request bookmarks */}
           <section className="w-full">
-            <div className="text-sm font-semibold text-gray-700 mb-2">Request Bookmarks</div>
+            <div className="text-sm font-semibold text-gray-700 mb-2">{t('Request Bookmarks')}</div>
             {requests.length === 0 ? (
-              <div className="text-gray-500">No request bookmarks</div>
+              <div className="text-gray-500">{t('No request bookmarks')}</div>
             ) : (
               <div className="space-y-3">
                 {requests.filter(r => matchQuery(r.title) || matchQuery(r.requestId)).map((r) => (
@@ -182,7 +203,7 @@ export default function BookmarksPage() {
           <div className="w-full px-4 py-3 bg-[#F5F5DC] text-gray-700 rounded-xl flex items-start space-x-2" style={{ borderColor: 'var(--color-gold-light)', borderWidth: '1px', borderStyle: 'solid', boxShadow: '0 6px 16px rgba(203,139,4,0.06)' }}>
             <svg className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--color-gold)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
             <p className="text-xs leading-relaxed font-medium">
-              Swipe left to delete bookmark
+              {t('Swipe left to delete bookmark')}
             </p>
           </div>
         </main>
@@ -196,6 +217,8 @@ export default function BookmarksPage() {
 const BottomBar = () => {
   const [activeTab, setActiveTab] = React.useState(null);
   const navigatedRef = React.useRef(false);
+  const language = localStorage.getItem('regaarder_language') || 'English';
+  const t = (key) => getTranslation(key, language);
 
   const tabs = [
     { name: 'Home', icon: Home },
@@ -285,7 +308,7 @@ const BottomBar = () => {
                   />
                 </div>
                 <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
-                  {tab.name}
+                  {t(tab.name)}
                 </span>
               </button>
 
