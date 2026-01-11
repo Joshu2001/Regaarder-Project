@@ -103,7 +103,7 @@ const StatCard = ({ value, label, bgColor, shadow, glow }) => (
             boxShadow: glow ? `0 0 12px 4px rgba(var(--color-gold-rgb), 0.15)` : `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)`,
         }}
     >
-    <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${!glow && 'hidden'}`} style={{ backgroundColor: 'var(--color-gold)' }}></div>
+    {/* <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${!glow && 'hidden'}`} style={{ backgroundColor: 'var(--color-gold)' }}></div> */}
     <span className="text-3xl font-extrabold text-stone-900 mb-1.5">
       {value}
     </span>
