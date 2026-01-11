@@ -495,13 +495,11 @@ const LanguageDialog = ({ onClose, selectedLanguage, onSelectLanguage }) => {
 
     const languages = [
         { code: 'English', flagUrl: getFlagUrl('US'), displayName: 'English' },
-        { code: 'Español', flagUrl: getFlagUrl('ES'), displayName: 'Español' },
-        { code: 'Français', flagUrl: getFlagUrl('FR'), displayName: 'Français' },
-        { code: 'Deutsch', flagUrl: getFlagUrl('DE'), displayName: 'Deutsch' },
-        { code: 'Italiano', flagUrl: getFlagUrl('IT'), displayName: 'Italiano' },
-        { code: 'Português', flagUrl: getFlagUrl('PT'), displayName: 'Português' },
-        { code: 'Русский', flagUrl: getFlagUrl('RU'), displayName: 'Русский' },
         { code: 'Chinese Traditional', flagUrl: getFlagUrl('TW'), displayName: '繁體中文' },
+        { code: 'Vietnamese', flagUrl: getFlagUrl('VN'), displayName: 'Tiếng Việt' },
+        { code: 'Filipino', flagUrl: getFlagUrl('PH'), displayName: 'Filipino' },
+        { code: 'Español', flagUrl: getFlagUrl('MX'), displayName: 'Español' },
+        { code: 'Estonian', flagUrl: getFlagUrl('EE'), displayName: 'Eesti' },
     ];
 
     return (

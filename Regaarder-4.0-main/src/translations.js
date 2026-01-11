@@ -86,13 +86,11 @@ export const translations = {
     'Close': 'Close',
     
     // Language names
-    'Français': 'Français',
-    'Deutsch': 'Deutsch',
-    'Italiano': 'Italiano',
-    'Português': 'Português',
-    'Русский': 'Русский',
     'Chinese Traditional': 'Chinese Traditional',
+    'Vietnamese': 'Vietnamese',
+    'Filipino': 'Filipino',
     'Español': 'Español',
+    'Estonian': 'Estonian',
     
     // Toast messages
     'Language Updated': 'Language Updated',
@@ -610,14 +608,12 @@ export const translations = {
     'Select your preferred language for the app': '為應用程式選擇您偏好的語言',
     'Close': '關閉',
     
-    // Language names (keep original)
-    'Français': 'Français',
-    'Deutsch': 'Deutsch',
-    'Italiano': 'Italiano',
-    'Português': 'Português',
-    'Русский': 'Русский',
+    // Language names
     'Chinese Traditional': '繁體中文',
-    'Español': 'Español',
+    'Vietnamese': '越南語',
+    'Filipino': '菲律賓語',
+    'Español': '西班牙語',
+    'Estonian': '愛沙尼亞語',
     
     // Toast messages
     'Language Updated': '語言已更新',
