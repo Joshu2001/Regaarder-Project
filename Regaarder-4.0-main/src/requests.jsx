@@ -171,7 +171,7 @@ const mockRequests = [
 ];
 
 // --- Comment Component (Unchanged) ---
-const CommentItem = ({ comment, onReply, onToggleLike, onToggleDislike, onEdit, onDelete }) => {
+const CommentItem = ({ comment, onReply, onToggleLike, onToggleDislike, onEdit, onDelete, selectedLanguage = 'English' }) => {
     const isUserComment = comment.userId === MOCK_USER.id;
     const avatarUrl = isUserComment 
         ? MOCK_USER.avatarUrl 
@@ -285,7 +285,7 @@ const CommentItem = ({ comment, onReply, onToggleLike, onToggleDislike, onEdit, 
                         onClick={handleReplyClick}
                         className="hover:text-gray-700 transition-colors"
                     >
-                        Reply
+                        {getTranslation('Reply', selectedLanguage)}
                     </button>
                 </div>
                 {/* end transformed content */}
@@ -677,6 +677,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
                                     onToggleDislike={onToggleDislike}
                                     onEdit={handleEditComment}
                                     onDelete={handleDeleteComment}
+                                    selectedLanguage={selectedLanguage}
                                 />
                             ))}
                         </div>
@@ -688,7 +689,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
                     {replyingTo && (
                         <div className="flex items-center justify-between p-2 mb-2 bg-gray-100 rounded-lg text-sm text-gray-700">
                             <span className="font-medium">
-                                Replying to <span className="text-indigo-600 font-semibold">{replyingTo.userName}</span>
+                                {getTranslation('Replying to', selectedLanguage)} <span className="text-indigo-600 font-semibold">{replyingTo.userName}</span>
                             </span>
                             <button 
                                 onClick={handleCancelReply}
@@ -704,7 +705,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
                         <input
                             ref={inputRef} 
                             type="text"
-                            placeholder={getTranslation('Add a comment... (use @ to mention)', (typeof selectedLanguage !== 'undefined' ? selectedLanguage : (typeof window !== 'undefined' && (localStorage.getItem('regaarder_language') || 'English'))))}
+                            placeholder={getTranslation('Add a comment... (use @ to mention)', selectedLanguage)}
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyPress={(e) => {
@@ -953,10 +954,10 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                                 <div>
                                     <p className="font-bold text-sm mb-1 flex items-center" style={{ color: goldColor }}>
                                         <Sparkles className="w-4 h-4 mr-1.5" style={{ color: goldColor }} />
-                                        Reward Great Ideas
+                                        {getTranslation('Reward Great Ideas', selectedLanguage)}
                                     </p>
                                     <p className="text-xs text-gray-700 leading-relaxed">
-                                        Creators love your input! Show appreciation by tipping contributors for their valuable creative suggestions that help shape amazing content.
+                                        {getTranslation('Creators love your input! Show appreciation by tipping contributors for their valuable creative suggestions that help shape amazing content.', selectedLanguage)}
                                     </p>
                                 </div>
                             </div>
@@ -1000,7 +1001,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                                         </div>
                                         <div>
                                             <p className="text-xs font-semibold text-gray-800">{s.userName}</p>
-                                            <p className="text-[10px] text-gray-400">Just now</p>
+                                            <p className="text-[10px] text-gray-400">{getTranslation('Just now', selectedLanguage)}</p>
                                         </div>
                                     </div>
                                     <p className="text-sm text-gray-700 leading-relaxed pl-9">{s.text}</p>
@@ -1022,7 +1023,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                         <input
                             ref={inputRef} 
                             type="text"
-                            placeholder="What would make this video amazing?"
+                            placeholder={getTranslation('What would make this video amazing?', selectedLanguage)}
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyPress={(e) => {
@@ -1062,7 +1063,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
 
 
 // --- Simplified Progress Component ---
-const RankProgressBar = ({ currentScore, projectedScore, rank, nextRankNeeded, goldColor }) => {
+const RankProgressBar = ({ currentScore, projectedScore, rank, nextRankNeeded, goldColor, selectedLanguage = 'English' }) => {
     const progress = Math.min(100, ((currentScore % 100) / 100) * 100);
     const projProgress = Math.min(100, ((projectedScore % 100) / 100) * 100);
     
@@ -1070,10 +1071,10 @@ const RankProgressBar = ({ currentScore, projectedScore, rank, nextRankNeeded, g
         <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-semibold text-gray-700">
-                    Rank #{rank}
+                    {getTranslation('Rank', selectedLanguage)} #{rank}
                 </span>
                 <span className="text-xs text-gray-500">
-                    {nextRankNeeded} needed for next rank
+                    {nextRankNeeded} {getTranslation('needed for next rank', selectedLanguage)}
                 </span>
             </div>
             <div className="h-2 bg-gray-200 rounded-full relative overflow-hidden">
@@ -1100,7 +1101,7 @@ const RankProgressBar = ({ currentScore, projectedScore, rank, nextRankNeeded, g
 
 
 // --- Boosts Modal Component (Refined aesthetic & fixes) ---
-const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree }) => {
+const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree, selectedLanguage = 'English' }) => {
     const modalRef = useRef(null);
     const minHeight = window.innerHeight * 0.5; 
     const maxHeight = window.innerHeight * 0.95; 
@@ -1121,9 +1122,9 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree 
     useEffect(() => { setCurrentScore(totalInfluence); }, [totalInfluence]); // sync on prop change
     
     const TIERS = [
-        { threshold: 100, label: 'Creators See', message: 'Creators See', color: 'bg-green-600' },
-        { threshold: 250, label: 'Creators Prioritizing', message: 'Creators Prioritizing', color: 'bg-blue-600' },
-        { threshold: 450, label: 'Guaranteed Creation', message: 'Guaranteed Creation', color: 'bg-red-600' }
+        { threshold: 100, label: getTranslation('Creators See', selectedLanguage), message: getTranslation('Creators See', selectedLanguage), color: 'bg-green-600' },
+        { threshold: 250, label: getTranslation('Creators Prioritizing', selectedLanguage), message: getTranslation('Creators Prioritizing', selectedLanguage), color: 'bg-blue-600' },
+        { threshold: 450, label: getTranslation('Guaranteed Creation', selectedLanguage), message: getTranslation('Guaranteed Creation', selectedLanguage), color: 'bg-red-600' }
     ];
     const MAX_SCORE = 550; 
     // 1 dollar = 2 Influence points during this limited-time offer
@@ -1151,10 +1152,10 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree 
     const getModalTitle = () => {
         if (rank === 1) {
             return threatCount > 0
-                ? <>Don’t let this <span style={goldStyle}>video</span> drop! Maintain <span style={goldStyle}>Rank #1</span>.</>
-                : <>Keep the momentum going. Support this <span style={goldStyle}>video</span>.</>;
+                ? <>{getTranslation('Don’t let this video drop! Maintain Rank #1.', selectedLanguage).split('Rank #1')[0]} <span style={goldStyle}>Rank #1</span>.</>
+                : <>{getTranslation('Keep the momentum going. Support this video.', selectedLanguage)}</>;
         }
-        return <>Help this <span style={goldStyle}>video</span> climb and win this week.</>;
+        return <>{getTranslation('Help this video climb and win this week.', selectedLanguage)}</>;
     };
     
     const statusText = rank === 1 ? 'Winner' : 'Rising'; 
@@ -1170,26 +1171,26 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree 
     const getHeadline = () => {
         if (rank === 1) return (
             <span className="flex items-center">
-                Keep This #1
+                {getTranslation('Keep This #1', selectedLanguage)}
             </span>
         );
         if (rank <= 3) return (
             <span className="flex items-center">
-                Push to #1
+                {getTranslation('Push to #1', selectedLanguage)}
             </span>
         );
         return (
             <span className="flex items-center">
-                Boost Visibility
+                {getTranslation('Boost Visibility', selectedLanguage)}
             </span>
         );
     };
     
     // Dynamic subheadline showing competitive status
     const getSubheadline = () => {
-        if (rank === 1 && threatCount > 0) return `${threatCount} close behind`;
-        if (nextRankNeeded > 0) return `${nextRankNeeded} needed`;
-        return 'Move up the rankings';
+        if (rank === 1 && threatCount > 0) return `${threatCount} ${getTranslation('close behind', selectedLanguage)}`;
+        if (nextRankNeeded > 0) return `${nextRankNeeded} ${getTranslation('needed', selectedLanguage)}`;
+        return getTranslation('Move up the rankings', selectedLanguage);
     };
 
 
@@ -1363,7 +1364,7 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree 
 
                     {/* Top Contributors - Minimal */}
                     <div className="pt-6 border-t border-gray-100">
-                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-5">Leaderboard</div>
+                        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-5">{getTranslation('Leaderboard', selectedLanguage)}</div>
                         <div className="space-y-4">
                             {topContributors.slice(0, 3).map((contributor, idx) => (
                                 <div key={idx} className="flex items-center justify-between">
@@ -1416,15 +1417,15 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree 
                                     }
 
                                     setProcessingPayment(false);
-                                    alert('Payment failed. Please try again.');
+                                    alert(getTranslation('Payment failed. Please try again.', selectedLanguage));
                                 } catch (err) {
                                     console.error('Payment error', err);
                                     setProcessingPayment(false);
-                                    alert('Payment failed. Please try again.');
+                                    alert(getTranslation('Payment failed. Please try again.', selectedLanguage));
                                 }
                             }}
                         >
-                            {processingPayment ? 'Processing...' : `Boost for $${selectedAmount}`}
+                            {processingPayment ? getTranslation('Processing...', selectedLanguage) : `${getTranslation('Boost for', selectedLanguage)} $${selectedAmount}`}
                         </button>
 
                         {/* Payment providers - Subtle */}
@@ -1452,7 +1453,7 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree 
 
 
 // --- Claim Confirmation Modal ---
-const ClaimConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
+const ClaimConfirmationModal = ({ isOpen, onClose, onConfirm, selectedLanguage = 'English' }) => {
     if (!isOpen) return null;
 
     const goldColor = 'var(--color-gold)';
@@ -1465,16 +1466,16 @@ const ClaimConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
             />
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative z-10 overflow-hidden animate-in fade-in zoom-in duration-200">
                 <div className="p-6 text-center">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">Ready to Commit?</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{getTranslation('Ready to Commit?', selectedLanguage)}</h3>
                     <p className="text-sm text-gray-600 mb-8 leading-relaxed">
-                        Claiming this request means you take responsibility for creating the video and must submit a first update within 48 hours.
+                        {getTranslation('Claiming this request means you take responsibility for creating the video and must submit a first update within 48 hours.', selectedLanguage)}
                     </p>
                     <div className="flex space-x-3">
                         <button 
                             onClick={onClose}
                             className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
                         >
-                            Not Yet
+                            {getTranslation('Not Yet', selectedLanguage)}
                         </button>
                         <button 
                             onClick={onConfirm}
@@ -1484,7 +1485,7 @@ const ClaimConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
                                 boxShadow: '0 4px 12px -2px rgba(var(--color-gold-rgb), 0.35)'
                             }}
                         >
-                            Claim
+                            {getTranslation('Claim', selectedLanguage)}
                         </button>
                     </div>
                 </div>
@@ -1494,7 +1495,7 @@ const ClaimConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
 };
 
 // --- Toast Notification Component ---
-const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = 'success' }) => {
+const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = 'success', selectedLanguage = 'English' }) => {
     const [swipeOffset, setSwipeOffset] = useState(0);
     const [isDismissing, setIsDismissing] = useState(false);
     const dragStartX = useRef(0);
@@ -1600,7 +1601,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                     )}
                 </div>
                 <div className="flex-grow mr-2">
-                    <h4 className="text-sm font-bold text-gray-900">{variant === 'success' ? 'Success' : 'Notice'}</h4>
+                    <h4 className="text-sm font-bold text-gray-900">{variant === 'success' ? getTranslation('Success', selectedLanguage) : getTranslation('Notice', selectedLanguage)}</h4>
                     <p className="text-sm text-gray-600 leading-snug mt-0.5">{message}</p>
                 </div>
                 {actionLabel && onAction && (
@@ -2913,12 +2914,14 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 requestId={request.id}
                 detailedRank={{ ...detailedRank, totalInfluence: currentInfluence }} // Pass current influence state
                 onGiveLikeFree={() => { toggleLike(); setActionToast({ visible: true, message: 'You gave a like — thanks!' }); }}
+                selectedLanguage={selectedLanguage}
             />
 
             <ClaimConfirmationModal 
                 isOpen={showClaimModal}
                 onClose={() => setShowClaimModal(false)}
                 onConfirm={handleConfirmClaim}
+                selectedLanguage={selectedLanguage}
             />
 
             <Toast
@@ -2985,32 +2988,32 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/40" onClick={() => setShowReportModal(false)} />
                     <div className="bg-white rounded-2xl shadow-2xl p-6 relative z-10 w-full max-w-sm">
-                        <h3 className="text-lg font-bold mb-2">Report request</h3>
-                        <p className="text-sm text-gray-600 mb-4">Please select a reason for reporting — this helps our moderation team prioritize reviews.</p>
+                        <h3 className="text-lg font-bold mb-2">{getTranslation('Report request', selectedLanguage)}</h3>
+                        <p className="text-sm text-gray-600 mb-4">{getTranslation('Please select a reason for reporting — this helps our moderation team prioritize reviews.', selectedLanguage)}</p>
 
                         <div className="space-y-2">
                             <label className="flex items-center space-x-3">
                                 <input type="radio" name="reportReason" value="spam" checked={reportReason === 'spam'} onChange={() => setReportReason('spam')} />
-                                <span className="text-sm">Spam or misleading</span>
+                                <span className="text-sm">{getTranslation('Spam or misleading', selectedLanguage)}</span>
                             </label>
                             <label className="flex items-center space-x-3">
                                 <input type="radio" name="reportReason" value="harassment" checked={reportReason === 'harassment'} onChange={() => setReportReason('harassment')} />
-                                <span className="text-sm">Harassment or hate</span>
+                                <span className="text-sm">{getTranslation('Harassment or hate', selectedLanguage)}</span>
                             </label>
                             <label className="flex items-center space-x-3">
                                 <input type="radio" name="reportReason" value="inaccurate" checked={reportReason === 'inaccurate'} onChange={() => setReportReason('inaccurate')} />
-                                <span className="text-sm">Inaccurate or harmful information</span>
+                                <span className="text-sm">{getTranslation('Inaccurate or harmful information', selectedLanguage)}</span>
                             </label>
                             <label className="flex items-center space-x-3">
                                 <input type="radio" name="reportReason" value="other" checked={reportReason === 'other'} onChange={() => setReportReason('other')} />
-                                <span className="text-sm">Other</span>
+                                <span className="text-sm">{getTranslation('Other', selectedLanguage)}</span>
                             </label>
 
                             {reportReason === 'other' && (
                                 <textarea
                                     value={reportOtherText}
                                     onChange={(e) => setReportOtherText(e.target.value)}
-                                    placeholder="Optional: tell us more (max 200 chars)"
+                                    placeholder={getTranslation('Optional: tell us more (max 200 chars)', selectedLanguage)}
                                     maxLength={200}
                                     className="w-full mt-2 p-2 border border-gray-200 rounded-md text-sm"
                                 />
@@ -3018,8 +3021,8 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                         </div>
 
                         <div className="flex justify-end space-x-3 mt-4">
-                            <button onClick={() => setShowReportModal(false)} className="px-4 py-2 rounded-full bg-gray-100">Cancel</button>
-                            <button onClick={confirmReport} className="px-4 py-2 rounded-full" style={{ backgroundColor: 'var(--color-gold)', color: '#fff' }}>Report</button>
+                            <button onClick={() => setShowReportModal(false)} className="px-4 py-2 rounded-full bg-gray-100">{getTranslation('Cancel', selectedLanguage)}</button>
+                            <button onClick={confirmReport} className="px-4 py-2 rounded-full" style={{ backgroundColor: 'var(--color-gold)', color: '#fff' }}>{getTranslation('Report', selectedLanguage)}</button>
                         </div>
                     </div>
                 </div>
@@ -3070,12 +3073,12 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
 
 
 // --- Profile Dialog Component (matching home.jsx) ---
-const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData = null }) => {
+const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData = null, selectedLanguage = 'English' }) => {
     const currentYear = new Date().getFullYear();
     
     const data = profileData || {
         avatar: null,
-        bio: isCreator ? 'Creating engaging content for you' : 'Enjoying great content',
+        bio: isCreator ? getTranslation('Creating engaging content for you', selectedLanguage) : getTranslation('Enjoying great content', selectedLanguage),
         stats: {
             videos: isCreator ? 24 : 0,
             requests: 12,
@@ -3135,7 +3138,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     className="px-2 py-0.5 rounded-full text-xs font-semibold text-white"
                                     style={{ backgroundColor: 'var(--color-gold)' }}
                                 >
-                                    Creator
+                                    {getTranslation('Creator', selectedLanguage)}
                                 </div>
                             )}
                         </div>
@@ -3150,16 +3153,16 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                         {isCreator && (
                             <div className="text-center">
                                 <div className="text-xl font-bold text-gray-900">{data.stats.videos}</div>
-                                <div className="text-xs text-gray-500 mt-1">Videos</div>
+                                <div className="text-xs text-gray-500 mt-1">{getTranslation('Videos', selectedLanguage)}</div>
                             </div>
                         )}
                         <div className="text-center">
                             <div className="text-xl font-bold text-gray-900">{data.stats.requests}</div>
-                            <div className="text-xs text-gray-500 mt-1">Requests</div>
+                            <div className="text-xs text-gray-500 mt-1">{isCreator ? getTranslation('Fulfilled', selectedLanguage) : getTranslation('Requested', selectedLanguage)}</div>
                         </div>
                         <div className="text-center">
                             <div className="text-xl font-bold text-gray-900">{data.stats.followers >= 1000 ? `${(data.stats.followers / 1000).toFixed(1)}k` : data.stats.followers}</div>
-                            <div className="text-xs text-gray-500 mt-1">Followers</div>
+                            <div className="text-xs text-gray-500 mt-1">{getTranslation('Followers', selectedLanguage)}</div>
                         </div>
                     </div>
 
@@ -3182,7 +3185,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                 boxShadow: '0 4px 12px rgba(203, 138, 0, 0.3)'
                             }}
                         >
-                            {isFollowing ? 'Following' : 'Follow'}
+                            {isFollowing ? getTranslation('Following', selectedLanguage) : getTranslation('Follow', selectedLanguage)}
                         </button>
                         {isCreator && (
                             <button
@@ -3193,13 +3196,13 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     color: 'var(--color-gold)'
                                 }}
                             >
-                                Request Video
+                                {getTranslation('Request Video', selectedLanguage)}
                             </button>
                         )}
                     </div>
 
                     <div className="mt-6 text-center">
-                        <p className="text-xs text-gray-400">Member since {data.joinedDate}</p>
+                        <p className="text-xs text-gray-400">{getTranslation('Member since', selectedLanguage)} {data.joinedDate}</p>
                     </div>
                 </div>
             </div>
@@ -4031,14 +4034,14 @@ const filterButtonStyle = (active) => ({
                                     <label className="text-sm font-semibold text-gray-700 mb-2 block flex items-center justify-between">
                                         <span className="flex items-center">
                                             <Calendar className="w-4 h-4 mr-1.5" />
-                                            Date
+                                            {getTranslation('Date', selectedLanguage)}
                                         </span>
                                         {selectedDate && (
                                             <button
                                                 onClick={() => setSelectedDate(null)}
                                                 className="text-xs text-gray-500 hover:text-gray-700"
                                             >
-                                                Clear
+                                                {getTranslation('Clear', selectedLanguage)}
                                             </button>
                                         )}
                                     </label>
@@ -4095,7 +4098,7 @@ const filterButtonStyle = (active) => ({
                                                             onClick={() => setShowMonthYearPicker(!showMonthYearPicker)}
                                                             className="text-center font-bold text-xs text-gray-700 hover:bg-gray-200 px-3 py-1 rounded transition-colors"
                                                         >
-                                                            {monthNames[calendarMonth]} {calendarYear}
+                                                            {getTranslation(monthNames[calendarMonth], selectedLanguage)} {calendarYear}
                                                         </button>
                                                         <button
                                                             onClick={goToNextMonth}
@@ -4110,7 +4113,7 @@ const filterButtonStyle = (active) => ({
                                                     {showMonthYearPicker && (
                                                         <div className="mb-3 bg-white rounded-lg p-3 shadow-lg border border-gray-200">
                                                             <div className="mb-3">
-                                                                <label className="text-xs font-semibold text-gray-600 mb-1 block">Month</label>
+                                                                <label className="text-xs font-semibold text-gray-600 mb-1 block">{getTranslation('Month', selectedLanguage)}</label>
                                                                 <div className="grid grid-cols-4 gap-1">
                                                                     {monthNames.map((month, index) => (
                                                                         <button
@@ -4129,14 +4132,14 @@ const filterButtonStyle = (active) => ({
                                                                                 color: calendarMonth === index ? 'white' : '#374151'
                                                                             }}
                                                                         >
-                                                                            {month}
+                                                                            {getTranslation(month, selectedLanguage)}
                                                                         </button>
                                                                     ))}
                                                                 </div>
                                                             </div>
                                                             
                                                             <div>
-                                                                <label className="text-xs font-semibold text-gray-600 mb-1 block">Year</label>
+                                                                <label className="text-xs font-semibold text-gray-600 mb-1 block">{getTranslation('Year', selectedLanguage)}</label>
                                                                 <div className="grid grid-cols-3 gap-1 max-h-32 overflow-y-auto">
                                                                     {(() => {
                                                                         const currentYear = new Date().getFullYear();
@@ -4216,7 +4219,7 @@ const filterButtonStyle = (active) => ({
                                 
                                 {/* Status Filter */}
                                 <div className="mb-2">
-                                    <label className="text-sm font-semibold text-gray-700 mb-2 block">Status</label>
+                                    <label className="text-sm font-semibold text-gray-700 mb-2 block">{getTranslation('Status', selectedLanguage)}</label>
                                     <div className="space-y-1.5">
                                         {['All', 'Active', 'Completed'].map(status => (
                                             <button
@@ -4233,7 +4236,7 @@ const filterButtonStyle = (active) => ({
                                                 }}
                                             >
                                                 {selectedStatus === status && <CheckCircle2 className="w-4 h-4 inline mr-2" />}
-                                                {status}
+                                                {getTranslation(status, selectedLanguage)}
                                             </button>
                                         ))}
                                     </div>
@@ -4253,7 +4256,7 @@ const filterButtonStyle = (active) => ({
                                         className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90"
                                         style={{ backgroundColor: 'var(--color-gold)', color: 'white' }}
                                     >
-                                        Clear All Filters
+                                        {getTranslation('Clear All Filters', selectedLanguage)}
                                     </button>
                                 </div>
                             )}
@@ -4377,6 +4380,7 @@ const filterButtonStyle = (active) => ({
                 isVisible={pinToast.visible}
                 onClose={() => setPinToast({ visible: false, message: '' })}
                 variant="success"
+                selectedLanguage={selectedLanguage}
             />
             {isProfileOpen && (
                 <ProfileDialog
@@ -4385,6 +4389,7 @@ const filterButtonStyle = (active) => ({
                     isCreator={profileIsCreator}
                     onClose={handleCloseProfile}
                     profileData={profileData}
+                    selectedLanguage={selectedLanguage}
                 />
             )}
         </div>

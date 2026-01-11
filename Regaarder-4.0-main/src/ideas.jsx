@@ -658,7 +658,7 @@ const MobileNav = ({ selectedLanguage = 'English' }) => {
 };
 
 // --- Reusable Component for Sponsor/Success Confirmation (Extracted from Series) ---
-const SponsorConfirmation = () => {
+const SponsorConfirmation = ({ selectedLanguage = 'English' }) => {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
@@ -721,10 +721,10 @@ const SponsorConfirmation = () => {
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-bold text-sm text-gray-900 leading-tight">
-            Request Created
+            {getTranslation('Request Created', selectedLanguage)}
           </h4>
           <p className="text-xs text-gray-500 mt-0.5 leading-tight">
-            Your request has been successfully created.
+            {getTranslation('Your request has been successfully created.', selectedLanguage)}
           </p>
         </div>
         <button
@@ -738,7 +738,7 @@ const SponsorConfirmation = () => {
       {/* Confirmation Text (Matches Image 47cb61.jpg / 52b869.jpg) */}
       <div className="flex items-center text-lg font-semibold text-gray-700">
         <Check className="w-5 h-5 mr-2 text-gold-small" />
-        <span className="tracking-tight">New options unlocked!</span>
+        <span className="tracking-tight">{getTranslation('New options unlocked!', selectedLanguage)}</span>
       </div>
 
       {/* Sponsor Content Card */}
@@ -771,17 +771,16 @@ const SponsorConfirmation = () => {
             </span>
             <div>
               <h3 className="text-base font-semibold text-gray-800">
-                Sponsor Content on Regaarder
+                {getTranslation('Sponsor Content on Regaarder', selectedLanguage)}
               </h3>
-              <p className="text-sm text-gray-500">For brands & businesses</p>
+              <p className="text-sm text-gray-500">{getTranslation('For brands & businesses', selectedLanguage)}</p>
             </div>
           </div>
           <ArrowRight className="w-6 h-6 text-[var(--color-gold)]" />
         </div>
 
         <p className="text-sm text-gray-700 mb-6">
-          Reach millions of engaged viewers through authentic creator
-          partnerships. Tap here to explore our transparent sponsorship system.
+          {getTranslation('Reach millions of engaged viewers through authentic creator partnerships. Tap here to explore our transparent sponsorship system.', selectedLanguage)}
         </p>
 
         <div className="flex flex-wrap gap-3">
@@ -792,7 +791,7 @@ const SponsorConfirmation = () => {
               border: "1px solid rgba(var(--color-gold-rgb,203,138,0),0.12)",
             }}
           >
-            Transparent Pricing
+            {getTranslation('Transparent Pricing', selectedLanguage)}
           </span>
           <span
             className="px-4 py-2 text-sm rounded-full font-medium text-[var(--color-gold)]"
@@ -801,7 +800,7 @@ const SponsorConfirmation = () => {
               border: "1px solid rgba(var(--color-gold-rgb,203,138,0),0.12)",
             }}
           >
-            Direct Brand-Creator Connection
+            {getTranslation('Direct Brand-Creator Connection', selectedLanguage)}
           </span>
         </div>
       </div>
@@ -817,18 +816,19 @@ const OneTimeVideoDetails = ({
   setTitle,
   MAX_CHARS,
   showAdvanced,
+  selectedLanguage = 'English',
 }) => (
   <div className="space-y-8">
     {/* Confirmation Text */}
     <div className="flex items-center text-sm font-normal text-[var(--color-accent)]">
       <Check className="w-4 h-4 mr-2 text-[var(--color-accent)]" />
-      <span className="tracking-tight">Format selected! Now add details.</span>
+      <span className="tracking-tight">{getTranslation('Format selected! Now add details.', selectedLanguage)}</span>
     </div>
 
     {/* Examples removed per user request */}
 
     <div className="flex items-center justify-between text-sm text-gray-600">
-          <span className="italic">Using the Description and Title you entered above for this one-time video.</span>
+          <span className="italic">{getTranslation('Using the Description and Title you entered above for this one-time video.', selectedLanguage)}</span>
       <button
         type="button"
         className="ml-4 text-sm font-medium text-[var(--color-accent)] hover:underline"
@@ -851,7 +851,7 @@ const OneTimeVideoDetails = ({
           }
         }}
       >
-        Edit
+        {getTranslation('Edit', selectedLanguage)}
       </button>
     </div>
   </div>
@@ -882,26 +882,26 @@ const RecurrentVideoDetails = ({
   const frequencyOptions = [
     {
       type: "daily",
-      title: "Daily",
-      subtitle: "New videos delivered every day",
+      title: getTranslation("Daily", selectedLanguage),
+      subtitle: getTranslation("New videos delivered every day", selectedLanguage),
       Icon: Clock,
     },
     {
       type: "weekly",
-      title: "Weekly",
-      subtitle: "New videos delivered every week",
+      title: getTranslation("Weekly", selectedLanguage),
+      subtitle: getTranslation("New videos delivered every week", selectedLanguage),
       Icon: Repeat,
     },
     {
       type: "monthly",
-      title: "Monthly",
-      subtitle: "New videos delivered every month",
+      title: getTranslation("Monthly", selectedLanguage),
+      subtitle: getTranslation("New videos delivered every month", selectedLanguage),
       Icon: Calendar,
     },
     {
       type: "custom",
-      title: "Custom",
-      subtitle: "Set a custom delivery schedule",
+      title: getTranslation("Custom", selectedLanguage),
+      subtitle: getTranslation("Set a custom delivery schedule", selectedLanguage),
       Icon: Calendar,
     },
   ];
@@ -929,7 +929,7 @@ const RecurrentVideoDetails = ({
               }
             }}
           >
-            Edit
+            {getTranslation('Edit', selectedLanguage)}
           </button>
         </div>
 
@@ -957,6 +957,7 @@ const RecurrentVideoDetails = ({
               <SeriesCalendar
                 selectedDates={customRecurrentDates}
                 setSelectedDates={setCustomRecurrentDates}
+                selectedLanguage={selectedLanguage}
               />
             </div>
           )}
@@ -972,9 +973,10 @@ const RecurrentVideoDetails = ({
               setSelectedTones={setSelectedTones}
               selectedStyles={selectedStyles}
               setSelectedStyles={setSelectedStyles}
+              selectedLanguage={selectedLanguage}
             />
     );
-  if (recurrentStep === 4) return <VideoLengthStep />;
+  if (recurrentStep === 4) return <VideoLengthStep selectedLanguage={selectedLanguage} />;
   if (recurrentStep === 5)
     return (
       <PrivacySettingsStep
@@ -997,6 +999,7 @@ const RecurrentVideoDetails = ({
         uploadedFiles={uploadedFiles}
         referenceLinks={referenceLinks}
         selectedPrivacy={selectedPrivacy}
+        selectedLanguage={selectedLanguage}
         customPrice={customPrice}
         setCustomPrice={setCustomPrice}
         editingPrice={editingPrice}
@@ -1028,22 +1031,22 @@ const ToneStyleStep = ({ selectedTones, setSelectedTones, selectedStyles, setSel
   const containerRef = useRef(null);
 
   const basicTones = [
-    { id: "professional", label: "Professional", Icon: Briefcase },
-    { id: "casual", label: "Casual", Icon: Coffee },
-    { id: "inspirational", label: "Inspirational / Motivational", Icon: TrendingUp },
-    { id: "humorous", label: "Humorous / Lighthearted", Icon: Smile },
-    { id: "emotional", label: "Emotional / Heartfelt", Icon: Heart },
-    { id: "analytical", label: "Analytical / Educational", Icon: BookOpen },
+    { id: "professional", label: getTranslation("Professional", selectedLanguage), Icon: Briefcase },
+    { id: "casual", label: getTranslation("Casual", selectedLanguage), Icon: Coffee },
+    { id: "inspirational", label: getTranslation("Inspirational / Motivational", selectedLanguage), Icon: TrendingUp },
+    { id: "humorous", label: getTranslation("Humorous / Lighthearted", selectedLanguage), Icon: Smile },
+    { id: "emotional", label: getTranslation("Emotional / Heartfelt", selectedLanguage), Icon: Heart },
+    { id: "analytical", label: getTranslation("Analytical / Educational", selectedLanguage), Icon: BookOpen },
   ];
 
   const advancedTones = [
-    { id: "dramatic", label: "Dramatic / Cinematic", Icon: Film },
-    { id: "sarcastic", label: "Sarcastic / Satirical", Icon: MessageCircle },
-    { id: "romantic", label: "Romantic / Soothing", Icon: User },
-    { id: "bold", label: "Bold / Controversial", Icon: Shield },
-    { id: "serious", label: "Serious / Neutral", Icon: Target },
-    { id: "experimental", label: "Experimental / Artistic", Icon: Palette },
-    { id: "hopeful", label: "Hopeful / Reflective", Icon: Sparkles },
+    { id: "dramatic", label: getTranslation("Dramatic / Cinematic", selectedLanguage), Icon: Film },
+    { id: "sarcastic", label: getTranslation("Sarcastic / Satirical", selectedLanguage), Icon: MessageCircle },
+    { id: "romantic", label: getTranslation("Romantic / Soothing", selectedLanguage), Icon: User },
+    { id: "bold", label: getTranslation("Bold / Controversial", selectedLanguage), Icon: Shield },
+    { id: "serious", label: getTranslation("Serious / Neutral", selectedLanguage), Icon: Target },
+    { id: "experimental", label: getTranslation("Experimental / Artistic", selectedLanguage), Icon: Palette },
+    { id: "hopeful", label: getTranslation("Hopeful / Reflective", selectedLanguage), Icon: Sparkles },
   ];
 
   const toggleTone = (id) => {
@@ -1117,7 +1120,7 @@ const ToneStyleStep = ({ selectedTones, setSelectedTones, selectedStyles, setSel
           return (
             <span key={id} className="inline-flex items-center space-x-2">
               <opt.Icon className="w-4 h-4 text-[var(--color-gold)]" />
-              <span className="text-sm text-gray-800 font-medium">{getTranslation(opt.label, selectedLanguage).split(' ')[0]}</span>
+              <span className="text-sm text-gray-800 font-medium">{opt.label.split(' ')[0]}</span>
             </span>
           );
         })}
@@ -1187,7 +1190,7 @@ const ToneStyleStep = ({ selectedTones, setSelectedTones, selectedStyles, setSel
                     >
                       <tone.Icon className={`w-5 h-5 mr-3 ${selectedTones.includes(tone.id) ? 'text-[var(--color-gold)]' : 'text-gray-400'}`} />
                       <div className="flex-1">
-                        <div className="text-sm font-medium text-gray-800">{getTranslation(tone.label, selectedLanguage)}</div>
+                        <div className="text-sm font-medium text-gray-800">{tone.label}</div>
                       </div>
                       {selectedTones.includes(tone.id) && <Check className="w-4 h-4 text-[var(--color-gold)]" />}
                     </li>
@@ -1263,35 +1266,35 @@ const VideoLengthStep = ({
   const lengths = [
     {
       id: "short-form",
-      label: "Short Form",
-      duration: "15 sec – 1 min",
+      label: getTranslation("Short Form", selectedLanguage),
+      duration: getTranslation("15 sec – 1 min", selectedLanguage),
       description:
-        "Quick insights, reactions, jokes, highlights – TikTok/Reel style",
+        getTranslation("Quick insights, reactions, jokes, highlights – TikTok/Reel style", selectedLanguage),
     },
     {
       id: "standard",
-      label: "Standard",
-      duration: "2–5 min",
+      label: getTranslation("Standard", selectedLanguage),
+      duration: getTranslation("2–5 min", selectedLanguage),
       description:
-        "Mini explanations, challenges, creative short stories, tutorials",
+        getTranslation("Mini explanations, challenges, creative short stories, tutorials", selectedLanguage),
     },
     {
       id: "extended",
-      label: "Extended",
-      duration: "6–15 min",
-      description: "Deeper dives, analyses, vlogs, storytime, discussions",
+      label: getTranslation("Extended", selectedLanguage),
+      duration: getTranslation("6–15 min", selectedLanguage),
+      description: getTranslation("Deeper dives, analyses, vlogs, storytime, discussions", selectedLanguage),
     },
     {
       id: "long-form",
-      label: "Long Form",
-      duration: "16–30+ min",
-      description: "Documentaries, interviews, or in-depth guides",
+      label: getTranslation("Long Form", selectedLanguage),
+      duration: getTranslation("16–30+ min", selectedLanguage),
+      description: getTranslation("Documentaries, interviews, or in-depth guides", selectedLanguage),
     },
     {
       id: "custom",
-      label: "Custom",
-      duration: "User defined",
-      description: "Let creators decide what fits best",
+      label: getTranslation("Custom", selectedLanguage),
+      duration: getTranslation("User defined", selectedLanguage),
+      description: getTranslation("Let creators decide what fits best", selectedLanguage),
     },
   ];
 
@@ -1425,7 +1428,7 @@ const VideoLengthDropdown = ({ lengths, selectedLength, setSelectedLength, custo
                     <div className="mt-3" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="text"
-                        placeholder="Enter desired length (e.g. 45 mins)"
+                        placeholder={getTranslation("Enter desired length (e.g. 45 mins)", selectedLanguage)}
                         value={customLength}
                         onChange={(e) => setCustomLength(e.target.value)}
                         className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-soft)] focus:border-[var(--color-accent)] transition-all"
@@ -1650,7 +1653,7 @@ const ReferencesStep = ({ files, setFiles, links, setLinks, selectedLanguage = '
 };
 
 // --- Reusable Component for Calendar (New) ---
-const SeriesCalendar = ({ selectedDates, setSelectedDates }) => {
+const SeriesCalendar = ({ selectedDates, setSelectedDates, selectedLanguage = 'English' }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const getDaysInMonth = (date) => {
@@ -1680,18 +1683,18 @@ const SeriesCalendar = ({ selectedDates, setSelectedDates }) => {
   const blanks = Array.from({ length: firstDay }, (_, i) => i);
 
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    getTranslation("January", selectedLanguage),
+    getTranslation("February", selectedLanguage),
+    getTranslation("March", selectedLanguage),
+    getTranslation("April", selectedLanguage),
+    getTranslation("May", selectedLanguage),
+    getTranslation("June", selectedLanguage),
+    getTranslation("July", selectedLanguage),
+    getTranslation("August", selectedLanguage),
+    getTranslation("September", selectedLanguage),
+    getTranslation("October", selectedLanguage),
+    getTranslation("November", selectedLanguage),
+    getTranslation("December", selectedLanguage),
   ];
 
   return (
@@ -1784,10 +1787,10 @@ const SeriesVideoDetails = ({
   selectedLanguage = 'English',
 }) => {
   const scheduleOptions = [
-    { id: "all-at-once", label: "All at once", icon: Film },
-    { id: "weekly", label: "Weekly", icon: Clock },
-    { id: "monthly", label: "Monthly", icon: Calendar },
-    { id: "custom", label: "Custom Dates", icon: Pencil },
+    { id: "all-at-once", label: getTranslation("All at once", selectedLanguage), icon: Film },
+    { id: "weekly", label: getTranslation("Weekly", selectedLanguage), icon: Clock },
+    { id: "monthly", label: getTranslation("Monthly", selectedLanguage), icon: Calendar },
+    { id: "custom", label: getTranslation("Custom Dates", selectedLanguage), icon: Pencil },
   ];
 
   // Local state for a compact, editable episodes dropdown
@@ -1828,7 +1831,7 @@ const SeriesVideoDetails = ({
               }
             }}
           >
-            Edit
+            {getTranslation('Edit', selectedLanguage)}
           </button>
         </div>
       </div>
@@ -1866,7 +1869,7 @@ const SeriesVideoDetails = ({
               }
             }}
           >
-            Edit
+            {getTranslation('Edit', selectedLanguage)}
           </button>
         </div>
 
@@ -1885,7 +1888,7 @@ const SeriesVideoDetails = ({
               <div className="flex items-center space-x-3">
                 <ChevronDown className="w-4 h-4 text-gray-500" />
                 <div className="text-lg font-semibold">{numberOfEpisodes}</div>
-                <span className="text-xs text-gray-400">episodes</span>
+                <span className="text-xs text-gray-400">{getTranslation('episodes', selectedLanguage)}</span>
               </div>
               <ChevronUp className="w-4 h-4 text-gray-500" />
             </button>
@@ -1968,7 +1971,7 @@ const SeriesVideoDetails = ({
 };
 
 // --- Compact editable dropdown for Catalogue target videos (mirrors episodes control)
-const CatalogueTargetDropdown = ({ value, setValue }) => {
+const CatalogueTargetDropdown = ({ value, setValue, selectedLanguage = 'English' }) => {
   const [open, setOpen] = useState(false);
   const targetRef = useRef(null);
   const targetBtnRef = useRef(null);
@@ -1999,7 +2002,7 @@ const CatalogueTargetDropdown = ({ value, setValue }) => {
         <div className="flex items-center space-x-3">
           <ChevronDown className="w-4 h-4 text-gray-500" />
           <div className="text-lg font-semibold">{value}</div>
-          <span className="text-xs text-gray-400">videos</span>
+          <span className="text-xs text-gray-400">{getTranslation('videos', selectedLanguage)}</span>
         </div>
         <ChevronUp className="w-4 h-4 text-gray-500" />
       </button>
@@ -2065,12 +2068,13 @@ const CatalogueVideoDetails = ({
   setTargetVideos,
   themes,
   setThemes,
+  selectedLanguage = 'English',
 }) => {
   if (catalogueStep === 1) {
     return (
       <div className="space-y-8">
         <div className="flex items-center justify-between text-sm text-gray-600">
-          <span className="italic">Using the Description and Title you entered above for this catalogue.</span>
+          <span className="italic">{getTranslation('Using the Description and Title you entered above for this catalogue.', selectedLanguage)}</span>
           <button
             type="button"
             className="ml-4 text-sm font-medium text-[var(--color-accent)] hover:underline"
@@ -2084,7 +2088,7 @@ const CatalogueVideoDetails = ({
               }
             }}
           >
-            Edit
+            {getTranslation('Edit', selectedLanguage)}
           </button>
         </div>
       </div>
@@ -2096,11 +2100,11 @@ const CatalogueVideoDetails = ({
       <div className="space-y-8">
         <div className="flex items-center text-sm font-normal text-[var(--color-accent)]">
           <Check className="w-4 h-4 mr-2 text-[var(--color-accent)]" />
-          <span className="tracking-tight">Catalogue selected — set target videos and themes.</span>
+          <span className="tracking-tight">{getTranslation('Catalogue selected — set target videos and themes.', selectedLanguage)}</span>
         </div>
 
         <div className="flex items-center justify-between text-sm text-gray-600">
-          <span className="italic">Using the Description and Title you entered above for this catalogue.</span>
+          <span className="italic">{getTranslation('Using the Description and Title you entered above for this catalogue.', selectedLanguage)}</span>
           <button
             type="button"
             className="ml-4 text-sm font-medium text-[var(--color-accent)] hover:underline"
@@ -2114,29 +2118,30 @@ const CatalogueVideoDetails = ({
               }
             }}
           >
-            Edit
+            {getTranslation('Edit', selectedLanguage)}
           </button>
         </div>
 
         <div>
           <label className="text-gray-800 font-semibold text-base block mb-3">
-            How many videos would you like?
+            {getTranslation('How many videos would you like?', selectedLanguage)}
           </label>
 
           {/* Compact editable dropdown like episodes */}
           <CatalogueTargetDropdown
             value={targetVideos}
             setValue={setTargetVideos}
+            selectedLanguage={selectedLanguage}
           />
         </div>
 
         <div>
           <label className="text-gray-800 font-semibold text-base block mb-3">
-            Which themes or categories should we cover?
+            {getTranslation('Which themes or categories should we cover?', selectedLanguage)}
           </label>
           <textarea
             rows="4"
-            placeholder="List the themes or categories to cover (e.g., 'Breakfast, Lunch, Dinner, Snacks')"
+            placeholder={getTranslation("List the themes or categories to cover (e.g., 'Breakfast, Lunch, Dinner, Snacks')", selectedLanguage)}
             value={themes}
             onChange={(e) => setThemes(e.target.value)}
             className="w-full p-4 text-gray-700 border border-gray-200 rounded-xl focus:ring-0 focus:border-gray-300 outline-none text-base"
@@ -2153,23 +2158,23 @@ const PrivacySettingsStep = ({ selectedPrivacy, setSelectedPrivacy, prevStepComp
   const options = [
     {
       id: "public",
-      label: "Public",
+      label: getTranslation("Public", selectedLanguage),
       icon: Globe,
-      desc: "Visible to everyone",
+      desc: getTranslation("Visible to everyone", selectedLanguage),
       price: null,
     },
     {
       id: "unlisted",
-      label: "Unlisted",
+      label: getTranslation("Unlisted", selectedLanguage),
       icon: LinkIcon,
-      desc: "Only people with the link",
+      desc: getTranslation("Only people with the link", selectedLanguage),
       price: "+$5.99",
     },
     {
       id: "private",
-      label: "Private",
+      label: getTranslation("Private", selectedLanguage),
       icon: Lock,
-      desc: "Only you",
+      desc: getTranslation("Only you", selectedLanguage),
       price: null,
     },
   ];
@@ -2368,13 +2373,13 @@ const ReviewRequestStep = ({
   // Helper: format simple selection keys into readable labels
   const formatLabel = (key) => {
     const map = {
-      daily: "Daily",
-      weekly: "Weekly",
-      biweekly: "Biweekly",
-      monthly: "Monthly",
-      custom: "Custom",
-      immediate: "Immediate",
-      "one-off": "One-off",
+      daily: getTranslation("Daily", selectedLanguage),
+      weekly: getTranslation("Weekly", selectedLanguage),
+      biweekly: getTranslation("Biweekly", selectedLanguage),
+      monthly: getTranslation("Monthly", selectedLanguage),
+      custom: getTranslation("Custom", selectedLanguage),
+      immediate: getTranslation("Immediate", selectedLanguage),
+      "one-off": getTranslation("One-off", selectedLanguage),
     };
     return map[key] || key;
   };
@@ -2382,19 +2387,19 @@ const ReviewRequestStep = ({
   // Helper: map video length keys to human friendly labels
   const getLengthLabel = () => {
     const map = {
-      "short-form": "Short Form (15s – 1m)",
-      standard: "Standard (2–5 min)",
-      extended: "Extended (6–15 min)",
-      "long-form": "Long Form (16–30+ min)",
+      "short-form": getTranslation("Short Form", selectedLanguage),
+      standard: getTranslation("Standard", selectedLanguage),
+      extended: getTranslation("Extended", selectedLanguage),
+      "long-form": getTranslation("Long Form", selectedLanguage),
     };
     return map[selectedVideoLength] || selectedVideoLength;
   };
 
   const getPrivacyLabel = () => {
     const map = {
-      public: "Public",
-      unlisted: "Unlisted (+$5.99)",
-      private: "Private (+$9.99)",
+      public: getTranslation("Public", selectedLanguage),
+      unlisted: getTranslation("Unlisted", selectedLanguage) + " (+$5.99)",
+      private: getTranslation("Private", selectedLanguage) + " (+$9.99)",
     };
     return map[selectedPrivacy] || selectedPrivacy;
   };
@@ -2478,7 +2483,7 @@ const ReviewRequestStep = ({
           {/* Title (inline editable) */}
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">Title</h3>
+              <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">{getTranslation('TITLE', selectedLanguage)}</h3>
               {editingField !== 'title' ? (
                 <button onClick={() => setEditingField('title')} className="text-gray-400 hover:text-gray-600"><Pencil className="w-4 h-4" /></button>
               ) : null}
@@ -2487,19 +2492,19 @@ const ReviewRequestStep = ({
               <div>
                 <input value={localValues.title} onChange={(e) => setLocalValues({...localValues, title: e.target.value})} className="w-full p-3 rounded-lg border border-gray-200 text-gray-900" />
                 <div className="field-edit-actions">
-                  <button onClick={() => saveLocalField('title')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">Save</button>
-                  <button onClick={() => { setLocalValues(prev => ({...prev, title: title || ''})); setEditingField(null); }} className="px-3 py-2 rounded-lg border">Cancel</button>
+                  <button onClick={() => saveLocalField('title')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">{getTranslation('Save', selectedLanguage)}</button>
+                  <button onClick={() => { setLocalValues(prev => ({...prev, title: title || ''})); setEditingField(null); }} className="px-3 py-2 rounded-lg border">{getTranslation('Cancel', selectedLanguage)}</button>
                 </div>
               </div>
             ) : (
-              <p className="text-lg font-semibold text-gray-900" aria-label="Request title">{localValues.title || title || "(No title)"}</p>
+              <p className="text-lg font-semibold text-gray-900" aria-label="Request title">{localValues.title || title || `(${getTranslation('No title', selectedLanguage)})`}</p>
             )}
           </div>
 
           {/* Description (inline editable) */}
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">Description</h3>
+              <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">{getTranslation('DESCRIPTION', selectedLanguage)}</h3>
               {editingField !== 'description' ? (
                 <button onClick={() => setEditingField('description')} className="text-gray-400 hover:text-gray-600"><Pencil className="w-4 h-4" /></button>
               ) : null}
@@ -2508,12 +2513,12 @@ const ReviewRequestStep = ({
               <div>
                 <textarea value={localValues.description} onChange={(e) => setLocalValues({...localValues, description: e.target.value})} rows={4} className="w-full p-3 rounded-lg border border-gray-200 text-gray-900" />
                 <div className="field-edit-actions">
-                  <button onClick={() => saveLocalField('description')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">Save</button>
-                  <button onClick={() => { setLocalValues(prev => ({...prev, description: description || ''})); setEditingField(null); }} className="px-3 py-2 rounded-lg border">Cancel</button>
+                  <button onClick={() => saveLocalField('description')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">{getTranslation('Save', selectedLanguage)}</button>
+                  <button onClick={() => { setLocalValues(prev => ({...prev, description: description || ''})); setEditingField(null); }} className="px-3 py-2 rounded-lg border">{getTranslation('Cancel', selectedLanguage)}</button>
                 </div>
               </div>
             ) : (
-              <p className="text-gray-700" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{localValues.description || description || "(No description)"}</p>
+              <p className="text-gray-700" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{localValues.description || description || `(${getTranslation('No description', selectedLanguage)})`}</p>
             )}
           </div>
         </div>
@@ -2521,31 +2526,31 @@ const ReviewRequestStep = ({
         {/* Secondary details */}
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div>
-            <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">Format</h3>
-            <p className="text-gray-900 font-medium capitalize">{selectedDeliveryType || localValues.delivery || '—'}</p>
+            <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">{getTranslation('FORMAT', selectedLanguage)}</h3>
+            <p className="text-gray-900 font-medium capitalize">{getTranslation(selectedDeliveryType === 'one-time' ? 'One-Time' : (selectedDeliveryType ? selectedDeliveryType.charAt(0).toUpperCase() + selectedDeliveryType.slice(1) : ''), selectedLanguage) || localValues.delivery || '—'}</p>
           </div>
           <div>
-            <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">Length</h3>
+            <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">{getTranslation('LENGTH', selectedLanguage)}</h3>
             <p className="text-gray-900">{getLengthLabel()}</p>
           </div>
 
           <div>
-            <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">Privacy</h3>
+            <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">{getTranslation('PRIVACY', selectedLanguage)}</h3>
             <div className="flex items-center justify-between">
               <p className="text-gray-900">{getPrivacyLabel()}</p>
               <button onClick={() => setEditingField('privacy')} className="text-gray-400 hover:text-gray-600"><Pencil className="w-4 h-4" /></button>
             </div>
             {editingField === 'privacy' && (
               <div className="mt-2 flex gap-2">
-                <button onClick={() => { setLocalValues(prev=>({...prev, privacy:'public'})); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">Public</button>
-                <button onClick={() => { setLocalValues(prev=>({...prev, privacy:'unlisted'})); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">Unlisted</button>
-                <button onClick={() => { setLocalValues(prev=>({...prev, privacy:'private'})); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">Private</button>
+                <button onClick={() => { setLocalValues(prev=>({...prev, privacy:'public'})); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">{getTranslation('Public', selectedLanguage)}</button>
+                <button onClick={() => { setLocalValues(prev=>({...prev, privacy:'unlisted'})); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">{getTranslation('Unlisted', selectedLanguage)}</button>
+                <button onClick={() => { setLocalValues(prev=>({...prev, privacy:'private'})); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">{getTranslation('Private', selectedLanguage)}</button>
               </div>
             )}
           </div>
 
           <div className="col-span-2">
-            <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">Budget</h3>
+            <h3 className="text-xs font-normal text-gray-500 uppercase tracking-wider mb-1">{getTranslation('BUDGET', selectedLanguage)}</h3>
             <div className="flex items-center gap-3">
               <div className="text-lg font-semibold">${Number(localValues.price || 0).toFixed(2)}</div>
               <button onClick={() => setEditingField('budget')} className="text-gray-400 hover:text-gray-600"><Pencil className="w-4 h-4" /></button>
@@ -2553,8 +2558,8 @@ const ReviewRequestStep = ({
             {editingField === 'budget' && (
               <div className="mt-2 flex items-center gap-2">
                 <input type="number" value={localValues.price} onChange={(e)=>setLocalValues(prev=>({...prev, price: e.target.value}))} className="p-2 rounded-lg border" />
-                <button onClick={()=>saveLocalField('price')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">Save</button>
-                <button onClick={()=>{ setLocalValues(prev=>({...prev, price: displayPrice || 0})); setEditingField(null); }} className="px-3 py-2 rounded-lg border">Cancel</button>
+                <button onClick={()=>saveLocalField('price')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">{getTranslation('Save', selectedLanguage)}</button>
+                <button onClick={()=>{ setLocalValues(prev=>({...prev, price: displayPrice || 0})); setEditingField(null); }} className="px-3 py-2 rounded-lg border">{getTranslation('Cancel', selectedLanguage)}</button>
               </div>
             )}
           </div>
@@ -2562,7 +2567,7 @@ const ReviewRequestStep = ({
 
         {/* Footer action */}
         <div className="mt-4">
-          <button onClick={onEdit} className="text-sm text-gray-500 hover:text-gray-700 underline">Edit Request</button>
+          <button onClick={onEdit} className="text-sm text-gray-500 hover:text-gray-700 underline">{getTranslation('Edit Request', selectedLanguage)}</button>
         </div>
       </div>
     </div>
@@ -2774,10 +2779,10 @@ const App = () => {
       // show a short confirmation message after 1600ms
       _formatMessageTimer.current = setTimeout(() => {
         const map = {
-          series: "Series selected — now configure episode details.",
-          catalogue: "Catalogue selected — set target videos and themes.",
-          recurrent: "Recurrent selected — choose a delivery frequency.",
-          "one-time": "One-Time selected — next step: Tone & Style.",
+          series: getTranslation("Series selected — now configure episode details.", selectedLanguage),
+          catalogue: getTranslation("Catalogue selected — set target videos and themes.", selectedLanguage),
+          recurrent: getTranslation("Recurrent selected — choose a delivery frequency.", selectedLanguage),
+          "one-time": getTranslation("One-Time selected — next step: Tone & Style.", selectedLanguage),
         };
         setFormatSelectedMessage(map[selectedDeliveryType] || null);
       }, 400);
@@ -3206,26 +3211,26 @@ const App = () => {
   const deliveryOptions = [
     {
       type: "one-time",
-      title: "One-Time Video",
-      subtitle: "A single standalone video.",
+      title: getTranslation("One-Time", selectedLanguage),
+      subtitle: getTranslation("A single standalone video.", selectedLanguage),
       Icon: Film,
     },
     {
       type: "recurrent",
-      title: "Recurrent",
-      subtitle: "A routine delivered daily, weekly, or monthly.",
+      title: getTranslation("Recurrent", selectedLanguage),
+      subtitle: getTranslation("A routine delivered daily, weekly, or monthly.", selectedLanguage),
       Icon: Repeat,
     },
     {
       type: "series",
-      title: "Series",
-      subtitle: "A focused set of connected videos.",
+      title: getTranslation("Series", selectedLanguage),
+      subtitle: getTranslation("A focused set of connected videos.", selectedLanguage),
       Icon: ListVideo,
     },
     {
       type: "catalogue",
-      title: "Catalogue",
-      subtitle: "A curated mix across different themes.",
+      title: getTranslation("Catalogue", selectedLanguage),
+      subtitle: getTranslation("A curated mix across different themes.", selectedLanguage),
       Icon: Folder,
     },
   ];
@@ -4321,6 +4326,7 @@ const App = () => {
                 title={title}
                 setTitle={setTitle}
                 MAX_CHARS={MAX_CHARS}
+                selectedLanguage={selectedLanguage}
               />
             ) : oneTimeStep === 2 ? (
               <VideoLengthStep
@@ -4371,7 +4377,7 @@ const App = () => {
                 selectedLanguage={selectedLanguage}
               />
             ) : (
-              <SponsorConfirmation />
+              <SponsorConfirmation selectedLanguage={selectedLanguage} />
             )
           ) : selectedDeliveryType === "recurrent" && !isTransitioning ? (
             /* SHOW RECURRENT VIDEO DETAILS (New multi-step flow) */
@@ -4426,7 +4432,7 @@ const App = () => {
                 selectedLanguage={selectedLanguage}
               />
             ) : recurrentStep === 7 ? (
-              <SponsorConfirmation />
+              <SponsorConfirmation selectedLanguage={selectedLanguage} />
             ) : (
               <RecurrentVideoDetails
                 description={description}
@@ -4503,7 +4509,7 @@ const App = () => {
                 selectedLanguage={selectedLanguage}
               />
             ) : seriesStep === 7 ? (
-              <SponsorConfirmation />
+              <SponsorConfirmation selectedLanguage={selectedLanguage} />
             ) : (
               <SeriesVideoDetails
                 description={description}
@@ -4578,7 +4584,7 @@ const App = () => {
                 onSaveReview={handleSaveReview}
               />
             ) : catalogueStep === 7 ? (
-              <SponsorConfirmation />
+              <SponsorConfirmation selectedLanguage={selectedLanguage} />
             ) : (
               <CatalogueVideoDetails
                 description={description}
@@ -4596,6 +4602,7 @@ const App = () => {
                 setSelectedTones={setSelectedTones}
                 selectedPrivacy={selectedPrivacy}
                 setSelectedPrivacy={setSelectedPrivacy}
+                selectedLanguage={selectedLanguage}
               />
             )
           ) : (
@@ -4605,7 +4612,7 @@ const App = () => {
               <div className="relative mb-8 mt-0">
                 <textarea
                   rows="4"
-                  placeholder={`What do you want creators to make (Min ${MIN_CHARS} characters, e.g., "A single video on...")`}
+                  placeholder={getTranslation('What do you want creators to make (Min {min} characters, e.g., "A single video on...")', selectedLanguage).replace('{min}', MIN_CHARS)}
                   value={description}
                   onChange={(e) =>
                     setDescription(e.target.value.slice(0, MAX_CHARS))
@@ -4654,7 +4661,6 @@ const App = () => {
                 }}
               >
                 <span>{getTranslation('Continue', selectedLanguage)}</span>
-                <Crown className="w-4 h-4" />
               </button>
               <button
                 onClick={handleNext}
@@ -4691,7 +4697,7 @@ const App = () => {
                       : {}
                   }
                 >
-                  <span className="p-1 rounded-full mr-2 text-gold-small">{getNextLabel()}</span>
+                  <span>{getNextLabel()}</span>
                   {/* Hide the arrow on the final success step */}
                   {!(isSeries && seriesStep === 8) &&
                     !(isCatalogue && catalogueStep === 8) &&
@@ -4728,7 +4734,7 @@ const App = () => {
             {/* Shared edit row for any selected format */}
             {selectedDeliveryType && (
               <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-                <span className="italic">Using the Description and Title you entered above for this request.</span>
+                <span className="italic">{selectedDeliveryType === 'one-time' ? getTranslation('Using the Description and Title you entered above for this one-time video.', selectedLanguage) : selectedDeliveryType === 'recurrent' ? getTranslation('Using the Description and Title you entered above for this recurring request.', selectedLanguage) : selectedDeliveryType === 'series' ? getTranslation('Using the Description and Title you entered above for this series.', selectedLanguage) : selectedDeliveryType === 'catalogue' ? getTranslation('Using the Description and Title you entered above for this catalogue.', selectedLanguage) : getTranslation('Using the Description and Title you entered above for this one-time video.', selectedLanguage) }</span>
                 <button
                   type="button"
                   className="ml-4 text-sm font-medium text-[var(--color-accent)] hover:underline"
@@ -4750,7 +4756,7 @@ const App = () => {
                     }
                   }}
                 >
-                  Edit
+                  {getTranslation('Edit', selectedLanguage)}
                 </button>
               </div>
             )}
@@ -5108,7 +5114,7 @@ const App = () => {
                     {getTranslation('Choose provider level', selectedLanguage)}
                   </div>
                   <style>{`@keyframes pulseBrief{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.7;transform:scale(1.03)}}@keyframes tipHide{to{opacity:0}} .scroll-tip{display:inline-block;margin-bottom:6px;background:#000;color:#fff;border-radius:8px;padding:4px 8px;font-size:11px;animation:pulseBrief 1.6s ease-in-out 0s 3, tipHide .01s linear 6s forwards;}`}</style>
-                  <div className="scroll-tip">Scroll to find creators</div>
+                  <div className="scroll-tip">{getTranslation('Scroll to find creators', selectedLanguage)}</div>
 
 
                   <div className="provider-carousel-wrap">
@@ -5328,7 +5334,7 @@ style={{
                                         setShowCreatorProfile(true);
                                       }}
                                     >
-                                      {c.price ? `$${c.price}` : <span className="text-xs font-normal text-gray-400">Not set</span>}
+                                      {c.price ? `$${c.price}` : <span className="text-xs font-normal text-gray-400">{getTranslation('Not set', selectedLanguage)}</span>}
                                     </div>
                                   </div>
                                 ))

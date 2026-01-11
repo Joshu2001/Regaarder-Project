@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { Palette, X, Check, Sun, Moon, Monitor } from 'lucide-react';
 import { useTheme } from './ThemeContext.jsx';
+import { getTranslation } from './translations.js';
 
 const ThemeModal = ({ onClose }) => {
   const { accentColor, setAccentColor, themeId, setThemeId, closeThemeModal, showThemeModal } = useTheme();
   const [localColor, setLocalColor] = useState(accentColor || '#CB8A00');
+  const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
   
   if (!showThemeModal) return null;
 
   const themes = [
-    { id: 'Light', title: 'Light', description: 'Bright and clean', Icon: Sun },
-    { id: 'Dark', title: 'Dark', description: 'Low-light friendly', Icon: Moon },
-    { id: 'System', title: 'System', description: 'Follow device settings', Icon: Monitor },
+    { id: 'Light', title: getTranslation('Light', selectedLanguage), description: getTranslation('Bright and clean', selectedLanguage), Icon: Sun },
+    { id: 'Dark', title: getTranslation('Dark', selectedLanguage), description: getTranslation('Low-light friendly', selectedLanguage), Icon: Moon },
+    { id: 'System', title: getTranslation('System', selectedLanguage), description: getTranslation('Follow device settings', selectedLanguage), Icon: Monitor },
   ];
 
   const presetColors = [
@@ -39,10 +41,10 @@ const ThemeModal = ({ onClose }) => {
       <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center mb-2">
           <Palette size={24} className="mr-2" style={{ color: 'var(--color-gold)' }} />
-          <h3 className="text-xl font-bold text-gray-900">Choose Your Theme</h3>
+          <h3 className="text-xl font-bold text-gray-900">{getTranslation('Choose Your Theme', selectedLanguage)}</h3>
         </div>
 
-        <p className="text-sm text-gray-600 mb-6">Select how Regaarder looks on your device</p>
+        <p className="text-sm text-gray-600 mb-6">{getTranslation('Select how Regaarder looks on your device', selectedLanguage)}</p>
 
         <div className="space-y-3 mb-6">
           {themes.map((t) => (
@@ -62,8 +64,8 @@ const ThemeModal = ({ onClose }) => {
         <div className="border-t border-gray-200 pt-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-semibold text-gray-900">Accent Color</div>
-              <div className="text-sm text-gray-600">Customize the app's highlight color</div>
+              <div className="font-semibold text-gray-900">{getTranslation('Accent Color', selectedLanguage)}</div>
+              <div className="text-sm text-gray-600">{getTranslation("Customize the app's highlight color", selectedLanguage)}</div>
             </div>
             <button onClick={() => {}} className="w-12 h-12 rounded-lg hover:opacity-80 transition-opacity cursor-pointer" style={{ backgroundColor: localColor }} type="button"></button>
           </div>
@@ -79,7 +81,7 @@ const ThemeModal = ({ onClose }) => {
 
         <div className="flex space-x-2">
           <input name="localColor" value={localColor} onChange={(e)=>setLocalColor(e.target.value)} className="flex-1 px-3 py-2 border rounded-lg" />
-          <button onClick={apply} style={{ backgroundColor: localColor }} className="px-4 py-2 text-black rounded-lg" type="button">Apply</button>
+          <button onClick={apply} style={{ backgroundColor: localColor }} className="px-4 py-2 text-black rounded-lg" type="button">{getTranslation('Apply', selectedLanguage)}</button>
         </div>
       </div>
     </div>

@@ -56,8 +56,8 @@ const ShareVision = ({ setCurrentPage, ACCENT_COLOR }) => {
             </div>
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-medium text-gray-900">Share your vision</h1>
-                <p className="text-sm text-gray-500 mt-2">Give creators the context they need to bring your brand to life</p>
+                <h1 className="text-2xl font-medium text-gray-900">{t('Share your vision')}</h1>
+                <p className="text-sm text-gray-500 mt-2">{t('Give creators the context they need to bring your brand to life')}</p>
             </div>
 
             <div className="mb-4">
@@ -122,7 +122,7 @@ const ShareVision = ({ setCurrentPage, ACCENT_COLOR }) => {
                     }}
                     disabled={brief.trim().length === 0}
                 >
-                    <span>Continue</span>
+                    <span>{t('Continue')}</span>
                     <ChevronRight className="w-4 h-4 ml-2" />
                 </button>
             </div>
@@ -152,8 +152,16 @@ const busOn = (e, cb) => (typeof window !== 'undefined' && window.__eventBus && 
 const busOff = (e, cb) => (typeof window !== 'undefined' && window.__eventBus && window.__eventBus.off) ? window.__eventBus.off(e, cb) : _off(e, cb);
 const busEmit = (e, p) => { if (typeof window !== 'undefined' && window.__eventBus && window.__eventBus.emit) { try { window.__eventBus.emit(e, p); } catch (err) {} } else { _emit(e, p); } };
 // Imports for lucide icons
-import { Home, FileText, Lightbulb, MoreHorizontal, Sparkles, Rocket, LineChart, Eye, Zap, Shield, HeartHandshake, ChevronRight, FileEdit, DollarSign, Pencil, Heart, Gift, Users, ArrowLeft, Briefcase, Layers, Crown, Upload, ChevronDown, Check, MousePointerClick, Building2 } from 'lucide-react';
-import { translations } from './translations.js';
+import { Home, FileText, Lightbulb, MoreHorizontal, Sparkles, Rocket, LineChart, Eye, Zap, Shield, HeartHandshake, ChevronRight, ChevronLeft, FileEdit, DollarSign, Pencil, Heart, Gift, Users, ArrowLeft, Briefcase, Layers, Crown, Upload, ChevronDown, Check, MousePointerClick, Building2 } from 'lucide-react';
+import { translations, getTranslation } from './translations.js';
+
+// Helper for in-file translations; reads selected language from localStorage at runtime.
+const t = (key) => {
+    try {
+        const lang = (typeof window !== 'undefined' && window.localStorage) ? (window.localStorage.getItem('regaarder_language') || 'English') : 'English';
+        return getTranslation(key, lang || 'English');
+    } catch (e) { return key; }
+};
 
 // Use CSS custom properties so the theme provider can control colors at runtime
 const getCssVar = (name, fallback) => {
@@ -338,14 +346,14 @@ const StickyHeader = ({ ACCENT_COLOR, setCurrentPage, visible }) => {
         <div className={headerClass}>
             {/* Header Content Container, centered and max-w matched to main content */}
             <div className="max-w-md mx-auto flex justify-between items-center px-4 py-3">
-                <p className="text-sm font-medium text-gray-800">Ready to start collaborating?</p>
+                <p className="text-sm font-medium text-gray-800">{t('Ready to start collaborating?')}</p>
                 <button
                     className="flex items-center space-x-2 text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow hover:opacity-90 text-xs"
                     style={{ backgroundColor: ACCENT_COLOR }}
                     onClick={() => setCurrentPage('Welcome')} // CTA 1: Sticky Header
                 >
                     <Rocket className="w-4 h-4" />
-                    <span>Get Started</span>
+                    <span>{t('Get Started')}</span>
                 </button>
             </div>
         </div>
@@ -458,7 +466,7 @@ const StatBlock = ({ icon: Icon, value, label }) => (
                 <Icon className="w-8 h-8" />
         </div>
         <div className="text-xl font-semibold text-gray-900">{value}</div>
-        <div className="text-[11px] text-gray-500 mt-1 uppercase tracking-wider">{label}</div>
+        <div className="text-[11px] text-gray-500 mt-1 uppercase tracking-wider">{t(label)}</div>
     </div>
 );
 
@@ -470,8 +478,8 @@ const FeatureBlock = ({ icon: Icon, title, description }) => (
         >
             <Icon className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
         </div>
-        <h2 className="text-lg font-medium text-gray-900 mb-1">{title}</h2>
-        <p className="text-sm text-gray-600">{description}</p>
+        <h2 className="text-lg font-medium text-gray-900 mb-1">{t(title)}</h2>
+        <p className="text-sm text-gray-600">{t(description)}</p>
     </div>
 );
 
@@ -492,8 +500,8 @@ const StepBlock = ({ step, icon: Icon, title, description }) => (
             <p className="text-[12px] font-semibold mb-1" style={{ color: ACCENT_COLOR }}>
                 STEP 0{step}
             </p>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">{title}</h3>
-            <p className="text-sm text-gray-600">{description}</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">{t(title)}</h3>
+            <p className="text-sm text-gray-600">{t(description)}</p>
         </div>
     </div>
 );
@@ -509,8 +517,8 @@ const PricingMetricBlock = ({ icon: Icon, title, value, subtext }) => (
         <div className="text-2xl font-semibold mb-1" style={{ color: ACCENT_COLOR }}>
             {value}
         </div>
-        <p className="text-base font-medium text-gray-900 mb-1 whitespace-nowrap">{title}</p>
-        <p className="text-sm text-gray-600">{subtext}</p>
+        <p className="text-base font-medium text-gray-900 mb-1 whitespace-nowrap">{t(title)}</p>
+        <p className="text-sm text-gray-600">{t(subtext)}</p>
     </div>
 );
 
@@ -524,21 +532,21 @@ const BudgetExampleBlock = ({ icon: Icon, budget }) => (
                 <Icon className="w-4 h-4 text-white" />
             </div>
             <p className="text-base font-semibold text-gray-900">
-                Example: ${budget} budget
+                {t('Example')}: ${budget} {t('budget')}
             </p>
         </div>
         <dl className="space-y-2 w-full pl-12">
             <div className="text-sm text-gray-700">
-                <dt className="font-semibold text-gray-900">Projected Reach</dt>
-                <dd className="font-medium">40K-80K views</dd>
+                <dt className="font-semibold text-gray-900">{t('Projected Reach')}</dt>
+                <dd className="font-medium">{t('40K-80K views')}</dd>
             </div>
             <div className="text-sm text-gray-700">
-                <dt className="font-semibold text-gray-900">Est. Engagement</dt>
-                <dd className="font-medium">2.9K-5.8K</dd>
+                <dt className="font-semibold text-gray-900">{t('Est. Engagement')}</dt>
+                <dd className="font-medium">{t('2.9K-5.8K')}</dd>
             </div>
             <div className="text-sm text-gray-700">
-                <dt className="font-semibold text-gray-900">Avg. Creators</dt>
-                <dd className="font-medium">2-4 creators</dd>
+                <dt className="font-semibold text-gray-900">{t('Avg. Creators')}</dt>
+                <dd className="font-medium">{t('2-4 creators')}</dd>
             </div>
         </dl>
     </div>
@@ -553,10 +561,10 @@ const FinalCTA = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, setCurrentPage }) => (
             <Rocket className="w-8 h-8" style={{ color: ACCENT_COLOR }} />
         </div>
         <h2 className="text-3xl font-medium text-gray-900 leading-snug mb-4 max-w-xs">
-            Ready to turn viewers into believers?
+            {t('Ready to turn viewers into believers?')}
         </h2>
         <p className="text-base text-gray-600 mt-2 mb-8 font-medium max-w-xs">
-            Join thousands of brands collaborating with creators on Regaarder. Start your first campaign in minutes.
+            {t('Join thousands of brands collaborating with creators on Regaarder. Start your first campaign in minutes.')}
         </p>
             <button
                 className="w-full flex items-center justify-center space-x-2 text-white font-semibold py-3 px-4 rounded-lg shadow-lg transition duration-300 hover:opacity-90 max-w-sm text-sm"
@@ -564,21 +572,21 @@ const FinalCTA = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, setCurrentPage }) => (
                 onClick={() => setCurrentPage('Welcome')} // CTA 4: Final CTA
             >
             <Sparkles className="w-4 h-4" fill="currentColor" />
-            <span>Launch Your First Collaboration</span>
+            <span>{t('Launch Your First Collaboration')}</span>
             <ChevronRight className="w-4 h-4 ml-1" />
         </button>
         <div className="text-xs text-gray-500 mt-5 font-medium flex justify-center space-x-4">
             <span className="flex items-center space-x-1">
                 <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                <span>Free setup</span>
+                <span>{t('Free setup')}</span>
             </span>
             <span className="flex items-center space-x-1">
                 <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                <span>No credit card required</span>
+                <span>{t('No credit card required')}</span>
             </span>
             <span className="flex items-center space-x-1">
                 <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                <span>Cancel anytime</span>
+                <span>{t('Cancel anytime')}</span>
             </span>
         </div>
     </section>
@@ -595,7 +603,7 @@ const ContinueCTA = ({ disabled, onClick, ACCENT_COLOR, bottomOffset = 'calc(64p
                     className={`w-full flex items-center justify-center space-x-2 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 hover:opacity-90 disabled:opacity-50`}
                     style={{ backgroundColor: ACCENT_COLOR }}
                 >
-                    <span>Continue</span>
+                    <span>{t('Continue')}</span>
                     <ChevronRight className="w-4 h-4 ml-2" />
                 </button>
             </div>
@@ -631,18 +639,18 @@ const HomePage = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, ICON_BACKGROUND, setCurrentPa
             <header className="flex flex-col items-center text-center mb-10">
             <p className="text-sm font-medium text-gray-600 mb-4 flex items-center">
                 <Sparkles className="w-4 h-4 mr-2" fill="currentColor" style={{ color: ACCENT_COLOR }} />
-                Collaborate with original minds
+                {t('Collaborate with original minds')}
             </p>
             <h1 className="text-3xl sm:text-4xl font-medium text-gray-900 leading-tight mt-6"> 
-                Collaborate with the world's most 
+                {t("Collaborate with the world's most")}
                 <span className="relative inline-block mx-1">
                 <span className="absolute inset-0 rounded-lg transform -skew-y-1" style={{ backgroundColor: HIGHLIGHT_COLOR }}></span>
-                <span className="relative" style={{ color: ACCENT_COLOR }}>original minds</span>
+                <span className="relative" style={{ color: ACCENT_COLOR }}>{t('original minds')}</span>
                 </span> 
-                , not just advertise
+                {t(', not just advertise')}
             </h1>
             <p ref={heroRef} className="text-base text-gray-600 mt-6 leading-relaxed max-w-xs font-medium">
-                Watch creators seamlessly integrate your brand into their stories. No banners. No interruptions. Just authentic storytelling.
+                {t('Watch creators seamlessly integrate your brand into their stories. No banners. No interruptions. Just authentic storytelling.')}
             </p>
             </header>
 
@@ -666,7 +674,7 @@ const HomePage = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, ICON_BACKGROUND, setCurrentPa
                 </div>
             </div>
             <p className="text-sm text-gray-700 font-medium text-center mt-3 cursor-pointer transition hover:opacity-80" style={{ color: ACCENT_COLOR }}>
-                Watch how it works 
+                {t('Watch how it works')} 
                 <span className="ml-1 text-base leading-none">▸</span>
             </p>
             </section>
@@ -679,7 +687,7 @@ const HomePage = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, ICON_BACKGROUND, setCurrentPa
                 onClick={() => setCurrentPage('Welcome')} // CTA 2: Primary Hero Button
             >
                 <Rocket className="w-4 h-4" fill="currentColor" />
-                <span>Launch Your First Collaboration</span>
+                <span>{t('Launch Your First Collaboration')}</span>
             </button>
             </section>
 
@@ -705,7 +713,7 @@ const HomePage = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, ICON_BACKGROUND, setCurrentPa
                         style={{ backgroundColor: ACCENT_COLOR }}
                         onClick={() => setCurrentPage('Welcome')} // CTA 3: How it Works Button
                     >
-                        <span>Get Started Now</span>
+                        <span>{t('Get Started Now')}</span>
                         <ChevronRight className="w-4 h-4 ml-1" />
                     </button>
                 </div>
@@ -962,7 +970,7 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
                         onClick={() => setCurrentPage('BrandVoice')}
                         disabled={!canContinue}
                     >
-                        <span>Continue</span>
+                        <span>{t('Continue')}</span>
                         <ChevronRight className="w-4 h-4 ml-2" />
                     </button>
                 </div>
@@ -1045,7 +1053,7 @@ const BrandVoicePage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) => {
                         onClick={() => setCurrentPage('BrandLogo')}
                         disabled={selectedTones.length === 0} // Optional: require at least one tone
                     >
-                        <span>Continue</span>
+                        <span>{t('Continue')}</span>
                         <ChevronRight className="w-4 h-4 ml-2" />
                     </button>
                 </div>
@@ -3037,7 +3045,7 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                         className="w-full flex items-center justify-center space-x-2 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 hover:opacity-90"
                         style={{ backgroundColor: ACCENT_COLOR }}
                     >
-                        <span>Continue</span>
+                        <span>{t('Continue')}</span>
                         <ChevronRight className="w-4 h-4 ml-2" />
                     </button>
                 </div>
@@ -3652,7 +3660,7 @@ const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) =>
                             }}
                     disabled={selectedNiches.length === 0 || !selectedTone}
                 >
-                    <span>Continue</span>
+                    <span>{t('Continue')}</span>
                     <ChevronRight className="w-4 h-4 ml-2" />
                 </button>
             </div>
@@ -4054,14 +4062,15 @@ const App = () => {
     
     const CurrentPage = pageComponents[currentPage] || HomePage;
 
-    // Lightweight DOM-based translation pass for Chinese Traditional.
+    // Lightweight DOM-based translation pass for the currently selected language.
     // Replaces matching text nodes after mount using the translations map to avoid rewriting all JSX.
     useEffect(() => {
         try {
             if (typeof window === 'undefined') return;
             const lang = window.localStorage.getItem('regaarder_language') || 'English';
-            if (lang !== 'Chinese Traditional') return;
-            const map = translations && translations['Chinese Traditional'] ? translations['Chinese Traditional'] : {};
+            // If English (default) or no translations available for the chosen language, skip
+            if (!lang || lang === 'English') return;
+            const map = translations && translations[lang] ? translations[lang] : {};
             if (!map || Object.keys(map).length === 0) return;
             const container = document.querySelector('.min-h-screen') || document.body;
             if (!container) return;

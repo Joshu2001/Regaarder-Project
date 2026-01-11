@@ -531,7 +531,7 @@ const LanguageDialog = ({ onClose, selectedLanguage, onSelectLanguage }) => {
                                         <div className="mr-4 flex-shrink-0">
                                             <img src={lang.flagUrl} alt={lang.displayName} className="w-8 h-8 object-contain" />
                                         </div>
-                                        <div className="text-base font-medium text-left">{lang.displayName}</div>
+                                        <div className="text-base font-medium text-left">{getTranslation(lang.code, selectedLanguage)}</div>
                                     </div>
                                     {isSelected && <Icon name="check" size={20} className="text-white" />}
                                 </button>
@@ -1583,7 +1583,7 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
                             <DrawerItem iconName="requests" label={getTranslation('Your Requests', selectedLanguage)} onClick={() => { try { requireAuthNavigate('/yourrequests'); } catch (e) { console.warn('Navigation to yourrequests failed', e); } }} collapsed={collapsed} />
                             {/* Track Your Requests removed from sidebar */}
                             <DrawerItem iconName="subscriptions" label={getTranslation('Subscriptions', selectedLanguage)} onClick={() => { try { requireAuthNavigate('/subscriptions'); } catch (e) { console.warn('Navigation to subscriptions failed', e); } }} collapsed={collapsed} />
-                            <DrawerItem iconName="referral" label={getTranslation('Referral Rewards', selectedLanguage)} rightText={`3 ${getTranslation('invites', selectedLanguage)} left`} isGold={true} onClick={() => { try { requireAuthNavigate('/referralrewards'); } catch (e) { console.warn('Navigation to referralrewards failed', e); } }} collapsed={collapsed} />
+                            <DrawerItem iconName="referral" label={getTranslation('Referral Rewards', selectedLanguage)} rightText={`3 ${getTranslation('invites', selectedLanguage)} ${getTranslation('left', selectedLanguage)}`} isGold={true} onClick={() => { try { requireAuthNavigate('/referralrewards'); } catch (e) { console.warn('Navigation to referralrewards failed', e); } }} collapsed={collapsed} />
                             {/* Uses the new ShoppingBag icon via iconName="marketplace" - marketplace can remain public */}
                             <DrawerItem iconName="marketplace" label={getTranslation('Marketplace', selectedLanguage)} rightText={getTranslation('New', selectedLanguage)} isGold={true} onClick={() => { try { navigateTo('/marketplace'); } catch (e) { console.warn('Navigation to marketplace failed', e); } }} collapsed={collapsed} />
                         </>
@@ -1707,7 +1707,7 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
 };
 
 // NEW COMPONENT: Report Video Dialog (Redesigned)
-const ReportVideoDialog = ({ video, videoTitle, onClose }) => {
+const ReportVideoDialog = ({ video, videoTitle, onClose, selectedLanguage = 'English' }) => {
     const [reportText, setReportText] = useState('');
 
     const handleSubmit = async () => {
@@ -1773,18 +1773,18 @@ const ReportVideoDialog = ({ video, videoTitle, onClose }) => {
         >
             <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-gray-900">Report Video</h3>
+                    <h3 className="text-xl font-bold text-gray-900">{getTranslation('Report Video', selectedLanguage)}</h3>
                     <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-700">
                         <Icon name="x" size={24} />
                     </button>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-4">Why are you reporting this?</p>
+                <p className="text-sm text-gray-600 mb-4">{getTranslation('Why are you reporting this?', selectedLanguage)}</p>
 
                 <textarea
                     value={reportText}
                     onChange={(e) => setReportText(e.target.value)}
-                    placeholder="Tell us why this content is inappropriate..."
+                    placeholder={getTranslation('Tell us why this content is inappropriate...', selectedLanguage)}
                     className="w-full h-32 px-4 py-3 bg-gray-100 rounded-lg text-gray-800 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 mb-6"
                 />
 
@@ -1793,7 +1793,7 @@ const ReportVideoDialog = ({ video, videoTitle, onClose }) => {
                     className="w-full py-3 rounded-lg text-white font-semibold transition-colors hover:opacity-90"
                     style={{ backgroundColor: '#E57373' }}
                 >
-                    Submit
+                    {getTranslation('Submit', selectedLanguage)}
                 </button>
             </div>
         </div>
@@ -1801,7 +1801,7 @@ const ReportVideoDialog = ({ video, videoTitle, onClose }) => {
 };
 
 // NEW COMPONENT: Profile Dialog
-const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData = null, creatorId = null }) => {
+const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData = null, creatorId = null, selectedLanguage = 'English' }) => {
     // Get current year for default joined date
     const currentYear = new Date().getFullYear();
     const navigate = useNavigate();
@@ -1814,7 +1814,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
     // Use real data if provided, otherwise use placeholder data
     const initialData = profileData || {
         avatar: null,
-        bio: isCreator ? 'Creating engaging content for you' : 'Enjoying great content',
+        bio: isCreator ? getTranslation('Creating engaging content for you', selectedLanguage) : getTranslation('Enjoying great content', selectedLanguage),
         stats: {
             videos: isCreator ? 24 : 0,
             requests: 12,
@@ -1928,7 +1928,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     className="px-2 py-0.5 rounded-full text-xs font-semibold text-white"
                                     style={{ backgroundColor: 'var(--color-gold)' }}
                                 >
-                                    Creator
+                                    {getTranslation('Creator', selectedLanguage)}
                                 </div>
                             )}
                         </div>
@@ -1945,16 +1945,16 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                         {isCreator && (
                             <div className="text-center">
                                 <div className="text-xl font-bold text-gray-900">{data.stats.videos}</div>
-                                <div className="text-xs text-gray-500 mt-1">Videos</div>
+                                <div className="text-xs text-gray-500 mt-1">{getTranslation('Videos', selectedLanguage)}</div>
                             </div>
                         )}
                         <div className="text-center">
                             <div className="text-xl font-bold text-gray-900">{data.stats.requests}</div>
-                            <div className="text-xs text-gray-500 mt-1">{isCreator ? 'Fulfilled' : 'Requested'}</div>
+                            <div className="text-xs text-gray-500 mt-1">{isCreator ? getTranslation('Fulfilled', selectedLanguage) : getTranslation('Requested', selectedLanguage)}</div>
                         </div>
                         <div className="text-center">
                             <div className="text-xl font-bold text-gray-900">{data.stats.followers >= 1000 ? `${(data.stats.followers / 1000).toFixed(1)}k` : data.stats.followers}</div>
-                            <div className="text-xs text-gray-500 mt-1">Followers</div>
+                            <div className="text-xs text-gray-500 mt-1">{getTranslation('Followers', selectedLanguage)}</div>
                         </div>
                     </div>
 
@@ -2004,7 +2004,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     opacity: followActive ? 0.9 : 1
                                 }}
                             >
-                                Following
+                                {getTranslation('Following', selectedLanguage)}
                             </button>
                         ) : (
                             <button 
@@ -2053,7 +2053,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     opacity: followActive ? 0.9 : 1
                                 }}
                             >
-                                Follow
+                                {getTranslation('Follow', selectedLanguage)}
                             </button>
                         )}
                         {isCreator && (
@@ -2073,14 +2073,14 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     opacity: requestActive ? 0.9 : 1
                                 }}
                             >
-                                Request Video
+                                {getTranslation('Request Video', selectedLanguage)}
                             </button>
                         )}
                     </div>
 
                     {/* Joined date */}
                     <div className="mt-6 text-center">
-                        <p className="text-xs text-gray-400">Member since {data.joinedDate}</p>
+                        <p className="text-xs text-gray-400">{getTranslation('Member since', selectedLanguage)} {data.joinedDate}</p>
                     </div>
 
                     {/* View Full Profile link */}
@@ -2186,25 +2186,11 @@ const PlaylistPickerDialog = ({ video, onClose, onAdded }) => {
 
 // NEW COMPONENT: Theme Dialog
 const ThemeDialog = ({ onClose, selectedTheme, onThemeChange, accentColor, onOpenColorPicker }) => {
+    const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
     const themes = [
-        {
-            id: 'Light',
-            icon: 'sun',
-            title: 'Light',
-            description: 'Bright and clear interface',
-        },
-        {
-            id: 'Dark',
-            icon: 'moon',
-            title: 'Dark',
-            description: 'Easy on the eyes in low light',
-        },
-        {
-            id: 'System',
-            icon: 'monitor',
-            title: 'System',
-            description: 'Matches your device settings',
-        },
+        { id: 'Light', icon: 'sun', title: getTranslation('Light', selectedLanguage), description: getTranslation('Bright and clear interface', selectedLanguage) },
+        { id: 'Dark', icon: 'moon', title: getTranslation('Dark', selectedLanguage), description: getTranslation('Easy on the eyes in low light', selectedLanguage) },
+        { id: 'System', icon: 'monitor', title: getTranslation('System', selectedLanguage), description: getTranslation('Matches your device settings', selectedLanguage) },
     ];
 
     const ThemeOption = ({ theme, isSelected, onClick }) => (
@@ -2249,17 +2235,20 @@ const ThemeDialog = ({ onClose, selectedTheme, onThemeChange, accentColor, onOpe
             onClick={onClose}
         >
             <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+                {/* derive language at render time to avoid relying on an outer variable */}
+                {(() => { const selLang = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English'; return (
+                <>
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
                         <Icon name="palette" size={24} className="mr-2" style={{ color: 'var(--color-gold)' }} />
-                        <h3 className="text-xl font-bold text-gray-900">Choose Your Theme</h3>
+                        <h3 className="text-xl font-bold text-gray-900">{getTranslation('Choose Your Theme', selLang)}</h3>
                     </div>
                     <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-700">
                         <Icon name="x" size={24} />
                     </button>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-6">Select how Regaarder looks on your device</p>
+                <p className="text-sm text-gray-600 mb-6">{getTranslation('Select how Regaarder looks on your device', selLang)}</p>
 
                 <div className="space-y-3 mb-6">
                     {themes.map((theme) => (
@@ -2275,8 +2264,8 @@ const ThemeDialog = ({ onClose, selectedTheme, onThemeChange, accentColor, onOpe
                 <div className="border-t border-gray-200 pt-4 mb-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="font-semibold text-gray-900">Accent Color</div>
-                            <div className="text-sm text-gray-600">Customize the app's highlight color</div>
+                            <div className="font-semibold text-gray-900">{getTranslation('Accent Color', selLang)}</div>
+                            <div className="text-sm text-gray-600">{getTranslation("Customize the app's highlight color", selLang)}</div>
                         </div>
                         <button
                             onClick={onOpenColorPicker}
@@ -2285,12 +2274,14 @@ const ThemeDialog = ({ onClose, selectedTheme, onThemeChange, accentColor, onOpe
                         ></button>
                     </div>
                 </div>
+                </>
+                )})() }
 
                 <button
                     onClick={onClose}
                     className="w-full py-3 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors"
                 >
-                    Close
+                    {getTranslation('Close', selectedLanguage)}
                 </button>
             </div>
         </div>
@@ -2303,6 +2294,7 @@ const ThemeDialog = ({ onClose, selectedTheme, onThemeChange, accentColor, onOpe
 const AccentColorDialog = ({ onClose, currentColor, onColorChange }) => {
     const [selectedColor, setSelectedColor] = useState(currentColor);
     const [hexInput, setHexInput] = useState(currentColor);
+    const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
 
     const presetColors = [
         '#CB8A00', // Gold (default)
@@ -2354,18 +2346,18 @@ const AccentColorDialog = ({ onClose, currentColor, onColorChange }) => {
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
                         <Icon name="palette" size={24} className="mr-2" style={{ color: selectedColor }} />
-                        <h3 className="text-xl font-bold text-gray-900">Customize Accent Color</h3>
+                        <h3 className="text-xl font-bold text-gray-900">{getTranslation('Customize Accent Color', selectedLanguage)}</h3>
                     </div>
                     <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-700">
                         <Icon name="x" size={24} />
                     </button>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-6">Choose your preferred highlight color</p>
+                <p className="text-sm text-gray-600 mb-6">{getTranslation('Choose your preferred highlight color', selectedLanguage)}</p>
 
                 {/* Pick a Color Section */}
                 <div className="mb-6">
-                    <h4 className="text-base font-semibold text-gray-900 mb-3">Pick a Color</h4>
+                    <h4 className="text-base font-semibold text-gray-900 mb-3">{getTranslation('Pick a Color', selectedLanguage)}</h4>
                     <div className="flex items-center gap-4">
                         <div
                             className="w-24 h-24 rounded-xl border-2 border-gray-200"
@@ -2379,14 +2371,14 @@ const AccentColorDialog = ({ onClose, currentColor, onColorChange }) => {
                                 className="w-full px-4 py-3 bg-gray-100 rounded-lg text-gray-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
                                 placeholder="#ca8a04"
                             />
-                            <p className="text-xs text-gray-500 mt-2">Current: {selectedColor}</p>
+                            <p className="text-xs text-gray-500 mt-2">{getTranslation('Current', selectedLanguage)}: {selectedColor}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Quick Presets */}
                 <div className="mb-6">
-                    <h4 className="text-base font-semibold text-gray-900 mb-3">Quick Presets</h4>
+                    <h4 className="text-base font-semibold text-gray-900 mb-3">{getTranslation('Quick Presets', selectedLanguage)}</h4>
                     <div className="grid grid-cols-6 gap-3">
                         {presetColors.map((color) => (
                             <button
@@ -2402,13 +2394,13 @@ const AccentColorDialog = ({ onClose, currentColor, onColorChange }) => {
 
                 {/* Preview Section */}
                 <div className="mb-6 bg-gray-100 rounded-xl p-4">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Preview</h4>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">{getTranslation('Preview', selectedLanguage)}</h4>
                     <div className="flex gap-3">
                         <button
                             className="flex-1 py-3 rounded-lg text-white font-semibold"
                             style={{ backgroundColor: selectedColor }}
                         >
-                            Primary Button
+                            {getTranslation('Primary Button', selectedLanguage)}
                         </button>
                         <button
                             className="flex-1 py-3 rounded-lg font-semibold"
@@ -2418,7 +2410,7 @@ const AccentColorDialog = ({ onClose, currentColor, onColorChange }) => {
                                 color: selectedColor
                             }}
                         >
-                            Secondary Button
+                            {getTranslation('Secondary Button', selectedLanguage)}
                         </button>
                     </div>
                 </div>
@@ -2429,7 +2421,7 @@ const AccentColorDialog = ({ onClose, currentColor, onColorChange }) => {
                     className="w-full py-3 rounded-lg text-white font-semibold mb-3 hover:opacity-90 transition-opacity"
                     style={{ backgroundColor: selectedColor }}
                 >
-                    Done
+                    {getTranslation('Done', selectedLanguage)}
                 </button>
 
                 {/* Reset to Default */}
@@ -2437,7 +2429,7 @@ const AccentColorDialog = ({ onClose, currentColor, onColorChange }) => {
                     onClick={handleReset}
                     className="w-full py-3 text-gray-500 font-semibold hover:text-gray-700 transition-colors"
                 >
-                    Reset to Default
+                    {getTranslation('Reset to Default', selectedLanguage)}
                 </button>
             </div>
         </div>

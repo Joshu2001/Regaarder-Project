@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, CheckCircle, Rocket, Trophy, ChevronLeft, Settings, ChevronRight, Home, FileText, Pencil, MoreHorizontal, MessageSquare, PlayCircle, Star, CornerUpRight, Send, X, Lightbulb, Trash2, Archive } from 'lucide-react';
-import { translations } from './translations.js';
+import { translations, getTranslation } from './translations.js';
 
 // Utility for relative time
 const timeAgo = (iso) => {
@@ -68,7 +68,7 @@ const StatusTracker = ({ currentStep, steps }) => {
 };
 
 // Notification Card Component
-const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId }) => {
+const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId, selectedLanguage }) => {
   // Use the latest item for display logic, but render the full thread
   const latestItem = thread.items[thread.items.length - 1];
   const items = thread.items || [thread];
@@ -106,7 +106,7 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId 
   const isDraggingRef = React.useRef(false);
 
   // Default values
-  let title = 'New Notification';
+  let title = getTranslation('New Notification', selectedLanguage);
   let Icon = Bell;
   let iconBg = 'bg-gray-100';
   let iconColor = 'text-gray-600';
@@ -117,8 +117,8 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId 
   const otherPerson = (thread.from && thread.from.id !== currentUserId) ? thread.from : (thread.to && thread.to.id !== currentUserId ? thread.to : { name: 'Unknown' });
 
   if (isStatusUpdate) {
-     title = 'Status Update from Creator';
-     if (currentStep === 5) title = 'Request Fulfilled!';
+     title = getTranslation('Status Update from Creator', selectedLanguage);
+     if (currentStep === 5) title = getTranslation('Request Fulfilled!', selectedLanguage);
      
      // Use creator avatar
      Avatar = (
@@ -133,10 +133,10 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId 
        </div>
      );
      
-     actionLabel = 'Reply';
+     actionLabel = getTranslation('Reply', selectedLanguage);
   } else {
      // Generic suggestion or other
-     title = 'New Message';
+     title = getTranslation('New Message', selectedLanguage);
      Avatar = (
        <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
           {otherPerson.avatar ? (
@@ -328,14 +328,15 @@ const FeatureCard = ({ icon: Icon, title, description, iconColor, iconBg }) => (
 // Accepts an optional `onClose` prop so parent can navigate away (e.g. setScreen('home'))
 const App = ({ onClose }) => {
 
+  const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
+
   // Apply Chinese Traditional translations to DOM text nodes after mount.
   // This is a lightweight pass to avoid rewriting all JSX to use getTranslation.
   React.useEffect(() => {
     try {
       if (typeof window === 'undefined') return;
       const lang = window.localStorage.getItem('regaarder_language') || 'English';
-      if (lang !== 'Chinese Traditional') return;
-      const map = translations && translations['Chinese Traditional'] ? translations['Chinese Traditional'] : {};
+      const map = translations && translations[lang] ? translations[lang] : {};
       if (!map || Object.keys(map).length === 0) return;
       const container = document.querySelector('.min-h-screen') || document.body;
       if (!container) return;
@@ -652,7 +653,7 @@ const App = ({ onClose }) => {
               {/* Centered title with icon */}
               <div className="flex items-center">
                 <Bell className="w-6 h-6 mr-3" strokeWidth={1.5} style={{ color: 'var(--color-gold, #ca8a04)' }} />
-                <h1 className="text-xl font-bold text-gray-800">Notifications</h1>
+                <h1 className="text-xl font-bold text-gray-800">{getTranslation('Notifications', selectedLanguage)}</h1>
               </div>
 
               {/* Settings button - positioned absolute right */}
@@ -714,9 +715,7 @@ const App = ({ onClose }) => {
                 {/* Tip Bar */}
                 <div className="w-full px-4 py-3 mb-4 bg-[#F5F5DC] text-gray-700 rounded-xl flex items-start space-x-2" style={{ borderColor: 'var(--color-gold-light)', borderStyle: 'solid', boxShadow: '0 6px 16px rgba(var(--color-gold-rgb,203,138,0),0.06)' }}>
                     <Lightbulb className="w-4 h-4 mt-0.5 text-[var(--color-gold)] flex-shrink-0" />
-                    <p className="text-xs leading-relaxed font-medium">
-                    Swipe left to delete • Swipe right to dismiss temporarily
-                    </p>
+                    <p className="text-xs leading-relaxed font-medium">{getTranslation('Swipe left to delete • Swipe right to dismiss temporarily', selectedLanguage)}</p>
                 </div>
 
                 {groupedSuggestions.map((thread) => (
@@ -726,7 +725,8 @@ const App = ({ onClose }) => {
                     onReply={handleReply} 
                     onDelete={handleDelete}
                     onDismiss={handleDismiss}
-                    currentUserId={userId} 
+                    currentUserId={userId}
+                    selectedLanguage={selectedLanguage}
                   />
                 ))}
               </div>
@@ -735,10 +735,8 @@ const App = ({ onClose }) => {
                 <div className="inner-bell-container mx-auto mb-20">
                   <Bell className="w-8 h-8 bell-icon" strokeWidth={1.5} style={{ color: 'var(--color-gold, #ca8a04)' }} />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">All caught up!</h2>
-                <p className="text-gray-500 text-sm max-w-xs mx-auto leading-relaxed">
-                  You don't have any notifications right now. We'll let you know when something important happens.
-                </p>
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">{getTranslation('All caught up!', selectedLanguage)}</h2>
+                <p className="text-gray-500 text-sm max-w-xs mx-auto leading-relaxed">{getTranslation("You don't have any notifications right now. We'll let you know when something important happens.", selectedLanguage)}</p>
               </div>
             )}
 
@@ -747,22 +745,22 @@ const App = ({ onClose }) => {
             <div className="space-y-4 pt-4">
               <FeatureCard
                 icon={CheckCircle}
-                title="Request Updates"
-                description="Get notified when creators start or complete your requests"
+                title={getTranslation('Request Updates', selectedLanguage)}
+                description={getTranslation('Get notified when creators start or complete your requests', selectedLanguage)}
                 iconColor="#16A34A"
                 iconBg="#ECFDF5"
               />
               <FeatureCard
                 icon={Rocket}
-                title="Viral Rewards"
-                description="Earn money when your requests go viral"
+                title={getTranslation('Viral Rewards', selectedLanguage)}
+                description={getTranslation('Earn money when your requests go viral', selectedLanguage)}
                 iconColor="#F97316"
                 iconBg="#FFF7ED"
               />
               <FeatureCard
                 icon={Trophy}
-                title="Milestones & Achievements"
-                description="Celebrate your progress and unlock rewards"
+                title={getTranslation('Milestones & Achievements', selectedLanguage)}
+                description={getTranslation('Celebrate your progress and unlock rewards', selectedLanguage)}
                 iconColor="var(--color-gold, #ca8a04)"
                 iconBg="var(--color-gold-light-bg, rgba(202,138,4,0.08))"
               />

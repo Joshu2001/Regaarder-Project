@@ -1,5 +1,13 @@
 [
   {
+    "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
+    "userId": "anonymous",
+    "lastWatchedTime": 5,
+    "duration": 5,
+    "timestamp": "2026-01-11T04:02:38.576Z",
+    "isComplete": true
+  },
+  {
     "videoId": "http://localhost:4000/uploads/intro-1767452730683-679882.mp4",
     "userId": "user-1767585399609",
     "lastWatchedTime": 0,
@@ -66,9 +74,9 @@
   {
     "videoId": "http://localhost:4000/uploads/intro-1767452730683-679882.mp4",
     "userId": "anonymous",
-    "lastWatchedTime": 1,
-    "duration": 5,
-    "timestamp": "2026-01-05T13:06:58.606Z",
+    "lastWatchedTime": 0,
+    "duration": 0,
+    "timestamp": "2026-01-11T04:02:51.632Z",
     "isComplete": false
   }
 ]

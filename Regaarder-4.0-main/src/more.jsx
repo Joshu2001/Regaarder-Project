@@ -307,12 +307,12 @@ const MorePage = () => {
               className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900" 
               onClick={() => navigate('/home')}
             />
-            <h1 className="text-2xl font-semibold text-gray-800">More</h1>
+            <h1 className="text-2xl font-semibold text-gray-800">{getTranslation('More', selectedLanguage)}</h1>
           </div>
         </header>
 
         <p className="text-sm text-gray-500 px-4 pt-3 pb-2">
-          Settings and options
+          {getTranslation('Settings and options', selectedLanguage)}
         </p>
 
         <main className="flex-grow flex items-center justify-center p-4">
