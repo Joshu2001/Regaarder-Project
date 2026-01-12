@@ -2,6 +2,7 @@
 import React, { useState, useMemo, useEffect, createContext, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, X, Search, Folder, Bookmark, Play, Calendar, Video, Clock } from 'lucide-react';
+import { getTranslation } from './translations';
 
 // Local fallback Search context/provider/hook so this file doesn't depend on `./home` being present.
 const SearchContext = createContext({ search: '', setSearch: () => {} });
@@ -70,27 +71,27 @@ const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'num
 const tomorrow = new Date(Date.now() + 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
 // Reusable component for the steps in the flow
-const StepTitle = ({ number, title, required = false, badge = null }) => (
+const StepTitle = ({ number, title, required = false, badge = null, selectedLanguage = 'English' }) => (
   <div className="flex items-center space-x-2 my-6">
     <div className="flex items-center justify-center w-6 h-6 bg-violet-600 text-white text-xs font-semibold rounded-full shadow-lg">
       {number}
     </div>
-    <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+    <h2 className="text-lg font-semibold text-gray-800">{getTranslation(title, selectedLanguage)}</h2>
     {required && (
       <span className="text-xs font-medium text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full">
-        Required
+        {getTranslation('Required', selectedLanguage)}
       </span>
     )}
     {badge !== null && (
       <span className="ml-auto text-xs font-medium text-white bg-violet-400 px-2 py-0.5 rounded-full">
-        {badge} selected
+        {badge} {getTranslation('selected', selectedLanguage)}
       </span>
     )}
   </div>
 );
 
 // Renders the main Watch Together icon at the top
-const WatchPartyIcon = () => (
+const WatchPartyIcon = ({ selectedLanguage = 'English' }) => (
   <div className="flex flex-col items-center justify-center p-8">
     <div className="relative">
       <div className="p-4 bg-violet-100 rounded-full">
@@ -98,8 +99,8 @@ const WatchPartyIcon = () => (
       </div>
       <div className="absolute top-0 right-0 w-3 h-3 bg-violet-500 rounded-full border-2 border-white" />
     </div>
-    <h3 className="text-xl font-semibold text-gray-800 mt-4">Create Watch Party</h3>
-    <p className="text-sm text-gray-500 mt-1">Set up synchronized viewing with friends</p>
+    <h3 className="text-xl font-semibold text-gray-800 mt-4">{getTranslation('Create Watch Party', selectedLanguage)}</h3>
+    <p className="text-sm text-gray-500 mt-1">{getTranslation('Set up synchronized viewing with friends', selectedLanguage)}</p>
   </div>
 );
 
@@ -136,7 +137,7 @@ class ErrorBoundary extends React.Component {
 }
 
 // Step 1: Video Selection
-const VideoSelection = ({ onVideoSelect, videos = [] }) => {
+const VideoSelection = ({ onVideoSelect, videos = [], selectedLanguage = 'English' }) => {
   const { search, setSearch } = useSearch();
   const normalized = (search || '').trim().toLowerCase();
   const list = normalized
@@ -145,13 +146,13 @@ const VideoSelection = ({ onVideoSelect, videos = [] }) => {
 
   return (
   <>
-    <StepTitle number={1} title="Select Video" required={true} />
+    <StepTitle number={1} title="Select Video" required={true} selectedLanguage={selectedLanguage} />
     {/* Search Input - synced with home.jsx SearchProvider */}
     <div className="relative">
       <input
         name="videoSearch"
         type="text"
-        placeholder="Search videos..."
+        placeholder={getTranslation('Search videos...', selectedLanguage)}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition duration-150"
@@ -163,11 +164,11 @@ const VideoSelection = ({ onVideoSelect, videos = [] }) => {
     <div className="flex space-x-3 mt-4">
       <button className="flex items-center space-x-2 px-4 py-2 bg-violet-50 rounded-xl text-sm font-medium text-gray-700 hover:bg-violet-100 transition duration-150">
         <Folder className="w-5 h-5 text-gray-600" />
-        <span>From Folders</span>
+        <span>{getTranslation('From Folders', selectedLanguage)}</span>
       </button>
       <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition duration-150">
         <Bookmark className="w-5 h-5 text-gray-600" />
-        <span>Bookmarks</span>
+        <span>{getTranslation('Bookmarks', selectedLanguage)}</span>
       </button>
     </div>
 
@@ -225,7 +226,7 @@ const VideoSelection = ({ onVideoSelect, videos = [] }) => {
 };
 
 // Step 2: Invite Friends
-const InviteFriends = ({ selectedFriends, toggleFriend, selectedFriendsCount, friends, searchQuery, setSearchQuery }) => {
+const InviteFriends = ({ selectedFriends, toggleFriend, selectedFriendsCount, friends, searchQuery, setSearchQuery, selectedLanguage = 'English' }) => {
   // Filter friends based on search query
   const filteredFriends = friends.filter(friend => {
     if (!searchQuery) return true;
@@ -236,13 +237,13 @@ const InviteFriends = ({ selectedFriends, toggleFriend, selectedFriendsCount, fr
 
   return (
   <>
-    <StepTitle number={2} title="Invite Friends" badge={selectedFriendsCount} />
+    <StepTitle number={2} title="Invite Friends" badge={selectedFriendsCount} selectedLanguage={selectedLanguage} />
     {/* Search Input - FOCUS TO GREY */}
     <div className="relative mb-6">
       <input
         name="friendSearch"
         type="text"
-        placeholder="Search friends..."
+        placeholder={getTranslation('Search friends...', selectedLanguage)}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition duration-150"
@@ -253,7 +254,7 @@ const InviteFriends = ({ selectedFriends, toggleFriend, selectedFriendsCount, fr
     {/* Friend List */}
     <div className="space-y-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 max-h-96 overflow-y-auto">
       {filteredFriends.length === 0 ? (
-        <p className="text-center text-gray-500 py-4">No friends found</p>
+        <p className="text-center text-gray-500 py-4">{getTranslation('No friends found', selectedLanguage)}</p>
       ) : (
         filteredFriends.map((friend) => {
         const isSelected = selectedFriends.includes(friend.id);
@@ -331,7 +332,7 @@ const CheckIcon = () => (
 );
 
 // Step 3: When to Watch
-const WhenToWatch = ({ watchTimeMode, setWatchTimeMode }) => {
+const WhenToWatch = ({ watchTimeMode, setWatchTimeMode, selectedLanguage = 'English' }) => {
   const [sendReminders, setSendReminders] = useState(true);
 
   const isNowActive = watchTimeMode === 'now';
@@ -339,7 +340,7 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode }) => {
   
   return (
     <>
-      <StepTitle number={3} title="When to Watch" />
+      <StepTitle number={3} title="When to Watch" selectedLanguage={selectedLanguage} />
       <div className="flex space-x-4 mt-4">
         {/* Start Now Button */}
         <button
@@ -351,8 +352,8 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode }) => {
           }`}
         >
           <Play className={`w-8 h-8 mb-2 ${isNowActive ? 'text-white' : 'text-gray-700'}`} />
-          <span className="text-lg font-semibold">Start Now</span>
-          <span className={`text-sm font-light ${isNowActive ? 'opacity-80' : 'text-gray-500'}`}>Begin immediately</span>
+          <span className="text-lg font-semibold">{getTranslation('Start Now', selectedLanguage)}</span>
+          <span className={`text-sm font-light ${isNowActive ? 'opacity-80' : 'text-gray-500'}`}>{getTranslation('Begin immediately', selectedLanguage)}</span>
         </button>
 
         {/* Schedule Button */}
@@ -365,8 +366,8 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode }) => {
           }`}
         >
           <Calendar className={`w-8 h-8 mb-2 ${isScheduleActive ? 'text-white' : 'text-gray-700'}`} />
-          <span className="text-lg font-semibold">Schedule</span>
-          <span className={`text-sm font-light ${isScheduleActive ? 'opacity-80' : 'text-gray-500'}`}>Set a time</span>
+          <span className="text-lg font-semibold">{getTranslation('Schedule', selectedLanguage)}</span>
+          <span className={`text-sm font-light ${isScheduleActive ? 'opacity-80' : 'text-gray-500'}`}>{getTranslation('Set a time', selectedLanguage)}</span>
         </button>
       </div>
 
@@ -376,19 +377,19 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode }) => {
           {/* Date & Time Pickers */}
           <div className="flex space-x-4">
             <div className="flex-1">
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('Date', selectedLanguage)}</label>
               <select
                 id="date"
                 className="w-full py-3 pl-4 pr-10 border border-gray-300 rounded-xl appearance-none outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition duration-150 bg-white text-gray-800"
                 defaultValue="today"
               >
-                <option value="today">Today, {today}</option>
-                <option value="tomorrow">Tomorrow, {tomorrow}</option>
-                <option value="custom">Pick a date...</option>
+                <option value="today">{getTranslation('Today', selectedLanguage)}, {today}</option>
+                <option value="tomorrow">{getTranslation('Tomorrow', selectedLanguage)}, {tomorrow}</option>
+                <option value="custom">{getTranslation('Pick a date...', selectedLanguage)}</option>
               </select>
             </div>
             <div className="flex-1">
-              <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+              <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('Time', selectedLanguage)}</label>
               <select
                 id="time"
                 className="w-full py-3 pl-4 pr-10 border border-gray-300 rounded-xl appearance-none outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition duration-150 bg-white text-gray-800"
@@ -413,7 +414,7 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode }) => {
                   htmlFor="sendReminders"
                   className="text-base font-medium text-gray-800 cursor-pointer"
                 >
-                  Send Reminders
+                  {getTranslation('Send Reminders', selectedLanguage)}
                 </label>
               </div>
               <input
@@ -433,10 +434,10 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode }) => {
                   className="py-2 pl-3 pr-8 border border-gray-300 rounded-xl appearance-none outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-400 transition duration-150 bg-white text-sm text-gray-800 w-full"
                   defaultValue="15min"
                 >
-                  <option value="5min">5 minutes before</option>
-                  <option value="15min">15 minutes before</option>
-                  <option value="30min">30 minutes before</option>
-                  <option value="1hr">1 hour before</option>
+                  <option value="5min">{getTranslation('5 minutes before', selectedLanguage)}</option>
+                  <option value="15min">{getTranslation('15 minutes before', selectedLanguage)}</option>
+                  <option value="30min">{getTranslation('30 minutes before', selectedLanguage)}</option>
+                  <option value="1hr">{getTranslation('1 hour before', selectedLanguage)}</option>
                 </select>
               </div>
             )}
@@ -458,6 +459,7 @@ const App = () => {
     }
   }, []);
   const [selectedFriends, setSelectedFriends] = useState([]);
+  const [selectedLanguage] = useState(() => localStorage.getItem('language') || 'English');
   // NEW STATE: To track if 'now' or 'schedule' is selected
   const [watchTimeMode, setWatchTimeMode] = useState('now'); 
   // Error state for display
@@ -604,8 +606,8 @@ const App = () => {
 
   // Logic for changing button text based on the mode
   const actionButtonText = watchTimeMode === 'schedule'
-    ? 'Schedule Watch Party'
-    : 'Create & Start Party';
+    ? getTranslation('Schedule Watch Party', selectedLanguage)
+    : getTranslation('Create & Start Party', selectedLanguage);
 
   return (
     <ErrorBoundary>
@@ -624,8 +626,8 @@ const App = () => {
               <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-violet-500 rounded-full border-2 border-white" />
             </div>
             <div className="ml-3">
-              <h1 className="text-xl font-bold text-gray-800">Watch Together</h1>
-              <p className="text-sm text-gray-500">Synchronized viewing experience</p>
+              <h1 className="text-xl font-bold text-gray-800">{getTranslation('Watch Together', selectedLanguage)}</h1>
+              <p className="text-sm text-gray-500">{getTranslation('Synchronized viewing experience', selectedLanguage)}</p>
             </div>
           </div>
           <button onClick={() => handleExitClick()} className="text-gray-400 hover:text-gray-600 transition duration-150">
@@ -637,14 +639,14 @@ const App = () => {
         <div className="p-6 sm:p-8">
           {errorMessage && (
             <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700">
-              <strong>Error:</strong> {errorMessage}
+              <strong>Error:</strong> {getTranslation(errorMessage, selectedLanguage)}
             </div>
           )}
-          <WatchPartyIcon />
+          <WatchPartyIcon selectedLanguage={selectedLanguage} />
 
           {/* Steps Container */}
           <div className="mt-4 space-y-6">
-            <VideoSelection onVideoSelect={handleVideoSelect} videos={videos} />
+            <VideoSelection onVideoSelect={handleVideoSelect} videos={videos} selectedLanguage={selectedLanguage} />
             <InviteFriends
               selectedFriends={selectedFriends}
               toggleFriend={toggleFriend}
@@ -652,11 +654,13 @@ const App = () => {
               friends={friends}
               searchQuery={friendSearchQuery}
               setSearchQuery={setFriendSearchQuery}
+              selectedLanguage={selectedLanguage}
             />
             {/* Pass the mode state and setter to WhenToWatch */}
             <WhenToWatch 
               watchTimeMode={watchTimeMode} 
               setWatchTimeMode={setWatchTimeMode} 
+              selectedLanguage={selectedLanguage}
             />
           </div>
 
@@ -686,25 +690,25 @@ const App = () => {
                   : 'text-red-500 opacity-100'
               }`}
             >
-              Please select at least one friend to continue
+              {getTranslation('Please select at least one friend to continue', selectedLanguage)}
             </p>
           </div>
 
           {/* How it works section */}
           <div className="mt-6 p-4 bg-violet-50 rounded-xl border border-violet-200">
-            <p className="font-semibold text-gray-800 mb-2">How it works</p>
+            <p className="font-semibold text-gray-800 mb-2">{getTranslation('How it works', selectedLanguage)}</p>
             <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
               <li className="flex items-start">
                 <span className="text-violet-600 mr-2">•</span>
-                <span>Everyone sees the same video at the same time</span>
+                <span>{getTranslation('Everyone sees the same video at the same time', selectedLanguage)}</span>
               </li>
               <li className="flex items-start">
                 <span className="text-violet-600 mr-2">•</span>
-                <span>When anyone pauses, plays, or seeks - everyone syncs</span>
+                <span>{getTranslation('When anyone pauses, plays, or seeks - everyone syncs', selectedLanguage)}</span>
               </li>
               <li className="flex items-start">
                 <span className="text-violet-600 mr-2">•</span>
-                <span>Host has full control over playback</span>
+                <span>{getTranslation('Host has full control over playback', selectedLanguage)}</span>
               </li>
             </ul>
           </div>
