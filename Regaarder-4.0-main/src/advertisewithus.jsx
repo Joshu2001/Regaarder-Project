@@ -801,37 +801,37 @@ const WelcomePage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) => {
     return (
         <div className="w-full pb-28 sm:pb-12">
             <WelcomeHeader 
-                title="Welcome to Regaarder" 
-                subtitle="Tell us about your brand" 
+                title={t("Welcome to Regaarder")} 
+                subtitle={t("Tell us about your brand")} 
                 setCurrentPage={setCurrentPage}
                 previousPage={'Home'}
             />
             
             <section>
-                <p className="text-lg font-semibold text-gray-900 mb-1">I am a...</p>
-                <p className="text-sm text-gray-600 mb-8">This helps us personalize your experience</p>
+                <p className="text-lg font-semibold text-gray-900 mb-1">{t("I am a...")}</p>
+                <p className="text-sm text-gray-600 mb-8">{t("This helps us personalize your experience")}</p>
 
                 <div className="space-y-4">
                     <RoleOption 
                         icon={FileText} 
-                        title="Brand / Company" 
-                        subtitle="Established business looking to expand reach"
+                        title={t("Brand / Company")} 
+                        subtitle={t("Established business looking to expand reach")}
                         ACCENT_COLOR={ACCENT_COLOR}
                         ICON_BACKGROUND={ICON_BACKGROUND}
                         onClick={() => { try { localStorage.setItem('welcome_selected_role', 'brand'); } catch (e) {} setCurrentPage('BrandDetails'); }}
                     />
                     <RoleOption 
                         icon={Rocket} 
-                        title="Startup / Creator-owned Brand" 
-                        subtitle="Growing brand seeking authentic partnerships"
+                        title={t("Startup / Creator-owned Brand")} 
+                        subtitle={t("Growing brand seeking authentic partnerships")}
                         ACCENT_COLOR={ACCENT_COLOR}
                         ICON_BACKGROUND={ICON_BACKGROUND}
                         onClick={() => { try { localStorage.setItem('welcome_selected_role', 'startup'); } catch (e) {} setCurrentPage('BrandDetails'); }}
                     />
                     <RoleOption 
                         icon={Briefcase} 
-                        title="Agency / Media Buyer" 
-                        subtitle="Managing campaigns for multiple clients"
+                        title={t("Agency / Media Buyer")} 
+                        subtitle={t("Managing campaigns for multiple clients")}
                         ACCENT_COLOR={ACCENT_COLOR}
                         ICON_BACKGROUND={ICON_BACKGROUND}
                         onClick={() => { try { localStorage.setItem('welcome_selected_role', 'agency'); } catch (e) {} setCurrentPage('BrandDetails'); }}
