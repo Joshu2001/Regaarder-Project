@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Home, FileText, Pencil, MoreHorizontal, Lightbulb } from 'lucide-react';
 import { useAppNavigate } from './navigation.js';
+import { getTranslation } from './translations.js';
+
+const selectedLanguage = typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English';
+const t = (key) => getTranslation(key, selectedLanguage);
 
 // Local storage key for liked videos
 const STORAGE_KEY = 'likedVideos';
@@ -152,14 +156,14 @@ export default function LikedVideos() {
     <div style={{ minHeight: '100vh', background: dark ? '#0e0e0e' : '#f9fafb' }}>
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold" style={{ color: dark ? '#fff' : '#111' }}>Liked Videos</h1>
+          <h1 className="text-lg font-semibold" style={{ color: dark ? '#fff' : '#111' }}>{t('Liked Videos')}</h1>
           {items.length > 0 && (
             <button
               onClick={() => { clearLikedVideos(); setItems([]); }}
               className="text-sm font-medium hover:opacity-80 transition duration-150"
               style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px' }}
             >
-              Clear All
+              {t('Clear All')}
             </button>
           )}
         </div>
@@ -168,23 +172,23 @@ export default function LikedVideos() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search liked videos"
+            placeholder={t('Search liked videos')}
             className="flex-1 px-3 py-2 rounded-md"
             style={{ background: dark ? '#0b0b0b' : '#fff', color: dark ? '#fff' : '#111', border: '1px solid ' + (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)') }}
           />
-          <span className="text-sm" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>{filtered.length} {filtered.length === 1 ? 'video' : 'videos'}</span>
+          <span className="text-sm" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>{filtered.length} {filtered.length === 1 ? t('video') : t('videos')}</span>
         </div>
 
         {items.length > 0 && (
           <div className="mt-3 rounded-lg p-3 flex items-center gap-2" style={{ background: dark ? 'rgba(250,204,21,0.08)' : '#FEF9C3', border: '1px solid ' + (dark ? 'rgba(250,204,21,0.25)' : '#FDE68A') }}>
             <Lightbulb className="w-4 h-4" style={{ color: '#ca8a04' }} />
-            <div className="text-xs" style={{ color: dark ? '#fcd34d' : '#92400E' }}>Swipe left to remove from Liked Videos</div>
+            <div className="text-xs" style={{ color: dark ? '#fcd34d' : '#92400E' }}>{t('Swipe left to remove from Liked Videos')}</div>
           </div>
         )}
 
         <div className="mt-5 w-full space-y-4">
           {filtered.length === 0 && (
-            <div className="text-sm" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>No likes yet. Tap the heart in the player to add videos here.</div>
+            <div className="text-sm" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>{t('No likes yet. Tap the heart in the player to add videos here.')}</div>
           )}
 
           {filtered.map((it) => {
@@ -244,7 +248,7 @@ export default function LikedVideos() {
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-gray-900 line-clamp-2">{title}</div>
                   {creator && <div className="text-xs text-gray-500 mt-0.5">@{creator}</div>}
-                  <div className="text-xs text-gray-500 mt-0.5">Liked • {formatDate(it.likedAt)}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{t('Liked')} • {formatDate(it.likedAt)}</div>
                 </div>
                 <button className="p-2 text-gray-600 hover:text-gray-900" aria-label="Share" onClick={(e) => {
                   e.stopPropagation();
@@ -252,7 +256,7 @@ export default function LikedVideos() {
                   const link = url ? `${window.location.origin}/videoplayer?src=${encodeURIComponent(url)}&title=${encodeURIComponent(title||'')}` : window.location.href;
                   const sharePayload = { title, text: title, url: link };
                   if (navigator.share) { navigator.share(sharePayload).catch(() => {}); }
-                  else { try { navigator.clipboard && navigator.clipboard.writeText(link); alert('Share link copied'); } catch {} }
+                  else { try { navigator.clipboard && navigator.clipboard.writeText(link); alert(t('Share link copied')); } catch {} }
                 }}>
                   <MoreHorizontal className="w-5 h-5" />
                 </button>
@@ -309,7 +313,7 @@ const BottomBar = () => {
                 <div className="w-11 h-11 flex items-center justify-center">
                   <IconComp size={22} strokeWidth={1.5} style={activeColorStyle} />
                 </div>
-                <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>{tab.name}</span>
+                <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>{t(tab.name)}</span>
               </button>
             </div>
           );

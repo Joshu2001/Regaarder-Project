@@ -1,6 +1,11 @@
 /* eslint-disable no-empty */
 import React from 'react';
 import { History, Lightbulb, Home, FileText, MoreHorizontal, Pencil, CheckCircle, Search } from 'lucide-react';
+import { getTranslation } from './translations.js';
+
+// Get selected language
+const selectedLanguage = typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English';
+const t = (key) => getTranslation(key, selectedLanguage);
 
 // --- Watch History storage API ---
 // This module exposes `recordWatchProgress`, `getWatchHistory`, and `clearWatchHistory`.
@@ -187,9 +192,9 @@ const App = () => {
       const c = Number(m.comments || 0);
       const s = Number(m.shares || 0);
       const max = Math.max(v, c, s);
-      if (max === v && v > 0) return `${v} views`;
-      if (max === c && c > 0) return `${c} comments`;
-      if (max === s && s > 0) return `${s} shares`;
+      if (max === v && v > 0) return `${v} ${t('views')}`;
+      if (max === c && c > 0) return `${c} ${t('comments')}`;
+      if (max === s && s > 0) return `${s} ${t('shares')}`;
       return null;
     } catch { return null; }
   };
@@ -282,18 +287,18 @@ const App = () => {
         {/* === 1. Header === */}
         <header className="p-4 border-b border-gray-100 space-y-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2"><History className="w-5 h-5 text-gray-500" strokeWidth={1.5} /><span>Watch History</span></h1>
+            <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2"><History className="w-5 h-5 text-gray-500" strokeWidth={1.5} /><span>{t('Watch History')}</span></h1>
             <div className="flex items-center gap-2">
-              <button onClick={handleClearAll} className={`text-sm font-medium hover:opacity-80 transition duration-150`} style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px' }}>Clear All</button>
+              <button onClick={handleClearAll} className={`text-sm font-medium hover:opacity-80 transition duration-150`} style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px' }}>{t('Clear All')}</button>
               <button className="p-2 text-gray-600 hover:text-gray-900" aria-label="More"><MoreHorizontal className="w-5 h-5" /></button>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md px-2 py-2 w-full max-w-md">
               <Search className="w-4 h-4 text-gray-500" />
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" className="bg-transparent outline-none text-sm ml-2 w-full" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('Search')} className="bg-transparent outline-none text-sm ml-2 w-full" />
             </div>
-            <p className="text-sm text-gray-500 ml-4 whitespace-nowrap">{(history || []).length} videos</p>
+            <p className="text-sm text-gray-500 ml-4 whitespace-nowrap">{(history || []).length} {t('videos')}</p>
           </div>
         </header>
 
@@ -305,15 +310,16 @@ const App = () => {
             <div className="w-full space-y-4">
               {Object.entries(history.reduce((acc, item) => {
                 const d = new Date(item.timestamp);
-                const day = d.toLocaleDateString(undefined, { weekday: 'long' });
-                const key = `${day}-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+                const dayKey = d.toLocaleDateString('en-US', { weekday: 'long' });
+                const day = t(dayKey);
+                const key = `${dayKey}-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
                 (acc[key] = acc[key] || { label: day, date: d, items: [] }).items.push(item);
                 return acc;
               }, {})).sort((a,b)=> b[1].date - a[1].date).map(([key, group]) => (
                 <div key={key} className="w-full">
                   <div className="text-sm font-semibold text-gray-700 mb-2">{group.label}</div>
                   {group.items
-                    .filter(i => { const m = getMetaFor(i) || {}; const t = (m.title || String(i.videoId)); const creator = m.author || ''; const requester = m.requester || ''; const q = query.trim().toLowerCase(); return !q || t.toLowerCase().includes(q) || creator.toLowerCase().includes(q) || requester.toLowerCase().includes(q); })
+                    .filter(i => { const m = getMetaFor(i) || {}; const tVal = (m.title || String(i.videoId)); const creator = m.author || ''; const requester = m.requester || ''; const q = query.trim().toLowerCase(); return !q || tVal.toLowerCase().includes(q) || creator.toLowerCase().includes(q) || requester.toLowerCase().includes(q); })
                     .map((h) => {
                       const m = getMetaFor(h) || {};
                       const thumb = m.imageUrl || 'https://placehold.co/160x90/efefef/777?text=Video';
@@ -332,7 +338,7 @@ const App = () => {
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium text-gray-900 line-clamp-2">{title}</div>
                             <div className="text-xs text-gray-500 mt-0.5">{creator}{creator && requester ? ' • ' : ''}{requester}</div>
-                            <div className="text-xs text-gray-500 mt-0.5">Left at {formatSeconds(h.lastWatchedTime)} • {new Date(h.timestamp).toLocaleString()}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">{t('Left at')} {formatSeconds(h.lastWatchedTime)} • {new Date(h.timestamp).toLocaleString()}</div>
                             {stat && <div className="text-xs text-gray-600 mt-0.5">{stat}</div>}
                           </div>
                           <button className="p-2 text-gray-600 hover:text-gray-900" aria-label="Share" onClick={(e) => { e.stopPropagation(); shareEntry(h); }}><MoreHorizontal className="w-5 h-5" /></button>
@@ -345,8 +351,8 @@ const App = () => {
           ) : (
             <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 pt-8">
               <History className="w-16 h-16 text-gray-400" strokeWidth={1} />
-              <h2 className="text-lg font-semibold text-gray-700">No watch history</h2>
-              <p className="text-sm text-gray-500 max-w-xs">Videos you watch will appear here</p>
+              <h2 className="text-lg font-semibold text-gray-700">{t('No watch history')}</h2>
+              <p className="text-sm text-gray-500 max-w-xs">{t('Videos you watch will appear here')}</p>
             </div>
           )}
 
@@ -354,7 +360,7 @@ const App = () => {
           <div className="w-full px-4 py-3 bg-[#F5F5DC] text-gray-700 rounded-xl flex items-start space-x-2" style={{ borderColor: 'var(--color-gold-light)', borderStyle: 'solid', boxShadow: '0 6px 16px rgba(var(--color-gold-rgb,203,138,0),0.06)' }}>
             <Lightbulb className="w-4 h-4 mt-0.5 text-[var(--color-gold)] flex-shrink-0" />
             <p className="text-xs leading-relaxed font-medium">
-              Swipe right to request similar video • Swipe left to delete
+              {t('Swipe right to request similar video • Swipe left to delete')}
             </p>
           </div>
         </main>
@@ -398,7 +404,7 @@ const App = () => {
               <CheckCircle className="w-6 h-6 text-[#4CAF50] fill-[#4CAF50]/10" strokeWidth={2} />
               
               <span className="text-base font-medium text-gray-800">
-                Watch history cleared
+                {t('Watch history cleared')}
               </span>
             </div>
           </div>
@@ -466,10 +472,10 @@ const NavItem = ({ icon: Icon, label, active, onClick, activeColor }) => {
         const navigatedRef = React.useRef(false);
 
         const tabs = [
-          { name: 'Home', icon: Home },
-          { name: 'Requests', icon: FileText },
-          { name: 'Ideas', icon: Pencil },
-          { name: 'More', icon: MoreHorizontal },
+          { name: 'Home', label: t('Home'), icon: Home },
+          { name: 'Requests', label: t('Requests'), icon: FileText },
+          { name: 'Ideas', label: t('Ideas'), icon: Pencil },
+          { name: 'More', label: t('More'), icon: MoreHorizontal },
         ];
 
         const inactiveColor = 'rgb(107 114 128)';
@@ -553,7 +559,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, activeColor }) => {
                         />
                       </div>
                       <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
-                        {tab.name}
+                        {tab.label}
                       </span>
                     </button>
 
