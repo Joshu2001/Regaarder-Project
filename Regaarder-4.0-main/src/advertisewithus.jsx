@@ -1893,6 +1893,7 @@ const CampaignDetails = ({ setCurrentPage, campaign, onSave, readOnly }) => {
 
 // Start Collaboration Page (full-page version of the modal flow)
 const StartCollaboration = ({ setCurrentPage, ACCENT_COLOR }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     const [objective, setObjective] = useState('');
     const [selectedOption, setSelectedOption] = useState('');
 
@@ -1904,23 +1905,23 @@ const StartCollaboration = ({ setCurrentPage, ACCENT_COLOR }) => {
     const awarenessOptions = [
         {
             id: 'content_integration',
-            title: 'Content Integration',
-            desc: 'Direct sponsorship with creators. Choose from native mentions, integrated segments, product placements, and custom collaborations. Perfect for brand storytelling.',
-            bullets: ['Native mentions', 'Integrated segments', 'Product placement'],
+            title: t('Content Integration'),
+            desc: t('Direct sponsorship with creators. Choose from native mentions, integrated segments, product placements, and custom collaborations. Perfect for brand storytelling.'),
+            bullets: [t('Native mentions'), t('Integrated segments'), t('Product placement')],
             Icon: FileText
         },
         {
             id: 'post_sponsored',
-            title: 'Post Sponsored Request',
-            desc: 'Create a sponsored request and let creators apply. Set your budget, requirements, and deadline. Review applications and choose the best creators for your brand.',
-            bullets: ['Creators apply', 'Competitive bids', 'Sponsored tag'],
+            title: t('Post Sponsored Request'),
+            desc: t('Create a sponsored request and let creators apply. Set your budget, requirements, and deadline. Review applications and choose the best creators for your brand.'),
+            bullets: [t('Creators apply'), t('Competitive bids'), t('Sponsored tag')],
             Icon: FileEdit
         },
         {
             id: 'sponsor_user_requests',
-            title: 'Sponsor User Requests',
-            desc: 'Browse existing video requests from users on the platform. Sponsor content that aligns with your brand and reach engaged audiences looking for that content.',
-            bullets: ['Browse requests', 'Sponsor matching content'],
+            title: t('Sponsor User Requests'),
+            desc: t('Browse existing video requests from users on the platform. Sponsor content that aligns with your brand and reach engaged audiences looking for that content.'),
+            bullets: [t('Browse requests'), t('Sponsor matching content')],
             Icon: Eye
         },
     ];
@@ -1957,8 +1958,8 @@ const StartCollaboration = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <button onClick={() => setCurrentPage('AdvertiserDashboard')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="text-sm text-gray-500">Step 2 of 8</div>
-                <div className="text-sm text-gray-500">25% complete</div>
+                <div className="text-sm text-gray-500">{t('Step 2 of 8')}</div>
+                <div className="text-sm text-gray-500">{t('25% complete')}</div>
             </div>
 
             <div className="w-full mb-6">
@@ -1968,8 +1969,8 @@ const StartCollaboration = ({ setCurrentPage, ACCENT_COLOR }) => {
             </div>
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-medium text-gray-900">How would you like to work with creators?</h1>
-                <p className="text-sm text-gray-500 mt-2">Choose the best approach for your campaign</p>
+                <h1 className="text-2xl font-medium text-gray-900">{t('How would you like to work with creators?')}</h1>
+                <p className="text-sm text-gray-500 mt-2">{t('Choose the best approach for your campaign')}</p>
             </div>
 
             {/* Selection options (show the same "How would you like to work with creators?" page for all objectives) */}
@@ -2023,12 +2024,13 @@ const StartCollaboration = ({ setCurrentPage, ACCENT_COLOR }) => {
 
 // Sponsorship format selection (shown when Content Integration is chosen)
 const SponsorshipFormat = ({ setCurrentPage, ACCENT_COLOR }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     const formats = [
-        { id: 'native', title: 'Native Mention', desc: '15-30s organic shoutout', duration: '15-30s', Icon: FileText },
-        { id: 'integrated', title: 'Integrated Segment', desc: 'Product use or feature showcase', duration: '30-60s', Icon: Sparkles },
-        { id: 'challenge', title: 'Challenge / Request', desc: 'Interactive trend or challenge', duration: '60s+', Icon: Gift },
-        { id: 'background', title: 'Background Placement', desc: 'Subtle visual appearance', duration: 'Throughout', Icon: Eye },
-        { id: 'custom', title: 'Custom Collaboration', desc: 'Open brief, creative freedom', duration: 'Flexible', Icon: HeartHandshake },
+        { id: 'native', title: t('Native Mention'), desc: t('15-30s organic shoutout'), duration: t('15-30s'), Icon: FileText },
+        { id: 'integrated', title: t('Integrated Segment'), desc: t('Product use or feature showcase'), duration: t('30-60s'), Icon: Sparkles },
+        { id: 'challenge', title: t('Challenge / Request'), desc: t('Interactive trend or challenge'), duration: t('60s+'), Icon: Gift },
+        { id: 'background', title: t('Background Placement'), desc: t('Subtle visual appearance'), duration: t('Throughout'), Icon: Eye },
+        { id: 'custom', title: t('Custom Collaboration'), desc: t('Open brief, creative freedom'), duration: t('Flexible'), Icon: HeartHandshake },
     ];
 
     const [selected, setSelected] = useState('');
@@ -2047,8 +2049,8 @@ const SponsorshipFormat = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <button onClick={() => setCurrentPage('StartCollaboration')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="text-sm text-gray-500">Step 3 of 8</div>
-                <div className="text-sm text-gray-500">38% complete</div>
+                <div className="text-sm text-gray-500">{t('Step 3 of 8')}</div>
+                <div className="text-sm text-gray-500">{t('38% complete')}</div>
             </div>
 
             <div className="w-full mb-4">
@@ -2059,12 +2061,12 @@ const SponsorshipFormat = ({ setCurrentPage, ACCENT_COLOR }) => {
 
             <div className="mb-4 flex items-center text-gray-600 space-x-2">
                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3zM5 20v-2a4 4 0 014-4h6a4 4 0 014 4v2"/></svg>
-                <div className="text-sm font-medium">Don't lose your progress!</div>
+                <div className="text-sm font-medium">{t("Don't lose your progress!")}</div>
             </div>
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-medium text-gray-900">Choose your sponsorship format</h1>
-                <p className="text-sm text-gray-500 mt-2">How should creators feature your brand?</p>
+                <h1 className="text-2xl font-medium text-gray-900">{t('Choose your sponsorship format')}</h1>
+                <p className="text-sm text-gray-500 mt-2">{t('How should creators feature your brand?')}</p>
             </div>
 
             <div className="space-y-4 pb-36">{/* extra bottom padding so content scrolls above sticky button */}
@@ -2562,8 +2564,8 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <button onClick={() => setCurrentPage('StartCollaboration')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="text-sm text-gray-500">Step 3 of 6</div>
-                <div className="text-sm text-gray-500">50% complete</div>
+                <div className="text-sm text-gray-500">{t('Step 3 of 6')}</div>
+                <div className="text-sm text-gray-500">{t('50% complete')}</div>
             </div>
 
             <div className="w-full mb-4">
@@ -2574,12 +2576,12 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
 
             <div className="mb-4 flex items-center text-gray-600 space-x-2">
                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3zM5 20v-2a4 4 0 014-4h6a4 4 0 014 4v2"/></svg>
-                <div className="text-sm font-medium">Don't lose your progress!</div>
+                <div className="text-sm font-medium">{t("Don't lose your progress!")}</div>
             </div>
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-medium text-gray-900">Ready to sponsor user requests</h1>
-                <p className="text-sm text-gray-500 mt-2">Tap into proven demand with existing video requests</p>
+                <h1 className="text-2xl font-medium text-gray-900">{t('Ready to sponsor user requests')}</h1>
+                <p className="text-sm text-gray-500 mt-2">{t('Tap into proven demand with existing video requests')}</p>
             </div>
 
             <div className="p-4 rounded-xl bg-gray-50 shadow-sm">
@@ -2588,14 +2590,14 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                         <Users className="w-6 h-6" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900">How sponsoring user requests works</h3>
-                        <p className="text-sm text-gray-600 mt-2 max-w-[56ch]">You'll browse real video requests from users on the platform - the same requests visible in the Requests marketplace. When you sponsor a request:</p>
+                        <h3 className="text-lg font-semibold text-gray-900">{t('How sponsoring user requests works')}</h3>
+                        <p className="text-sm text-gray-600 mt-2 max-w-[56ch]">{t("You'll browse real video requests from users on the platform - the same requests visible in the Requests marketplace. When you sponsor a request:")}</p>
                         <ul className="mt-3 text-sm text-gray-600 space-y-2">
-                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Your brand gets featured in content people actually want</li>
-                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Request is marked "Sponsored" for all creators to see</li>
-                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Creators apply to fulfill the sponsored request</li>
-                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>You review proposals and select the best creator</li>
-                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Payment held in escrow until content is delivered</li>
+                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>{t('Your brand gets featured in content people actually want')}</li>
+                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>{t('Request is marked "Sponsored" for all creators to see')}</li>
+                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>{t('Creators apply to fulfill the sponsored request')}</li>
+                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>{t('You review proposals and select the best creator')}</li>
+                            <li className="flex items-start"><svg className="w-4 h-4 mr-2 mt-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>{t('Payment held in escrow until content is delivered')}</li>
                         </ul>
                     </div>
                 </div>
