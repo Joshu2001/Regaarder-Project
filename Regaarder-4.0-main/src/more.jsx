@@ -250,10 +250,10 @@ const MorePage = () => {
         {showCreatorGate && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowCreatorGate(false)}>
             <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
-              <h3 className="text-lg font-semibold text-gray-900">Creator Profile</h3>
-              <p className="text-sm text-gray-600 mt-3">Creator profiles are available to verified creators. Want to become a creator?</p>
+              <h3 className="text-lg font-semibold text-gray-900">{getTranslation('Creator Profile', selectedLanguage)}</h3>
+              <p className="text-sm text-gray-600 mt-3">{getTranslation('Creator profiles are available to verified creators. Want to become a creator?', selectedLanguage)}</p>
               <div className="mt-6 flex space-x-3">
-                <button className="flex-1 py-3 rounded-xl bg-gray-100 font-medium" onClick={() => setShowCreatorGate(false)}>Maybe later</button>
+                <button className="flex-1 py-3 rounded-xl bg-gray-100 font-medium" onClick={() => setShowCreatorGate(false)}>{getTranslation('Maybe later', selectedLanguage)}</button>
                 <button className="flex-1 py-3 rounded-xl font-bold text-white" style={{ backgroundColor: 'var(--color-gold)' }} onClick={async () => {
                   setShowCreatorGate(false);
                   // Mark user as creator locally and attempt to persist to backend, then navigate to creator profile
@@ -283,7 +283,7 @@ const MorePage = () => {
                     console.warn('Join Now flow error', err);
                   }
                   try { navigate('/creatorprofile'); } catch (e) { /* noop */ }
-                }}>Join Now</button>
+                }}>{getTranslation('Join Now', selectedLanguage)}</button>
               </div>
             </div>
           </div>

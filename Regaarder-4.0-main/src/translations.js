@@ -4647,6 +4647,11 @@ export const translations = {
     'Become a Regaardien': 'Maging isang Regaardien',
     'Step': 'Hakbang',
     'of': 'ng',
+    // Creator Profile Gating
+    'Creator Profile': 'Creator Profile',
+    'Creator profiles are available to verified creators. Want to become a creator?': 'Ang mga profile ng creator ay available sa mga verified na creator. Gusto mo bang maging creator?',
+    'Maybe later': 'Siguro mamaya',
+    'Join Now': 'Sumali Ngayon',
   },
 
   'Español': {
