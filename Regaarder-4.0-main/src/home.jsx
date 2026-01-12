@@ -3866,7 +3866,7 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
 
                                     {cardState === 'details' && showSwipeHint && (
                                         <p className="absolute bottom-[-16px] right-0 text-xs text-gray-400 whitespace-nowrap">
-                                            &larr; Swipe for stats
+                                            &larr; {getTranslation('Swipe for stats', selectedLanguage)}
                                         </p>
                                     )}
                                 </div>
