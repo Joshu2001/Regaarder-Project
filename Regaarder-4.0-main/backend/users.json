@@ -1179,5 +1179,14 @@
         ]
       }
     ]
+  },
+  {
+    "id": "user-1768222892161",
+    "email": "alle@alle.com",
+    "name": "Alle",
+    "passwordHash": "$2a$10$DT1NEPWdFf7USjWrbGuE9ePrBsqZu7DwgCLdWj2Vp/ugA7.j5IS8.",
+    "createdAt": "2026-01-12T13:01:32.161Z",
+    "passwordChangedAt": "2026-01-12T13:01:32.161Z",
+    "token": "04d4d6e2429906b4c1738691c5064034"
   }
 ]
