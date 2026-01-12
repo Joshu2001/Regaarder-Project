@@ -436,7 +436,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
             // Use regaarder_token consistently with other operations
             const token = localStorage.getItem('regaarder_token');
             if (!token) {
-                if (onShowToast) onShowToast({ title: "Login Required", subtitle: "Please log in to follow creators" });
+                if (onShowToast) onShowToast({ title: getTranslation("Login Required", selectedLanguage), subtitle: getTranslation("Please log in to follow creators", selectedLanguage) });
                 return;
             }
 
@@ -458,20 +458,20 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                 setTimeout(() => setIsFollowing(!isFollowing), 120);
                 if (onShowToast) {
                     onShowToast({ 
-                        title: isFollowing ? "Unfollowed" : "Following!", 
-                        subtitle: isFollowing ? `You unfollowed ${profile.name}` : `You're now following ${profile.name}` 
+                        title: isFollowing ? getTranslation("Unfollowed", selectedLanguage) : getTranslation("Following!", selectedLanguage), 
+                        subtitle: isFollowing ? getTranslation("You unfollowed {creator}", selectedLanguage).replace('{creator}', profile.name) : getTranslation("You're now following {creator}", selectedLanguage).replace('{creator}', profile.name) 
                     });
                 }
             } else {
                 const error = await res.json();
-                if (onShowToast) onShowToast({ title: "Error", subtitle: error.error || "Failed to update follow status" });
+                if (onShowToast) onShowToast({ title: getTranslation("Error", selectedLanguage), subtitle: getTranslation(error.error || "Failed to update follow status", selectedLanguage) });
             }
             
             setTimeout(() => setFollowActive(false), 420);
         } catch (err) {
             console.error('Follow error:', err);
             setFollowActive(false);
-            if (onShowToast) onShowToast({ title: "Error", subtitle: "Network error. Please try again." });
+            if (onShowToast) onShowToast({ title: getTranslation("Error", selectedLanguage), subtitle: getTranslation("Network error. Please try again.", selectedLanguage) });
         }
     };
 
@@ -493,13 +493,13 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
         if (!hasValidMime && !hasValidExt) {
             console.error('Unsupported file type. Allowed: images (jpg,png,gif,webp,svg,jfif,heic,heif,bmp) and small text/pdf files.');
-            if (onShowToast) onShowToast({ title: "Invalid File Type", subtitle: "Please upload an image file (jpg, png, gif, webp, etc.)" });
+            if (onShowToast) onShowToast({ title: getTranslation("Invalid File Type", selectedLanguage), subtitle: getTranslation("Please upload an image file (jpg, png, gif, webp, etc.)", selectedLanguage) });
             return;
         }
 
         if (file.size > MAX_BYTES) {
             console.error('File too large. Maximum allowed is 10MB.');
-            if (onShowToast) onShowToast({ title: "File Too Large", subtitle: "Maximum file size is 10MB" });
+            if (onShowToast) onShowToast({ title: getTranslation("File Too Large", selectedLanguage), subtitle: getTranslation("Maximum file size is 10MB", selectedLanguage) });
             return;
         }
 
@@ -522,7 +522,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
             const token = localStorage.getItem('regaarder_token');
             if (!token) {
                 console.warn('No authentication token found. Profile changes will only be saved locally.');
-                if (onShowToast) onShowToast({ title: "Not Authenticated", subtitle: "Changes saved locally only. Please login to sync across devices." });
+                if (onShowToast) onShowToast({ title: getTranslation("Not Authenticated", selectedLanguage), subtitle: getTranslation("Changes saved locally only. Please login to sync across devices.", selectedLanguage) });
                 return;
             }
             
@@ -537,7 +537,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
             if (!res.ok) {
                 if (res.status === 401) {
                     console.warn('Authentication failed. Token may be invalid or expired.');
-                    if (onShowToast) onShowToast({ title: "Authentication Required", subtitle: "Please login again to upload files" });
+                    if (onShowToast) onShowToast({ title: getTranslation("Authentication Required", selectedLanguage), subtitle: getTranslation("Please login again to upload files", selectedLanguage) });
                     return;
                 }
                 throw new Error(`Upload failed with status ${res.status}`);
@@ -573,7 +573,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                         console.warn('Failed to persist document update', e);
                     }
                 }
-                if (onShowToast) onShowToast({ title: "Upload Successful", subtitle: "Your profile image has been updated" });
+                if (onShowToast) onShowToast({ title: getTranslation("Upload Successful", selectedLanguage), subtitle: getTranslation("Your profile image has been updated", selectedLanguage) });
             } else {
                 console.warn('Profile file upload failed - no URL returned', data);
                 if (onShowToast) onShowToast({ title: "Upload Failed", subtitle: "Server did not return a valid file URL" });
@@ -1936,9 +1936,9 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                     <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
                     <div className="flex items-center gap-2 mb-1">
                         <span className="text-[var(--color-gold)] font-semibold text-xl">$</span>
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Send Tip</h2>
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
                     </div>
-                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1">Show your appreciation and support {profile.name}'s work</p>
+                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1">{getTranslation("Show your appreciation and support {name}'s work", selectedLanguage).replace('{name}', profile.name)}</p>
                     <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
                         <Icon name="x" size={24} />
                     </button>
@@ -1951,14 +1951,14 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                              <img src={profile.image || "https://placehold.co/400x400/e2e8f0/1e293b?text=User"} alt="Profile" className="w-full h-full object-cover" />
                         </div>
                         <div>
-                            <p className="text-gray-600 text-sm sm:text-base">Sending tip to</p>
+                            <p className="text-gray-600 text-sm sm:text-base">{getTranslation('Sending tip to', selectedLanguage)}</p>
                             <p className="font-semibold text-gray-900 text-lg">{profile.name}</p>
                         </div>
                     </div>
 
                     {/* Quick Amount */}
                     <div>
-                        <h3 className="text-gray-600 text-sm sm:text-base mb-3 font-medium">Quick Amount</h3>
+                        <h3 className="text-gray-600 text-sm sm:text-base mb-3 font-medium">{getTranslation('Quick Amount', selectedLanguage)}</h3>
                         <div className="grid grid-cols-3 gap-3">
                             {quickAmounts.map((amount) => {
                                 const active = selectedAmount === amount;
@@ -1982,7 +1982,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
 
                     {/* Custom Amount */}
                     <div>
-                        <h3 className="text-gray-600 text-sm sm:text-base mb-3 font-medium">Custom Amount</h3>
+                        <h3 className="text-gray-600 text-sm sm:text-base mb-3 font-medium">{getTranslation('Custom Amount', selectedLanguage)}</h3>
                         <div className="flex gap-3">
                             <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
                                 <span className="text-gray-400 mr-2 text-lg">$</span>
@@ -1994,7 +1994,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                                         setSelectedAmount(null);
                                     }}
                                     className="bg-transparent w-full outline-none text-gray-900 font-semibold text-lg" 
-                                    placeholder="Enter amount" 
+                                    placeholder={getTranslation('Enter amount', selectedLanguage)} 
                                 />
                             </div>
                             <button
@@ -2007,7 +2007,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                                 }}
                                 disabled={!isActive}
                                 className={`px-6 py-2 rounded-xl text-sm transition-colors ${isActive ? 'bg-[var(--color-gold-light-bg)] text-black font-semibold hover:bg-[var(--color-gold-darker)]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                                Continue
+                                {getTranslation('Continue', selectedLanguage)}
                             </button>
                         </div>
                     </div>
@@ -2020,9 +2020,9 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                             </div>
                         </div>
                         <div>
-                            <h4 className="font-semibold text-gray-900 text-sm mb-1">Support Creators</h4>
+                            <h4 className="font-semibold text-gray-900 text-sm mb-1">{getTranslation('Support Creators', selectedLanguage)}</h4>
                             <p className="text-gray-500 text-xs leading-relaxed">
-                                Tips go directly to creators to support their work and encourage more great content. 100% of your tip goes to the creator.
+                                {getTranslation('Tips go directly to creators to support their work and encourage more great content. 100% of your tip goes to the creator.', selectedLanguage)}
                             </p>
                         </div>
                     </div>
@@ -2262,27 +2262,27 @@ const WelcomePopupConfig = ({ isOpen, onClose, data, onSave, onPreview, isPrevie
     );
 };
 
-const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
+const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLanguage = 'English' }) => {
     if (!isOpen) return null;
 
     const tiers = [
         {
-            name: "Support",
+            name: getTranslation("Support", selectedLanguage),
             price: "5",
-            description: "Help me create more content",
-            perks: ["Early access to videos", "Supporter badge"]
+            description: getTranslation("Help me create more content", selectedLanguage),
+            perks: [getTranslation("Early access to videos", selectedLanguage), getTranslation("Supporter badge", selectedLanguage)]
         },
         {
-            name: "Enthusiast",
+            name: getTranslation("Enthusiast", selectedLanguage),
             price: "15",
-            description: "Show your enthusiasm",
-            perks: ["All Support perks", "Monthly Q&A access", "Name in credits"]
+            description: getTranslation("Show your enthusiasm", selectedLanguage),
+            perks: [getTranslation("All Support perks", selectedLanguage), getTranslation("Monthly Q&A access", selectedLanguage), getTranslation("Name in credits", selectedLanguage)]
         },
         {
-            name: "Patron",
+            name: getTranslation("Patron", selectedLanguage),
             price: "50",
-            description: "Become a patron",
-            perks: ["All Enthusiast perks", "1-on-1 consultation (quarterly)", "Custom video request priority"],
+            description: getTranslation("Become a patron", selectedLanguage),
+            perks: [getTranslation("All Enthusiast perks", selectedLanguage), getTranslation("1-on-1 consultation (quarterly)", selectedLanguage), getTranslation("Custom video request priority", selectedLanguage)],
             popular: true
         }
     ];
@@ -2315,8 +2315,8 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                 {/* Header */}
                 <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
                     <div className="text-center px-4">
-                                <h2 className="text-lg sm:text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight leading-tight">Become a Sponsor</h2>
-                                <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1 max-w-[90%] mx-auto">Support {profile.name} and get exclusive perks</p>
+                                <h2 className="text-lg sm:text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight leading-tight">{getTranslation('Become a Sponsor', selectedLanguage)}</h2>
+                                <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1 max-w-[90%] mx-auto">{getTranslation('Support {name} and get exclusive perks', selectedLanguage).replace('{name}', profile.name)}</p>
                             </div>
                     <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
                         <Icon name="x" size={24} />
@@ -2338,7 +2338,7 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                                     aria-label={`${tier.name} tier ${tier.price} dollars per month`}
                                     className={`relative p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-shadow focus:outline-none ${active ? 'bg-[#173A66] text-white shadow-lg ring-2 ring-[#173A66]' : 'bg-white border border-gray-200 hover:shadow-sm hover:bg-gray-50'} focus:ring-2 focus:ring-[#173A66] focus:ring-offset-2`}>
                                     {tier.popular && (
-                                        <div className="absolute -top-2 right-2 text-[10px] bg-[var(--color-gold-cream)] text-[var(--color-gold)] px-2 py-0.5 rounded-full font-bold">Popular</div>
+                                        <div className="absolute -top-2 right-2 text-[10px] bg-[var(--color-gold-cream)] text-[var(--color-gold)] px-2 py-0.5 rounded-full font-bold">{getTranslation('Popular', selectedLanguage)}</div>
                                     )}
                                     <div className="text-sm font-medium truncate">{tier.name}</div>
                                     <div className={`text-2xl font-extrabold mt-2 ${active ? 'text-white' : 'text-gray-900'}`}>${tier.price}</div>
@@ -2352,10 +2352,10 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                     <div className="mb-4">
                         <div className="flex items-center justify-between mb-2">
                             <div>
-                                <h3 className="font-semibold text-gray-900">Custom Monthly Support</h3>
-                                <p className="text-gray-500 text-xs">Pick any amount — monthly</p>
+                                <h3 className="font-semibold text-gray-900">{getTranslation('Custom Monthly Support', selectedLanguage)}</h3>
+                                <p className="text-gray-500 text-xs">{getTranslation('Pick any amount — monthly', selectedLanguage)}</p>
                             </div>
-                            <div className="text-xs text-gray-400">Secure & recurring</div>
+                            <div className="text-xs text-gray-400">{getTranslation('Secure & recurring', selectedLanguage)}</div>
                         </div>
                         <div className="flex gap-3">
                             <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 flex items-center focus-within:border-[#173A66] transition-colors">
@@ -2372,7 +2372,7 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                                 />
                             </div>
                             <div className="w-36 flex-shrink-0 flex items-center justify-center">
-                                <div className="text-xs text-gray-500">/month</div>
+                                <div className="text-xs text-gray-500">{getTranslation('/month', selectedLanguage)}</div>
                             </div>
                         </div>
                     </div>
@@ -2381,10 +2381,10 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                     <div className="mb-4 border border-gray-200 rounded-2xl p-4 bg-white shadow-sm">
                         <div className="flex items-center justify-between mb-3">
                             <div>
-                                <h3 className="font-semibold text-gray-900">One-time Tip</h3>
-                                <p className="text-gray-500 text-xs">Enter an amount to send right now</p>
+                                <h3 className="font-semibold text-gray-900">{getTranslation('One-time Tip', selectedLanguage)}</h3>
+                                <p className="text-gray-500 text-xs">{getTranslation('Enter an amount to send right now', selectedLanguage)}</p>
                             </div>
-                            <div className="text-xs text-gray-400">Secure</div>
+                            <div className="text-xs text-gray-400">{getTranslation('Secure', selectedLanguage)}</div>
                         </div>
 
                         <div className="flex gap-3 items-center">
@@ -2395,7 +2395,7 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                                     value={oneTimeAmount}
                                     onChange={(e) => setOneTimeAmount(e.target.value)}
                                     className="bg-transparent w-full outline-none text-gray-900 font-medium text-lg"
-                                    placeholder="Enter amount"
+                                    placeholder={getTranslation('Enter amount', selectedLanguage)}
                                 />
                             </div>
                             <button
@@ -2403,7 +2403,7 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                                 onClick={() => processPayment('one-time', oneTimeAmount)}
                                 disabled={!oneTimeAmount || Number(oneTimeAmount) <= 0}
                                 className={`px-4 py-2 rounded-xl text-sm transition-colors ${oneTimeAmount && Number(oneTimeAmount) > 0 ? 'bg-[var(--color-gold-light-bg)] text-black font-semibold hover:bg-[var(--color-gold-darker)]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                                Send
+                                {getTranslation('Send', selectedLanguage)}
                             </button>
                         </div>
                     </div>
@@ -2415,7 +2415,7 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
                             onClick={() => processPayment('monthly', selectedPrice)}
                             disabled={!isMonthlyActive}
                             className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#173A66] focus:ring-offset-2 ${isMonthlyActive ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                            {isMonthlyActive ? `Continue — $${selectedPrice} / month` : 'Choose a monthly support amount'}
+                            {isMonthlyActive ? `${getTranslation('Continue', selectedLanguage)} — $${selectedPrice} / ${getTranslation('month', selectedLanguage)}` : getTranslation('Choose a monthly support amount', selectedLanguage)}
                         </button>
                     </div>
                 </div>
