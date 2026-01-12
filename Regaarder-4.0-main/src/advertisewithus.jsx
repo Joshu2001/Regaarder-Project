@@ -892,8 +892,8 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
 
     const canContinue = brandName.trim() !== '' && isValidEmail(businessEmail);
 
-    const headerTitle = role === 'startup' ? 'Startup Details' : role === 'agency' ? 'Agency Details' : 'Brand Details';
-    const headerSubtitle = role === 'startup' ? 'Tell us about your startup' : role === 'agency' ? 'Agency information to manage client campaigns' : 'Complete your profile to start matching';
+    const headerTitle = role === 'startup' ? t('Startup Details') : role === 'agency' ? t('Agency Details') : t('Brand Details');
+    const headerSubtitle = role === 'startup' ? t('Tell us about your startup') : role === 'agency' ? t('Agency information to manage client campaigns') : t('Complete your profile to start matching');
 
     return (
         <div className="w-full pb-28 sm:pb-12">
@@ -906,11 +906,11 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
             
             <section className="space-y-6">
                 <div className="space-y-2">
-                    <label htmlFor="brandName" className="text-lg font-medium text-gray-900">{role === 'startup' ? 'Startup Name' : role === 'agency' ? 'Agency Name' : 'Brand Name'} <span className="text-red-500">*</span></label>
+                    <label htmlFor="brandName" className="text-lg font-medium text-gray-900">{role === 'startup' ? t('Startup Name') : role === 'agency' ? t('Agency Name') : t('Brand Name')} <span className="text-red-500">*</span></label>
                     <input 
                         id="brandName"
                         type="text" 
-                        placeholder={role === 'startup' ? 'Enter your startup name' : role === 'agency' ? 'Enter your agency name' : 'Enter your brand name'}
+                        placeholder={role === 'startup' ? t('Enter your startup name') : role === 'agency' ? t('Enter your agency name') : t('Enter your brand name')}
                         value={brandName}
                         onChange={(e) => setBrandName(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-1 transition"
@@ -918,7 +918,7 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
                 </div>
 
                 <div className="space-y-2">
-                    <label htmlFor="businessEmail" className="text-lg font-medium text-gray-900">{role === 'agency' ? 'Agency Email' : 'Business Email'} <span className="text-red-500">*</span></label>
+                    <label htmlFor="businessEmail" className="text-lg font-medium text-gray-900">{role === 'agency' ? t('Agency Email') : t('Business Email')} <span className="text-red-500">*</span></label>
                     <input 
                         id="businessEmail"
                         type="email" 
@@ -928,12 +928,12 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:ring-1 transition"
                     />
                     {businessEmail && !isValidEmail(businessEmail) && (
-                        <p className="text-xs text-red-500 mt-1">Enter a valid business email.</p>
+                        <p className="text-xs text-red-500 mt-1">{t('Enter a valid business email.')}</p>
                     )}
                 </div>
 
                 <div className="space-y-2">
-                    <label htmlFor="industry" className="text-lg font-medium text-gray-900">Industry</label>
+                    <label htmlFor="industry" className="text-lg font-medium text-gray-900">{t('Industry')}</label>
                     <div className="relative" ref={industryRef}>
                         <button
                             type="button"
@@ -942,7 +942,7 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
                             aria-haspopup="listbox"
                             aria-expanded={openIndustry}
                         >
-                            <span className={`${industry ? 'text-gray-900' : 'text-gray-400'}`}>{industry || 'Select your industry'}</span>
+                            <span className={`${industry ? 'text-gray-900' : 'text-gray-400'}`}>{t(industry) || t('Select your industry')}</span>
                             <ChevronDown className={`w-5 h-5 text-gray-400 transform ${openIndustry ? 'rotate-180' : ''}`} />
                         </button>
 
@@ -955,7 +955,7 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
                                         onClick={() => { setIndustry(opt); setOpenIndustry(false); }}
                                         className={`w-full text-left px-4 py-3 hover:bg-gray-50 ${industry === opt ? 'font-semibold bg-gray-50' : ''}`}
                                     >
-                                        {opt}
+                                        {t(opt)}
                                     </button>
                                 ))}
                             </div>
@@ -1022,8 +1022,8 @@ const BrandVoicePage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) => {
     return (
         <div className="w-full pb-28 sm:pb-12">
             <WelcomeHeader 
-                title="Brand Voice" 
-                subtitle="Select tones that represent your brand (select multiple)" 
+                title={t("Brand Voice")} 
+                subtitle={t("Select tones that represent your brand (select multiple)")} 
                 setCurrentPage={setCurrentPage}
                 previousPage={'BrandDetails'}
             />
@@ -1035,7 +1035,7 @@ const BrandVoicePage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) => {
                         <ToneOption 
                             key={name}
                             icon={icon}
-                            title={name}
+                            title={t(name)}
                             isSelected={selectedTones.includes(name)}
                             onClick={() => toggleTone(name)}
                             ACCENT_COLOR={ACCENT_COLOR}
@@ -1152,8 +1152,8 @@ const BrandLogoPage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND, uploaded
     return (
         <div className="w-full pb-28 sm:pb-12">
             <WelcomeHeader 
-                title="Brand Logo (Optional)" 
-                subtitle="Help creators recognize your brand" 
+                title={t("Brand Logo (Optional)")} 
+                subtitle={t("Help creators recognize your brand")} 
                 setCurrentPage={setCurrentPage}
                 previousPage={'BrandVoice'}
             />
@@ -1187,11 +1187,11 @@ const BrandLogoPage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND, uploaded
                         </div>
 
                         <p className="text-base font-medium text-gray-700">
-                            {previewUrl ? (uploadedFile && uploadedFile.name ? uploadedFile.name : 'Uploaded logo') : 'Click to upload logo'}
+                            {previewUrl ? (uploadedFile && uploadedFile.name ? uploadedFile.name : t('Uploaded logo')) : t('Click to upload logo')}
                         </p>
 
                         {uploadError && (
-                            <p className="text-xs text-red-500 mt-2">{uploadError}</p>
+                            <p className="text-xs text-red-500 mt-2">{t(uploadError)}</p>
                         )}
 
                         {previewUrl && (
@@ -1201,9 +1201,9 @@ const BrandLogoPage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND, uploaded
                                     onClick={removeUploaded}
                                     className="px-3 py-2 rounded-md bg-white border border-gray-200 text-sm text-gray-700 hover:bg-gray-50"
                                 >
-                                    Remove
+                                    {t('Remove')}
                                 </button>
-                                <span className="text-xs text-gray-500">Preview shown above</span>
+                                <span className="text-xs text-gray-500">{t('Preview shown above')}</span>
                             </div>
                         )}
                     </div>
@@ -1215,7 +1215,7 @@ const BrandLogoPage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND, uploaded
                         style={{ backgroundColor: ACCENT_COLOR }}
                         onClick={createSponsor}
                     >
-                        <span>Complete Setup</span>
+                        <span>{t('Complete Setup')}</span>
                         <ChevronRight className="w-4 h-4 ml-2" />
                     </button>
                 </div>
@@ -1360,14 +1360,14 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
                     <div className="sm:flex-1">
                         <div className="text-left">
-                            <h2 className="text-lg font-semibold text-gray-900">Advertiser Dashboard</h2>
-                            <p className="text-sm text-gray-500">Manage your collaborations</p>
+                            <h2 className="text-lg font-semibold text-gray-900">{t('Advertiser Dashboard')}</h2>
+                            <p className="text-sm text-gray-500">{t('Manage your collaborations')}</p>
                         </div>
                     </div>
 
                     <div className="mt-3 sm:mt-0 flex flex-col sm:flex-row sm:items-center sm:justify-end items-stretch gap-3">
                         <button className="w-full sm:w-auto flex items-center justify-center text-gray-700 px-3 py-2 rounded-md hover:bg-gray-50">
-                            <span className="text-sm">Profile</span>
+                            <span className="text-sm">{t('Profile')}</span>
                         </button>
 
                         <button
@@ -1376,7 +1376,7 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                             style={{ minWidth: 0, backgroundColor: ACCENT_COLOR, boxShadow: showNewColl ? '0 0 0 4px rgba(var(--color-gold-rgb),0.16)' : undefined }}
                         >
                             <Sparkles className="w-4 h-4" />
-                            <span className="text-sm font-semibold">New Campaign</span>
+                            <span className="text-sm font-semibold">{t('New Campaign')}</span>
                         </button>
                     </div>
                 </div>
@@ -1392,7 +1392,7 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                                 <ArrowLeft className="w-5 h-5" />
                             </button>
                             <div className="text-center">
-                                <div className="text-sm text-gray-500">Step 1 of 8</div>
+                                <div className="text-sm text-gray-500">{t('Step 1 of 8')}</div>
                                 <div className="w-24 mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
                                     <div className="h-2 rounded-full" style={{ width: '13%', background: ACCENT_COLOR }} />
                                 </div>
@@ -1401,8 +1401,8 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                         </div>
 
                         <div className="px-6 py-6">
-                            <h3 className="text-2xl font-medium text-gray-900 text-center">Your idea deserves great storytelling</h3>
-                            <p className="text-sm text-gray-500 text-center mt-2 mb-6">Choose what matters most for this collaboration</p>
+                            <h3 className="text-2xl font-medium text-gray-900 text-center">{t('Your idea deserves great storytelling')}</h3>
+                            <p className="text-sm text-gray-500 text-center mt-2 mb-6">{t('Choose what matters most for this collaboration')}</p>
 
                             <div className="space-y-3">
                                 {objectives.map(obj => {
@@ -1418,8 +1418,8 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                                                 <obj.Icon className="w-6 h-6" style={{ color: '#111827' }} />
                                             </div>
                                             <div className="flex-1">
-                                                <div className="text-base font-medium text-gray-900">{obj.title}</div>
-                                                <div className="text-sm text-gray-500 mt-1">{obj.desc}</div>
+                                                <div className="text-base font-medium text-gray-900">{t(obj.title)}</div>
+                                                <div className="text-sm text-gray-500 mt-1">{t(obj.desc)}</div>
                                             </div>
                                             {isSelected && (
                                                 <Check className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
@@ -1438,7 +1438,7 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                                     className={`w-full py-3 px-4 rounded-2xl text-white font-semibold`}
                                     style={{ backgroundColor: selectedObjective ? ACCENT_COLOR : undefined, color: selectedObjective ? 'white' : undefined, opacity: selectedObjective ? 1 : 0.9 }}
                                 >
-                                    Continue
+                                    {t('Continue')}
                                 </button>
                             </div>
                         </div>
@@ -1472,7 +1472,7 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                                 </div>
                             )}
                         </div>
-                        <div className="mt-3 px-3 py-1 rounded-full text-sm" style={{ backgroundColor: ACCENT_COLOR, color: 'white' }}>Brand</div>
+                        <div className="mt-3 px-3 py-1 rounded-full text-sm" style={{ backgroundColor: ACCENT_COLOR, color: 'white' }}>{t('Brand')}</div>
                         <h3 className="mt-4 text-2xl font-semibold text-gray-900">Nnsnen</h3>
                         <p className="text-sm text-gray-500">bebsndndn</p>
                     </div>
@@ -1482,22 +1482,22 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                 <div className="bg-white rounded-2xl p-4 mb-6 border border-gray-100">
                     <div className="flex items-center justify-between mb-4">
                         <div>
-                            <p className="text-sm text-gray-500">Account Balance</p>
+                            <p className="text-sm text-gray-500">{t('Account Balance')}</p>
                             <p className="text-2xl font-semibold" style={{ color: ACCENT_COLOR }}>${Number(accountBalance || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</p>
                         </div>
                         <button onClick={() => setShowAddFunds(true)} className="flex items-center space-x-2 px-3 py-2 border rounded-md text-gray-700">
-                            <span>Add Funds</span>
+                            <span>{t('Add Funds')}</span>
                         </button>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                         <div className="p-3 rounded-lg bg-gray-50">
                             <div className="text-xl sm:text-2xl font-semibold truncate" style={{ color: ACCENT_COLOR }}>0</div>
-                            <div className="text-xs text-gray-500">Total Campaigns</div>
+                            <div className="text-xs text-gray-500">{t('Total Campaigns')}</div>
                         </div>
                         <div className="p-3 rounded-lg bg-gray-50">
                             <div className="text-xl sm:text-2xl font-semibold truncate" style={{ color: ACCENT_COLOR }}>0</div>
-                            <div className="text-xs text-gray-500">Creators Hired</div>
+                            <div className="text-xs text-gray-500">{t('Creators Hired')}</div>
                         </div>
                         <div className="p-3 rounded-lg bg-gray-50">
                             <div className="text-xl sm:text-2xl font-semibold truncate" style={{ color: ACCENT_COLOR }}>$0</div>
