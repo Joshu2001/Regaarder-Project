@@ -595,7 +595,7 @@ const ClaimStatusPanel = ({
                 setPreviewData({
                     title: item.title || '',
                     thumbnail: item.thumbnail || null,
-                    time: 'Just now',
+                    time: null,
                     format: item.format || videoFormat,
                     category: item.category || category,
                     scriptType: item.scriptType || scriptType,
@@ -722,7 +722,7 @@ const ClaimStatusPanel = ({
             </div>
 
             <div className="mt-6 flex items-center justify-between">
-                <div className="text-sm font-semibold text-gray-900">Status Tracker</div>
+                <div className="text-sm font-semibold text-gray-900">{getTranslation('Status Tracker', selectedLanguage)}</div>
                 {(() => {
                     const publishStage = steps.findIndex((s) => s === 'Preview Ready') + 1; // step number for 'Preview Ready' -> show 'Publish Video'
                     const isPublishStage = currentStep === publishStage;
@@ -731,12 +731,12 @@ const ClaimStatusPanel = ({
                             {isPublishStage ? (
                                         <React.Fragment>
                                             <Star size={14} className="mr-1" />
-                                            <span className="font-semibold text-[13px]">Publish Video</span>
+                                            <span className="font-semibold text-[13px]">{getTranslation('Publish Video', selectedLanguage)}</span>
                                         </React.Fragment>
                             ) : (
                                 <React.Fragment>
                                     <span className="text-[14px]">→</span>
-                                    <span className="font-semibold text-[13px]">Update Progress</span>
+                                    <span className="font-semibold text-[13px]">{getTranslation('Update Progress', selectedLanguage)}</span>
                                 </React.Fragment>
                             )}
                         </button>
@@ -785,7 +785,7 @@ const ClaimStatusPanel = ({
                             </div>
 
                             <div>
-                                            <div className={`text-sm font-semibold ${isActive ? 'text-[var(--color-gold-darker)]' : isCompleted ? 'text-gray-500' : 'text-gray-900'}`}>{label}</div>
+                                            <div className={`text-sm font-semibold ${isActive ? 'text-[var(--color-gold-darker)]' : isCompleted ? 'text-gray-500' : 'text-gray-900'}`}>{getTranslation(label, selectedLanguage)}</div>
                                             <div className="text-xs text-gray-400 mt-1">—</div>
                             </div>
                         </div>
@@ -807,9 +807,9 @@ const ClaimStatusPanel = ({
                                         <div>
                                             <div className="flex items-center gap-3">
                                                 <div className="text-[22px] text-[var(--color-gold)]">✨</div>
-                                                <h3 className="text-[20px] font-semibold text-gray-900">Publish Your Video</h3>
+                                                <h3 className="text-[20px] font-semibold text-gray-900">{getTranslation('Publish Your Video', selectedLanguage)}</h3>
                                             </div>
-                                            <div className="text-sm text-gray-400 mt-2">Upload your video, add interactive elements, and publish to the community</div>
+                                            <div className="text-sm text-gray-400 mt-2">{getTranslation('Upload your video, add interactive elements, and publish to the community', selectedLanguage)}</div>
                                         </div>
                                         <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
                                     </div>
@@ -819,8 +819,8 @@ const ClaimStatusPanel = ({
                                         <div className="flex items-center gap-3 mb-2">
                                             <div className="w-8 h-8 rounded-md bg-[var(--color-gold-cream)] flex items-center justify-center text-[var(--color-gold)]">🎬</div>
                                             <div>
-                                                <div className="text-sm font-semibold text-[var(--color-gold-darker)]">Publishing Request</div>
-                                                <div className="text-xs text-gray-600 mt-1">Requester: {requesterName} · Creator: You</div>
+                                                <div className="text-sm font-semibold text-[var(--color-gold-darker)]">{getTranslation('Publishing Request', selectedLanguage)}</div>
+                                                <div className="text-xs text-gray-600 mt-1">{getTranslation('Requester', selectedLanguage)}: {requesterName} · {getTranslation('Creator: You', selectedLanguage)}</div>
                                             </div>
                                         </div>
                                         <div className="mt-3">
@@ -842,7 +842,7 @@ const ClaimStatusPanel = ({
                                                     {formatOpen && (
                                                         <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
                                                             <div className="p-2">
-                                                                <div className="text-lg font-semibold text-gray-900 mb-2 px-3">Select Video Format</div>
+                                                                <div className="text-lg font-semibold text-gray-900 mb-2 px-3">{getTranslation('Select Video Format', selectedLanguage)}</div>
                                                                 <div className="flex flex-col">
                                                                     {formats.map((f) => {
                                                                         const selected = f.key === videoFormat;
@@ -903,12 +903,12 @@ const ClaimStatusPanel = ({
                                                     </div>
 
                                                     <div className="absolute bottom-3 right-3 bg-black bg-opacity-70 rounded-lg px-2 py-1">
-                                                        <span className="text-sm font-bold text-white">{(publishStep === 'preview' ? previewData : lastPublished)?.time || 'Just now'}</span>
+                                                        <span className="text-sm font-bold text-white">{(publishStep === 'preview' ? previewData : lastPublished)?.time || getTranslation('Just now', selectedLanguage)}</span>
                                                     </div>
                                                 </div>
 
                                                 <div className="p-4 relative">
-                                                    <h3 className="text-lg font-semibold text-gray-900 mb-2" style={clamp2}>{(publishStep === 'preview' ? previewData : lastPublished)?.title || videoTitle || 'Untitled'}</h3>
+                                                    <h3 className="text-lg font-semibold text-gray-900 mb-2" style={clamp2}>{(publishStep === 'preview' ? previewData : lastPublished)?.title || videoTitle || getTranslation('Untitled', selectedLanguage)}</h3>
 
                                                     {/* Creator placeholder (matches home.jsx 'by' line) */}
                                                     <p className="text-sm text-gray-600 mb-1 leading-5">
@@ -937,7 +937,7 @@ const ClaimStatusPanel = ({
 
                                                     <div className="flex justify-between items-center mt-2">
                                                         <div className="text-xs text-gray-500">
-                                                            {(publishStep === 'preview' ? previewData : lastPublished)?.date || 'Just now'} &middot; {getTranslation('Requested by', selectedLanguage)}
+                                                            {(publishStep === 'preview' ? previewData : lastPublished)?.date || getTranslation('Just now', selectedLanguage)} &middot; {getTranslation('Requested by', selectedLanguage)}
                                                             <button className="text-gray-600 font-medium underline hover:text-gray-800 ml-1 bg-transparent p-0">{requesterName}</button>
                                                         </div>
 
@@ -968,7 +968,7 @@ const ClaimStatusPanel = ({
                                     {publishStep !== 'preview' && (
                                     <>
                                     <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-2">Upload Video <span className="text-red-500">*</span></div>
+                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Upload Video', selectedLanguage)} <span className="text-red-500">*</span></div>
                                         <input ref={videoInputRef} type="file" accept="video/mp4,video/quicktime,video/webm" className="hidden" onChange={(e) => {
                                             const file = e.target.files && e.target.files[0];
                                             if (file) {
@@ -986,16 +986,16 @@ const ClaimStatusPanel = ({
                                                     <div className="w-12 h-12 rounded-md bg-[var(--color-gold-light-bg)] mx-auto mb-3 flex items-center justify-center text-[var(--color-gold)]">
                                                         <Video size={20} className="text-[var(--color-gold)]" />
                                                     </div>
-                                                    <div>Click to upload video</div>
-                                                    <div className="text-xs text-gray-400 mt-1">MP4, MOV or WebM · Max 500MB</div>
+                                                    <div>{getTranslation('Click to upload video', selectedLanguage)}</div>
+                                                    <div className="text-xs text-gray-400 mt-1">{getTranslation('MP4, MOV or WebM · Max 500MB', selectedLanguage)}</div>
                                                 </div>
                                             )}
                                         </div>
-                                        {videoFile && <div className="text-xs text-gray-500 mt-2">Selected: {videoFile.name} ({Math.round(videoFile.size/1024/1024)} MB)</div>}
+                                        {videoFile && <div className="text-xs text-gray-500 mt-2">{getTranslation('Selected:', selectedLanguage)} {videoFile.name} ({Math.round(videoFile.size/1024/1024)} MB)</div>}
                                     </div>
 
                                     <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-2">Video Thumbnail <span className="text-red-500">*</span></div>
+                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Video Thumbnail', selectedLanguage)} <span className="text-red-500">*</span></div>
                                         <input ref={thumbInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
                                             const file = e.target.files && e.target.files[0];
                                             if (file) {
@@ -2170,8 +2170,8 @@ const App = () => {
         try {
             setClaimedRequest((prev) => ({
                 ...(prev || {}),
-                title: item && item.title ? item.title : (prev && prev.title) || 'Untitled',
-                requesterName: item && item.requesterName ? item.requesterName : (prev && prev.requesterName) || 'Requester',
+                title: item && item.title ? item.title : (prev && prev.title) || getTranslation('Untitled', selectedLanguage),
+                requesterName: item && item.requesterName ? item.requesterName : (prev && prev.requesterName) || getTranslation('Requester', selectedLanguage),
                 requesterAvatar: item && item.requesterAvatar ? item.requesterAvatar : (prev && prev.requesterAvatar) || null,
                 currentStep: 5,
             }));
