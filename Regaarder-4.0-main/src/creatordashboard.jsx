@@ -1400,7 +1400,7 @@ const ClaimStatusPanel = ({
                                                 if (!videoFile) { setValidationError('Please upload a video before continuing.'); return; }
                                                 if (!thumbnailFile) { setValidationError('Please upload a thumbnail before continuing.'); return; }
                                                 if (!videoTitle || videoTitle.trim().length === 0) { setValidationError('Please add a video title before continuing.'); return; }
-                                                if (!category) { setValidationError('Please select a category for your video.'); return; }
+                                                if (!category) { setValidationError(getTranslation('Please select a category for your video.', selectedLanguage)); return; }
                                                 // Script type and script file are now optional - no validation needed
                                                 // if (!scriptType) { setValidationError('Please select a Script Type for your video.'); return; }
                                                 // if (scriptType === 'Other' && (!scriptOther || scriptOther.trim().length === 0)) { setValidationError('Please describe the script type when "Other" is selected.'); return; }
@@ -1468,13 +1468,13 @@ const ClaimStatusPanel = ({
                                                         });
                                                     }
                                                     if (dup) {
-                                                        setValidationError('Duplicate upload detected — a video with the same title and file size has already been published. Delete the previous item to re-upload.');
+                                                        setValidationError(getTranslation('Duplicate upload detected. This video has already been uploaded.', selectedLanguage));
                                                         return;
                                                     }
 
                                                     // If this is a re-upload, require a change note describing edits
                                                     if (isReuploading && (!changeNote || changeNote.trim().length === 0)) {
-                                                        setValidationError('Please provide a short change note describing the re-upload.');
+                                                        setValidationError(getTranslation('Please provide a short change note describing the re-upload.', selectedLanguage));
                                                         return;
                                                     }
                                                     setUploading(true);
@@ -1621,7 +1621,7 @@ const ClaimStatusPanel = ({
                                                                 console.error('Failed to publish video to backend. Status:', response.status);
                                                                 const errorText = await response.text();
                                                                 console.error('Error details:', errorText);
-                                                                setToastMessage(getTranslation('Failed to publish video. Please try again.', selectedLanguage));
+                                                                setToastMessage(getTranslation('Publishing failed. Please try again.', selectedLanguage));
                                                             }
                                                         } catch (err) {
                                                             console.error('Error publishing video to backend:', err);

@@ -25,7 +25,13 @@
       "selectedTones": [],
       "selectedVideoLength": "standard",
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-12T17:07:45.600Z"
   },
   {
     "id": "req_1767696907072",
@@ -213,7 +219,15 @@
       "selectedTones": [],
       "selectedVideoLength": "standard",
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-12T17:08:34.079Z",
+    "currentStep": 5,
+    "updatedAt": "2026-01-12T17:10:03.732Z"
   },
   {
     "id": "req_1767452534088",
