@@ -1228,6 +1228,7 @@ const BrandLogoPage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND, uploaded
 }
 
 const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploadedFile, campaigns = [], onViewCampaign, onEditCampaign }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     const auth = useAuth();
     const [sponsorsList, setSponsorsList] = useState([]);
     // override campaignsList source if backend returns data
