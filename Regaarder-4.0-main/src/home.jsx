@@ -273,7 +273,7 @@ const MoreActionsDialog = ({ position = null, onClose, onReportClick, onPinClick
 };
 
 // NEW COMPONENT: Share Dialog (styled to match app)
-const ShareDialog = ({ onClose, link, onCopySuccess }) => {
+const ShareDialog = ({ onClose, link, onCopySuccess, selectedLanguage = 'English' }) => {
     const [isCopied, setIsCopied] = useState(false);
     const shareLink = link || window.location.href;
 
@@ -405,7 +405,7 @@ const ShareDialog = ({ onClose, link, onCopySuccess }) => {
         <div className="fixed inset-0 z-[130] flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
             <div className="bg-white rounded-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">Share</h3>
+                    <h3 className="text-xl font-semibold">{getTranslation('Share', selectedLanguage)}</h3>
                     <button onClick={onClose} className="p-2 text-gray-500"><Icon name="x" size={20} /></button>
                 </div>
 
@@ -413,7 +413,7 @@ const ShareDialog = ({ onClose, link, onCopySuccess }) => {
                     {/* Instagram: app deep-link fallback to web profile */}
                     <SocialButton
                         svg={IG}
-                        label="Instagram"
+                        label={getTranslation("Instagram", selectedLanguage)}
                         onClick={() => openSocial(
                             `instagram://share?text=${encodeURIComponent(shareLink)}`,
                             `https://instagram.com/`
@@ -423,7 +423,7 @@ const ShareDialog = ({ onClose, link, onCopySuccess }) => {
                     {/* WhatsApp: open app with text, fallback to wa.me */}
                     <SocialButton
                         svg={WA}
-                        label="WhatsApp"
+                        label={getTranslation("WhatsApp", selectedLanguage)}
                         onClick={() => openSocial(
                             `whatsapp://send?text=${encodeURIComponent(shareLink)}`,
                             `https://wa.me/?text=${encodeURIComponent(shareLink)}`
@@ -433,7 +433,7 @@ const ShareDialog = ({ onClose, link, onCopySuccess }) => {
                     {/* LinkedIn: app deep-link then web share */}
                     <SocialButton
                         svg={LI}
-                        label="LinkedIn"
+                        label={getTranslation("LinkedIn", selectedLanguage)}
                         onClick={() => openSocial(
                             `linkedin://shareArticle?mini=true&url=${encodeURIComponent(shareLink)}`,
                             `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareLink)}`
@@ -443,7 +443,7 @@ const ShareDialog = ({ onClose, link, onCopySuccess }) => {
                     {/* Facebook: try app then web share dialog */}
                     <SocialButton
                         svg={FB}
-                        label="Facebook"
+                        label={getTranslation("Facebook", selectedLanguage)}
                         onClick={() => openSocial(
                             `fb://facewebmodal/f?href=${encodeURIComponent(shareLink)}`,
                             `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareLink)}`
@@ -463,7 +463,7 @@ const ShareDialog = ({ onClose, link, onCopySuccess }) => {
                     {/* Messenger: try app then open web messenger */}
                     <SocialButton
                         svg={MS}
-                        label="Messenger"
+                        label={getTranslation("Messenger", selectedLanguage)}
                         onClick={() => openSocial(
                             `fb-messenger://share?link=${encodeURIComponent(shareLink)}`,
                             `https://www.messenger.com/`
@@ -475,7 +475,7 @@ const ShareDialog = ({ onClose, link, onCopySuccess }) => {
                     onClick={copyLink}
                     className={`w-full py-3 rounded-lg border font-semibold transition-all duration-200 ${isCopied ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-100 border-gray-200 text-gray-800'}`}
                 >
-                    {isCopied ? 'Link Copied' : 'Copy Link'}
+                    {isCopied ? getTranslation('Link Copied', selectedLanguage) : getTranslation('Copy Link', selectedLanguage)}
                 </button>
             </div>
         </div>
@@ -549,7 +549,7 @@ const LanguageDialog = ({ onClose, selectedLanguage, onSelectLanguage }) => {
 };
 
 // NEW COMPONENT: Creator Onboarding Dialog (updated — validation + step 2 feature cards)
-const CreatorOnboardingDialog = ({ onClose }) => {
+const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
     const TOTAL_STEPS = 7;
     const [step, setStep] = useState(1);
     const [completedSteps, setCompletedSteps] = useState(() => ({}));
@@ -590,36 +590,36 @@ const CreatorOnboardingDialog = ({ onClose }) => {
         {
             id: 'paid',
             icon: 'dollar-sign',
-            title: 'Get Paid Every 15 Days',
-            desc: 'Bi-weekly payouts. Withdraw anytime. No minimum threshold.'
+            title: getTranslation('Get Paid Every 15 Days', selectedLanguage),
+            desc: getTranslation('Bi-weekly payouts. Withdraw anytime. No minimum threshold.', selectedLanguage)
         },
         {
             id: 'demand',
             icon: 'users',
-            title: 'Create What People Want',
-            desc: 'Get paid to create videos your audience is actively requesting. No guessing.'
+            title: getTranslation('Create What People Want', selectedLanguage),
+            desc: getTranslation('Get paid to create videos your audience is actively requesting. No guessing.', selectedLanguage)
         },
         {
             id: 'support',
             icon: 'shield',
-            title: 'Full Support System',
-            desc: 'Get help with editing, scripting, thumbnails, and everything in between.'
+            title: getTranslation('Full Support System', selectedLanguage),
+            desc: getTranslation('Get help with editing, scripting, thumbnails, and everything in between.', selectedLanguage)
         },
         {
             id: 'growth',
             icon: 'trendingUp',
-            title: 'Grow Your Revenue',
-            desc: 'Earn 1% more per creator you invite. Stack up to 80% revenue share!'
+            title: getTranslation('Grow Your Revenue', selectedLanguage),
+            desc: getTranslation('Earn 1% more per creator you invite. Stack up to 80% revenue share!', selectedLanguage)
         }
     ];
 
     // Values for Step 3 (Our Values)
     const values = [
-        { id: 'quality', title: 'Quality Over Quantity', desc: 'We value high-quality, well-researched content. Take your time to create something amazing.', icon: 'sparkles' },
-        { id: 'deliver', title: 'Deliver More Than Expected', desc: "User satisfaction is our aim. Exceed expectations and build lasting connections.", icon: 'heart' },
-        { id: 'respect', title: 'Respect Short Attention Spans', desc: 'Deliver value quickly. Hook viewers in the first 10 seconds. Make every second count.', icon: 'zap' },
-        { id: 'tailored', title: 'Tailored Experiences', desc: 'Every video is personalized to the requester. Make them feel special.', icon: 'video' },
-        { id: 'regaardien', title: "You're a Regaardien", desc: "Not just a creator. You're an ambassador of a movement. The demand-driven future.", icon: 'crown' }
+        { id: 'quality', title: getTranslation('Quality Over Quantity', selectedLanguage), desc: getTranslation('We value high-quality, well-researched content. Take your time to create something amazing.', selectedLanguage), icon: 'sparkles' },
+        { id: 'deliver', title: getTranslation('Deliver More Than Expected', selectedLanguage), desc: getTranslation("User satisfaction is our aim. Exceed expectations and build lasting connections.", selectedLanguage), icon: 'heart' },
+        { id: 'respect', title: getTranslation('Respect Short Attention Spans', selectedLanguage), desc: getTranslation('Deliver value quickly. Hook viewers in the first 10 seconds. Make every second count.', selectedLanguage), icon: 'zap' },
+        { id: 'tailored', title: getTranslation('Tailored Experiences', selectedLanguage), desc: getTranslation('Every video is personalized to the requester. Make them feel special.', selectedLanguage), icon: 'video' },
+        { id: 'regaardien', title: getTranslation("You're a Regaardien", selectedLanguage), desc: getTranslation("Not just a creator. You're an ambassador of a movement. The demand-driven future.", selectedLanguage), icon: 'crown' }
     ];
 
     const handleNext = () => {
@@ -868,8 +868,8 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                 <Icon name="star" size={28} style={{ color: 'var(--color-gold)' }} />
                             </div>
 
-                            <h2 className="text-xl font-bold text-gray-900 mb-2">Let's Get Started!</h2>
-                            <p className="text-sm text-gray-600 mb-6">Set up your creator profile to join the Regaardiens</p>
+                            <h2 className="text-xl font-bold text-gray-900 mb-2">{getTranslation("Let's Get Started!", selectedLanguage)}</h2>
+                            <p className="text-sm text-gray-600 mb-6">{getTranslation('Set up your creator profile to join the Regaardiens', selectedLanguage)}</p>
 
                             <div className="mb-6">
                                 <div className="relative w-28 h-28 rounded-full mx-auto" >
@@ -879,25 +879,25 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                     </button>
                                     <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                                 </div>
-                                <div className="text-sm text-gray-600 mt-3">Click the camera icon to change your profile picture</div>
+                                <div className="text-sm text-gray-600 mt-3">{getTranslation('Click the camera icon to change your profile picture', selectedLanguage)}</div>
                             </div>
 
-                                    <div className="w-full">
-                                <label className="text-sm font-medium text-gray-700">Creator Name <span className="text-red-500">*</span></label>
+                            <div className="w-full">
+                                <label className="text-sm font-medium text-gray-700">{getTranslation('Creator Name', selectedLanguage)} <span className="text-red-500">*</span></label>
                                 <div className="mt-2">
-                                    <input ref={nameRef} value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your creator name" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none text-base" />
-                                    <div className="text-xs text-gray-400 mt-2">This is how your audience will know you</div>
+                                    <input ref={nameRef} value={name} onChange={(e) => setName(e.target.value)} placeholder={getTranslation('Enter your creator name', selectedLanguage)} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none text-base" />
+                                    <div className="text-xs text-gray-400 mt-2">{getTranslation('This is how your audience will know you', selectedLanguage)}</div>
                                 </div>
                             </div>
 
                             <div className="w-full mt-6">
-                                <label className="text-sm font-medium text-gray-700">Write a short bio</label>
-                                <textarea ref={bioRef} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell your audience who you are and what you create..." maxLength={200} className="w-full mt-2 p-3 rounded-xl bg-gray-100 text-base text-gray-700 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-gray-300" />
+                                <label className="text-sm font-medium text-gray-700">{getTranslation('Write a short bio', selectedLanguage)}</label>
+                                <textarea ref={bioRef} value={bio} onChange={(e) => setBio(e.target.value)} placeholder={getTranslation('Tell your audience who you are and what you create...', selectedLanguage)} maxLength={200} className="w-full mt-2 p-3 rounded-xl bg-gray-100 text-base text-gray-700 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-gray-300" />
                                 <div className="text-xs text-gray-400 text-right mt-2">{bio.length}/200</div>
                             </div>
 
                             <div className="h-8" />
-                            <div className="text-xs text-gray-500">You can complete more steps after getting started.</div>
+                            <div className="text-xs text-gray-500">{getTranslation('You can complete more steps after getting started.', selectedLanguage)}</div>
                         </div>
                     )}
 
@@ -907,8 +907,8 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                 <Icon name="star" size={28} style={{ color: 'var(--color-gold)' }} />
                             </div>
 
-                            <h2 className="text-xl font-bold text-gray-900 mb-2">Why Join Regaarder?</h2>
-                            <p className="text-sm text-gray-600 mb-6">The world's first demand-driven creator platform</p>
+                            <h2 className="text-xl font-bold text-gray-900 mb-2">{getTranslation('Why Join Regaarder?', selectedLanguage)}</h2>
+                            <p className="text-sm text-gray-600 mb-6">{getTranslation("The world's first demand-driven creator platform", selectedLanguage)}</p>
 
                             <div className="w-full space-y-4 pb-6">
                                 {features.map((f) => (
@@ -943,8 +943,8 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                 <Icon name="heart" size={28} style={{ color: 'var(--color-gold)' }} />
                             </div>
 
-                            <h2 className="text-xl font-bold text-gray-900 mb-2">Our Values</h2>
-                            <p className="text-sm text-gray-600 mb-6">What makes Regaardiens special</p>
+                            <h2 className="text-xl font-bold text-gray-900 mb-2">{getTranslation('Our Values', selectedLanguage)}</h2>
+                            <p className="text-sm text-gray-600 mb-6">{getTranslation('What makes Regaardiens special', selectedLanguage)}</p>
 
                             <div className="w-full space-y-4 pb-6">
                                 {values.map(v => (
@@ -970,8 +970,8 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                 <div className="w-full mt-2">
                                 <div className="rounded-xl p-6 flex flex-col items-center" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.08), rgba(var(--color-gold-rgb,203,138,0),0.02))' }}>
                                     <div className="text-4xl mb-3">👑</div>
-                                    <div className="font-semibold text-[var(--color-gold)]">Meet your fellow Regaardiens!</div>
-                                    <div className="text-sm text-gray-600 mt-1">A community of creators building the future together</div>
+                                    <div className="font-semibold text-[var(--color-gold)]">{getTranslation('Meet your fellow Regaardiens!', selectedLanguage)}</div>
+                                    <div className="text-sm text-gray-600 mt-1">{getTranslation('A community of creators building the future together', selectedLanguage)}</div>
                                 </div>
                             </div>
                         </div>
@@ -984,8 +984,8 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                 <Icon name="chart" size={28} style={{ color: 'var(--color-gold)' }} />
                             </div>
 
-                            <h2 className="text-xl font-bold text-gray-900 mb-2">Grow With Your Network</h2>
-                            <p className="text-sm text-gray-600 mb-6">The more you invite, the more you earn</p>
+                            <h2 className="text-xl font-bold text-gray-900 mb-2">{getTranslation('Grow With Your Network', selectedLanguage)}</h2>
+                            <p className="text-sm text-gray-600 mb-6">{getTranslation('The more you invite, the more you earn', selectedLanguage)}</p>
 
                             <div className="w-full px-2">
                                 <div className="rounded-xl border-2 border-[var(--color-gold)] p-6 mb-6 bg-white">
@@ -994,15 +994,15 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                             <Icon name="chart" size={56} style={{ color: 'var(--color-gold)' }} />
                                         </div>
 
-                                        <div className="font-semibold text-lg text-gray-900 mb-2">Referral Revenue Boost</div>
-                                        <div className="text-sm text-gray-600 mb-4">For each active creator you invite:</div>
+                                        <div className="font-semibold text-lg text-gray-900 mb-2">{getTranslation('Referral Revenue Boost', selectedLanguage)}</div>
+                                        <div className="text-sm text-gray-600 mb-4">{getTranslation('For each active creator you invite:', selectedLanguage)}</div>
 
                                         <div className="rounded-full px-6 py-3 inline-flex items-center shadow-sm mb-4" style={{ background: 'linear-gradient(90deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', color: 'var(--color-gold)' }}>
                                             <Icon name="trendingUp" size={16} className="mr-2" />
-                                            <div className="font-semibold">+1% Revenue Share</div>
+                                            <div className="font-semibold">{getTranslation('+1% Revenue Share', selectedLanguage)}</div>
                                         </div>
 
-                                        <div className="text-sm text-gray-600">Stack up to <span className="font-semibold text-[var(--color-gold)]">80% revenue share</span> by building your network!</div>
+                                        <div className="text-sm text-gray-600">{getTranslation('Stack up to', selectedLanguage)} <span className="font-semibold text-[var(--color-gold)]">{getTranslation('80% revenue share', selectedLanguage)}</span> {getTranslation('by building your network!', selectedLanguage)}</div>
                                     </div>
                                 </div>
 
@@ -1010,15 +1010,15 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                     {[{n:10,share:'60%'},{n:20,share:'70%'},{n:30,share:'80%'}].map((c) => (
                                         <div key={c.n} className="bg-gray-50 rounded-xl p-4 text-center">
                                             <div className="text-2xl font-bold text-[var(--color-gold)]">{c.n}</div>
-                                            <div className="text-sm text-gray-600">Creators</div>
-                                            <div className="text-sm font-semibold text-gray-800 mt-2">{c.share} Share</div>
+                                            <div className="text-sm text-gray-600">{getTranslation('Creators', selectedLanguage)}</div>
+                                            <div className="text-sm font-semibold text-gray-800 mt-2">{c.share} {getTranslation('Share', selectedLanguage)}</div>
                                         </div>
                                     ))}
                                 </div>
 
                                 <div className="rounded-xl border border-[var(--color-gold-light-bg)] bg-[rgba(245,245,245,0.4)] p-4 text-left text-sm text-gray-700">
-                                    <div className="font-semibold text-gray-900 mb-2">How it works:</div>
-                                    <div>When creators you invite become active (publish their first video), your revenue share increases by 1%. The more successful creators you bring, the more you earn!</div>
+                                    <div className="font-semibold text-gray-900 mb-2">{getTranslation('How it works:', selectedLanguage)}</div>
+                                    <div>{getTranslation('When creators you invite become active (publish their first video), your revenue share increases by 1%. The more successful creators you bring, the more you earn!', selectedLanguage)}</div>
                                 </div>
                             </div>
                         </div>
@@ -1031,11 +1031,11 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                 <Icon name="video" size={28} style={{ color: 'var(--color-gold)' }} />
                             </div>
 
-                            <h2 className="text-xl font-bold text-gray-900 mb-2">Almost There!</h2>
-                            <p className="text-sm text-gray-600 mb-6">Let's verify you're ready to create</p>
+                            <h2 className="text-xl font-bold text-gray-900 mb-2">{getTranslation('Almost There!', selectedLanguage)}</h2>
+                            <p className="text-sm text-gray-600 mb-6">{getTranslation("Let's verify you're ready to create", selectedLanguage)}</p>
 
                             <div className="w-full">
-                                <label className="text-sm font-medium text-gray-700">Intro Video URL <span className="text-red-500">*</span></label>
+                                <label className="text-sm font-medium text-gray-700">{getTranslation('Intro Video URL', selectedLanguage)} <span className="text-red-500">*</span></label>
                                 <div className="mt-2 flex items-start space-x-3">
                                     <div className="flex-1">
                                         <input
@@ -1047,7 +1047,7 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                         />
 
                                         {introFile && (
-                                            <div className="mt-2 text-xs text-gray-500">Selected file: {introFile.name}</div>
+                                            <div className="mt-2 text-xs text-gray-500">{getTranslation('Selected file:', selectedLanguage)} {introFile.name}</div>
                                         )}
 
                                         {/* Preview area: uploaded file or embeddable YouTube (compact) */}
@@ -1079,17 +1079,17 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                 </div>
 
                                 <div className="mt-4 rounded-xl border border-[var(--color-gold-light-bg)] p-4 text-sm text-gray-700 text-left" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.06), rgba(255,255,255,0.0))' }}>
-                                    <div className="font-semibold mb-2">What to upload:</div>
+                                    <div className="font-semibold mb-2">{getTranslation('What to upload:', selectedLanguage)}</div>
                                     <ul className="list-disc ml-5 space-y-2 leading-relaxed text-sm">
-                                        <li>Link to your previous content (YouTube, TikTok, Instagram, etc.), or</li>
-                                        <li>Create a short intro explaining why you want to join Regaarder.</li>
-                                        <li>Showing your face is a plus but not required.</li>
-                                        <li>Keep it authentic and personalized!</li>
+                                        <li>{getTranslation('Link to your previous content (YouTube, TikTok, Instagram, etc.), or', selectedLanguage)}</li>
+                                        <li>{getTranslation('Create a short intro explaining why you want to join Regaarder.', selectedLanguage)}</li>
+                                        <li>{getTranslation('Showing your face is a plus but not required.', selectedLanguage)}</li>
+                                        <li>{getTranslation('Keep it authentic and personalized!', selectedLanguage)}</li>
                                     </ul>
                                 </div>
 
                                 <div className="mt-6">
-                                    <div className="text-sm font-medium text-gray-700 mb-2">Social Media Verification</div>
+                                    <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Social Media Verification', selectedLanguage)}</div>
                                     <input
                                         ref={socialRef}
                                         value={socialUrl}
@@ -1106,12 +1106,12 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                             className="mr-3 w-4 h-4"
                                             style={{ accentColor: '#1e3a8a' }}
                                         />
-                                        <div className="text-sm text-gray-700">I have 1,000+ followers on at least one social platform</div>
+                                        <div className="text-sm text-gray-700">{getTranslation('I have 1,000+ followers on at least one social platform', selectedLanguage)}</div>
                                     </div>
 
                                     <div className="flex items-center my-4">
                                         <div className="flex-1 h-px bg-gray-200"></div>
-                                        <div className="mx-3 text-sm text-gray-400">OR</div>
+                                        <div className="mx-3 text-sm text-gray-400">{getTranslation('OR', selectedLanguage)}</div>
                                         <div className="flex-1 h-px bg-gray-200"></div>
                                     </div>
 
@@ -1125,7 +1125,7 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                                 style={{ accentColor: '#1e3a8a' }}
                                             />
                                             <div className="text-left">
-                                                <div className="font-semibold text-gray-900">Become an Ambassador: <span className="font-normal text-gray-700">I commit to inviting and onboarding at least 3 quality creators to join the Regaardien movement within my first 30 days</span></div>
+                                                <div className="font-semibold text-gray-900">{getTranslation('Become an Ambassador', selectedLanguage)}: <span className="font-normal text-gray-700">{getTranslation('I commit to inviting and onboarding at least 3 quality creators to join the Regaardien movement within my first 30 days', selectedLanguage)}</span></div>
 
                                                 <div className="mt-3 flex items-center">
                                                                                                         <button
@@ -1144,9 +1144,9 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                                                                                             }}
                                                                                                         >
                                                                                                             <Icon name="star" size={12} className="text-[var(--color-gold)]" />
-                                                                                                            <span>Ambassador Perks</span>
+                                                                                                            <span>{getTranslation('Ambassador Perks', selectedLanguage)}</span>
                                                                                                         </button>
-                                                    <div className="text-sm text-gray-600">Early access to new features + Priority support</div>
+                                                    <div className="text-sm text-gray-600">{getTranslation('Early access to new features + Priority support', selectedLanguage)}</div>
                                                 </div>
                                             </div>
                                         </label>
@@ -1165,22 +1165,22 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                 </div>
                             </div>
 
-                            <h2 className="text-xl font-bold text-gray-900 mb-2">One Last Step!</h2>
-                            <p className="text-sm text-gray-600 mb-6">Review and accept our policies</p>
+                            <h2 className="text-xl font-bold text-gray-900 mb-2">{getTranslation('One Last Step!', selectedLanguage)}</h2>
+                            <p className="text-sm text-gray-600 mb-6">{getTranslation('Review and accept our policies', selectedLanguage)}</p>
 
                             <div className="w-full px-2">
                                 <div className="rounded-xl border border-gray-200 bg-white p-4 mb-4">
                                     <label className="flex items-start mb-3">
                                         <input type="checkbox" checked={agreedTOS} onChange={() => setAgreedTOS(!agreedTOS)} className="mr-3 mt-1 w-4 h-4" style={{ accentColor: '#1e3a8a' }} />
                                         <div className="text-left text-sm">
-                                            I have read and agree to the <a href="#" onClick={(e)=>{e.preventDefault(); window.open('https://example.com/terms','_blank')}} className="text-[var(--color-gold)] underline">Terms of Service</a>
+                                            {getTranslation('I have read and agree to the', selectedLanguage)} <a href="#" onClick={(e)=>{e.preventDefault(); window.open('https://example.com/terms','_blank')}} className="text-[var(--color-gold)] underline">{getTranslation('Terms of Service', selectedLanguage)}</a>
                                         </div>
                                     </label>
 
                                     <label className="flex items-start">
                                         <input type="checkbox" checked={agreedPrivacy} onChange={() => setAgreedPrivacy(!agreedPrivacy)} className="mr-3 mt-1 w-4 h-4" style={{ accentColor: '#1e3a8a' }} />
                                         <div className="text-left text-sm">
-                                            I have read and agree to the <a href="#" onClick={(e)=>{e.preventDefault(); window.open('https://example.com/privacy','_blank')}} className="text-[var(--color-gold)] underline">Privacy Policy</a>
+                                            {getTranslation('I have read and agree to the', selectedLanguage)} <a href="#" onClick={(e)=>{e.preventDefault(); window.open('https://example.com/privacy','_blank')}} className="text-[var(--color-gold)] underline">{getTranslation('Privacy Policy', selectedLanguage)}</a>
                                         </div>
                                     </label>
                                 </div>
@@ -1191,22 +1191,22 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                             <img src={photo || 'https://placehold.co/120x120/efefef/aaaaaa?text=Photo'} alt="avatar" className="w-full h-full object-cover" />
                                         </div>
                                         <div className="text-left ml-4">
-                                            <div className="text-lg font-semibold text-gray-900">{name || 'Your Name'}</div>
-                                            <div className="mt-1 inline-block text-xs rounded-full px-3 py-1" style={{ background: 'linear-gradient(90deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', color: 'var(--color-gold)' }}>Regaardien</div>
+                                            <div className="text-lg font-semibold text-gray-900">{name || getTranslation('Your Name', selectedLanguage)}</div>
+                                            <div className="mt-1 inline-block text-xs rounded-full px-3 py-1" style={{ background: 'linear-gradient(90deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', color: 'var(--color-gold)' }}>{getTranslation('Regaardien', selectedLanguage)}</div>
                                         </div>
                                     </div>
 
                                     <div className="mt-4 space-y-3 text-left text-sm text-gray-700">
-                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3"/> Intro video added</div>
-                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3"/> {has1kFollowers ? '1,000+ followers verified' : '1,000+ followers verified'}</div>
-                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3"/> {isAmbassador ? 'Ambassador commitment' : 'Ambassador commitment'}</div>
+                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3"/> {getTranslation('Intro video added', selectedLanguage)}</div>
+                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3"/> {has1kFollowers ? getTranslation('1,000+ followers verified', selectedLanguage) : getTranslation('1,000+ followers verified', selectedLanguage)}</div>
+                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3"/> {isAmbassador ? getTranslation('Ambassador commitment', selectedLanguage) : getTranslation('Ambassador commitment', selectedLanguage)}</div>
                                     </div>
                                 </div>
 
                                 <div className="rounded-xl p-6 text-center" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.08), rgba(var(--color-gold-rgb,203,138,0),0.02))' }}>
                                     <div className="text-4xl mb-3">🎉</div>
-                                    <div className="font-semibold text-gray-900">Ready to Start Creating?</div>
-                                                    <div className="text-sm text-gray-600 mt-1">Click "Next" to learn how to get your first requests!</div>
+                                    <div className="font-semibold text-gray-900">{getTranslation('Ready to Start Creating?', selectedLanguage)}</div>
+                                                    <div className="text-sm text-gray-600 mt-1">{getTranslation('Click "Next" to learn how to get your first requests!', selectedLanguage)}</div>
                                 </div>
                             </div>
                         </div>
@@ -1220,8 +1220,8 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                 <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-3" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', boxShadow: '0 8px 24px rgba(0,0,0,0.06)' }}>
                                     <Icon name="sparkles" size={32} style={{ color: 'var(--color-gold)' }} />
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-900">Get Your First Requests!</h2>
-                                <p className="text-sm text-gray-600">Learn how to market yourself and start earning</p>
+                                <h2 className="text-xl font-bold text-gray-900">{getTranslation('Get Your First Requests!', selectedLanguage)}</h2>
+                                <p className="text-sm text-gray-600">{getTranslation('Learn how to market yourself and start earning', selectedLanguage)}</p>
                             </div>
 
                             {/* ADDED: You're the Marketer card (appears right under the hero) */}
@@ -1232,10 +1232,10 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                     </div>
 
                                     <div className="text-left">
-                                        <div className="font-semibold text-gray-900">You're the Marketer!</div>
-                                        <div className="text-sm text-gray-600 mt-1">Creators drive their own success on Regaarder</div>
+                                        <div className="font-semibold text-gray-900">{getTranslation("You're the Marketer!", selectedLanguage)}</div>
+                                        <div className="text-sm text-gray-600 mt-1">{getTranslation('Creators drive their own success on Regaarder', selectedLanguage)}</div>
                                         <div className="text-sm text-gray-600 mt-3">
-                                            Unlike traditional platforms, <strong>you</strong> have full control over your marketing. Share your profile, engage your audience, and watch the requests roll in!
+                                            {getTranslation('Unlike traditional platforms,', selectedLanguage)} <strong>{getTranslation('you', selectedLanguage)}</strong> {getTranslation('have full control over your marketing. Share your profile, engage your audience, and watch the requests roll in!', selectedLanguage)}
                                         </div>
                                     </div>
                                 </div>
@@ -1248,9 +1248,9 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                     <div className="w-8 h-8 rounded-full flex items-center justify-center mr-4 font-semibold" style={{ background: 'linear-gradient(90deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', color: 'var(--color-gold)' }}>1</div>
                                     <div className="flex-1">
                                         <div className="flex items-center justify-between">
-                                            <div className="font-semibold text-lg text-gray-900">Go to Your Profile</div>
+                                            <div className="font-semibold text-lg text-gray-900">{getTranslation('Go to Your Profile', selectedLanguage)}</div>
                                         </div>
-                                        <div className="text-sm text-gray-600 mt-1">Once you're in the dashboard, click on your profile settings</div>
+                                        <div className="text-sm text-gray-600 mt-1">{getTranslation("Once you're in the dashboard, click on your profile settings", selectedLanguage)}</div>
                                     </div>
                                 </div>
 
@@ -1260,15 +1260,15 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                     <div className="flex-1">
                                         <div className="font-semibold text-lg text-gray-900 flex items-center">
                                             <Icon name="pencil" size={18} className="mr-2" style={{ color: 'var(--color-gold)' }} />
-                                            Customize Your CTA
+                                            {getTranslation('Customize Your CTA', selectedLanguage)}
                                         </div>
-                                        <div className="text-sm text-gray-600 mt-2 mb-3">Create a compelling call-to-action that invites requests. Examples:</div>
+                                        <div className="text-sm text-gray-600 mt-2 mb-3">{getTranslation('Create a compelling call-to-action that invites requests. Examples:', selectedLanguage)}</div>
 
                                         <div className="space-y-3">
                                             { [
-                                                { title: 'Science Creator', text: '"Which experiment do you want me to try next? Request it now!"' },
-                                                { title: 'Documentary Maker', text: '"Which topic should I cover next? Tell me your story idea!"' },
-                                                { title: 'Cooking Creator', text: '"What recipe should I make for you? Send your request!"' }
+                                                { title: getTranslation('Science Creator', selectedLanguage), text: getTranslation('"Which experiment do you want me to try next? Request it now!"', selectedLanguage) },
+                                                { title: getTranslation('Documentary Maker', selectedLanguage), text: getTranslation('"Which topic should I cover next? Tell me your story idea!"', selectedLanguage) },
+                                                { title: getTranslation('Cooking Creator', selectedLanguage), text: getTranslation('"What recipe should I make for you? Send your request!"', selectedLanguage) }
                                             ].map((ex, idx) => (
                                                 <div key={idx} className="rounded-lg bg-gray-100 p-3">
                                                     <div className="text-[var(--color-gold)] font-semibold mb-1">{ex.title}</div>
@@ -1285,15 +1285,15 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                     <div className="flex-1">
                                         <div className="font-semibold text-lg text-gray-900 flex items-center">
                                             <Share2 size={20} strokeWidth={1.8} className="mr-2" style={{ color: 'var(--color-gold)' }} />
-                                            Share Your Profile Link
+                                            {getTranslation('Share Your Profile Link', selectedLanguage)}
                                         </div>
-                                        <div className="text-sm text-gray-600 mt-2 mb-2">Copy your unique profile link and share it everywhere:</div>
+                                        <div className="text-sm text-gray-600 mt-2 mb-2">{getTranslation('Copy your unique profile link and share it everywhere:', selectedLanguage)}</div>
                                         <ul className="list-disc ml-6 text-sm text-gray-600 space-y-1">
-                                            <li>Instagram stories & bio</li>
-                                            <li>YouTube video descriptions & community posts</li>
-                                            <li>TikTok bio & comments</li>
-                                            <li>Twitter/X posts & profile</li>
-                                            <li>Discord servers & communities</li>
+                                            <li>{getTranslation('Instagram stories & bio', selectedLanguage)}</li>
+                                            <li>{getTranslation('YouTube video descriptions & community posts', selectedLanguage)}</li>
+                                            <li>{getTranslation('TikTok bio & comments', selectedLanguage)}</li>
+                                            <li>{getTranslation('Twitter/X posts & profile', selectedLanguage)}</li>
+                                            <li>{getTranslation('Discord servers & communities', selectedLanguage)}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -1304,18 +1304,18 @@ const CreatorOnboardingDialog = ({ onClose }) => {
                                     <div className="flex-1">
                                         <div className="font-semibold text-lg text-gray-900 flex items-center">
                                             <Icon name="pencil" size={18} className="mr-2" style={{ color: 'var(--color-gold)' }} />
-                                            Make It Personal
+                                            {getTranslation('Make It Personal', selectedLanguage)}
                                         </div>
-                                        <div className="text-sm text-gray-600 mt-2">Use friendly language, show personality, and thank requesters, small touches increase conversions.</div>
+                                        <div className="text-sm text-gray-600 mt-2">{getTranslation('Use friendly language, show personality, and thank requesters, small touches increase conversions.', selectedLanguage)}</div>
 
                                         {/* NEW: Pro Tips card */}
                                         <div className="rounded-xl border border-[var(--color-gold-light-bg)] p-4 mt-4 text-sm text-gray-700" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.04), rgba(255,255,255,0.0))' }}>
-                                            <div className="font-semibold mb-2" style={{ color: 'var(--color-gold)' }}>Pro Tips</div>
+                                            <div className="font-semibold mb-2" style={{ color: 'var(--color-gold)' }}>{getTranslation('Pro Tips', selectedLanguage)}</div>
                                             <ul className="ml-3 space-y-2">
-                                                <li className="flex items-start"><span className="text-[var(--color-gold)] mr-3">➜</span>Post your link with a clear CTA in all your social media bios</li>
-                                                <li className="flex items-start"><span className="text-[var(--color-gold)] mr-3">➜</span>End your videos/posts with "What should I create next? Link in bio!"</li>
-                                                <li className="flex items-start"><span className="text-[var(--color-gold)] mr-3">➜</span>Create polls and direct people to request winners on Regaarder</li>
-                                                <li className="flex items-start"><span className="text-[var(--color-gold)] mr-3">➜</span>Engage authentically — respond to requests and thank your supporters</li>
+                                                <li className="flex items-start"><span className="text-[var(--color-gold)] mr-3">➜</span>{getTranslation('Post your link with a clear CTA in all your social media bios', selectedLanguage)}</li>
+                                                <li className="flex items-start"><span className="text-[var(--color-gold)] mr-3">➜</span>{getTranslation('End your videos/posts with "What should I create next? Link in bio!"', selectedLanguage)}</li>
+                                                <li className="flex items-start"><span className="text-[var(--color-gold)] mr-3">➜</span>{getTranslation('Create polls and direct people to request winners on Regaarder', selectedLanguage)}</li>
+                                                <li className="flex items-start"><span className="text-[var(--color-gold)] mr-3">➜</span>{getTranslation('Engage authentically — respond to requests and thank your supporters', selectedLanguage)}</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -2094,7 +2094,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                 className="text-sm font-medium hover:underline transition-colors"
                                 style={{ color: 'var(--color-gold)' }}
                             >
-                                View Full Profile
+                                {getTranslation('View Full Profile', selectedLanguage)}
                             </button>
                         </div>
                     )}
@@ -2124,7 +2124,7 @@ const PinToTopDialog = ({ onClose, onPin }) => (
 );
 
 // NEW COMPONENT: Playlist Picker Dialog
-const PlaylistPickerDialog = ({ video, onClose, onAdded }) => {
+const PlaylistPickerDialog = ({ video, onClose, onAdded, selectedLanguage = 'English' }) => {
     const [lists, setLists] = useState([]);
     const [name, setName] = useState('');
     const [err, setErr] = useState('');
@@ -2136,7 +2136,7 @@ const PlaylistPickerDialog = ({ video, onClose, onAdded }) => {
     };
     const handleCreate = async () => {
         const n = String(name || '').trim();
-        if (!n) { setErr('Please enter a name'); return; }
+        if (!n) { setErr(getTranslation('Please enter a name', selectedLanguage)); return; }
         try { const mod = await import('./playlists.jsx'); const p = mod.ensurePlaylist(n); mod.addToPlaylist(p.id, video); setLists(mod.getPlaylists()); onAdded && onAdded(); onClose(); } catch (e) { onClose(); }
     };
 
@@ -2144,7 +2144,7 @@ const PlaylistPickerDialog = ({ video, onClose, onAdded }) => {
         <div className="fixed inset-0 z-[130] flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} onClick={onClose}>
             <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">Add to Playlist</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{getTranslation('Add to Playlist', selectedLanguage)}</h3>
                     <button className="p-1 text-gray-500 hover:text-gray-700" onClick={onClose}>✕</button>
                 </div>
                 {lists.length > 0 ? (
@@ -2159,7 +2159,7 @@ const PlaylistPickerDialog = ({ video, onClose, onAdded }) => {
                                     <div className="px-2 py-1">
                                         <div className="text-[11px] font-semibold text-gray-900 truncate">{l.name}</div>
                                         <div className="text-[10px] text-gray-500 flex items-center gap-1 mt-0.5">
-                                            <span>Private</span>
+                                            <span>{getTranslation('Private', selectedLanguage)}</span>
                                             <span>•</span>
                                             <span>{(l.items||[]).length}</span>
                                             <Icon name="bookmark" size={12} className="ml-auto text-gray-400" />
@@ -2170,14 +2170,14 @@ const PlaylistPickerDialog = ({ video, onClose, onAdded }) => {
                         })}
                     </div>
                 ) : (
-                    <div className="text-sm text-gray-600 mb-2">No playlists yet. Create one below.</div>
+                    <div className="text-sm text-gray-600 mb-2">{getTranslation('No playlists yet. Create one below.', selectedLanguage)}</div>
                 )}
-                <label className="text-sm text-gray-700">New playlist name</label>
-                <input value={name} onChange={(e)=>{ setName(e.target.value); setErr(''); }} placeholder="My Playlist" className="mt-1 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md outline-none" />
+                <label className="text-sm text-gray-700">{getTranslation('New playlist name', selectedLanguage)}</label>
+                <input value={name} onChange={(e)=>{ setName(e.target.value); setErr(''); }} placeholder={getTranslation('My Playlist', selectedLanguage)} className="mt-1 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md outline-none" />
                 {err && <div className="text-xs text-red-600 mt-1">{err}</div>}
                 <div className="mt-4 flex justify-end gap-2">
-                    <button className="px-3 py-2 text-sm text-gray-700" onClick={onClose}>Cancel</button>
-                    <button className="px-3 py-2 text-sm text-white rounded-md" style={{ backgroundColor: 'var(--color-gold)' }} onClick={handleCreate}>Create</button>
+                    <button className="px-3 py-2 text-sm text-gray-700" onClick={onClose}>{getTranslation('Cancel', selectedLanguage)}</button>
+                    <button className="px-3 py-2 text-sm text-white rounded-md" style={{ backgroundColor: 'var(--color-gold)' }} onClick={handleCreate}>{getTranslation('Create', selectedLanguage)}</button>
                 </div>
             </div>
         </div>
@@ -3492,6 +3492,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                 <ReportVideoDialog
                     video={videoToReport}
                     onClose={handleCloseReportDialog}
+                    selectedLanguage={selectedLanguage}
                 />
             )}
 
@@ -3504,6 +3505,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     onClose={handleCloseProfile}
                     profileData={profileData}
                     creatorId={profileCreatorId}
+                    selectedLanguage={selectedLanguage}
                 />
             )}
 
@@ -3513,6 +3515,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     onClose={handleCloseShare}
                     link={shareVideo ? `https://example.com/video/${shareVideo.id}` : window.location.href}
                     onCopySuccess={handleCopySuccess}
+                    selectedLanguage={selectedLanguage}
                 />
             )}
 
@@ -3522,6 +3525,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     video={playlistTargetVideo}
                     onClose={() => { setIsPlaylistPickerOpen(false); setPlaylistTargetVideo(null); }}
                     onAdded={() => { setToast({ show: true, type: 'success', title: 'Success', message: 'Added to playlist' }); setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2000); }}
+                    selectedLanguage={selectedLanguage}
                 />
             )}
 
@@ -3534,7 +3538,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
 
             {/* NEW: Creator Onboarding Dialog */}
             {isCreatorOnboardingOpen && (
-                <CreatorOnboardingDialog onClose={handleCloseCreatorOnboarding} />
+                <CreatorOnboardingDialog onClose={handleCloseCreatorOnboarding} selectedLanguage={selectedLanguage} />
             )}
 
             {/* Toast Notification */}

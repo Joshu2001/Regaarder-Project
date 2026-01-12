@@ -3033,14 +3033,14 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/40" onClick={() => setShowShareModal(false)} />
                     <div className="bg-white rounded-2xl shadow-2xl p-6 relative z-10 w-full max-w-sm">
-                        <h3 className="text-lg font-bold mb-2">Share request</h3>
-                        <p className="text-sm text-gray-600 mb-4">Share this request with others.</p>
+                        <h3 className="text-lg font-bold mb-2">{getTranslation('Share request', selectedLanguage)}</h3>
+                        <p className="text-sm text-gray-600 mb-4">{getTranslation('Share this request with others.', selectedLanguage)}</p>
                         <div className="flex flex-col space-y-3">
-                            <button onClick={confirmShareNative} className="px-4 py-2 rounded-full text-left" style={{ backgroundColor: '#f3f4f6' }}>Share via device</button>
-                            <button onClick={confirmShareCopy} className="px-4 py-2 rounded-full text-left bg-gray-100">Copy link</button>
+                            <button onClick={confirmShareNative} className="px-4 py-2 rounded-full text-left" style={{ backgroundColor: '#f3f4f6' }}>{getTranslation('Share via device', selectedLanguage)}</button>
+                            <button onClick={confirmShareCopy} className="px-4 py-2 rounded-full text-left bg-gray-100">{getTranslation('Copy link', selectedLanguage)}</button>
                         </div>
                         <div className="flex justify-end mt-4">
-                            <button onClick={() => setShowShareModal(false)} className="px-4 py-2 rounded-full bg-white border">Close</button>
+                            <button onClick={() => setShowShareModal(false)} className="px-4 py-2 rounded-full bg-white border">{getTranslation('Close', selectedLanguage)}</button>
                         </div>
                     </div>
                 </div>

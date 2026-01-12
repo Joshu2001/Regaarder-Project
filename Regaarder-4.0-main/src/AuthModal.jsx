@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getTranslation } from './translations.js';
 
 // Module-scoped FocusInput to avoid remounting on parent re-renders.
 const FocusInput = ({ className, style, onFocus, onBlur, ...rest }) => {
@@ -27,7 +28,7 @@ import { X, Eye, EyeOff, Lock } from 'lucide-react';
 const AuthModal = ({ onClose, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [view, setView] = useState('login'); // 'login', 'signup', 'forgotPassword'
-
+  const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
 
 
   const [email, setEmail] = useState('');
@@ -44,9 +45,9 @@ const AuthModal = ({ onClose, onLogin }) => {
 
   const validate = () => {
     const out = {};
-    if (!validateEmail(email)) out.email = 'Enter a valid email address';
-    if ((password || '').length < 8) out.password = 'Password must be at least 8 characters';
-    if (view === 'signup' && (!fullName || fullName.trim().length === 0)) out.fullName = 'Please enter your full name';
+    if (!validateEmail(email)) out.email = getTranslation('Enter a valid email address', selectedLanguage);
+    if ((password || '').length < 8) out.password = getTranslation('Password must be at least 8 characters', selectedLanguage);
+    if (view === 'signup' && (!fullName || fullName.trim().length === 0)) out.fullName = getTranslation('Please enter your full name', selectedLanguage);
     setErrors(out);
     return Object.keys(out).length === 0;
   };
@@ -63,7 +64,7 @@ const AuthModal = ({ onClose, onLogin }) => {
     })
       .then(async (res) => {
         const body = await res.json();
-        if (!res.ok) throw new Error(body.error || 'Login failed');
+        if (!res.ok) throw new Error(body.error || getTranslation('Login failed', selectedLanguage));
         const profile = body.user ? { ...body.user, token: body.token } : { token: body.token };
         onLogin && onLogin(profile);
       })
@@ -83,11 +84,11 @@ const AuthModal = ({ onClose, onLogin }) => {
     })
       .then(async (res) => {
         const body = await res.json();
-        if (!res.ok) throw new Error(body.error || 'Signup failed');
+        if (!res.ok) throw new Error(body.error || getTranslation('Signup failed', selectedLanguage));
         const profile = body.user ? { ...body.user, token: body.token } : { token: body.token };
         onLogin && onLogin(profile);
       })
-      .catch((err) => setErrors((e) => ({ ...e, server: err.message || 'Network error' })))
+      .catch((err) => setErrors((e) => ({ ...e, server: err.message || getTranslation('Network error', selectedLanguage) })))
       .finally(() => setLoading(false));
   };
 
@@ -109,12 +110,12 @@ const AuthModal = ({ onClose, onLogin }) => {
 
         {view === 'signup' ? (
           <>
-            <h2 className="text-xl font-bold text-center text-gray-900 mb-1">Create Account</h2>
-            <p className="text-sm text-center text-gray-500 mb-6">Join Regaarder to start requesting amazing videos</p>
+            <h2 className="text-xl font-bold text-center text-gray-900 mb-1">{getTranslation('Create Account', selectedLanguage)}</h2>
+            <p className="text-sm text-center text-gray-500 mb-6">{getTranslation('Join Regaarder to start requesting amazing videos', selectedLanguage)}</p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-500 mb-1.5">Full Name</label>
+                <label className="block text-sm text-gray-500 mb-1.5">{getTranslation('Full Name', selectedLanguage)}</label>
                 <FocusInput
                   type="text"
                   placeholder="Alex Morgan"
@@ -126,7 +127,7 @@ const AuthModal = ({ onClose, onLogin }) => {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-500 mb-1.5">Referral Code (optional)</label>
+                <label className="block text-sm text-gray-500 mb-1.5">{getTranslation('Referral Code (optional)', selectedLanguage)}</label>
                 <FocusInput
                   type="text"
                   placeholder="ABC123"
@@ -137,7 +138,7 @@ const AuthModal = ({ onClose, onLogin }) => {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-500 mb-1.5">Email Address</label>
+                <label className="block text-sm text-gray-500 mb-1.5">{getTranslation('Email Address', selectedLanguage)}</label>
                 <FocusInput
                   type="email"
                   placeholder="alex@example.com"
@@ -149,7 +150,7 @@ const AuthModal = ({ onClose, onLogin }) => {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-500 mb-1.5">Password</label>
+                <label className="block text-sm text-gray-500 mb-1.5">{getTranslation('Password', selectedLanguage)}</label>
                 <div className="relative">
                   <FocusInput
                     type={showPassword ? 'text' : 'password'}
@@ -175,12 +176,12 @@ const AuthModal = ({ onClose, onLogin }) => {
                 style={!canSubmit() || loading ? {} : { backgroundColor: 'var(--color-gold)', color: 'black', boxShadow: '0 6px 18px rgba(var(--color-gold-rgb, 203,138,0), 0.12)' }}
                 type="button"
               >
-                {loading ? 'Please wait...' : 'Create Account'}
+                {loading ? getTranslation('Please wait...', selectedLanguage) : getTranslation('Create Account', selectedLanguage)}
               </button>
               {errors.server && <div className="text-xs text-red-500 mt-2">{errors.server}</div>}
 
               <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                By creating an account, you agree to our <a href="#" style={{ color: 'var(--color-gold)' }} className="hover:underline">Terms of Service</a> and <a href="#" style={{ color: 'var(--color-gold)' }} className="hover:underline">Privacy Policy</a>.
+                {getTranslation('By creating an account, you agree to our', selectedLanguage)} <a href="#" style={{ color: 'var(--color-gold)' }} className="hover:underline">{getTranslation('Terms of Service', selectedLanguage)}</a> {getTranslation('and', selectedLanguage)} <a href="#" style={{ color: 'var(--color-gold)' }} className="hover:underline">{getTranslation('Privacy Policy', selectedLanguage)}</a>.
               </p>
 
               <div className="relative py-2">
@@ -188,12 +189,12 @@ const AuthModal = ({ onClose, onLogin }) => {
                   <div className="w-full border-t border-gray-200" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-400">or</span>
+                  <span className="px-4 bg-white text-gray-400">{getTranslation('or', selectedLanguage)}</span>
                 </div>
               </div>
 
               <div className="text-center text-sm text-gray-500">
-                Already have an account? <button onClick={() => setView('login')} className="text-gray-700 font-medium hover:underline ml-1" type="button">Log in</button>
+                {getTranslation('Already have an account?', selectedLanguage)} <button onClick={() => setView('login')} className="text-gray-700 font-medium hover:underline ml-1" type="button">{getTranslation('Log in', selectedLanguage)}</button>
               </div>
             </div>
           </>
@@ -202,12 +203,12 @@ const AuthModal = ({ onClose, onLogin }) => {
             <div className="flex justify-center mb-4">
               <Lock className="w-8 h-8 text-[var(--color-gold)]" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Reset Password</h2>
-            <p className="text-sm text-gray-500 mb-8">Enter the 6-digit code sent to your email</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{getTranslation('Reset Password', selectedLanguage)}</h2>
+            <p className="text-sm text-gray-500 mb-8">{getTranslation('Enter the 6-digit code sent to your email', selectedLanguage)}</p>
 
             <div className="text-left space-y-4">
               <div>
-                <label className="block text-sm text-gray-500 mb-1.5">Verification Code</label>
+                <label className="block text-sm text-gray-500 mb-1.5">{getTranslation('Verification Code', selectedLanguage)}</label>
                 <FocusInput
                   type="text"
                   placeholder="000000"
@@ -218,25 +219,25 @@ const AuthModal = ({ onClose, onLogin }) => {
               <div className="bg-[var(--color-neutral-light-bg,#FFF9E6)] p-4 rounded-xl border flex items-start space-x-3" style={{ borderColor: 'rgba(var(--color-gold-rgb,203,138,0),0.12)' }}>
                   <Lock className="w-4 h-4 text-[var(--color-gold)] flex-shrink-0 mt-1" />
                   <div className="text-sm text-gray-600">
-                    <p className="mb-1">A 6-digit code was sent to <span className="font-medium text-gray-800">you@example.com</span></p>
-                    <button style={{ color: 'var(--color-gold)' }} className="hover:underline font-medium" type="button">Didn't receive it? Resend code</button>
+                    <p className="mb-1">{getTranslation('A 6-digit code was sent to', selectedLanguage)} <span className="font-medium text-gray-800">you@example.com</span></p>
+                    <button style={{ color: 'var(--color-gold)' }} className="hover:underline font-medium" type="button">{getTranslation("Didn't receive it? Resend code", selectedLanguage)}</button>
                   </div>
                 </div>
 
               <div className="pt-4 space-y-3">
-                <button className="w-full py-3.5 text-gray-800 font-medium rounded-xl shadow-sm transition-colors" style={{ backgroundColor: 'rgba(var(--color-gold-rgb,203,138,0),0.18)', border: '1px solid rgba(var(--color-gold-rgb,203,138,0),0.12)' }} type="button">Verify Code</button>
-                <button onClick={() => setView('login')} className="w-full py-3.5 bg-white border border-gray-200 text-gray-500 font-medium rounded-xl hover:bg-gray-50 transition-colors" type="button">Cancel</button>
+                <button className="w-full py-3.5 text-gray-800 font-medium rounded-xl shadow-sm transition-colors" style={{ backgroundColor: 'rgba(var(--color-gold-rgb,203,138,0),0.18)', border: '1px solid rgba(var(--color-gold-rgb,203,138,0),0.12)' }} type="button">{getTranslation('Verify Code', selectedLanguage)}</button>
+                <button onClick={() => setView('login')} className="w-full py-3.5 bg-white border border-gray-200 text-gray-500 font-medium rounded-xl hover:bg-gray-50 transition-colors" type="button">{getTranslation('Cancel', selectedLanguage)}</button>
               </div>
             </div>
           </div>
         ) : (
           <>
-            <h2 className="text-xl font-semibold text-center text-gray-900 mb-2">Welcome Back</h2>
-            <p className="text-sm text-center text-gray-500 mb-8 px-2 leading-relaxed">Log in to access all features and manage your requests</p>
+            <h2 className="text-xl font-semibold text-center text-gray-900 mb-2">{getTranslation('Welcome Back', selectedLanguage)}</h2>
+            <p className="text-sm text-center text-gray-500 mb-8 px-2 leading-relaxed">{getTranslation('Log in to access all features and manage your requests', selectedLanguage)}</p>
 
             <div className="space-y-5">
               <div>
-                <label className="block text-sm text-gray-500 mb-1.5">Email Address</label>
+                <label className="block text-sm text-gray-500 mb-1.5">{getTranslation('Email Address', selectedLanguage)}</label>
                 <FocusInput
                   type="email"
                   value={email}
@@ -247,7 +248,7 @@ const AuthModal = ({ onClose, onLogin }) => {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-500 mb-1.5">Password</label>
+                <label className="block text-sm text-gray-500 mb-1.5">{getTranslation('Password', selectedLanguage)}</label>
                 <div className="relative">
                   <FocusInput
                     type={showPassword ? 'text' : 'password'}
@@ -269,9 +270,9 @@ const AuthModal = ({ onClose, onLogin }) => {
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center text-gray-500 cursor-pointer select-none">
                   <input type="checkbox" className="w-4 h-4 rounded border-gray-300 mr-2" style={{ accentColor: 'var(--color-gold)' }} />
-                  Remember me
+                  {getTranslation('Remember me', selectedLanguage)}
                 </label>
-                <button onClick={() => setView('forgotPassword')} style={{ color: 'var(--color-gold)' }} className="hover:text-opacity-90 transition-colors" type="button">Forgot password?</button>
+                <button onClick={() => setView('forgotPassword')} style={{ color: 'var(--color-gold)' }} className="hover:text-opacity-90 transition-colors" type="button">{getTranslation('Forgot password?', selectedLanguage)}</button>
               </div>
 
               <button
@@ -281,7 +282,7 @@ const AuthModal = ({ onClose, onLogin }) => {
                 style={!canSubmit() || loading ? {} : { backgroundColor: 'var(--color-gold)', color: 'black', boxShadow: '0 6px 18px rgba(var(--color-gold-rgb, 203,138,0), 0.12)' }}
                 type="button"
               >
-                {loading ? 'Please wait...' : 'Log In'}
+                {loading ? getTranslation('Please wait...', selectedLanguage) : getTranslation('Log In', selectedLanguage)}
               </button>
               {errors.server && <div className="text-xs text-red-500 mt-2">{errors.server}</div>}
 
@@ -290,12 +291,12 @@ const AuthModal = ({ onClose, onLogin }) => {
                   <div className="w-full border-t border-gray-200" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-400">or</span>
+                  <span className="px-4 bg-white text-gray-400">{getTranslation('or', selectedLanguage)}</span>
                 </div>
               </div>
 
               <div className="text-center text-sm text-gray-500">
-                Don't have an account? <button onClick={() => setView('signup')} className="text-gray-700 font-medium hover:underline ml-1" type="button">Sign up</button>
+                {getTranslation("Don't have an account?", selectedLanguage)} <button onClick={() => setView('signup')} className="text-gray-700 font-medium hover:underline ml-1" type="button">{getTranslation('Sign up', selectedLanguage)}</button>
               </div>
             </div>
           </>

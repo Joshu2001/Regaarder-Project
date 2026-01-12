@@ -1728,7 +1728,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					return next;
 				});
 				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-				setToastMessage('Liked');
+				setToastMessage(getTranslation('Liked', selectedLanguage));
 				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1200);
 				// keep card visible briefly so user can see feedback
 				scheduleHideQuickCard(1800);
@@ -1775,7 +1775,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					return next;
 				});
 				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-				setToastMessage('Video Disliked');
+				setToastMessage(getTranslation('Video Disliked', selectedLanguage));
 				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1200);
 				// keep card visible briefly so user can see feedback
 				scheduleHideQuickCard(1800);
@@ -1806,16 +1806,16 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			try {
 				if (navigator.share) {
 					await navigator.share({ title: 'Watch video', url: u });
-					setToastMessage('Shared');
+					setToastMessage(getTranslation('Shared', selectedLanguage));
 				} else {
 					await copyToClipboard(u);
-					setToastMessage('Link copied');
+					setToastMessage(getTranslation('Link copied', selectedLanguage));
 					// vibration disabled per user preference
 				}
 			} catch (err) {
 				// fallback: copy and notify
 				try { await copyToClipboard(u); } catch {}
-				setToastMessage('Link copied');
+				setToastMessage(getTranslation('Link copied', selectedLanguage));
 			}
 			if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 			toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
@@ -4487,7 +4487,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 												body: JSON.stringify({ videoUrl, title: videoTitle })
 											});
 											setBookmarked(true);
-											setToastMessage('Bookmarked');
+											setToastMessage(getTranslation('Bookmarked', selectedLanguage));
 										} else {
 											await fetch(`${BACKEND_URL}/bookmarks/videos`, {
 												method: 'DELETE',
@@ -4495,7 +4495,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 												body: JSON.stringify({ videoUrl })
 											});
 											setBookmarked(false);
-											setToastMessage('Removed bookmark');
+											setToastMessage(getTranslation('Removed bookmark', selectedLanguage));
 										}
 										if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 										toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
@@ -4555,7 +4555,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										setIncognitoMode(next);
 										try { localStorage.setItem('watchIncognito', '1'); } catch {}
 										dispatchPlayerEvent('player:incognitoChanged', { incognito: true });
-										setToastMessage('Incognito ON — actions won\'t be saved');
+										setToastMessage(getTranslation('Incognito ON — actions won\'t be saved', selectedLanguage));
 										if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 										toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
 										return;
@@ -4633,9 +4633,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									<div className="w-10 h-10 flex items-center justify-center text-gray-900">
 										<PenLine />
 									</div>
-									<span className="text-gray-900">Notes</span>
+									<span className="text-gray-900">{getTranslation("Notes", selectedLanguage)}</span>
 								</div>
-								<span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full text-gray-700">Premium</span>
+								<span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full text-gray-700">{getTranslation("Premium", selectedLanguage)}</span>
 							</button>
 
 							<div className="border-t border-gray-200 my-3" />
@@ -4651,8 +4651,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							      </svg>
 							    </div>
 							    <div>
-							      <div className="text-gray-900 leading-tight">Dark Mode</div>
-							      <div className="text-gray-500 text-xs">Improve visibility</div>
+							      <div className="text-gray-900 leading-tight">{getTranslation("Dark Mode", selectedLanguage)}</div>
+							      <div className="text-gray-500 text-xs">{getTranslation("Improve visibility", selectedLanguage)}</div>
 							    </div>
 							  </div>
 															<button
@@ -4662,7 +4662,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 																style={{ marginLeft: 'auto' }}
 															>
 																<span className="text-xs px-2 py-0.5 rounded-full" style={darkMode ? { background: '#10b981', color: '#fff' } : { background: '#e5e7eb', color: '#374151' }}>
-																	{darkMode ? 'On' : 'Off'}
+																	{darkMode ? getTranslation("On", selectedLanguage) : getTranslation("Off", selectedLanguage)}
 																</span>
 															</button>
 							</div>
@@ -4672,7 +4672,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							
 							{/* Video Quality section */}
 							<div className="px-2 pt-2">
-								<div className="text-gray-500 text-sm mb-3">Video Quality</div>
+								<div className="text-gray-500 text-sm mb-3">{getTranslation("Video Quality", selectedLanguage)}</div>
 
 								<div className="grid grid-cols-3 gap-2">
 									{/*
@@ -4704,7 +4704,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									})}
 								</div>
 
-								<div className="text-gray-500 text-xs mt-3 mb-2">Upgrade to Premium for HD, 4K quality</div>
+								<div className="text-gray-500 text-xs mt-3 mb-2">{getTranslation("Upgrade to Premium for HD, 4K quality", selectedLanguage)}</div>
 							</div>
 
 							<div className="border-t border-gray-200 my-3" />
@@ -4712,7 +4712,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							{/* Playback Speed */}
 							<div className="px-2">
 								<div className="flex items-center justify-between mb-3">
-									<div className="text-gray-500 text-sm">Playback Speed</div>
+									<div className="text-gray-500 text-sm">{getTranslation("Playback Speed", selectedLanguage)}</div>
 									<label className="flex items-center gap-2">
 										<input
 											type="checkbox"
@@ -4792,8 +4792,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							<div className="px-2">
 								<div className="flex items-center justify-between">
 									<div>
-										<div className="text-gray-900">Double Tap to Seek</div>
-										<div className="text-gray-500 text-xs">Tap sides ±10s, center to like</div>
+										<div className="text-gray-900">{getTranslation("Double Tap to Seek", selectedLanguage)}</div>
+										<div className="text-gray-500 text-xs">{getTranslation("Tap sides ±10s, center to like", selectedLanguage)}</div>
 									</div>
 									<button
 										aria-pressed={doubleTap}
@@ -4802,7 +4802,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										style={{ marginLeft: 'auto' }}
 									>
 										<span className="text-xs px-2 py-0.5 rounded-full" style={doubleTap ? { background: '#10b981', color: '#fff' } : { background: '#e5e7eb', color: '#374151' }}>
-											{doubleTap ? 'On' : 'Off'}
+											{doubleTap ? getTranslation("On", selectedLanguage) : getTranslation("Off", selectedLanguage)}
 										</span>
 									</button>
 								</div>
@@ -4835,7 +4835,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								<div className="border-t border-gray-200 mb-3" />
 
 								{/* Progress Bar Color input */}
-								<div className="text-gray-500 text-sm mb-2">Progress Bar Color</div>
+								<div className="text-gray-500 text-sm mb-2">{getTranslation("Progress Bar Color", selectedLanguage)}</div>
 								<input
 									name="progressColor"
 									value={progressColor}
@@ -4843,10 +4843,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									className="w-full bg-white text-gray-900 border border-gray-200 rounded-xl px-3 py-2 placeholder-gray-400"
 									placeholder={progressColor}
 								/>
-								<div className="text-gray-500 text-xs mt-1">Current: {progressColor}</div>
+								<div className="text-gray-500 text-xs mt-1">{getTranslation("Current", selectedLanguage)}: {progressColor}</div>
 
 								{/* Quick Presets */}
-								<div className="text-gray-500 text-sm mt-3 mb-2">Quick Presets</div>
+								<div className="text-gray-500 text-sm mt-3 mb-2">{getTranslation("Quick Presets", selectedLanguage)}</div>
 								<div className="grid grid-cols-6 gap-2">
 									{colorPresets.map((c) => (
 										<button
@@ -4866,13 +4866,13 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								<div className="border-t border-[#232323] my-3" />
 
 								{/* Adaptive Streaming / Supported / Report */}
-								<div className="text-gray-300 text-sm mb-1">Adaptive Streaming (ABR)</div>
-								<div className="text-sm mb-3" style={{ color: accentColor }}>✓ Auto quality adjustment enabled</div>
+								<div className="text-gray-300 text-sm mb-1">{getTranslation("Adaptive Streaming (ABR)", selectedLanguage)}</div>
+								<div className="text-sm mb-3" style={{ color: accentColor }}>✓ {getTranslation("Auto quality adjustment enabled", selectedLanguage)}</div>
 
-								<div className="text-gray-400 text-sm mb-3">Supported: MP4, MKV, AVI, WebM, MOV</div>
+								<div className="text-gray-400 text-sm mb-3">{getTranslation("Supported: MP4, MKV, AVI, WebM, MOV", selectedLanguage)}</div>
 
 								<button onClick={(e) => { e.stopPropagation(); setShowMenu(false); setShowReportModal(true); }} className="text-left text-white text-sm opacity-90 underline">
-									Report an issue
+									{getTranslation("Report an issue", selectedLanguage)}
 								</button>
 							</div>
 
@@ -4912,7 +4912,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					onClick={(e) => e.stopPropagation()}
 					role="dialog"
 					aria-modal="true"
-					aria-label="Subtitle Settings"
+					aria-label={getTranslation("Subtitle Settings", selectedLanguage)}
 					style={{
 						background: "#fff",
 						border: "1px solid #e5e7eb",
@@ -4935,17 +4935,17 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							/>
 						</div>
 						{captionsHandleHintVisible && (
-							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">Drag to resize</div>
+							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation("Drag to resize", selectedLanguage)}</div>
 						)}
 						{/* Centered title to match More Options */}
-						<h2 className="text-gray-900 text-lg font-semibold mb-3 px-2 text-center">Subtitle Settings</h2>
+						<h2 className="text-gray-900 text-lg font-semibold mb-3 px-2 text-center">{getTranslation("Subtitle Settings", selectedLanguage)}</h2>
 						{/* no explicit close button here — the sheet closes on backdrop click */}
 
 						<div className="overflow-auto" style={{ maxHeight: `calc(${captionsHeight}px - 72px)`, paddingRight: 6 }}>
  							{/* Enable Subtitles */}
  							<div className="flex items-center justify-between px-2 py-3 bg-gray-100 rounded-xl mb-3">
  								<div>
- 									<div className="text-gray-900">Enable Subtitles</div>
+ 									<div className="text-gray-900">{getTranslation("Enable Subtitles", selectedLanguage)}</div>
  								</div>
  								<button
  									onClick={() => setCaptionsEnabled((s) => !s)}
@@ -4958,18 +4958,18 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
  							{/* Language */} 
 							<div className="px-2 mb-3">
-								<div className="text-gray-700 text-sm mb-2">Language</div>
+								<div className="text-gray-700 text-sm mb-2">{getTranslation("Language", selectedLanguage)}</div>
 								<select
 									value={captionLanguage}
 									onChange={(e) => setCaptionLanguage(e.target.value)}
 									className="w-full bg-gray-100 text-gray-900 rounded-xl px-3 py-2 border-0 outline-none"
 								>
-									<option>English</option>
-									<option>Spanish</option>
-									<option>French</option>
-									<option>German</option>
+									<option value="English">{getTranslation("English", selectedLanguage)}</option>
+									<option value="Spanish">{getTranslation("Spanish", selectedLanguage)}</option>
+									<option value="French">{getTranslation("French", selectedLanguage)}</option>
+									<option value="German">{getTranslation("German", selectedLanguage)}</option>
 																		
-									<option>Portuguese</option>
+									<option value="Portuguese">{getTranslation("Portuguese", selectedLanguage)}</option>
 
 								</select>
 							</div>
@@ -4977,7 +4977,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							{/* Font Size */}
 							<div className="px-2 mb-3">
 								<div className="flex items-center justify-between mb-2">
-									<div className="text-gray-700 text-sm">Font Size: {captionFontSize}px</div>
+									<div className="text-gray-700 text-sm">{getTranslation("Font Size", selectedLanguage)}: {captionFontSize}px</div>
 								</div>
 								<input
 									name="captionFontSizeRange"
@@ -4992,21 +4992,21 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 							{/* Position */}
 							<div className="px-2 mb-3">
-								<div className="text-gray-700 text-sm mb-2">Position</div>
+								<div className="text-gray-700 text-sm mb-2">{getTranslation("Position", selectedLanguage)}</div>
 								<select
 									value={captionPosition}
 									onChange={(e) => setCaptionPosition(e.target.value)}
 									className="w-full bg-gray-100 text-gray-900 rounded-xl px-3 py-2 border-0 outline-none"
 								>
-									<option>Bottom</option>
-									<option>Center</option>
-									<option>Top</option>
+									<option value="Bottom">{getTranslation("Bottom", selectedLanguage)}</option>
+									<option value="Center">{getTranslation("Center", selectedLanguage)}</option>
+									<option value="Top">{getTranslation("Top", selectedLanguage)}</option>
 								</select>
 							</div>
 
 							{/* Text Color swatches */}
 							<div className="px-2 mb-3">
-																																<div className="text-gray-700 text-sm mb-2">Text Color</div>
+																																<div className="text-gray-700 text-sm mb-2">{getTranslation("Text Color", selectedLanguage)}</div>
 								<div className="flex items-center gap-3">
 									{["#FFFFFF", "#FDE047", "#34D399", "#06B6D4", "#F472B6"].map((c) => (
 										<button
@@ -5022,23 +5022,23 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 							{/* Background Opacity */}
 							<div className="px-2 mb-4">
-								<div className="text-gray-700 text-sm mb-2">Background Opacity</div>
+								<div className="text-gray-700 text-sm mb-2">{getTranslation("Background Opacity", selectedLanguage)}</div>
 																																<select
 									value={captionBgOpacity}
 									onChange={(e) => setCaptionBgOpacity(e.target.value)}
 									className="w-full bg-gray-100 text-gray-900 rounded-xl px-3 py-2 border-0 outline-none"
 								>
-									<option>100% Black</option>
-									<option>80% Black</option>
-									<option>60% Black</option>
-									<option>40% Black</option>
-									<option>0% (No Background)</option>
+									<option value="100% Black">{getTranslation("100% Black", selectedLanguage)}</option>
+									<option value="80% Black">{getTranslation("80% Black", selectedLanguage)}</option>
+									<option value="60% Black">{getTranslation("60% Black", selectedLanguage)}</option>
+									<option value="40% Black">{getTranslation("40% Black", selectedLanguage)}</option>
+									<option value="0% (No Background)">{getTranslation("0% (No Background)", selectedLanguage)}</option>
 								</select>
 							</div>
 
 							{/* Example preview row (small) */}
 							<div className="px-2 mb-4">
-								<div className="text-gray-500 text-xs mb-2">Preview</div>
+								<div className="text-gray-500 text-xs mb-2">{getTranslation("Preview", selectedLanguage)}</div>
 								<div
 									className="w-full rounded-md px-3 py-2"
 									style={{
@@ -5617,7 +5617,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							<div className="w-12 h-1 bg-gray-300 rounded-full touch-none" style={{ cursor: 'ns-resize' }} />
 						</div>
 						{reportHandleHintVisible && (
-							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">Drag to resize</div>
+							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation("Drag to resize", selectedLanguage)}</div>
 						)}
 
 						{/* Header */}
@@ -5632,8 +5632,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									</svg>
 								</div>
 								<div>
-									<h2 className="text-black text-xl font-semibold">Report an Issue</h2>
-									<div className="text-gray-500 text-sm">Help us improve your experience by reporting any issues you encounter</div>
+									<h2 className="text-black text-xl font-semibold">{getTranslation("Report an Issue", selectedLanguage)}</h2>
+									<div className="text-gray-500 text-sm">{getTranslation("Help us improve your experience by reporting any issues you encounter", selectedLanguage)}</div>
 								</div>
 							</div>
 							<button onClick={() => setShowReportModal(false)} className="text-gray-600 p-1 rounded-full hover:bg-gray-100">✕</button>
@@ -5642,14 +5642,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						{/* Content */}
 						<div className="overflow-auto flex-1 pt-2" style={{ paddingRight: 6 }}>
 							<div className="mb-3">
-								<div className="text-black font-semibold mb-2">Issue Category</div>
+								<div className="text-black font-semibold mb-2">{getTranslation("Issue Category", selectedLanguage)}</div>
 								<div style={{ position: 'relative' }}>
 									<select value={reportCategory} onChange={(e) => setReportCategory(e.target.value)} className="w-full bg-white text-black rounded-xl px-3 py-2 border border-gray-200 appearance-none">
-										<option value="" disabled>Select an issue type</option>
-										<option value="bug">Bug</option>
-										<option value="playback">Playback Issue</option>
-										<option value="inappropriate">Inappropriate Content</option>
-										<option value="other">Other</option>
+										<option value="" disabled>{getTranslation("Select an issue type", selectedLanguage)}</option>
+										<option value="bug">{getTranslation("Bug", selectedLanguage)}</option>
+										<option value="playback">{getTranslation("Playback Issue", selectedLanguage)}</option>
+										<option value="inappropriate">{getTranslation("Inappropriate Content", selectedLanguage)}</option>
+										<option value="other">{getTranslation("Other", selectedLanguage)}</option>
 									</select>
 									<div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#6b7280' }}>
 										<ChevronDown size={18} />
@@ -5658,23 +5658,23 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							</div>
 
 							<div className="mb-3">
-								<div className="text-black font-semibold mb-2">Describe the issue <span className="text-gray-500 font-normal">(Optional)</span></div>
+								<div className="text-black font-semibold mb-2">{getTranslation("Describe the issue", selectedLanguage)} <span className="text-gray-500 font-normal">{getTranslation("(Optional)", selectedLanguage)}</span></div>
 								<textarea
 									value={reportText}
 									onChange={(e) => setReportText(e.target.value.slice(0, REPORT_MAX))}
-									placeholder="Please provide details about the issue you're experiencing..."
+									placeholder={getTranslation("Please provide details about the issue you're experiencing...", selectedLanguage)}
 									className="w-full bg-white text-black border border-gray-200 rounded-xl px-3 py-3 h-28 resize-none outline-none"
 									maxLength={REPORT_MAX}
 								/>
-								<div className="text-gray-500 text-xs mt-1">{reportText.length}/{REPORT_MAX} characters</div>
+								<div className="text-gray-500 text-xs mt-1">{reportText.length}/{REPORT_MAX} {getTranslation("characters", selectedLanguage)}</div>
 							</div>
 
 							<div className="mb-4 bg-gray-50 border border-gray-100 rounded-lg p-3 text-sm text-gray-800">
-								<div className="text-gray-800 text-sm mb-2">Report will include:</div>
+								<div className="text-gray-800 text-sm mb-2">{getTranslation("Report will include:", selectedLanguage)}</div>
 								<ul className="list-inside list-disc space-y-1 text-gray-700">
-									<li>Video: {videoTitle}</li>
-									<li>Creator: {creatorName}</li>
-									<li>Timestamp: {(() => {
+									<li>{getTranslation("Video:", selectedLanguage)} {videoTitle}</li>
+									<li>{getTranslation("Creator:", selectedLanguage)} {creatorName}</li>
+									<li>{getTranslation("Timestamp:", selectedLanguage)} {(() => {
 										try {
 											const v = videoRef.current;
 											const secs = v ? Math.floor(v.currentTime || 0) : Math.floor(progress * duration || 0);
@@ -5713,7 +5713,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 											}).catch(() => {});
 										} catch (e) {}
 
-										setToastMessage('Report submitted');
+										setToastMessage(getTranslation('Report submitted', selectedLanguage));
 										setShowReportModal(false);
 										setReportCategory('');
 										setReportText('');
@@ -5721,9 +5721,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										toastTimerRef.current = setTimeout(() => setToastMessage(''), 1800);
 									}}
 								>
-									Submit Report
+									{getTranslation("Submit Report", selectedLanguage)}
 								</button>
-								<button className="w-full px-4 py-3 rounded-lg bg-transparent text-black border border-gray-200" onClick={() => setShowReportModal(false)}>Cancel</button>
+								<button className="w-full px-4 py-3 rounded-lg bg-transparent text-black border border-gray-200" onClick={() => setShowReportModal(false)}>{getTranslation("Cancel", selectedLanguage)}</button>
 							</div>
 						</div>
 					</div>
