@@ -459,7 +459,7 @@ const App = () => {
     }
   }, []);
   const [selectedFriends, setSelectedFriends] = useState([]);
-  const [selectedLanguage] = useState(() => localStorage.getItem('language') || 'English');
+  const [selectedLanguage] = useState(() => localStorage.getItem('regaarder_language') || 'English');
   // NEW STATE: To track if 'now' or 'schedule' is selected
   const [watchTimeMode, setWatchTimeMode] = useState('now'); 
   // Error state for display
