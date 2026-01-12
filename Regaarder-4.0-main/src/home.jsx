@@ -3205,6 +3205,23 @@ const App = ({ overrideMiniPlayerData = null }) => {
         return 0;
     };
 
+    // Helper to format date string for display with translation
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        if (typeof dateStr !== 'string') return dateStr;
+        
+        const s = dateStr.trim();
+        if (s.match(/just\s*now/i)) return getTranslation('Just now', selectedLanguage);
+
+        const m = s.match(/(\d+)\s*(day|week|month|year|hour|minute)s?\s*ago/i);
+        if (m) {
+            const n = m[1];
+            const unit = m[2].toLowerCase();
+            return getTranslation(`{n} ${unit}s ago`, selectedLanguage).replace('{n}', n);
+        }
+        return dateStr;
+    };
+
     // Helper to get video timestamp for sorting
     const getVideoTimestamp = (video) => {
         // Use timestamp field if available (from backend)
@@ -3755,7 +3772,7 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                         </p>
                         <div className="flex justify-between items-center mt-3">
                             <div className="text-xs text-gray-500">
-                                {video.date} &middot; {getTranslation('Requested by', selectedLanguage)}
+                                {formatDate(video.date)} &middot; {getTranslation('Requested by', selectedLanguage)}
                                 <button
                                     className="text-gray-600 font-medium underline hover:text-gray-800 cursor-pointer ml-1 bg-transparent p-0"
                                     onClick={(e) => { 

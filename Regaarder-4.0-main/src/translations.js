@@ -2181,6 +2181,15 @@ export const translations = {
     'Saturday': 'Thứ Bảy',
     'Sunday': 'Chủ Nhật',
 
+    // Time Ago
+    '{n} days ago': '{n} ngày trước',
+    '{n} weeks ago': '{n} tuần trước',
+    '{n} months ago': '{n} tháng trước',
+    '{n} years ago': '{n} năm trước',
+    '{n} hours ago': '{n} giờ trước',
+    '{n} minutes ago': '{n} phút trước',
+    'Just now': 'Vừa xong',
+
     // Creator Dashboard / Common UI
     'No data to display yet': 'Chưa có dữ liệu để hiển thị',
     'Start accepting and completing requests to see your performance metrics': 'Bắt đầu chấp nhận và hoàn thành yêu cầu để xem các chỉ số hiệu suất của bạn',
