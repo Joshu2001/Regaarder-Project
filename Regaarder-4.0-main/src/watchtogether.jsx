@@ -639,7 +639,7 @@ const App = () => {
         <div className="p-6 sm:p-8">
           {errorMessage && (
             <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700">
-              <strong>Error:</strong> {getTranslation(errorMessage, selectedLanguage)}
+              <strong>{getTranslation('Error', selectedLanguage)}:</strong> {getTranslation(errorMessage, selectedLanguage)}
             </div>
           )}
           <WatchPartyIcon selectedLanguage={selectedLanguage} />
