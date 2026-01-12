@@ -61,25 +61,25 @@ const ShareVision = ({ setCurrentPage, ACCENT_COLOR }) => {
             </div>
 
             <div className="mb-4">
-                <label className="text-sm font-medium text-gray-900">Creative Brief *</label>
+                <label className="text-sm font-medium text-gray-900">{t('Creative Brief')} *</label>
                 <textarea
                     value={brief}
                     onChange={(e) => setBrief(e.target.value.slice(0, MAX_CHARS))}
-                    placeholder="Tell creators about your brand, product, and what kind of story you'd love to see. Be inspiring, not restrictive!"
+                    placeholder={t("Tell creators about your brand, product, and what kind of story you'd love to see. Be inspiring, not restrictive!")}
                     className="w-full mt-3 p-4 rounded-xl border border-gray-200 bg-gray-50 h-40 text-gray-700"
                 />
                 <div className="text-xs text-gray-400 mt-2">{brief.length}/{MAX_CHARS} characters</div>
             </div>
 
             <div className="mb-6">
-                <div className="text-sm font-medium text-gray-900 mb-3">Creative Assets (Optional)</div>
+                <div className="text-sm font-medium text-gray-900 mb-3">{t('Creative Assets (Optional)')}</div>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFile(e.target.files && e.target.files[0], setLogoData, 'sponsor_asset_logo')} />
                         <button onClick={() => logoRef.current && logoRef.current.click()} className="w-full p-6 rounded-2xl bg-white border border-gray-100 text-center">
                             <Upload className="w-6 h-6 mx-auto text-gray-400" />
-                            <div className="text-sm text-gray-600 mt-3">Logo / Images</div>
-                            {logoData && <div className="text-xs text-gray-400 mt-2 truncate">Attached</div>}
+                            <div className="text-sm text-gray-600 mt-3">{t('Logo / Images')}</div>
+                            {logoData && <div className="text-xs text-gray-400 mt-2 truncate">{t('Attached')}</div>}
                         </button>
                     </div>
 
@@ -87,8 +87,8 @@ const ShareVision = ({ setCurrentPage, ACCENT_COLOR }) => {
                         <input ref={guideRef} type="file" accept="application/pdf,image/*" className="hidden" onChange={(e) => handleFile(e.target.files && e.target.files[0], setBrandGuideData, 'sponsor_asset_brandguide')} />
                         <button onClick={() => guideRef.current && guideRef.current.click()} className="w-full p-6 rounded-2xl bg-white border border-gray-100 text-center">
                             <FileText className="w-6 h-6 mx-auto text-gray-400" />
-                            <div className="text-sm text-gray-600 mt-3">Brand Guide</div>
-                            {brandGuideData && <div className="text-xs text-gray-400 mt-2 truncate">Attached</div>}
+                            <div className="text-sm text-gray-600 mt-3">{t('Brand Guide')}</div>
+                            {brandGuideData && <div className="text-xs text-gray-400 mt-2 truncate">{t('Attached')}</div>}
                         </button>
                     </div>
                 </div>
@@ -98,8 +98,8 @@ const ShareVision = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <label className="flex items-start space-x-3 cursor-pointer">
                     <input type="checkbox" checked={previewBeforePublish} onChange={(e) => setPreviewBeforePublish(e.target.checked)} className="mt-1" />
                     <div>
-                        <div className="font-medium text-gray-900">Preview content before it goes live</div>
-                        <div className="text-sm text-gray-500">You'll get a chance to review and request changes (limited to 1-2 rounds)</div>
+                        <div className="font-medium text-gray-900">{t('Preview content before it goes live')}</div>
+                        <div className="text-sm text-gray-500">{t("You'll get a chance to review and request changes (limited to 1-2 rounds)")}</div>
                     </div>
                 </label>
             </div>
@@ -693,19 +693,19 @@ const HomePage = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, ICON_BACKGROUND, setCurrentPa
 
             {/* --- 4. Statistics Section --- */}
             <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-gray-200 pt-6 mb-12">
-            <StatBlock icon={Users} value="50K+" label="Active Creators" />
-            <StatBlock icon={LineChart} value="7.3%" label="Avg Engagement" /> 
-            <StatBlock icon={Eye} value="2.5B" label="Total Reach" />
+            <StatBlock icon={Users} value="50K+" label={t("Active Creators")} />
+            <StatBlock icon={LineChart} value="7.3%" label={t("Avg Engagement")} /> 
+            <StatBlock icon={Eye} value="2.5B" label={t("Total Reach")} />
             </section>
             
             {/* --- 5. How It Works Section --- */}
             <section className="pb-12 border-b border-gray-200">
-                <h2 className="text-2xl font-medium text-gray-900 text-center">How it works</h2>
-                <p className="text-base text-gray-600 mt-2 mb-8 text-center font-medium">From idea to impact in 4 simple steps</p>
-                <StepBlock step={1} icon={FileEdit} title="Tell us about your brand" description="Quick setup — just your brand name, industry, and voice. Takes 2 minutes."/>
-                <StepBlock step={2} icon={Lightbulb} title="Create your collaboration brief" description="Set your objective, budget, and creative vision. Our AI does the rest."/>
-                <StepBlock step={3} icon={Sparkles} title="Get matched with perfect creators" description="AI analyzes thousands of creators to find your ideal matches instantly."/>
-                <StepBlock step={4} icon={LineChart} title="Watch your brand come to life" description="Creators integrate your brand authentically. Track real-time performance."/>
+                <h2 className="text-2xl font-medium text-gray-900 text-center">{t('How it works')}</h2>
+                <p className="text-base text-gray-600 mt-2 mb-8 text-center font-medium">{t('From idea to impact in 4 simple steps')}</p>
+                <StepBlock step={1} icon={FileEdit} title={t("Tell us about your brand")} description={t("Quick setup — just your brand name, industry, and voice. Takes 2 minutes.")}/>
+                <StepBlock step={2} icon={Lightbulb} title={t("Create your collaboration brief")} description={t("Set your objective, budget, and creative vision. Our AI does the rest.")}/>
+                <StepBlock step={3} icon={Sparkles} title={t("Get matched with perfect creators")} description={t("AI analyzes thousands of creators to find your ideal matches instantly.")}/>
+                <StepBlock step={4} icon={LineChart} title={t("Watch your brand come to life")} description={t("Creators integrate your brand authentically. Track real-time performance.")}/>
                 
                 <div className="flex justify-center mt-10">
                     <button
@@ -721,31 +721,31 @@ const HomePage = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, ICON_BACKGROUND, setCurrentPa
 
             {/* --- 6. Why brands love Regaarder Section (Content omitted for brevity, but structure remains) --- */}
             <section className="py-12 border-b border-gray-200">
-                <h2 className="text-2xl font-medium text-gray-900 text-center">Why brands love Regaarder</h2>
-                <p className="text-base text-gray-600 mt-2 mb-8 text-center font-medium">Your brand deserves great storytelling</p>
-                <FeatureBlock icon={Zap} title="AI-Powered Matching" description="Our AI finds creators who truly resonate with your brand values"/>
-                <FeatureBlock icon={HeartHandshake} title="Authentic Integration" description="Creators bring your brand to life, their way"/>
-                <FeatureBlock icon={Shield} title="Escrow Protection" description="Your budget is safe. Pay only when content goes live"/>
-                <FeatureBlock icon={LineChart} title="Real-Time Analytics" description="Track every view, like, and comment as they happen"/>
+                <h2 className="text-2xl font-medium text-gray-900 text-center">{t('Why brands love Regaarder')}</h2>
+                <p className="text-base text-gray-600 mt-2 mb-8 text-center font-medium">{t('Your brand deserves great storytelling')}</p>
+                <FeatureBlock icon={Zap} title={t("AI-Powered Matching")} description={t("Our AI finds creators who truly resonate with your brand values")}/>
+                <FeatureBlock icon={HeartHandshake} title={t("Authentic Integration")} description={t("Creators bring your brand to life, their way")}/>
+                <FeatureBlock icon={Shield} title={t("Escrow Protection")} description={t("Your budget is safe. Pay only when content goes live")}/>
+                <FeatureBlock icon={LineChart} title={t("Real-Time Analytics")} description={t("Track every view, like, and comment as they happen")}/>
             </section>
 
             {/* --- 7. Pricing Section (Content omitted for brevity, but structure remains) --- */}
             <section className="py-12 border-b border-gray-200">
-                <h2 className="text-2xl font-medium text-gray-900 text-center">Transparent, performance-based pricing</h2>
-                <p className="text-base text-gray-600 mt-2 mb-10 text-center font-medium">Pay for results, not promises</p>
+                <h2 className="text-2xl font-medium text-gray-900 text-center">{t('Transparent, performance-based pricing')}</h2>
+                <p className="text-base text-gray-600 mt-2 mb-10 text-center font-medium">{t('Pay for results, not promises')}</p>
                 
                 <div className="flex flex-col items-center mb-10">
                     <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: ICON_BACKGROUND }}>
                         <DollarSign className="w-8 h-8" style={{ color: ACCENT_COLOR }} />
                     </div>
                     <div className="text-2xl font-semibold mb-1" style={{ color: ACCENT_COLOR }}>$5</div>
-                    <p className="text-base font-medium text-gray-900 mb-6">Base CPM</p>
-                    <p className="text-base text-gray-600 font-medium">Per 1,000 views</p>
+                    <p className="text-base font-medium text-gray-900 mb-6">{t('Base CPM')}</p>
+                    <p className="text-base text-gray-600 font-medium">{t('Per 1,000 views')}</p>
                 </div>
 
                 <div className="flex flex-col items-center space-y-8 mb-12">
-                    <PricingMetricBlock icon={Shield} value="$100" title="Minimum Budget" subtext="Goes into escrow" />
-                    <PricingMetricBlock icon={Heart} value="$0.05" title="Engagement Bonus" subtext="Per like, comment, share" />
+                    <PricingMetricBlock icon={Shield} value="$100" title={t("Minimum Budget")} subtext={t("Goes into escrow")} />
+                    <PricingMetricBlock icon={Heart} value="$0.05" title={t("Engagement Bonus")} subtext={t("Per like, comment, share")} />
                 </div>
                 <BudgetExampleBlock budget={500} icon={Gift} />
             </section>

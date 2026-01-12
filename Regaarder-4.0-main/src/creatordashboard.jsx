@@ -2324,7 +2324,7 @@ const App = () => {
                      <div className="flex items-center gap-3 mb-3 relative z-10">
                          <div className="flex items-center gap-2">
                              <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Active Requests', selectedLanguage)}</span>
-                             <span className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>NEW</span>
+                             <span className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>{getTranslation('NEW', selectedLanguage)}</span>
                          </div>
                      </div>
                     {(() => {
@@ -2332,10 +2332,11 @@ const App = () => {
                             const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title||'')||'').toString().trim().toLowerCase() === ((r.title||'')||'').toString().trim().toLowerCase())));
                             const activeCount = unpublished.length;
                             const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
+                            const label = activeCount === 1 ? getTranslation('active request', selectedLanguage) : getTranslation('active requests', selectedLanguage);
                             return (
                                 <div className="flex-1 flex flex-col justify-center relative z-10">
                                     <div className="text-[40px] font-normal text-gray-900 mb-2 leading-none">{activeCount}</div>
-                                    <span className="text-[13px] text-gray-600 font-medium">{activeCount ? `${activeCount} ${getTranslation('active request', selectedLanguage)}${activeCount === 1 ? '' : 's'}` : getTranslation('No active requests', selectedLanguage)}</span>
+                                    <span className="text-[13px] text-gray-600 font-medium">{activeCount ? `${activeCount} ${label}` : getTranslation('No active requests', selectedLanguage)}</span>
                                 </div>
                             );
                         } catch (e) {
