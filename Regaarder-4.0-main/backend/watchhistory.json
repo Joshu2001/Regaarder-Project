@@ -1,5 +1,13 @@
 [
   {
+    "videoId": "http://localhost:4000/uploads/intro-1767630827699-278564.mp4",
+    "userId": "user-1767585399609",
+    "lastWatchedTime": 3,
+    "duration": 5,
+    "timestamp": "2026-01-12T11:07:30.334Z",
+    "isComplete": false
+  },
+  {
     "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
     "userId": "anonymous",
     "lastWatchedTime": 5,
@@ -26,10 +34,10 @@
   {
     "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
     "userId": "user-1767585399609",
-    "lastWatchedTime": 2,
+    "lastWatchedTime": 5,
     "duration": 5,
-    "timestamp": "2026-01-11T16:25:29.507Z",
-    "isComplete": false
+    "timestamp": "2026-01-12T11:06:53.639Z",
+    "isComplete": true
   },
   {
     "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",

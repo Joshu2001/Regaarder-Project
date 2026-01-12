@@ -8,6 +8,7 @@ import { PlayerContext } from './PlayerProvider.jsx';
 const VideoPlayer = () => {
   const navigate = useNavigate();
 	const location = useLocation();
+	const selectedLanguage = typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English';
   const [error, setError] = useState(null);
   const [videoInfo, setVideoInfo] = useState(null);
   const videoRef = useRef(null);
@@ -641,6 +642,7 @@ const ShareIcon = () => (
 
 export default function MobileVideoPlayer({ discoverItems = null, initialVideo = null, onChevronDown = null } = {}) {
 
+	const selectedLanguage = typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English';
 	const auth = useAuth();
 	const [searchParams] = useSearchParams();
 	const containerRef = useRef(null);
@@ -4465,10 +4467,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							</div>
 
 							{optionsHandleHintVisible && (
-								<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">Drag to resize</div>
+								<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation('Drag to resize', selectedLanguage)}</div>
 							)}
 
-							<h2 className="text-gray-900 text-lg font-semibold mb-3 px-2 text-center">More Options</h2>
+							<h2 className="text-gray-900 text-lg font-semibold mb-3 px-2 text-center">{getTranslation('More Options', selectedLanguage)}</h2>
 
 						<div className="space-y-2 overflow-auto" style={{ maxHeight: `calc(${optionsHeight}px - 64px)`, paddingRight: 6, paddingBottom: 64 }}>
 							{/* Bookmark row (persists per user across devices) */}
@@ -4512,7 +4514,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								<div className="w-10 h-10 flex items-center justify-center text-gray-900">
 									{bookmarked ? <BookmarkFilled /> : <Bookmark />}
 								</div>
-								<span className="text-gray-900">{bookmarked ? "Bookmarked" : "Bookmark"}</span>
+								<span className="text-gray-900">{bookmarked ? getTranslation('Bookmarked', selectedLanguage) : getTranslation('Bookmark', selectedLanguage)}</span>
 							</button>
 
 							{/* Share row (uniform icon wrapper) */}
@@ -4526,7 +4528,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								<div className="w-10 h-10 flex items-center justify-center text-gray-900">
 									<ShareIcon />
 								</div>
-								<span className="text-gray-900">Share</span>
+								<span className="text-gray-900">{getTranslation('Share', selectedLanguage)}</span>
 							</button>
 
 							{/* Tip Creator unified */}
@@ -4538,8 +4540,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									<DollarSign />
 								</div>
 								<div className="text-left">
-									<div className="text-gray-900 font-medium leading-tight">Tip Creator</div>
-									<div className="text-xs text-gray-500">{"Support @" + creatorName}</div>
+									<div className="text-gray-900 font-medium leading-tight">{getTranslation('Tip Creator', selectedLanguage)}</div>
+									<div className="text-xs text-gray-500">{getTranslation('Support', selectedLanguage) + " @" + creatorName}</div>
 								</div>
 							</button>
 
@@ -4567,11 +4569,11 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								<div className="w-10 h-10 flex items-center justify-center text-gray-900">
 									<EyeOff />
 								</div>
-								<span className="text-gray-900">Watch Incognito</span>
+								<span className="text-gray-900">{getTranslation('Watch Incognito', selectedLanguage)}</span>
 								{/* inline state label */}
 								<span style={{ marginLeft: 'auto' }}>
 									<span className="text-xs px-2 py-0.5 rounded-full" style={incognitoMode ? { background: '#10b981', color: '#fff' } : { background: '#e5e7eb', color: '#374151' }}>
-										{incognitoMode ? 'On' : 'Off'}
+										{incognitoMode ? getTranslation('On', selectedLanguage) : getTranslation('Off', selectedLanguage)}
 									</span>
 								</span>
 							</button>
@@ -4579,19 +4581,19 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							{/* Inline confirmation popover shown under the Watch Incognito row when disabling */}
 							{showIncognitoConfirm && (
 								<div style={{ padding: 12, background: '#fff', borderRadius: 12, marginTop: 8, border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-									<div style={{ fontWeight: 700, color: '#111', marginBottom: 6 }}>Turn off Incognito?</div>
-									<div style={{ fontSize: 13, color: '#6b7280', marginBottom: 10 }}>Your watch history and likes will be saved.</div>
+									<div style={{ fontWeight: 700, color: '#111', marginBottom: 6 }}>{getTranslation('Turn off Incognito?', selectedLanguage)}</div>
+									<div style={{ fontSize: 13, color: '#6b7280', marginBottom: 10 }}>{getTranslation('Your watch history and likes will be saved.', selectedLanguage)}</div>
 									<div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-										<button className="px-3 py-2 rounded-lg bg-transparent text-gray-900 border border-gray-300" onClick={() => setShowIncognitoConfirm(false)}>Cancel</button>
+										<button className="px-3 py-2 rounded-lg bg-transparent text-gray-900 border border-gray-300" onClick={() => setShowIncognitoConfirm(false)}>{getTranslation('Cancel', selectedLanguage)}</button>
 										<button className="px-3 py-2 rounded-lg text-white" style={{ background: '#111' }} onClick={() => {
 											setIncognitoMode(false);
 											try { localStorage.setItem('watchIncognito', '0'); } catch {}
 											dispatchPlayerEvent('player:incognitoChanged', { incognito: false });
-											setToastMessage('Incognito OFF');
+											setToastMessage(getTranslation('Incognito OFF', selectedLanguage));
 											if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 											toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
 											setShowIncognitoConfirm(false);
-										}}>Turn Off</button>
+										}}>{getTranslation('Turn Off', selectedLanguage)}</button>
 									</div>
 								</div>
 							)}
@@ -4604,7 +4606,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										const next = !s;
 										try { if (videoRef.current) videoRef.current.loop = next; } catch {}
 										// vibration disabled per user preference
-										setToastMessage(next ? 'Loop enabled' : 'Loop disabled');
+										setToastMessage(next ? getTranslation('Loop enabled', selectedLanguage) : getTranslation('Loop disabled', selectedLanguage));
 										if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 										toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
 										return next;
@@ -4614,10 +4616,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								<div className="w-10 h-10 flex items-center justify-center text-gray-900">
 									<Repeat />
 								</div>
-								<span className="text-gray-900">Loop Video</span>
+								<span className="text-gray-900">{getTranslation('Loop Video', selectedLanguage)}</span>
 								<span style={{ marginLeft: 'auto' }}>
 									<span className="text-xs px-2 py-0.5 rounded-full" style={loopVideo ? { background: '#10b981', color: '#fff' } : { background: '#e5e7eb', color: '#374151' }}>
-										{loopVideo ? 'On' : 'Off'}
+										{loopVideo ? getTranslation('On', selectedLanguage) : getTranslation('Off', selectedLanguage)}
 									</span>
 								</span>
 							</button>
@@ -5121,20 +5123,20 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							/>
 						</div>
 						{shareHandleHintVisible && (
-							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">Drag to resize</div>
+							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation('Drag to resize', selectedLanguage)}</div>
 						)}
 
 						{/* dialog header (fixed) */}
 						<div className="mb-2">
-							<h3 className="text-gray-900 text-lg font-semibold text-center">Share Video</h3>
+							<h3 className="text-gray-900 text-lg font-semibold text-center">{getTranslation('Share Video', selectedLanguage)}</h3>
 						</div>
 
-						<p className="text-gray-500 text-sm mb-4">Share this video with your friends and followers</p>
+						<p className="text-gray-500 text-sm mb-4">{getTranslation('Share this video with your friends and followers', selectedLanguage)}</p>
 
 						{/* Scrollable content area (fills remaining shell height) */}
 						<div ref={shareContentRef} className="overflow-auto flex-1 pr-1" style={{ paddingRight: 6 }}>
 							{/* Quick Actions */}
-							<div className="text-gray-700 text-sm mb-3">Quick Actions</div>
+							<div className="text-gray-700 text-sm mb-3">{getTranslation('Quick Actions', selectedLanguage)}</div>
 
 							<div className="space-y-2 mb-4">
 								{/* copy / share / qr / download buttons */}
@@ -5149,10 +5151,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										<CopyIcon />
 									</div>
 									<div className="text-left">
-										<div className="text-gray-900 font-medium">{copiedLink ? 'Copied' : 'Copy Link'}</div>
-										<div className="text-gray-500 text-xs">Copy video URL to clipboard</div>
+										<div className="text-gray-900 font-medium">{copiedLink ? getTranslation('Copied', selectedLanguage) : getTranslation('Copy Link', selectedLanguage)}</div>
+										<div className="text-gray-500 text-xs">{getTranslation('Copy video URL to clipboard', selectedLanguage)}</div>
 									</div>
-									<div className="ml-auto text-xs text-green-600">{copiedLink ? "Copied" : ""}</div>
+									<div className="ml-auto text-xs text-green-600">{copiedLink ? getTranslation("Copied", selectedLanguage) : ""}</div>
 								</button>
 
 								<button
@@ -5163,8 +5165,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										<ShareViaIcon />
 									</div>
 									<div className="text-left">
-										<div className="text-gray-900 font-medium">Share via...</div>
-										<div className="text-gray-500 text-xs">Open system share menu</div>
+										<div className="text-gray-900 font-medium">{getTranslation('Share via...', selectedLanguage)}</div>
+										<div className="text-gray-500 text-xs">{getTranslation('Open system share menu', selectedLanguage)}</div>
 									</div>
 								</button>
 
@@ -5173,9 +5175,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									<div ref={qrRef} className="flex flex-col items-center mb-4 mt-2">
 										<img src={qrImageSrc} alt="QR code" className="w-40 h-40 bg-white p-1 rounded-md" />
 										<div className="flex items-center gap-2 mt-3">
-											<button onClick={() => { try { navigator.clipboard?.writeText(qrImageSrc); /* vibration disabled per user preference */ setToastMessage('QR URL copied'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(()=>setToastMessage(''),1600);} catch{} }} className="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-900">Copy QR URL</button>
-											<button onClick={downloadQr} className="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-900">Download QR</button>
-											<button onClick={() => setShowQrPreview(false)} className="px-3 py-1 bg-gray-200 rounded-md text-sm text-gray-900">Close</button>
+											<button onClick={() => { try { navigator.clipboard?.writeText(qrImageSrc); /* vibration disabled per user preference */ setToastMessage(getTranslation('QR URL copied', selectedLanguage)); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(()=>setToastMessage(''),1600);} catch{} }} className="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-900">{getTranslation('Copy QR URL', selectedLanguage)}</button>
+											<button onClick={downloadQr} className="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-900">{getTranslation('Download QR', selectedLanguage)}</button>
+											<button onClick={() => setShowQrPreview(false)} className="px-3 py-1 bg-gray-200 rounded-md text-sm text-gray-900">{getTranslation('Close', selectedLanguage)}</button>
 										</div>
 									</div>
 								)}
@@ -5190,8 +5192,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										<QrIcon />
 									</div>
 									<div className="text-left">
-										<div className="text-gray-900 font-medium">QR Code</div>
-										<div className="text-gray-500 text-xs">Generate QR code for sharing</div>
+										<div className="text-gray-900 font-medium">{getTranslation('QR Code', selectedLanguage)}</div>
+										<div className="text-gray-500 text-xs">{getTranslation('Generate QR code for sharing', selectedLanguage)}</div>
 									</div>
 								</button>
 
@@ -5335,7 +5337,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							<button onClick={() => setShowTipModal(false)} className="absolute right-4 top-3 text-gray-300 p-1 rounded-full hover:bg-white/5">✕</button>
 						</div>
 						{tipHandleHintVisible && (
-							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">Drag to resize</div>
+							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation('Drag to resize', selectedLanguage)}</div>
 						)}
 						{/* Header */}
 						<div className="flex items-start gap-3 mb-3">
@@ -5363,20 +5365,20 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										</div>
 									</div>
 									<div style={{ flex: 1 }}>
-										<div className="text-black text-xl font-semibold">Bookmark This Moment</div>
-										<div className="text-black text-sm">Save this timestamp at <strong>{formatTime(bookmarkTime)}</strong> for quick access later</div>
+										<div className="text-black text-xl font-semibold">{getTranslation('Bookmark This Moment', selectedLanguage)}</div>
+										<div className="text-black text-sm">{getTranslation('Save this timestamp at', selectedLanguage)} <strong>{formatTime(bookmarkTime)}</strong> {getTranslation('for quick access later', selectedLanguage)}</div>
 									</div>
 									<button onClick={() => setShowBookmarkModal(false)} className="absolute right-4 top-3 text-gray-600 p-1 rounded-full hover:bg-gray-100">✕</button>
 								</div>
 
 								{/* Input */}
 								<div className="mb-3">
-									<div className="text-black font-semibold mb-2">Label (optional)</div>
+									<div className="text-black font-semibold mb-2">{getTranslation('Label (optional)', selectedLanguage)}</div>
 									<input
 										name="bookmarkLabel"
 										value={bookmarkLabel}
 										onChange={(e) => setBookmarkLabel(e.target.value)}
-										placeholder="Best scene, Important moment..."
+										placeholder={getTranslation('Best scene, Important moment...', selectedLanguage)}
 										className="w-full px-3 py-2 rounded-xl"
 										style={{ background: '#ffffff', border: '1px solid #e6e6e6', color: '#111' }}
 									/>
@@ -5390,14 +5392,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										onClick={saveBookmark}
 									>
 										<span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8 }}><Bookmark /></span>
-										Save Bookmark
+										{getTranslation('Save Bookmark', selectedLanguage)}
 									</button>
-									<button className="px-4 py-3 rounded-lg w-full" style={{ background: 'transparent', color: '#111', border: '1px solid #e6e6e6' }} onClick={() => setShowBookmarkModal(false)}>Cancel</button>
+									<button className="px-4 py-3 rounded-lg w-full" style={{ background: 'transparent', color: '#111', border: '1px solid #e6e6e6' }} onClick={() => setShowBookmarkModal(false)}>{getTranslation('Cancel', selectedLanguage)}</button>
 								</div>
 							</div>
 						</div>
 					)}
-								<div className="text-gray-300 text-sm">Show your appreciation for @{creatorName}'s amazing content</div>
+								<div className="text-gray-300 text-sm">{getTranslation('Show your appreciation for', selectedLanguage)} @{creatorName}'s {getTranslation('amazing content', selectedLanguage)}</div>
 							</div>
 						</div>
 						{/* Preset pills */}
@@ -5408,7 +5410,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						</div>
 						{/* Custom amount input */}
 						<div style={{ marginBottom: 12 }}>
-							<div className="text-white font-semibold mb-2">Custom Amount</div>
+							<div className="text-white font-semibold mb-2">{getTranslation('Custom Amount', selectedLanguage)}</div>
 							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 								<span style={{ padding: '10px 12px', background: '#0b0b0b', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, color: '#fff' }}>$</span>
 								<input
@@ -5424,11 +5426,11 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						</div>
 						{/* Tip benefits */}
 							<div style={{ background: hexToRgba(accentColor, 0.12), padding: 12, borderRadius: 8, marginBottom: 12 }}>
-							<div className="text-white text-sm font-medium mb-2">Your tip helps:</div>
+							<div className="text-white text-sm font-medium mb-2">{getTranslation('Your tip helps:', selectedLanguage)}</div>
 							<ul className="list-inside list-disc text-gray-200 text-sm" style={{ marginLeft: 16 }}>
-								<li>Support the creator directly</li>
-								<li>Encourage more great content</li>
-								<li>Show your appreciation</li>
+								<li>{getTranslation('Support the creator directly', selectedLanguage)}</li>
+								<li>{getTranslation('Encourage more great content', selectedLanguage)}</li>
+								<li>{getTranslation('Show your appreciation', selectedLanguage)}</li>
 							</ul>
 						</div>
 						{/* Footer actions */}
@@ -5438,16 +5440,16 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								style={{ background: accentColor, color: accentText, fontWeight: 700 }}
 								onClick={() => {
 									// vibration disabled per user preference
-									setToastMessage(`Tip sent: $${Number(tipAmount || 0).toFixed(2)}`);
+									setToastMessage(`${getTranslation('Tip sent', selectedLanguage)}: $${Number(tipAmount || 0).toFixed(2)}`);
 									setShowTipModal(false);
 									setTipAmount(0);
 									if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 									toastTimerRef.current = setTimeout(() => setToastMessage(''), 1800);
 								}}
 							>
-								{`$ Send ${Number(tipAmount || 0).toFixed(2)}`}
+								{`$ ${getTranslation('Send', selectedLanguage)} ${Number(tipAmount || 0).toFixed(2)}`}
 								</button>
-							<button className="px-4 py-3 rounded-lg bg-transparent text-white border border-white/10" onClick={() => setShowTipModal(false)}>Cancel</button>
+							<button className="px-4 py-3 rounded-lg bg-transparent text-white border border-white/10" onClick={() => setShowTipModal(false)}>{getTranslation('Cancel', selectedLanguage)}</button>
 						</div>
 					</div>
 					</div>
@@ -5732,6 +5734,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					isOpen={showCommentsModal}
 					onClose={() => setShowCommentsModal(false)}
 					requestId={4}
+					selectedLanguage={selectedLanguage}
 				/>
 			)}
 
@@ -5757,13 +5760,13 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							<div role="separator" className="w-12 h-1 bg-gray-300 rounded-full touch-none" style={{ cursor: 'ns-resize' }} />
 						</div>
 						{notesHandleHintVisible && (
-							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">Drag to resize</div>
+							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation('Drag to resize', selectedLanguage)}</div>
 						)}
-						<h2 className="text-gray-900 text-lg font-semibold mb-3 text-center">Notes</h2>
+						<h2 className="text-gray-900 text-lg font-semibold mb-3 text-center">{getTranslation('Notes', selectedLanguage)}</h2>
 						<div className="overflow-auto flex-1" style={{ paddingRight: 6 }}>
 							{/* input area */}
 							<div className="mb-3">
-								<div className="text-gray-900 font-semibold mb-2">New Note</div>
+								<div className="text-gray-900 font-semibold mb-2">{getTranslation('New Note', selectedLanguage)}</div>
 								<div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
 									{/* emoji quick picks */}
 									<div style={{ display: 'flex', gap: 6 }}>
@@ -5774,12 +5777,12 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									{/* timestamp toggle */}
 									<label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
 										<input name="attachTimestamp" type="checkbox" checked={linkNoteTimestamp} onChange={(e) => setLinkNoteTimestamp(e.target.checked)} className="w-4 h-4" />
-										<span className="text-gray-500 text-xs">Attach timestamp</span>
+										<span className="text-gray-500 text-xs">{getTranslation('Attach timestamp', selectedLanguage)}</span>
 									</label>
 								</div>
-								<textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add notes... e.g. 'Interesting point', 'Check later'" className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-3 py-3 h-28 resize-none outline-none" />
+								<textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder={getTranslation("Add notes... e.g. 'Interesting point', 'Check later'", selectedLanguage)} className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-xl px-3 py-3 h-28 resize-none outline-none" />
 								<div className="flex items-center justify-end gap-3 mt-3">
-									<button className="px-4 py-2 rounded-lg bg-transparent text-gray-700 border border-gray-300" onClick={() => { setNoteText(''); setLinkNoteTimestamp(true); }}>Reset</button>
+									<button className="px-4 py-2 rounded-lg bg-transparent text-gray-700 border border-gray-300" onClick={() => { setNoteText(''); setLinkNoteTimestamp(true); }}>{getTranslation('Reset', selectedLanguage)}</button>
 									<button className="px-4 py-2 rounded-lg" style={{ background: '#111', color: '#fff' }} onClick={() => {
 										const text = noteText.trim();
 										if (!text) return;
@@ -5791,7 +5794,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										setNoteText('');
 										setLinkNoteTimestamp(true);
 									}}>
-										Add Note
+										{getTranslation('Add Note', selectedLanguage)}
 									</button>
 								</div>
 							</div>
@@ -5799,7 +5802,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							{/* existing notes list */}
 							<div>
 								{(notes || []).length === 0 ? (
-									<div className="text-gray-400 text-center py-8">No notes yet.</div>
+									<div className="text-gray-400 text-center py-8">{getTranslation('No notes yet.', selectedLanguage)}</div>
 								) : (
 									<div className="space-y-3">
 										{notes.map((note) => (
@@ -5817,7 +5820,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 													const next = notes.filter(n => n.id !== note.id);
 													setNotes(next);
 													saveNotesFor(videoUrl, next);
-												}}>Delete</button>
+												}}>{getTranslation('Delete', selectedLanguage)}</button>
 												</div>
 											</div>
 										))}
@@ -6132,7 +6135,7 @@ const MOCK_USER = {
 };
 
 // Comment item component
-const CommentItem = ({ comment, onReply }) => {
+const CommentItem = ({ comment, onReply, selectedLanguage }) => {
     const isUserComment = comment.userId === MOCK_USER.id;
     const avatarUrl = isUserComment ? MOCK_USER.avatarUrl : 'https://placehold.co/40x40/CCCCCC/666666?text=G';
     
@@ -6196,7 +6199,7 @@ const CommentItem = ({ comment, onReply }) => {
                 </div>
                 
 				<div className="flex items-center space-x-3 mt-1 ml-1 text-xs text-gray-500">
-					<span className="font-medium">Just now</span>
+					<span className="font-medium">{getTranslation('Just now', selectedLanguage)}</span>
 
 					<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 						<button
@@ -6230,7 +6233,7 @@ const CommentItem = ({ comment, onReply }) => {
 							className="hover:text-gray-700 transition-colors"
 							style={{ background: 'transparent', border: 'none', padding: 6, cursor: 'pointer' }}
 						>
-							Reply
+							{getTranslation('Reply', selectedLanguage)}
 						</button>
 					</div>
 				</div>
@@ -6263,7 +6266,7 @@ const HeartOutline = ({ size = 16, stroke = '#ef4444' }) => (
 
 
 // Comments modal component
-const CommentsModal = ({ isOpen, onClose, requestId }) => {
+const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 	const modalRef = useRef(null);
 	const auth = useAuth();
     const contentRef = useRef(null); 
@@ -6452,7 +6455,7 @@ const CommentsModal = ({ isOpen, onClose, requestId }) => {
 					/>
 				</div>
 				{commentsHandleHintVisible && (
-					<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">Drag to resize</div>
+					<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation('Drag to resize', selectedLanguage)}</div>
 				)}
 
                 {/* Header: comment icon + single title "Comments" */}
@@ -6462,7 +6465,7 @@ const CommentsModal = ({ isOpen, onClose, requestId }) => {
                             <div className="w-8 h-8 rounded-full bg-[#f3f4f6] flex items-center justify-center">
 								<CommentIcon size={16} stroke="#6b7280" />
 							</div>
-                            <h2 className="text-lg font-medium text-gray-800">Comments</h2>
+                            <h2 className="text-lg font-medium text-gray-800">{getTranslation('Comments', selectedLanguage)}</h2>
                         </div>
                     </div>
                 </div>
@@ -6472,8 +6475,8 @@ const CommentsModal = ({ isOpen, onClose, requestId }) => {
                     {comments.length === 0 ? (
                         <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
                             <CommentIconLarge />
-                            <p className="mt-6 text-lg font-medium text-gray-700">No comments yet</p>
-                            <p className="mt-2 text-sm text-gray-500">Be the first to share your thoughts!</p>
+                            <p className="mt-6 text-lg font-medium text-gray-700">{getTranslation('No comments yet', selectedLanguage)}</p>
+                            <p className="mt-2 text-sm text-gray-500">{getTranslation('Be the first to share your thoughts!', selectedLanguage)}</p>
                         </div>
                     ) : (
                         <div className="w-full">
@@ -6481,7 +6484,8 @@ const CommentsModal = ({ isOpen, onClose, requestId }) => {
                                 <CommentItem 
                                     key={comment.id} 
                                     comment={comment} 
-                                    onReply={handleReply} 
+                                    onReply={handleReply}
+                                    selectedLanguage={selectedLanguage}
                                 />
                             ))}
                         </div>
@@ -6492,9 +6496,9 @@ const CommentsModal = ({ isOpen, onClose, requestId }) => {
                 <div className="px-4 py-3 border-t border-gray-200 bg-white sticky bottom-0" style={{ zIndex: 30 }}>
                     {replyingTo && (
                         <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
-                            <span>Replying to @{replyingTo.userName}</span>
+                            <span>{getTranslation('Replying to', selectedLanguage)} @{replyingTo.userName}</span>
                             <button onClick={handleCancelReply} className="text-indigo-600 hover:underline">
-                                Cancel
+                                {getTranslation('Cancel', selectedLanguage)}
                             </button>
                         </div>
                     )}
@@ -6510,7 +6514,7 @@ const CommentsModal = ({ isOpen, onClose, requestId }) => {
 									handleSendComment();
 								}
 							}}
-							placeholder={getTranslation('Add a comment... (use @ to mention)', (typeof window !== 'undefined' && (localStorage.getItem('regaarder_language') || 'English')))}
+							placeholder={getTranslation('Add a comment... (use @ to mention)', selectedLanguage)}
 							className="flex-1 bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
 						/>
                         <button 
