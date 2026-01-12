@@ -1941,7 +1941,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 		const [captionTextColor, setCaptionTextColor] = usePref('captionTextColor', "#FFFFFF");
 		const [captionBgOpacity, setCaptionBgOpacity] = usePref('captionBgOpacity', "100% Black");
 		// NEW: editable preview text for captions preview
-		const [captionPreviewText, setCaptionPreviewText] = useState("Example subtitle text");
+		const [captionPreviewText, setCaptionPreviewText] = useState(
+			getTranslation("Example subtitle text", (typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English'))
+		);
 
 		// One-time handle hint visibility (shown once per dialog using localStorage)
 		const [optionsHandleHintVisible, setOptionsHandleHintVisible] = useState(false);
@@ -5094,7 +5096,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									onClick={() => setShowCaptions(false)}
 									className="w-full bg-[#111] text-white py-2 rounded-xl"
 								>
-									Done
+									{getTranslation("Done", selectedLanguage)}
 								</button>
 							</div>
 
