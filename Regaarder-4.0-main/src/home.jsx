@@ -804,8 +804,8 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                 <Icon name="x" size={14} className="text-white" />
                             </div>
                             <div>
-                                <div className="text-sm font-semibold text-black">Agreement required</div>
-                                <div className="text-xs text-gray-500">Please accept our Terms of Service and Privacy Policy</div>
+                                <div className="text-sm font-semibold text-black">{getTranslation('Agreement required', selectedLanguage)}</div>
+                                <div className="text-xs text-gray-500">{getTranslation('Please accept our Terms of Service and Privacy Policy', selectedLanguage)}</div>
                             </div>
                         </div>
                     </div>
@@ -819,8 +819,8 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                 <Icon name="x" size={14} className="text-white" />
                             </div>
                             <div>
-                                <div className="text-sm font-semibold text-black">Name required</div>
-                                <div className="text-xs text-gray-500">Please enter your creator name</div>
+                                <div className="text-sm font-semibold text-black">{getTranslation('Name required', selectedLanguage)}</div>
+                                <div className="text-xs text-gray-500">{getTranslation('Please enter your creator name', selectedLanguage)}</div>
                             </div>
                         </div>
                     </div>
@@ -833,8 +833,8 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                 <Icon name="x" size={14} className="text-white" />
                             </div>
                             <div>
-                                <div className="text-sm font-semibold text-black">Intro required</div>
-                                <div className="text-xs text-gray-500">Please paste a video URL or upload a short intro</div>
+                                <div className="text-sm font-semibold text-black">{getTranslation('Intro required', selectedLanguage)}</div>
+                                <div className="text-xs text-gray-500">{getTranslation('Please paste a video URL or upload a short intro', selectedLanguage)}</div>
                             </div>
                         </div>
                     </div>
@@ -848,8 +848,8 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                 <Icon name="crown" size={20} style={{ color: 'var(--color-gold)' }} />
                             </div>
                             <div>
-                                <div className="text-base font-semibold text-gray-900">Become a Regaardien</div>
-                                <div className="text-xs text-gray-500">Step {step} of {TOTAL_STEPS}</div>
+                                <div className="text-base font-semibold text-gray-900">{getTranslation('Become a Regaardien', selectedLanguage)}</div>
+                                <div className="text-xs text-gray-500">{getTranslation('Step', selectedLanguage)} {step} {getTranslation('of', selectedLanguage)} {TOTAL_STEPS}</div>
                             </div>
                         </div>
                         <button onClick={onClose} className="p-2 text-gray-500"><Icon name="x" size={18} /></button>
@@ -873,7 +873,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
 
                             <div className="mb-6">
                                 <div className="relative w-28 h-28 rounded-full mx-auto" >
-                                    <img src={photo || 'https://placehold.co/160x160/efefef/aaaaaa?text=Photo'} alt="avatar" className="w-full h-full object-cover rounded-full border-4" style={{ borderColor: 'var(--color-gold)' }} />
+                                    <img src={photo || `https://placehold.co/160x160/efefef/aaaaaa?text=${getTranslation('Photo', selectedLanguage)}`} alt="avatar" className="w-full h-full object-cover rounded-full border-4" style={{ borderColor: 'var(--color-gold)' }} />
                                     <button onClick={handlePickPhoto} className="absolute -right-1 -bottom-1 bg-white rounded-full p-2 shadow-lg">
                                         <Icon name="camera" size={18} style={{ color: 'var(--color-gold)' }} />
                                     </button>
@@ -1328,7 +1328,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
 
                 {/* Footer fixed */}
                 <div className="px-4 py-3 border-t border-gray-100 bg-white flex items-center justify-between">
-                    <button onClick={handleBack} className="text-gray-600">Back</button>
+                    <button onClick={handleBack} className="text-gray-600">{getTranslation('Back', selectedLanguage)}</button>
                     <div className="flex items-center space-x-3">
                         <div className="flex items-center space-x-1">
                             {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
@@ -1341,7 +1341,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                             className={`py-2 px-4 font-semibold transition-all ${step === TOTAL_STEPS ? 'rounded-lg shadow-lg' : 'rounded-lg'} ${uploadingIntro ? 'opacity-60 cursor-not-allowed' : ''}`}
                             style={step === TOTAL_STEPS ? { backgroundColor: 'var(--color-final, #7C3AED)', color: 'var(--color-final-text, #fff)' } : { backgroundColor: 'var(--color-accent-safe, var(--color-gold))', color: 'var(--color-accent-text, black)' }}
                         >
-                            {uploadingIntro ? 'Uploading…' : (step < TOTAL_STEPS ? 'Next' : 'Complete Setup')}
+                            {uploadingIntro ? getTranslation('Uploading...', selectedLanguage) : (step < TOTAL_STEPS ? getTranslation('Next', selectedLanguage) : getTranslation('Complete Setup', selectedLanguage))}
                         </button>
                     </div>
                 </div>
