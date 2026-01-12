@@ -2188,48 +2188,48 @@ const WelcomePopupConfig = ({ isOpen, onClose, data, onSave, onPreview, isPrevie
                 <div className="overflow-y-auto p-6 pt-4 space-y-4 scrollbar-hide pb-20">
                     {/* Title */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('Title', selectedLanguage)}</label>
                         <div className="bg-gray-100 rounded-xl px-4 py-3">
                             <input 
                                 type="text" 
                                 value={tempData.title}
                                 onChange={(e) => handleChange('title', e.target.value)}
                                 className="bg-transparent w-full outline-none text-gray-900 font-medium"
-                                placeholder="Enter a title"
+                                placeholder={getTranslation('Enter a title', selectedLanguage)}
                                 autoFocus
                             />
                         </div>
-                        <div className="text-right text-xs text-gray-400 mt-1">{tempData.title.length}/60 characters</div>
+                        <div className="text-right text-xs text-gray-400 mt-1">{tempData.title.length}/60 {getTranslation('characters', selectedLanguage)}</div>
                     </div>
 
                     {/* Message */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('Message', selectedLanguage)}</label>
                         <div className="bg-gray-100 rounded-xl px-4 py-3">
                             <textarea 
                                 value={tempData.message}
                                 onChange={(e) => handleChange('message', e.target.value)}
                                 className="bg-transparent w-full outline-none text-gray-900 resize-none font-medium"
                                 rows={3}
-                                placeholder="Enter your message"
+                                placeholder={getTranslation('Enter your message', selectedLanguage)}
                             />
                         </div>
-                        <div className="text-right text-xs text-gray-400 mt-1">{tempData.message.length}/200 characters</div>
+                        <div className="text-right text-xs text-gray-400 mt-1">{tempData.message.length}/200 {getTranslation('characters', selectedLanguage)}</div>
                     </div>
 
                     {/* CTA Text */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">CTA Button Text</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('CTA Button Text', selectedLanguage)}</label>
                         <div className="bg-gray-100 rounded-xl px-4 py-3">
                             <input 
                                 type="text" 
                                 value={tempData.ctaText}
                                 onChange={(e) => handleChange('ctaText', e.target.value)}
                                 className="bg-transparent w-full outline-none text-gray-900 font-medium"
-                                placeholder="Enter CTA button text"
+                                placeholder={getTranslation('Enter CTA button text', selectedLanguage)}
                             />
                         </div>
-                        <div className="text-right text-xs text-gray-400 mt-1">{tempData.ctaText.length}/40 characters</div>
+                        <div className="text-right text-xs text-gray-400 mt-1">{tempData.ctaText.length}/40 {getTranslation('characters', selectedLanguage)}</div>
                     </div>
                     
                     {/* Buttons */}
@@ -2239,7 +2239,7 @@ const WelcomePopupConfig = ({ isOpen, onClose, data, onSave, onPreview, isPrevie
                             className="flex-1 bg-white border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center"
                         >
                             <Icon name="refresh" size={18} className="mr-2" />
-                            Reset
+                            {getTranslation('Reset', selectedLanguage)}
                         </button>
                         <button 
                             onClick={() => onPreview(tempData)}
