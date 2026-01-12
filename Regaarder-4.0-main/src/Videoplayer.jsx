@@ -8,7 +8,23 @@ import { PlayerContext } from './PlayerProvider.jsx';
 const VideoPlayer = () => {
   const navigate = useNavigate();
 	const location = useLocation();
-	const selectedLanguage = typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English';
+	
+	// FIX: Ensure selectedLanguage updates dynamically when changed elsewhere in the app.
+	const [selectedLanguage, setSelectedLanguage] = useState(
+		(typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English')
+	);
+	
+	useEffect(() => {
+		const handleStorageChange = () => {
+			const current = localStorage.getItem('regaarder_language') || 'English';
+			setSelectedLanguage(current);
+		};
+		
+		// Poll specifically for this legacy component style
+		const interval = setInterval(handleStorageChange, 1000);
+		return () => clearInterval(interval);
+	}, []);
+
   const [error, setError] = useState(null);
   const [videoInfo, setVideoInfo] = useState(null);
   const videoRef = useRef(null);

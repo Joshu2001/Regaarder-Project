@@ -4,7 +4,7 @@
     "userId": "user-1767585399609",
     "lastWatchedTime": 0,
     "duration": 5,
-    "timestamp": "2026-01-12T12:01:15.997Z",
+    "timestamp": "2026-01-12T12:19:16.253Z",
     "isComplete": false
   },
   {
@@ -34,10 +34,10 @@
   {
     "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
     "userId": "user-1767585399609",
-    "lastWatchedTime": 5,
+    "lastWatchedTime": 0,
     "duration": 5,
-    "timestamp": "2026-01-12T12:01:13.296Z",
-    "isComplete": true
+    "timestamp": "2026-01-12T12:23:18.689Z",
+    "isComplete": false
   },
   {
     "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
