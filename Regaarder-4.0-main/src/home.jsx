@@ -3553,6 +3553,23 @@ const App = ({ overrideMiniPlayerData = null }) => {
 
 const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggleBookmark, onUnpinVideo, onOpenShare, onNotInterested, onVideoClick, onAddToPlaylistStart, showRequestsTooltip = false, markRequestsSeen = () => {}, isFirstRequested = false, allVideos = [], selectedLanguage = 'English' }) => { // added tooltip props and allVideos
 
+    // Helper to format date string for display with translation (local to card to avoid scoping issues)
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        if (typeof dateStr !== 'string') return dateStr;
+        
+        const s = dateStr.trim();
+        if (s.match(/just\s*now/i)) return getTranslation('Just now', selectedLanguage);
+
+        const m = s.match(/(\d+)\s*(day|week|month|year|hour|minute)s?\s*ago/i);
+        if (m) {
+            const n = m[1];
+            const unit = m[2].toLowerCase();
+            return getTranslation(`{n} ${unit}s ago`, selectedLanguage).replace('{n}', n);
+        }
+        return dateStr;
+    };
+
     const isFirstCard = video.id === 1;
     const [cardState, setCardState] = useState('details');
     const [isTourActive, setIsTourActive] = useState(isFirstCard);
