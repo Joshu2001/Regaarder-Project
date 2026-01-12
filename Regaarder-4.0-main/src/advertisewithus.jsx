@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from './AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
+import { getTranslation } from './translations.js';
 
 // Lightweight event-bus inlined here to avoid module resolution issues.
 // Exposed on `window.__eventBus` so other modules can use it if present.
@@ -14,6 +15,7 @@ const _on = (event, cb) => {
 
 // Share your vision / Creative brief page
 const ShareVision = ({ setCurrentPage, ACCENT_COLOR }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     const [brief, setBrief] = useState('');
     const [logoData, setLogoData] = useState('');
     const [brandGuideData, setBrandGuideData] = useState('');
@@ -44,8 +46,8 @@ const ShareVision = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <button onClick={() => setCurrentPage('AudienceSelection')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="text-sm text-gray-500">Step 6 of 6</div>
-                <div className="text-sm text-gray-500">100% complete</div>
+                <div className="text-sm text-gray-500">{t('Step 6 of 6')}</div>
+                <div className="text-sm text-gray-500">{t('100% complete')}</div>
             </div>
 
             {/* Progress bar for Step 6 (content-integration path) */}
@@ -153,7 +155,7 @@ const busOff = (e, cb) => (typeof window !== 'undefined' && window.__eventBus &&
 const busEmit = (e, p) => { if (typeof window !== 'undefined' && window.__eventBus && window.__eventBus.emit) { try { window.__eventBus.emit(e, p); } catch (err) {} } else { _emit(e, p); } };
 // Imports for lucide icons
 import { Home, FileText, Lightbulb, MoreHorizontal, Sparkles, Rocket, LineChart, Eye, Zap, Shield, HeartHandshake, ChevronRight, ChevronLeft, FileEdit, DollarSign, Pencil, Heart, Gift, Users, ArrowLeft, Briefcase, Layers, Crown, Upload, ChevronDown, Check, MousePointerClick, Building2 } from 'lucide-react';
-import { translations, getTranslation } from './translations.js';
+import { translations } from './translations.js';
 
 // Helper for in-file translations; reads selected language from localStorage at runtime.
 const t = (key) => {
@@ -2111,6 +2113,7 @@ const SponsorshipFormat = ({ setCurrentPage, ACCENT_COLOR }) => {
 
 // Page shown when user selects 'Sponsor User Requests'
 const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     const [showBudget, setShowBudget] = useState(false);
     // If navigation requested opening budget directly, check flag from localStorage
     useEffect(() => {
@@ -2178,10 +2181,10 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                     <div className="h-full" style={{ width: '67%', background: ACCENT_COLOR }}></div>
                 </div>
 
-                <h1 className="text-2xl font-semibold text-gray-900 mb-3">Configure sponsorship budget</h1>
-                <p className="text-sm text-gray-600 mb-6">Choose how you want to pay for sponsored content</p>
+                <h1 className="text-2xl font-semibold text-gray-900 mb-3">{t('Configure sponsorship budget')}</h1>
+                <p className="text-sm text-gray-600 mb-6">{t('Choose how you want to pay for sponsored content')}</p>
 
-                <h3 className="text-sm font-medium text-gray-800 mb-3">Payment Model</h3>
+                <h3 className="text-sm font-medium text-gray-800 mb-3">{t('Payment Model')}</h3>
 
                 <div className="space-y-4">
                     <button
@@ -2190,8 +2193,8 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                         style={selectedModel === 'Lump' ? { borderColor: ACCENT_COLOR } : undefined}
                     >
                         <div>
-                            <div className="text-lg font-medium text-gray-900">Lump Sum Payment</div>
-                            <div className="text-sm text-gray-500">Pay a fixed amount per sponsored video. Simple and predictable.</div>
+                            <div className="text-lg font-medium text-gray-900">{t('Lump Sum Payment')}</div>
+                            <div className="text-sm text-gray-500">{t('Pay a fixed amount per sponsored video. Simple and predictable.')}</div>
                         </div>
                         <div className="ml-4" style={{ color: ACCENT_COLOR }}>
                             <DollarSign className="w-6 h-6" />
@@ -2205,8 +2208,8 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                         style={selectedModel === 'CPM' ? { backgroundColor: HIGHLIGHT_COLOR } : {}}
                     >
                         <div>
-                            <div className="text-lg font-medium text-gray-900">Pay Per View (CPM)</div>
-                            <div className="text-sm text-gray-500">Pay based on video views. Only pay for actual reach. Fair for creators.</div>
+                            <div className="text-lg font-medium text-gray-900">{t('Pay Per View (CPM)')}</div>
+                            <div className="text-sm text-gray-500">{t('Pay based on video views. Only pay for actual reach. Fair for creators.')}</div>
                         </div>
                         <div className="ml-4" style={{ color: ACCENT_COLOR }}>
                             <Eye className="w-6 h-6" />
@@ -2219,8 +2222,8 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                         style={selectedModel === 'CPC' ? { borderColor: ACCENT_COLOR } : undefined}
                     >
                         <div>
-                            <div className="text-lg font-medium text-gray-900">Pay Per Click (CPC)</div>
-                            <div className="text-sm text-gray-500">Pay only when viewers click your product or link.</div>
+                            <div className="text-lg font-medium text-gray-900">{t('Pay Per Click (CPC)')}</div>
+                            <div className="text-sm text-gray-500">{t('Pay only when viewers click your product or link.')}</div>
                         </div>
                         <div className="ml-4" style={{ color: ACCENT_COLOR }}>
                             <MousePointerClick className="w-6 h-6" />
@@ -2231,7 +2234,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                     {selectedModel === 'Lump' && (
                         <div className="mt-4">
                             <div className="flex items-center justify-between">
-                                <h4 className="text-lg font-medium text-gray-900">Budget per Request</h4>
+                                <h4 className="text-lg font-medium text-gray-900">{t('Budget per Request')}</h4>
                                 <div className="text-xl font-semibold" style={{ color: ACCENT_COLOR }}>${lumpBudget.toLocaleString()}</div>
                             </div>
 
@@ -2253,7 +2256,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                             </div>
 
                             <div className="mt-4">
-                                <div className="text-sm text-gray-500 mb-2">Or enter custom amount (minimum $100)</div>
+                                <div className="text-sm text-gray-500 mb-2">{t('Or enter custom amount (minimum $100)')}</div>
                                 <div className="w-full">
                                         <div className="border border-gray-100 rounded-md p-3 bg-white">
                                             <span className="text-gray-500 mr-3">$</span>
@@ -2279,7 +2282,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                             {/* Rate per 1,000 views */}
                             <div>
                                 <div className="flex items-center justify-between">
-                                    <h4 className="text-lg font-medium text-gray-900">Rate per 1,000 views</h4>
+                                    <h4 className="text-lg font-medium text-gray-900">{t('Rate per 1,000 views')}</h4>
                                     <div className="text-xl font-semibold" style={{ color: ACCENT_COLOR }}>${cpmRate.toFixed(2)}</div>
                                 </div>
 
@@ -2305,14 +2308,14 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                     <div className="w-7 h-7 rounded-md flex items-center justify-center mr-3" style={{ color: ACCENT_COLOR }}>
                                         <Shield className="w-5 h-5" />
                                     </div>
-                                    <div>Minimum $5 CPM protects creator earnings and ensures fair compensation</div>
+                                    <div>{t('Minimum $5 CPM protects creator earnings and ensures fair compensation')}</div>
                                 </div>
                             </div>
 
                             {/* Budget Cap */}
                             <div>
                                 <div className="flex items-center justify-between">
-                                    <h4 className="text-lg font-medium text-gray-900">Budget Cap</h4>
+                                    <h4 className="text-lg font-medium text-gray-900">{t('Budget Cap')}</h4>
                                     <div className="text-xl font-semibold" style={{ color: ACCENT_COLOR }}>${cpmBudget.toLocaleString()}</div>
                                 </div>
 
@@ -2335,7 +2338,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                 </div>
 
                                 <div className="mt-4">
-                                    <div className="text-sm text-gray-500 mb-2">Or enter custom amount (minimum $500)</div>
+                                    <div className="text-sm text-gray-500 mb-2">{t('Or enter custom amount (minimum $500)')}</div>
                                     <div className="w-full">
                                         <div className="border border-gray-100 rounded-md p-3 bg-white">
                                             <span className="text-gray-500 mr-3">$</span>
@@ -2353,7 +2356,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                         </div>
                                     </div>
                                 </div>
-                                <p className="text-sm text-gray-500 mt-3">Maximum you'll pay regardless of views. Payment will be held in escrow upfront.</p>
+                                <p className="text-sm text-gray-500 mt-3">{t('Maximum you\'ll pay regardless of views. Payment will be held in escrow upfront.')}</p>
                             </div>
 
                             {/* Automatic Engagement Bonus */}
@@ -2362,8 +2365,8 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                     <div className="flex items-start">
                                         <input type="checkbox" defaultChecked className="w-5 h-5 mr-3" />
                                         <div>
-                                            <div className="text-lg font-medium text-gray-900">Automatic Engagement Bonus</div>
-                                            <div className="text-sm text-gray-600 mt-1">Reward creators for high engagement (likes, comments, shares)</div>
+                                            <div className="text-lg font-medium text-gray-900">{t('Automatic Engagement Bonus')}</div>
+                                            <div className="text-sm text-gray-600 mt-1">{t('Reward creators for high engagement (likes, comments, shares)')}</div>
                                         </div>
                                     </div>
                                     <div className="font-semibold" style={{ color: ACCENT_COLOR }}><Zap className="w-5 h-5" /></div>
@@ -2371,7 +2374,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
 
                                 <div className="mt-4">
                                     <div className="flex items-center justify-between mb-2">
-                                        <div className="text-sm text-gray-900">Bonus Percentage</div>
+                                        <div className="text-sm text-gray-900">{t('Bonus Percentage')}</div>
                                         <div className="font-semibold" style={{ color: ACCENT_COLOR }}>+5%</div>
                                     </div>
                                     <input
@@ -2384,7 +2387,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                         className="w-full h-2 rounded-full appearance-none bg-gray-200"
                                     />
                                     {/* numeric box removed: header shows the live bonus percentage */}
-                                    <p className="text-sm text-gray-500 mt-3">Creators earn an extra {cpmBonusPct}% if engagement rate exceeds 10%</p>
+                                    <p className="text-sm text-gray-500 mt-3">{t('Creators earn an extra {0}% if engagement rate exceeds 10%').replace('{0}', cpmBonusPct)}</p>
                                 </div>
                             </div>
                         </div>
@@ -2395,7 +2398,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                             {/* Rate per Click */}
                             <div>
                                 <div className="flex items-center justify-between">
-                                    <h4 className="text-lg font-medium text-gray-900">Rate per Click</h4>
+                                    <h4 className="text-lg font-medium text-gray-900">{t('Rate per Click')}</h4>
                                     <div className="text-xl font-semibold" style={{ color: ACCENT_COLOR }}>${cpcRate.toFixed(2)}</div>
                                 </div>
 
@@ -2421,7 +2424,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
 
                                 {/* exact-rate numeric input removed: top amount displays current CPC rate */}
 
-                                <p className="mt-3 text-sm text-gray-600 flex items-center"><Shield className="w-4 h-4 mr-2 text-gray-400" />Minimum ${CPC_RATE_MIN.toFixed(2)} per click ensures fair creator compensation</p>
+                                <p className="mt-3 text-sm text-gray-600 flex items-center"><Shield className="w-4 h-4 mr-2 text-gray-400" />{t('Minimum {0} per click ensures fair creator compensation').replace('{0}', '$' + CPC_RATE_MIN.toFixed(2))}</p>
                             </div>
 
                             {/* CPC image examples removed (not needed) */}
@@ -2429,7 +2432,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                             {/* Budget Cap */}
                             <div>
                                 <div className="flex items-center justify-between">
-                                    <h4 className="text-lg font-medium text-gray-900">Budget Cap</h4>
+                                    <h4 className="text-lg font-medium text-gray-900">{t('Budget Cap')}</h4>
                                     <div className="text-xl font-semibold" style={{ color: ACCENT_COLOR }}>${cpcBudget.toLocaleString()}</div>
                                 </div>
 
@@ -2438,7 +2441,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                         type="range"
                                         min={CPC_BUDGET_MIN}
                                         max={CPC_BUDGET_MAX}
-                                        step="1"
+                                        step={1}
                                         value={cpcBudget}
                                         onChange={(e) => setCpcBudget(Math.max(CPC_BUDGET_MIN, Math.min(CPC_BUDGET_MAX, Number(e.target.value))))}
                                         className="w-full h-2 rounded-full appearance-none bg-gray-200"
@@ -2451,7 +2454,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                 </div>
 
                                 <div className="mt-4">
-                                    <div className="text-sm text-gray-500 mb-2">Or enter custom amount (minimum ${CPC_BUDGET_MIN})</div>
+                                    <div className="text-sm text-gray-500 mb-2">{t('Or enter custom amount (minimum {0})').replace('{0}', '$' + CPC_BUDGET_MIN)}</div>
                                     <div className="w-full">
                                         <div className="border border-gray-100 rounded-md p-3 bg-white">
                                             <span className="text-gray-500 mr-3">$</span>
@@ -2470,7 +2473,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                     </div>
                                 </div>
 
-                                <p className="text-sm text-gray-500 mt-3">Maximum you'll pay regardless of clicks. Payment will be held in escrow upfront.</p>
+                                <p className="text-sm text-gray-500 mt-3">{t('Maximum you\'ll pay regardless of clicks. Payment will be held in escrow upfront.')}</p>
                             </div>
 
                             {/* Automatic Engagement Bonus */}
@@ -2479,8 +2482,8 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                     <div className="flex items-start">
                                         <input type="checkbox" checked={bonusEnabled} onChange={(e) => setBonusEnabled(e.target.checked)} className="w-5 h-5 mr-3" />
                                         <div>
-                                            <div className="text-lg font-medium text-gray-900">Automatic Engagement Bonus</div>
-                                            <div className="text-sm text-gray-600 mt-1">Reward creators for high engagement (likes, comments, shares)</div>
+                                            <div className="text-lg font-medium text-gray-900">{t('Automatic Engagement Bonus')}</div>
+                                            <div className="text-sm text-gray-600 mt-1">{t('Reward creators for high engagement (likes, comments, shares)')}</div>
                                         </div>
                                     </div>
                                     <div className="font-semibold" style={{ color: ACCENT_COLOR }}><Zap className="w-5 h-5" /></div>
@@ -2488,7 +2491,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
 
                                 <div className="mt-4">
                                     <div className="flex items-center justify-between mb-2">
-                                        <div className="text-sm text-gray-900">Bonus Percentage</div>
+                                        <div className="text-sm text-gray-900">{t('Bonus Percentage')}</div>
                                         <div className="font-semibold" style={{ color: ACCENT_COLOR }}>+{bonusPct}%</div>
                                     </div>
                                     <input
@@ -2503,7 +2506,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                     />
                                     {/* numeric box removed: header shows live bonus percentage */}
 
-                                    <p className="text-sm text-gray-500 mt-3">Creators earn an extra {bonusPct}% if engagement rate exceeds 10%</p>
+                                    <p className="text-sm text-gray-500 mt-3">{t('Creators earn an extra {0}% if engagement rate exceeds 10%').replace('{0}', bonusPct)}</p>
                                 </div>
                             </div>
                         </div>
@@ -2521,8 +2524,8 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                                 <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="10" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M7 11V8a5 5 0 0110 0v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-lg font-medium text-gray-900">Secure Escrow Payment</h4>
-                                <p className="text-sm text-gray-600 mt-1">Your payment will be held securely in escrow and released to the creator upon content delivery and your approval.</p>
+                                <h4 className="text-lg font-medium text-gray-900">{t('Secure Escrow Payment')}</h4>
+                                <p className="text-sm text-gray-600 mt-1">{t('Your payment will be held securely in escrow and released to the creator upon content delivery and your approval.')}</p>
                             </div>
                         </div>
                     </div>
@@ -2606,6 +2609,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
 
 // --- Sponsor Summary / Confirmation Page ---
 const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     // Read persisted values (set when user tapped Continue on the budget screen)
     let selectedModel = 'CPM';
     let budgetCap = 0;
@@ -2862,7 +2866,7 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <button onClick={() => setCurrentPage('SponsorUserRequests')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="text-sm text-gray-500">Review</div>
+                <div className="text-sm text-gray-500">{t('Review')}</div>
                 <div style={{ width: 36 }} />
             </div>
 
@@ -2873,15 +2877,15 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                 {/* Compact header above the swipe card (synced with Requests page) */}
                 <div>
                     <div className="text-center mb-3">
-                        <h1 className="text-xl sm:text-2xl font-medium text-gray-900">Browse user requests</h1>
-                        <p className="text-sm text-gray-500 mt-2">Select requests to sponsor that align with your brand</p>
+                        <h1 className="text-xl sm:text-2xl font-medium text-gray-900">{t('Browse user requests')}</h1>
+                        <p className="text-sm text-gray-500 mt-2">{t('Select requests to sponsor that align with your brand')}</p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:space-x-3 mb-4 space-y-3 sm:space-y-0">
                         <div className="relative flex-1">
                             <input
                                 type="search"
-                                placeholder="Search requests..."
+                                placeholder={t("Search requests...")}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none"
@@ -2962,8 +2966,8 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M12 20h.01"></path></svg>
                                 </div>
                                 <div>
-                                    <div className="text-lg font-semibold text-gray-900">Swipe to Sponsor</div>
-                                    <div className="text-sm text-gray-600 mt-1">Swipe right → to sponsor automatically, or swipe left ← to skip/remove</div>
+                                    <div className="text-lg font-semibold text-gray-900">{t('Swipe to Sponsor')}</div>
+                                    <div className="text-sm text-gray-600 mt-1">{t('Swipe right → to sponsor automatically, or swipe left ← to skip/remove')}</div>
                                 </div>
                             </div>
                             <button
@@ -2991,15 +2995,15 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                                     <div className="text-xs text-gray-400">{firstRequest.timeAgo}</div>
                                 </div>
                             </div>
-                            {firstRequest.isTrending && <div className="text-sm text-gray-500 px-2 py-1 rounded-full" style={{ backgroundColor: HIGHLIGHT_COLOR, color: ACCENT_COLOR }}>Trending</div>}
+                            {firstRequest.isTrending && <div className="text-sm text-gray-500 px-2 py-1 rounded-full" style={{ backgroundColor: HIGHLIGHT_COLOR, color: ACCENT_COLOR }}>{t('Trending')}</div>}
                         </div>
 
                         <h3 className="text-xl font-medium text-gray-900 mt-4">{firstRequest.title}</h3>
                         <p className="text-sm text-gray-600 mt-2">{firstRequest.description}</p>
 
                         <div className="mt-3 flex items-center justify-between">
-                            <button className="text-sm" style={{ color: ACCENT_COLOR }}>See more... ▾</button>
-                            <div className="text-sm text-gray-400">{firstRequest.isSponsored ? 'Sponsored' : ''}</div>
+                            <button className="text-sm" style={{ color: ACCENT_COLOR }}>{t('See more...')} ▾</button>
+                            <div className="text-sm text-gray-400">{firstRequest.isSponsored ? t('Sponsored') : ''}</div>
                         </div>
 
                         <div className="mt-4 border-t pt-3 flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-2 sm:space-y-0 text-sm text-gray-500">
@@ -3009,7 +3013,7 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                             </div>
                     </div>
                 ) : (
-                    <div className="p-4 rounded-2xl border border-gray-100 bg-white shadow-sm text-center text-gray-500">No requests match your search or selected category.</div>
+                    <div className="p-4 rounded-2xl border border-gray-100 bg-white shadow-sm text-center text-gray-500">{t('No requests match your search or selected category.')}</div>
                 )}
                 <div className="p-4 rounded-2xl border shadow-sm" style={{ borderColor: ACCENT_COLOR, background: 'linear-gradient(to right, var(--color-gold-light), white)' }}>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
@@ -3018,22 +3022,22 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                                 <Check className="w-5 h-5" />
                             </div>
                             <div>
-                                <div className="text-lg font-semibold text-gray-900">{selectedCount} {selectedCount === 1 ? 'request selected' : 'requests selected'}</div>
-                                <div className="text-sm text-gray-500">Ready to sponsor these video requests</div>
+                                <div className="text-lg font-semibold text-gray-900">{selectedCount} {selectedCount === 1 ? t('request selected') : t('requests selected')}</div>
+                                <div className="text-sm text-gray-500">{t('Ready to sponsor these video requests')}</div>
                             </div>
                         </div>
                         <div className="text-right mt-3 sm:mt-0">
                             <div className="text-2xl font-semibold" style={{ color: ACCENT_COLOR }}>${Number(budgetCap).toLocaleString()}</div>
-                            <div className="text-sm text-gray-500">Budget cap</div>
+                            <div className="text-sm text-gray-500">{t('Budget cap')}</div>
                         </div>
                     </div>
                 </div>
 
                 <div className="p-4 rounded-xl border bg-white shadow-sm">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Sponsorship summary</h4>
-                    <p className="text-sm text-gray-600">Payment model: <span className="font-medium text-gray-900">{selectedModel}</span></p>
-                    <p className="text-sm text-gray-600 mt-2">Budget cap: <span className="font-medium text-gray-900">${Number(budgetCap).toLocaleString()}</span></p>
-                    <p className="text-sm text-gray-600 mt-2">Selected requests: <span className="font-medium text-gray-900">{selectedCount}</span></p>
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">{t('Sponsorship summary')}</h4>
+                    <p className="text-sm text-gray-600">{t('Payment model')}: <span className="font-medium text-gray-900">{t(selectedModel)}</span></p>
+                    <p className="text-sm text-gray-600 mt-2">{t('Budget cap')}: <span className="font-medium text-gray-900">${Number(budgetCap).toLocaleString()}</span></p>
+                    <p className="text-sm text-gray-600 mt-2">{t('Selected requests')}: <span className="font-medium text-gray-900">{selectedCount}</span></p>
                 </div>
 
                 <div className="pt-2">
@@ -3056,6 +3060,7 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
 
 // Escrow / Sponsorship Summary Page
 const EscrowSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     const [selectedCount, setSelectedCount] = useState(0);
     const [selectedModel, setSelectedModel] = useState('CPM');
     const [budgetCap, setBudgetCap] = useState(0);
@@ -3118,39 +3123,39 @@ const EscrowSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                     <div className="mx-auto w-16 h-16 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
                         <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M12 1.75C7.167 1.75 3.25 5.667 3.25 10.5v3.5c0 .966.784 1.75 1.75 1.75h14c.966 0 1.75-.784 1.75-1.75v-3.5C20.75 5.667 16.833 1.75 12 1.75z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </div>
-                    <h2 className="text-2xl font-semibold text-gray-900">Secure escrow payment</h2>
-                    <p className="text-sm text-gray-500 mt-2">Your payment is held securely until creators deliver approved content</p>
+                    <h2 className="text-2xl font-semibold text-gray-900">{t('Secure escrow payment')}</h2>
+                    <p className="text-sm text-gray-500 mt-2">{t('Your payment is held securely until creators deliver approved content')}</p>
                 </div>
 
                 <div className="bg-white border rounded-2xl shadow-sm p-4 mb-6">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">Sponsorship Summary</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">{t('Sponsorship Summary')}</h4>
                     <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
-                        <div>Selected requests</div>
-                        <div className="text-right font-medium text-gray-900">{selectedCount} {selectedCount === 1 ? 'request' : 'requests'}</div>
+                        <div>{t('Selected requests')}</div>
+                        <div className="text-right font-medium text-gray-900">{selectedCount} {selectedCount === 1 ? t('request') : t('requests')}</div>
 
-                        <div>Payment model</div>
-                        <div className="text-right font-medium text-gray-900">{selectedModel === 'CPC' ? 'Pay Per Click (CPC)' : selectedModel === 'CPM' ? 'Pay Per View (CPM)' : selectedModel}</div>
+                        <div>{t('Payment model')}</div>
+                        <div className="text-right font-medium text-gray-900">{selectedModel === 'CPC' ? t('Pay Per Click (CPC)') : selectedModel === 'CPM' ? t('Pay Per View (CPM)') : t(selectedModel)}</div>
 
                         {selectedModel === 'CPC' && cpcRate != null && (
                             <>
-                                <div>CPC rate</div>
-                                <div className="text-right font-medium text-gray-900">${Number(cpcRate).toFixed(2)} per click</div>
+                                <div>{t('CPC rate')}</div>
+                                <div className="text-right font-medium text-gray-900">{t('${0} per click').replace('{0}', Number(cpcRate).toFixed(2))}</div>
                             </>
                         )}
 
                         {selectedModel === 'CPM' && cpmRate != null && (
                             <>
-                                <div>CPM rate</div>
-                                <div className="text-right font-medium text-gray-900">${Number(cpmRate).toFixed(2)} per 1,000 views</div>
+                                <div>{t('CPM rate')}</div>
+                                <div className="text-right font-medium text-gray-900">{t('${0} per 1,000 views').replace('{0}', Number(cpmRate).toFixed(2))}</div>
                             </>
                         )}
 
-                        <div>Budget cap</div>
+                        <div>{t('Budget cap')}</div>
                         <div className="text-right font-medium text-gray-900">${Number(budgetCap).toLocaleString()}</div>
 
                         {engagementBonus && (
                             <>
-                                <div>Engagement bonus</div>
+                                <div>{t('Engagement bonus')}</div>
                                 <div className="text-right font-medium text-gray-900">{engagementBonus}</div>
                             </>
                         )}
@@ -3158,22 +3163,22 @@ const EscrowSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
 
                     <div className="mt-4 border-t pt-4">
                         <div className="flex items-center justify-between">
-                            <div className="text-sm text-gray-600">Amount to escrow</div>
+                            <div className="text-sm text-gray-600">{t('Amount to escrow')}</div>
                             <div className="text-2xl font-semibold" style={{ color: ACCENT_COLOR }}>${Number(budgetCap * selectedCount).toLocaleString()}</div>
                         </div>
-                        <p className="text-xs text-gray-400 mt-1">Unused funds returned after 30 days</p>
+                        <p className="text-xs text-gray-400 mt-1">{t('Unused funds returned after 30 days')}</p>
                     </div>
                 </div>
 
                 <div className="p-4 rounded-2xl border shadow-sm" style={{ background: 'linear-gradient(to right, var(--color-gold-light), white)', borderColor: ACCENT_COLOR }}>
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">How escrow works</h4>
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">{t('How escrow works')}</h4>
                     <ul className="text-sm text-gray-600 space-y-2">
-                        <li> • Your payment is held securely by Regaarder</li>
-                        <li> • Requests are marked "Sponsored" for creators to see</li>
-                        <li> • Creators apply with proposals for each request</li>
-                        <li> • You review and select the best creator(s)</li>
-                        <li> • Creators deliver content featuring your brand</li>
-                        <li> • You approve the content before payment is released</li>
+                        <li> • {t('Your payment is held securely by Regaarder')}</li>
+                        <li> • {t('Requests are marked "Sponsored" for creators to see')}</li>
+                        <li> • {t('Creators apply with proposals for each request')}</li>
+                        <li> • {t('You review and select the best creator(s)')}</li>
+                        <li> • {t('Creators deliver content featuring your brand')}</li>
+                        <li> • {t('You approve the content before payment is released')}</li>
                     </ul>
                 </div>
 
@@ -3213,7 +3218,7 @@ const EscrowSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                     >
                         <span className="inline-flex items-center space-x-2">
                             <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="11" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><path d="M8 11V9a4 4 0 018 0v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                            <span>Secure ${Number(escrowAmount).toLocaleString()} in Escrow</span>
+                            <span>{t('Secure ${0} in Escrow').replace('{0}', Number(escrowAmount).toLocaleString())}</span>
                         </span>
                     </button>
                 </div>
@@ -3222,18 +3227,18 @@ const EscrowSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                     <div className="fixed inset-0 z-40 flex items-center justify-center">
                         <div className="absolute inset-0 bg-black/40" onClick={() => setShowBalanceModal(false)} />
                         <div className="relative bg-white w-full max-w-md mx-auto rounded-xl shadow-lg p-6">
-                            <h3 className="text-lg font-semibold mb-2">Pay from Account Balance</h3>
-                            <p className="text-sm text-gray-600 mb-4">You can use your account balance to secure this payment, or add funds if needed.</p>
+                            <h3 className="text-lg font-semibold mb-2">{t('Pay from Account Balance')}</h3>
+                            <p className="text-sm text-gray-600 mb-4">{t('You can use your account balance to secure this payment, or add funds if needed.')}</p>
                             <div className="mb-4">
-                                <div className="text-sm text-gray-500">Available balance</div>
+                                <div className="text-sm text-gray-500">{t('Available balance')}</div>
                                 <div className="text-2xl font-semibold" style={{ color: ACCENT_COLOR }}>${getAccountBalance().toFixed(2)}</div>
                             </div>
                             <div className="mb-4">
-                                <div className="text-sm text-gray-500">Amount required</div>
+                                <div className="text-sm text-gray-500">{t('Amount required')}</div>
                                 <div className="text-xl font-semibold">${Number(escrowAmount).toLocaleString()}</div>
                             </div>
                             <div className="flex items-center justify-end space-x-3">
-                                <button onClick={() => setShowBalanceModal(false)} className="px-4 py-2 rounded-md border">Cancel</button>
+                                <button onClick={() => setShowBalanceModal(false)} className="px-4 py-2 rounded-md border">{t('Cancel')}</button>
                                 {getAccountBalance() >= Number(escrowAmount) ? (
                                     <button onClick={() => {
                                         const ok = chargeFromAccount(Number(escrowAmount));
@@ -3245,25 +3250,25 @@ const EscrowSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                                         } else {
                                             alert('Unable to deduct from balance.');
                                         }
-                                    }} className="px-4 py-2 rounded-md text-white font-semibold" style={{ backgroundColor: ACCENT_COLOR }}>Pay from Balance</button>
+                                    }} className="px-4 py-2 rounded-md text-white font-semibold" style={{ backgroundColor: ACCENT_COLOR }}>{t('Pay from Balance')}</button>
                                 ) : (
                                     <div className="w-full">
-                                        <div className="text-sm text-gray-600 mb-2">Insufficient balance. Quick Add Funds to proceed.</div>
+                                        <div className="text-sm text-gray-600 mb-2">{t('Insufficient balance. Quick Add Funds to proceed.')}</div>
                                         <div className="flex space-x-2 mb-2">
-                                            <input type="number" min="1" value={miniAfAmount} onChange={(e) => setMiniAfAmount(e.target.value)} placeholder="Amount" className="w-1/2 px-3 py-2 border rounded-md" />
+                                            <input type="number" min="1" value={miniAfAmount} onChange={(e) => setMiniAfAmount(e.target.value)} placeholder={t("Amount")} className="w-1/2 px-3 py-2 border rounded-md" />
                                             <button onClick={async () => {
                                                 try {
                                                     const amt = Math.max(0, Number(miniAfAmount) || 0);
-                                                    if (!amt) return alert('Enter amount');
+                                                    if (!amt) return alert(t('Enter amount'));
                                                     setMiniProcessing(true);
                                                     await stubStripeTokenize({ amount: amt });
                                                     const newBal = getAccountBalance() + amt;
                                                     try { localStorage.setItem('account_balance', String(newBal)); } catch (e) {}
                                                     setMiniAfAmount('');
                                                     setMiniProcessing(false);
-                                                    alert('Funds added. You can now pay from balance.');
+                                                    alert(t('Funds added. You can now pay from balance.'));
                                                 } catch (e) { setMiniProcessing(false); }
-                                            }} className="px-3 py-2 rounded-md text-white" style={{ backgroundColor: ACCENT_COLOR }}>{miniProcessing ? 'Processing...' : 'Add Funds'}</button>
+                                            }} className="px-3 py-2 rounded-md text-white" style={{ backgroundColor: ACCENT_COLOR }}>{miniProcessing ? t('Processing...') : t('Add Funds')}</button>
                                         </div>
                                     </div>
                                 )}
@@ -3278,6 +3283,7 @@ const EscrowSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
 
 // Payment Methods / Secure Collaboration (Step 8 for content-integration flow)
 const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     const [method, setMethod] = useState('card');
     const [selectedCount, setSelectedCount] = useState(0);
     const [budgetCap, setBudgetCap] = useState(0);
@@ -3365,8 +3371,8 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
             <div className="mb-4">
                 <div className="flex items-center justify-between mb-3">
                     <div />
-                    <div className="text-sm text-gray-500">Step 8 of 8</div>
-                    <div className="text-sm text-gray-500">100% complete</div>
+                    <div className="text-sm text-gray-500">{t('Step 8 of 8')}</div>
+                    <div className="text-sm text-gray-500">{t('100% complete')}</div>
                 </div>
 
                 {/* Progress bar */}
@@ -3380,37 +3386,37 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
                     <div className="mx-auto w-16 h-16 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
                         <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><rect x="3" y="7" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M8 7V5a4 4 0 018 0v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </div>
-                    <h2 className="text-2xl font-semibold text-gray-900">Secure your collaboration</h2>
-                    <p className="text-sm text-gray-500 mt-2">Choose your payment method to activate your campaign</p>
+                    <h2 className="text-2xl font-semibold text-gray-900">{t('Secure your collaboration')}</h2>
+                    <p className="text-sm text-gray-500 mt-2">{t('Choose your payment method to activate your campaign')}</p>
                 </div>
             </div>
 
             <div className="max-w-md mx-auto">
                 <div className="mb-6 p-4 rounded-xl bg-white shadow-sm">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">Campaign Summary</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">{t('Campaign Summary')}</h4>
                     <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                        <div>Total Creators:</div>
+                        <div>{t('Total Creators')}:</div>
                         <div className="text-right font-medium text-gray-900">{selectedCount}</div>
-                        <div>Estimated Reach:</div>
+                        <div>{t('Estimated Reach')}:</div>
                         <div className="text-right font-medium text-gray-900">{estReach}</div>
-                        <div>Campaign Budget:</div>
+                        <div>{t('Campaign Budget')}:</div>
                         <div className="text-right font-medium text-gray-900">${Number(budgetCap).toLocaleString()}</div>
                     </div>
                 </div>
 
                 <div className="mb-6 p-4 rounded-xl bg-white shadow-sm">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="text-sm text-gray-700">Total Cost:</div>
+                        <div className="text-sm text-gray-700">{t('Total Cost')}:</div>
                         <div className="text-2xl font-semibold" style={{ color: ACCENT_COLOR }}>${Number(totalCost).toLocaleString()}</div>
                     </div>
 
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">Select Payment Method</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">{t('Select Payment Method')}</h4>
                     <div className="space-y-3">
                         <label className={`flex items-center p-4 rounded-xl border`} style={method === 'card' ? { backgroundColor: HIGHLIGHT_COLOR, boxShadow: '0 0 0 2px rgba(var(--color-gold-rgb),0.08)' } : undefined}>
                             <input type="radio" name="pm" checked={method === 'card'} onChange={() => setMethod('card')} className="mr-3" />
                             <div>
-                                <div className="font-medium text-gray-900">Credit / Debit Card</div>
-                                <div className="text-sm text-gray-500">Visa, Mastercard, Amex</div>
+                                <div className="font-medium text-gray-900">{t('Credit / Debit Card')}</div>
+                                <div className="text-sm text-gray-500">{t('Visa, Mastercard, Amex')}</div>
                             </div>
                         </label>
 
@@ -3418,23 +3424,23 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
                             <input type="radio" name="pm" checked={method === 'paypal'} onChange={() => setMethod('paypal')} className="mr-3" />
                             <div>
                                 <div className="font-medium text-gray-900">PayPal</div>
-                                <div className="text-sm text-gray-500">Pay with your PayPal account</div>
+                                <div className="text-sm text-gray-500">{t('Pay with your PayPal account')}</div>
                             </div>
                         </label>
 
                         <label className={`flex items-center p-4 rounded-xl border`} style={method === 'bank' ? { backgroundColor: HIGHLIGHT_COLOR, boxShadow: '0 0 0 2px rgba(var(--color-gold-rgb),0.08)' } : undefined}>
                             <input type="radio" name="pm" checked={method === 'bank'} onChange={() => setMethod('bank')} className="mr-3" />
                             <div>
-                                <div className="font-medium text-gray-900">Bank Transfer</div>
-                                <div className="text-sm text-gray-500">Direct bank transfer (ACH)</div>
+                                <div className="font-medium text-gray-900">{t('Bank Transfer')}</div>
+                                <div className="text-sm text-gray-500">{t('Direct bank transfer (ACH)')}</div>
                             </div>
                         </label>
 
                         <label className={`flex items-center p-4 rounded-xl border`} style={method === 'balance' ? { backgroundColor: HIGHLIGHT_COLOR, boxShadow: '0 0 0 2px rgba(var(--color-gold-rgb),0.08)' } : undefined}>
                             <input type="radio" name="pm" checked={method === 'balance'} onChange={() => setMethod('balance')} className="mr-3" />
                             <div>
-                                <div className="font-medium text-gray-900">Account Balance</div>
-                                <div className="text-sm text-gray-500">Available: ${(() => { try { return Number(localStorage.getItem('account_balance')||0).toFixed(2); } catch (e) { return '0.00'; } })()}</div>
+                                <div className="font-medium text-gray-900">{t('Account Balance')}</div>
+                                <div className="text-sm text-gray-500">{t('Available')}: ${(() => { try { return Number(localStorage.getItem('account_balance')||0).toFixed(2); } catch (e) { return '0.00'; } })()}</div>
                             </div>
                         </label>
                     </div>
@@ -3442,7 +3448,7 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
 
                 <div className="pt-4">
                     <button onClick={handleSecure} className="w-full flex items-center justify-center space-x-3 text-white font-semibold py-3 px-4 rounded-md shadow-lg" style={{ backgroundColor: ACCENT_COLOR }}>
-                        <span>Secure Payment</span>
+                        <span>{t('Secure Payment')}</span>
                         <ChevronRight className="w-4 h-4 ml-2" />
                     </button>
                 </div>
@@ -3450,18 +3456,18 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
                     <div className="fixed inset-0 z-40 flex items-center justify-center">
                         <div className="absolute inset-0 bg-black/40" onClick={() => setShowBalanceModal(false)} />
                         <div className="relative bg-white w-full max-w-md mx-auto rounded-xl shadow-lg p-6">
-                            <h3 className="text-lg font-semibold mb-2">Pay from Account Balance</h3>
-                            <p className="text-sm text-gray-600 mb-4">Use your available account balance to fund this payment.</p>
+                            <h3 className="text-lg font-semibold mb-2">{t('Pay from Account Balance')}</h3>
+                            <p className="text-sm text-gray-600 mb-4">{t('Use your available account balance to fund this payment.')}</p>
                             <div className="mb-4">
-                                <div className="text-sm text-gray-500">Available balance</div>
+                                <div className="text-sm text-gray-500">{t('Available balance')}</div>
                                 <div className="text-2xl font-semibold" style={{ color: ACCENT_COLOR }}>${getAccountBalance().toFixed(2)}</div>
                             </div>
                             <div className="mb-4">
-                                <div className="text-sm text-gray-500">Amount required</div>
+                                <div className="text-sm text-gray-500">{t('Amount required')}</div>
                                 <div className="text-xl font-semibold">${Number(totalCost).toLocaleString()}</div>
                             </div>
                             <div className="flex items-center justify-end space-x-3">
-                                <button onClick={() => setShowBalanceModal(false)} className="px-4 py-2 rounded-md border">Cancel</button>
+                                <button onClick={() => setShowBalanceModal(false)} className="px-4 py-2 rounded-md border">{t('Cancel')}</button>
                                 {getAccountBalance() >= Number(totalCost) ? (
                                     <button onClick={() => {
                                         const ok = chargeFromAccount(Number(totalCost));
@@ -3484,14 +3490,14 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
                                         } else {
                                             alert('Unable to deduct from balance.');
                                         }
-                                    }} className="px-4 py-2 rounded-md text-white font-semibold" style={{ backgroundColor: ACCENT_COLOR }}>Pay from Balance</button>
+                                    }} className="px-4 py-2 rounded-md text-white font-semibold" style={{ backgroundColor: ACCENT_COLOR }}>{t('Pay from Balance')}</button>
                                 ) : (
                                     <div className="space-y-2 w-full">
-                                        <div className="text-sm text-gray-600">Insufficient balance. Add funds below or choose another payment method.</div>
+                                        <div className="text-sm text-gray-600">{t('Insufficient balance. Add funds below or choose another payment method.')}</div>
                                         <div className="mt-3">
-                                            <div className="text-sm text-gray-700 mb-2">Quick Add Funds (simulate)</div>
+                                            <div className="text-sm text-gray-700 mb-2">{t('Quick Add Funds (simulate)')}</div>
                                             <div className="flex space-x-2 mb-2">
-                                                <input type="number" min="1" value={miniAfAmount} onChange={(e) => setMiniAfAmount(e.target.value)} placeholder="Amount" className="w-1/2 px-3 py-2 border rounded-md" />
+                                                <input type="number" min="1" value={miniAfAmount} onChange={(e) => setMiniAfAmount(e.target.value)} placeholder={t("Amount")} className="w-1/2 px-3 py-2 border rounded-md" />
                                                 <select value={miniAfMethod} onChange={(e) => setMiniAfMethod(e.target.value)} className="w-1/2 px-3 py-2 border rounded-md">
                                                     <option value="card">Card</option>
                                                     <option value="wise">Wise</option>
@@ -3504,7 +3510,7 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
                                                 <button onClick={async () => {
                                                     try {
                                                         const amt = Math.max(0, Number(miniAfAmount) || 0);
-                                                        if (!amt) return alert('Enter amount');
+                                                        if (!amt) return alert(t('Enter amount'));
                                                         setMiniProcessing(true);
                                                         if (miniAfMethod === 'card') {
                                                             await stubStripeTokenize({ amount: amt });
@@ -3516,13 +3522,13 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
                                                         setMiniProcessing(false);
                                                         // After adding, allow immediate pay
                                                         if (getAccountBalance() >= Number(totalCost)) {
-                                                            alert('Funds added. You can now pay from balance.');
+                                                            alert(t('Funds added. You can now pay from balance.'));
                                                         } else {
-                                                            alert('Funds added. Balance updated.');
+                                                            alert(t('Funds added. Balance updated.'));
                                                         }
                                                     } catch (e) { setMiniProcessing(false); }
-                                                }} disabled={miniProcessing} className="px-3 py-2 rounded-md text-white" style={{ backgroundColor: ACCENT_COLOR }}>{miniProcessing ? 'Processing...' : 'Add Funds'}</button>
-                                                <button onClick={() => { setShowBalanceModal(false); setMethod('card'); }} className="px-3 py-2 rounded-md border">Use Card Instead</button>
+                                                }} disabled={miniProcessing} className="px-3 py-2 rounded-md text-white" style={{ backgroundColor: ACCENT_COLOR }}>{miniProcessing ? t('Processing...') : t('Add Funds')}</button>
+                                                <button onClick={() => { setShowBalanceModal(false); setMethod('card'); }} className="px-3 py-2 rounded-md border">{t('Use Card Instead')}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -3538,6 +3544,7 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
 
 // Audience selection page (matches the "Find your audience" screenshots)
 const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     const nicheOptions = [
         'Tech & Innovation', 'Lifestyle', 'Gaming', 'Education',
         'Fitness & Wellness', 'Travel', 'Food & Cooking', 'Music & Arts',
@@ -3590,8 +3597,8 @@ const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) =>
                 <button onClick={() => setCurrentPage('SponsorUserRequests')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="text-sm text-gray-500">Step 5 of 6</div>
-                <div className="text-sm text-gray-500">{progressPct}% complete</div>
+                <div className="text-sm text-gray-500">{t('Step 5 of 6')}</div>
+                <div className="text-sm text-gray-500">{progressPct}% {t('complete')}</div>
             </div>
 
             {/* Visual progress bar */}
@@ -3602,12 +3609,12 @@ const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) =>
             </div>
 
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-medium text-gray-900">Find your audience</h1>
-                <p className="text-sm text-gray-500 mt-2">Select niches and tones that match your brand</p>
+                <h1 className="text-2xl font-medium text-gray-900">{t('Find your audience')}</h1>
+                <p className="text-sm text-gray-500 mt-2">{t('Select niches and tones that match your brand')}</p>
             </div>
 
             <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Creator Niches</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('Creator Niches')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                     {nicheOptions.map(opt => {
                         const Icon = nicheIconMap[opt] || Sparkles;
@@ -3617,7 +3624,7 @@ const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) =>
                                     <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-4" style={{ backgroundColor: ICON_BACKGROUND }}>
                                                         <Icon className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
                                                     </div>
-                                    <div className="text-sm font-medium text-gray-900">{opt}</div>
+                                    <div className="text-sm font-medium text-gray-900">{t(opt)}</div>
                                 </div>
                             </button>
                         );
@@ -3626,17 +3633,17 @@ const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) =>
             </div>
 
             <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Preferred Tone</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('Preferred Tone')}</h3>
                 <div className="grid grid-cols-2 gap-4">
-                    {toneOptions.map(t => {
-                        const Icon = toneIconMap[t] || Sparkles;
+                    {toneOptions.map(tOption => {
+                        const Icon = toneIconMap[tOption] || Sparkles;
                         return (
-                            <button key={t} onClick={() => chooseTone(t)} className={`w-full text-left p-4 rounded-2xl transition`} style={selectedTone === t ? { backgroundColor: HIGHLIGHT_COLOR, boxShadow: '0 0 0 2px rgba(var(--color-gold-rgb),0.12)' } : undefined}>
+                            <button key={tOption} onClick={() => chooseTone(tOption)} className={`w-full text-left p-4 rounded-2xl transition`} style={selectedTone === tOption ? { backgroundColor: HIGHLIGHT_COLOR, boxShadow: '0 0 0 2px rgba(var(--color-gold-rgb),0.12)' } : undefined}>
                                 <div className="flex items-center">
                                     <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-4" style={{ backgroundColor: ICON_BACKGROUND }}>
                                         <Icon className="w-5 h-5" />
                                     </div>
-                                    <div className="text-sm font-medium text-gray-900">{t}</div>
+                                    <div className="text-sm font-medium text-gray-900">{t(tOption)}</div>
                                 </div>
                             </button>
                         );
@@ -3646,7 +3653,7 @@ const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) =>
 
             <div className="text-sm text-gray-500 mb-4 flex items-center">
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M3 12l4 4L21 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                <div>Our AI is analyzing {Math.max(1, Math.min(5, (selectedNiches.length || 2)))} potential creators who match your criteria...</div>
+                <div>{t('Our AI is analyzing {0} potential creators who match your criteria...').replace('{0}', Math.max(1, Math.min(5, (selectedNiches.length || 2))))}</div>
             </div>
 
             <div className="pt-6">
@@ -3670,6 +3677,7 @@ const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) =>
 
 // Meet your matched creators (for content integration flows)
 const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
+    const t = (key) => getTranslation(key, (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
     const [matches, setMatches] = useState([
         { id: 'm1', name: 'Sarah Chen', handle: '@sarahtech', niche: 'Tech & Innovation', reach: '425K', est: 1250 },
         { id: 'm2', name: 'Nina Patel', handle: '@ninafood', niche: 'Food & Cooking', reach: '390K', est: 900 },
@@ -3820,7 +3828,7 @@ const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
                         <button onClick={() => setCurrentPage('SponsorSummary')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                             <ArrowLeft className="w-5 h-5" />
                         </button>
-                        <div className="text-sm text-gray-500">Step 7 of 8</div>
+                        <div className="text-sm text-gray-500">{t('Step 7 of 8')}</div>
                         <div style={{ width: 36 }} />
                     </div>
 
@@ -3835,15 +3843,15 @@ const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
                         <div className="mx-auto w-16 h-16 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
                             <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: ACCENT_COLOR }}><path d="M12 2l2.5 5L20 9l-4 3 1 6-5-3-5 3 1-6L4 9l5.5-2L12 2z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         </div>
-                        <h2 className="text-2xl font-semibold text-gray-900">Meet your matched creators</h2>
-                        <p className="text-sm text-gray-500 mt-2">Our AI found {matches.length} perfect matches for your brand</p>
+                        <h2 className="text-2xl font-semibold text-gray-900">{t('Meet your matched creators')}</h2>
+                        <p className="text-sm text-gray-500 mt-2">{t('Our AI found {0} perfect matches for your brand').replace('{0}', matches.length)}</p>
                     </div>
 
                     {/* Search bar for creators */}
                     <div className="relative mb-4">
                         <input
                             type="search"
-                            placeholder="Search creators by name, handle, or niche..."
+                            placeholder={t("Search creators by name, handle, or niche...")}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none"
@@ -3854,23 +3862,23 @@ const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <div className="max-w-md mx-auto">
 
                 <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">Campaign Summary</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">{t('Campaign Summary')}</h4>
                     <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                        <div>Style:</div>
-                        <div className="text-right font-medium text-gray-900">{style}</div>
-                        <div>Type:</div>
-                        <div className="text-right font-medium text-gray-900">{type || (localStorage.getItem && (localStorage.getItem('sponsor_selected_model') || '—'))}</div>
-                        <div>Budget:</div>
+                        <div>{t('Style')}:</div>
+                        <div className="text-right font-medium text-gray-900">{t(style)}</div>
+                        <div>{t('Type')}:</div>
+                        <div className="text-right font-medium text-gray-900">{type ? t(type) : (localStorage.getItem ? t(localStorage.getItem('sponsor_selected_model') || '—') : '—')}</div>
+                        <div>{t('Budget')}:</div>
                         <div className="text-right font-medium text-gray-900">${Number(budget).toLocaleString()}</div>
-                        <div>Est. Reach:</div>
-                        <div className="text-right font-medium text-gray-900">{budget ? `${Math.round(budget * 80)} views` : '—'}</div>
+                        <div>{t('Est. Reach')}:</div>
+                        <div className="text-right font-medium text-gray-900">{budget ? t('{0} views').replace('{0}', Math.round(budget * 80)) : '—'}</div>
                     </div>
                 </div>
 
                 <div className="mb-4">
                     <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-lg font-medium text-gray-900">AI Matched Creators</h4>
-                        <div className="text-sm text-gray-500">{selectedCreatorIds.length} selected</div>
+                        <h4 className="text-lg font-medium text-gray-900">{t('AI Matched Creators')}</h4>
+                        <div className="text-sm text-gray-500">{t('{0} selected').replace('{0}', selectedCreatorIds.length)}</div>
                     </div>
 
                     <div className="space-y-4">
@@ -3881,9 +3889,9 @@ const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
                                     <div className="flex items-center">
                                         <div className="w-12 h-12 rounded-full bg-gray-100 mr-4 flex items-center justify-center">{m.name.split(' ')[0].charAt(0)}</div>
                                         <div>
-                                            <div className="font-medium text-gray-900">{m.name} <span className="ml-2 text-xs px-2 py-1 rounded-full" style={{ backgroundColor: HIGHLIGHT_COLOR, color: ACCENT_COLOR }}>60% match</span></div>
-                                            <div className="text-sm text-gray-500">{m.handle} · {m.niche}</div>
-                                            <div className="text-sm text-gray-400 mt-1">{m.reach} avg · ${m.est} est.</div>
+                                            <div className="font-medium text-gray-900">{m.name} <span className="ml-2 text-xs px-2 py-1 rounded-full" style={{ backgroundColor: HIGHLIGHT_COLOR, color: ACCENT_COLOR }}>{t('60% match')}</span></div>
+                                            <div className="text-sm text-gray-500">{m.handle} · {t(m.niche)}</div>
+                                            <div className="text-sm text-gray-400 mt-1">{t('{0} avg').replace('{0}', m.reach)} · ${m.est} {t('est.')}</div>
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end">
@@ -3894,9 +3902,9 @@ const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
                                             className={`px-3 py-1 rounded-md text-sm font-medium`}
                                             style={isSelected ? { backgroundColor: ACCENT_COLOR, color: 'white' } : { border: '1px solid rgba(0,0,0,0.06)', backgroundColor: 'white', color: '#374151' }}
                                         >
-                                            {isSelected ? 'Selected' : 'Select'}
+                                            {isSelected ? t('Selected') : t('Select')}
                                         </button>
-                                        <div className="text-xs text-gray-400 mt-2">3 videos ▾</div>
+                                        <div className="text-xs text-gray-400 mt-2">3 {t('videos')} ▾</div>
                                     </div>
                                 </div>
                             );
@@ -3906,7 +3914,7 @@ const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
 
                 <div className="pt-4">
                     <button onClick={() => setCurrentPage('PaymentMethods')} className="w-full flex items-center justify-center space-x-2 text-white font-semibold py-3 px-4 rounded-md shadow-lg" style={{ backgroundColor: ACCENT_COLOR }}>
-                        <span>Continue to Payment</span>
+                        <span>{t('Continue to Payment')}</span>
                         <ChevronRight className="w-4 h-4 ml-2" />
                     </button>
                 </div>
