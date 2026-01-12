@@ -1912,7 +1912,7 @@ const Toast = ({ data, onClose }) => {
     );
 };
 
-const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
+const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLanguage = 'English' }) => {
     if (!isOpen) return null;
 
     const quickAmounts = [5, 10, 25, 50, 100];
