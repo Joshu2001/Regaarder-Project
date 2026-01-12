@@ -2032,12 +2032,12 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false }) => {
     );
 };
 
-const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, customData, isPreview = false }) => {
+const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, customData, isPreview = false, selectedLanguage = 'English' }) => {
     if (!isOpen) return null;
 
-    const title = (customData?.title || '{name} is waiting for you!').replace(/{name}/g, profile.name);
-    const message = (customData?.message || 'Tell {name} what video(s) to create next').replace(/{name}/g, profile.name);
-    const ctaText = (customData?.ctaText || 'Tell {name}').replace(/{name}/g, profile.name);
+    const title = (customData?.title || getTranslation('{name} is waiting for you!', selectedLanguage)).replace(/{name}/g, profile.name);
+    const message = (customData?.message || getTranslation('Tell {name} what video(s) to create next', selectedLanguage)).replace(/{name}/g, profile.name);
+    const ctaText = (customData?.ctaText || getTranslation('Tell {name}', selectedLanguage)).replace(/{name}/g, profile.name);
 
     const navigate = useNavigate();
     const [ctaActive, setCtaActive] = useState(false);
@@ -2105,7 +2105,7 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
 
                 {profile.price && (
                     <div className="bg-gray-100 text-gray-900 px-5 py-2 rounded-xl text-sm font-medium mb-4">
-                        From ${profile.price} USD
+                        {getTranslation('From', selectedLanguage)} ${profile.price} USD
                     </div>
                 )}
 
@@ -2134,19 +2134,19 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
                         className="flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide"
                     >
                         <Icon name="heart" size={18} className="mr-2 flex-shrink-0" />
-                        <span className="truncate">Send a Tip</span>
+                        <span className="truncate">{getTranslation('Send Tip', selectedLanguage)}</span>
                     </button>
                     <button 
                         onClick={onBecomeSponsor}
                         className="flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide"
                     >
                         <Icon name="star" size={18} className="mr-2 flex-shrink-0" />
-                        <span className="truncate">Become a Sponsor</span>
+                        <span className="truncate">{getTranslation('Become a Sponsor', selectedLanguage)}</span>
                     </button>
                 </div>
 
                 <button onClick={onClose} className="text-gray-500 text-sm hover:text-gray-700 font-normal mt-1">
-                    Maybe later
+                    {getTranslation('Maybe later', selectedLanguage)}
                 </button>
             </div>
         </div>
@@ -3486,7 +3486,7 @@ const App = () => {
                 {/* Toast Notification */}
                 {toastMessage && <Toast data={toastMessage} onClose={() => setToastMessage(null)} />}
 
-                {showCompleteProfile && <CompleteProfilePopup isPreview={isPreviewMode} onClose={() => setShowCompleteProfile(false)} profile={profile} onUpdate={handleUpdateProfile} />}
+                {showCompleteProfile && <CompleteProfilePopup isPreview={isPreviewMode} onClose={() => setShowCompleteProfile(false)} profile={profile} onUpdate={handleUpdateProfile} selectedLanguage={selectedLanguage} />}
                 {showWelcomePopup && (
                     <WelcomePopup 
                         isOpen={showWelcomePopup} 
@@ -3505,6 +3505,7 @@ const App = () => {
                             setShowWelcomePopup(false);
                             setShowSendTipPopup(true);
                         }}
+                        selectedLanguage={selectedLanguage}
                     />
                 )}
                 {showWelcomeConfig && (
@@ -3518,10 +3519,11 @@ const App = () => {
                             setPreviewWelcomeData(data);
                             setShowWelcomePopup(true);
                         }}
+                        selectedLanguage={selectedLanguage}
                     />
                 )}
-                {showSponsorPopup && <SponsorPopup isOpen={showSponsorPopup} isPreview={isPreviewMode} onClose={() => setShowSponsorPopup(false)} profile={profile} />}
-                {showSendTipPopup && <SendTipPopup isOpen={showSendTipPopup} isPreview={isPreviewMode} onClose={() => setShowSendTipPopup(false)} profile={profile} />}
+                {showSponsorPopup && <SponsorPopup isOpen={showSponsorPopup} isPreview={isPreviewMode} onClose={() => setShowSponsorPopup(false)} profile={profile} selectedLanguage={selectedLanguage} />}
+                {showSendTipPopup && <SendTipPopup isOpen={showSendTipPopup} isPreview={isPreviewMode} onClose={() => setShowSendTipPopup(false)} profile={profile} selectedLanguage={selectedLanguage} />}
                 {showCTAPopup && (
                     <CTAPopup 
                         isOpen={showCTAPopup} 
