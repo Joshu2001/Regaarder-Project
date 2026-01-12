@@ -1704,17 +1704,17 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                 </div>
             )}
 
-                <h4 className="text-lg font-semibold mb-3">Your Campaigns <span className="text-sm text-gray-400">{(campaignsList || []).length} total</span></h4>
+                <h4 className="text-lg font-semibold mb-3">{t('Your Campaigns')} <span className="text-sm text-gray-400">{(campaignsList || []).length} {t('total')}</span></h4>
                 <div className="space-y-3">
                     {(campaignsList || []).map(c => (
                         <div key={c.id} className="p-4 rounded-xl border border-gray-100 flex items-center justify-between">
                             <div>
-                                <div className="text-base font-medium">Campaign</div>
-                                <div className="text-xs text-gray-500">{c.status}</div>
-                                <div className="text-xs text-gray-400 mt-1">${c.spent} · {c.creators} creators</div>
+                                <div className="text-base font-medium">{c.name || t('Campaign')}</div>
+                                <div className="text-xs text-gray-500">{t(c.status)}</div>
+                                <div className="text-xs text-gray-400 mt-1">${c.spent} · {c.creators} {t('creators')}</div>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <button onClick={() => { /* View opens the inline editor modal */ openEditCampaign(c.id); }} className="px-3 py-1 rounded-md bg-gray-50 text-sm">View</button>
+                                <button onClick={() => { /* View opens the inline editor modal */ openEditCampaign(c.id); }} className="px-3 py-1 rounded-md bg-gray-50 text-sm">{t('View')}</button>
                             </div>
                         </div>
                     ))}
@@ -1726,18 +1726,18 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                         <div className="absolute inset-0 bg-black/40" onClick={closeEditCampaign} />
                         <div className="relative bg-white w-full max-w-md mx-auto rounded-xl shadow-lg p-6">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold">Edit Campaign</h3>
+                                <h3 className="text-lg font-semibold">{t('Edit Campaign')}</h3>
                                 <button onClick={closeEditCampaign} className="text-gray-500">✕</button>
                             </div>
                             <div className="mb-4">
-                                    <label className="block text-sm text-gray-700 mb-2">Title</label>
+                                    <label className="block text-sm text-gray-700 mb-2">{t('Title')}</label>
                                     <input value={editingCampaign.name || ''} onChange={(e) => setEditingCampaign(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 border rounded-md" />
-                                    <div className="text-xs text-gray-500 mt-2">Only the campaign title is editable here. Use "Edit Details" to change payment or other fields inline.</div>
+                                    <div className="text-xs text-gray-500 mt-2">{t('Only the campaign title is editable here. Use "Edit Details" to change payment or other fields inline.')}</div>
                                 </div>
 
                                 {/* Creators shown naturally in modal */}
                                 <div className="mb-4">
-                                    <div className="text-sm text-gray-700 mb-2">Creators</div>
+                                    <div className="text-sm text-gray-700 mb-2">{t('Creators')}</div>
                                     <div className="flex flex-wrap gap-2">
                                         {((editingCampaign ? (Array.isArray(editingCampaign.creatorIds) ? editingCampaign.creatorIds : (function(){ try { const r = localStorage.getItem('matched_selected_creator_ids') || localStorage.getItem('sponsor_selected_ids'); if (r) { const a = JSON.parse(r); if (Array.isArray(a)) return a; } return []; } catch(e){ return []; } })()) : [])).map((id, idx) => (
                                             <div key={id + '_' + idx} className="px-2 py-1 bg-gray-100 text-xs rounded-full">{String(id)}</div>
@@ -1747,21 +1747,21 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
 
                                 {/* Show basic campaign metadata for quick inspection */}
                                     <div className="mb-4 p-3 rounded-md bg-gray-50 border text-sm text-gray-700">
-                                    <div className="flex items-center justify-between"><div className="text-xs text-gray-500">Status</div><div className="font-medium">{editingCampaign.status}</div></div>
-                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">Budget</div><div className="font-medium">${Number(localStorage.getItem('sponsor_budget_cap') || editingCampaign.spent || 0).toLocaleString()}</div></div>
-                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">Creators Hired</div><div className="font-medium">{editingCampaign.creators || Number(localStorage.getItem('sponsor_selected_count') || 0)}</div></div>
-                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">Est. Reach</div><div className="font-medium">{(localStorage.getItem('sponsor_estimated_reach') ? formatCompact(Number(localStorage.getItem('sponsor_estimated_reach'))) + ' views' : '—')}</div></div>
-                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">Escrow</div><div className="font-medium">${Number(localStorage.getItem('sponsor_escrow_amount') || editingCampaign.spent || 0).toLocaleString()}</div></div>
+                                    <div className="flex items-center justify-between"><div className="text-xs text-gray-500">{t('Status')}</div><div className="font-medium">{t(editingCampaign.status)}</div></div>
+                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">{t('Budget')}</div><div className="font-medium">${Number(localStorage.getItem('sponsor_budget_cap') || editingCampaign.spent || 0).toLocaleString()}</div></div>
+                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">{t('Creators Hired')}</div><div className="font-medium">{editingCampaign.creators || Number(localStorage.getItem('sponsor_selected_count') || 0)}</div></div>
+                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">{t('Est. Reach')}</div><div className="font-medium">{(localStorage.getItem('sponsor_estimated_reach') ? formatCompact(Number(localStorage.getItem('sponsor_estimated_reach'))) + ' ' + t('views') : '—')}</div></div>
+                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">{t('Escrow')}</div><div className="font-medium">${Number(localStorage.getItem('sponsor_escrow_amount') || editingCampaign.spent || 0).toLocaleString()}</div></div>
                                 </div>
 
                                 <div className="flex items-center justify-between space-x-2">
                                     <div className="flex items-center space-x-2">
-                                        <button onClick={() => { applyEditCampaign({ name: editingCampaign.name || 'Campaign' }); }} className="px-4 py-2 rounded-md text-white" style={{ backgroundColor: ACCENT_COLOR }}>Save</button>
-                                        <button onClick={() => { if (confirm('Delete this campaign? This cannot be undone.')) deleteCampaign(editingCampaign.id); }} className="px-4 py-2 rounded-md border text-sm">Delete</button>
+                                        <button onClick={() => { applyEditCampaign({ name: editingCampaign.name || 'Campaign' }); }} className="px-4 py-2 rounded-md text-white" style={{ backgroundColor: ACCENT_COLOR }}>{t('Save')}</button>
+                                        <button onClick={() => { if (confirm(t('Delete this campaign? This cannot be undone.'))) deleteCampaign(editingCampaign.id); }} className="px-4 py-2 rounded-md border text-sm">{t('Delete')}</button>
                                     </div>
                                     <div className="flex items-center space-x-2">
-                                        <button onClick={() => { copyCampaign(editingCampaign.id); }} className="px-3 py-2 rounded-md bg-gray-100">Copy</button>
-                                        <button onClick={() => { reuseAsTemplate(editingCampaign.id); }} className="px-3 py-2 rounded-md bg-gray-100">Reuse as Template</button>
+                                        <button onClick={() => { copyCampaign(editingCampaign.id); }} className="px-3 py-2 rounded-md bg-gray-100">{t('Copy')}</button>
+                                        <button onClick={() => { reuseAsTemplate(editingCampaign.id); }} className="px-3 py-2 rounded-md bg-gray-100">{t('Reuse as Template')}</button>
                                     </div>
                                 </div>
 
@@ -1769,16 +1769,16 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                                     {!showEditDetailsInline ? (
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center space-x-2">
-                                                <button onClick={() => { setShowEditDetailsInline(true); }} className="px-3 py-2 rounded-md bg-white border">Edit Details</button>
+                                                <button onClick={() => { setShowEditDetailsInline(true); }} className="px-3 py-2 rounded-md bg-white border">{t('Edit Details')}</button>
                                             </div>
-                                            <div className="text-xs text-gray-500">Tap "Edit Details" to edit payment, creators and budget inline.</div>
+                                            <div className="text-xs text-gray-500">{t('Tap "Edit Details" to edit payment, creators and budget inline.')}</div>
                                         </div>
                                     ) : (
                                         <div>
                                             <div className="mb-3">
-                                                <label className="text-xs text-gray-500">Add Creator ID</label>
+                                                <label className="text-xs text-gray-500">{t('Add Creator ID')}</label>
                                                 <div className="flex items-center mt-2">
-                                                    <input placeholder="creator id" className="px-2 py-1 border rounded-l-md flex-1" id="newCreatorIdInput" />
+                                                    <input placeholder={t("creator id")} className="px-2 py-1 border rounded-l-md flex-1" id="newCreatorIdInput" />
                                                     <button onClick={() => {
                                                         try {
                                                             const el = document.getElementById('newCreatorIdInput');
@@ -1788,15 +1788,15 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                                                             setEditingCampaign(prev => ({ ...prev, creatorIds: nextIds, creators: nextIds.length }));
                                                             if (el) el.value = '';
                                                         } catch(e){}
-                                                    }} className="px-3 py-1 bg-gray-100 border rounded-r-md">Add</button>
+                                                    }} className="px-3 py-1 bg-gray-100 border rounded-r-md">{t('Add')}</button>
                                                 </div>
                                             </div>
                                             <div className="mb-3">
-                                                <label className="text-xs text-gray-500">Budget Cap</label>
+                                                <label className="text-xs text-gray-500">{t('Budget Cap')}</label>
                                                 <input type="number" value={editingCampaign.budgetCap || ''} onChange={(e) => setEditingCampaign(prev => ({ ...prev, budgetCap: e.target.value }))} className="w-full px-2 py-1 border rounded-md mt-1" />
                                             </div>
                                             <div className="mb-3">
-                                                <label className="text-xs text-gray-500">Escrow Amount</label>
+                                                <label className="text-xs text-gray-500">{t('Escrow Amount')}</label>
                                                 <input type="number" value={editingCampaign.escrowAmount || ''} onChange={(e) => setEditingCampaign(prev => ({ ...prev, escrowAmount: e.target.value }))} className="w-full px-2 py-1 border rounded-md mt-1" />
                                             </div>
                                             <div className="flex items-center justify-end space-x-2">
