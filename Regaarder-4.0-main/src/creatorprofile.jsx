@@ -723,9 +723,9 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
                     {/* Stats Row */}
                     <div className="flex space-x-2 mb-2">
-                        <StatCard label="Followers" value={profile.followers || profile.followerCount || "0"} selectedLanguage={selectedLanguage} />
-                        <StatCard label="Views" value={profile.views || profile.totalViews || "0"} selectedLanguage={selectedLanguage} />
-                        <StatCard label="Rating" value="5.0" selectedLanguage={selectedLanguage} />
+                        <StatCard label={getTranslation("Followers", selectedLanguage)} value={profile.followers || profile.followerCount || "0"} selectedLanguage={selectedLanguage} />
+                        <StatCard label={getTranslation("Views", selectedLanguage)} value={profile.views || profile.totalViews || "0"} selectedLanguage={selectedLanguage} />
+                        <StatCard label={getTranslation("Rating", selectedLanguage)} value="5.0" selectedLanguage={selectedLanguage} />
                     </div>
                 </div>
 
@@ -2153,21 +2153,23 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
     );
 };
 
-const WelcomePopupConfig = ({ isOpen, onClose, data, onSave, onPreview, isPreview = false }) => {
+const WelcomePopupConfig = ({ isOpen, onClose, data, onSave, onPreview, isPreview = false, selectedLanguage = 'English' }) => {
     if (!isOpen) return null;
 
-    const [tempData, setTempData] = useState(data);
+    const getDefaults = () => ({
+        title: getTranslation('{name} is waiting for you! 🎬', selectedLanguage),
+        message: getTranslation('Where should {name} go next?', selectedLanguage),
+        ctaText: getTranslation('Tell {name}', selectedLanguage)
+    });
+
+    const [tempData, setTempData] = useState(data || getDefaults());
 
     const handleChange = (field, value) => {
         setTempData(prev => ({ ...prev, [field]: value }));
     };
 
     const handleReset = () => {
-        setTempData({
-            title: '{name} is waiting for you! 🎬',
-            message: 'Where should {name} go next?',
-            ctaText: 'Tell {name}'
-        });
+        setTempData(getDefaults());
     };
 
     return (
@@ -2614,7 +2616,7 @@ const CompleteProfilePopup = ({ onClose, profile, onUpdate, isPreview = false })
                         className="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 text-sm font-normal flex items-center"
                     >
                         <Icon name="x" size={18} className="mr-1" />
-                        Exit
+                        {getTranslation('Exit', selectedLanguage)}
                     </button>
                     <button
                         onClick={() => {
@@ -2625,7 +2627,7 @@ const CompleteProfilePopup = ({ onClose, profile, onUpdate, isPreview = false })
                         className="px-6 py-2 rounded-lg bg-[var(--color-gold)] text-white font-bold text-sm flex items-center gap-2"
                     >
                         <Icon name="save" size={18} className="mr-1" />
-                        Save
+                        {getTranslation('Save', selectedLanguage)}
                     </button>
                 </div>
             </div>
@@ -2667,11 +2669,7 @@ const App = () => {
         social: { twitter: '', instagram: '' },
         email: ''
     });
-    const [welcomeData, setWelcomeData] = useState({
-        title: '{name} is waiting for you!',
-        message: 'Tell {name} what video(s) to create next',
-        ctaText: 'Tell {name}'
-    });
+    const [welcomeData, setWelcomeData] = useState(null);
     const [previewWelcomeData, setPreviewWelcomeData] = useState(null);
 
     useEffect(() => {
@@ -3514,6 +3512,7 @@ const App = () => {
                         isPreview={isPreviewMode}
                         onClose={() => setShowWelcomeConfig(false)}
                         data={welcomeData}
+                        selectedLanguage={selectedLanguage}
                         onSave={setWelcomeData}
                         onPreview={(data) => {
                             setPreviewWelcomeData(data);

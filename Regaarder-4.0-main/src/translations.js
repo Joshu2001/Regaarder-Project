@@ -3408,6 +3408,11 @@ export const translations = {
     'month': 'tháng',
     '/month': '/tháng',
     '{name} is waiting for you!': '{name} đang đợi bạn!',
+    'Followers': 'Người theo dõi',
+    'Rating': 'Đánh giá',
+    'Views': 'Lượt xem',
+    'Tip': 'Tiền boa',
+    "Your idea → {creator}'s next video": 'Ý tưởng của bạn → Video tiếp theo của {creator}',
   },
 
   'Filipino': {
