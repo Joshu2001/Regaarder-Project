@@ -1467,6 +1467,8 @@ export const translations = {
     // Top Header
     'Notifications': '通知',
     'Settings': '設定',
+    'New Message': '新訊息',
+    'Reply': '回覆',
     
     // Search
     'Search creators or videos...': '搜索創作者或影片...',
@@ -2680,6 +2682,8 @@ export const translations = {
     // Top Header
     'Notifications': 'Thông báo',
     'Settings': 'Cài đặt',
+    'New Message': 'Tin nhắn mới',
+    'Reply': 'Trả lời',
     
     // Search
     'Search creators or videos...': 'Tìm kiếm nhà sáng tạo hoặc video...',
@@ -4191,6 +4195,8 @@ export const translations = {
     // Top Header
     'Notifications': 'Mga Abiso',
     'Settings': 'Mga Setting',
+    'New Message': 'Bagong Mensahe',
+    'Reply': 'Sumagot',
     
     // Search
     'Search creators or videos...': 'Maghanap ng mga creator o video...',
@@ -4885,6 +4891,8 @@ export const translations = {
     // Top Header
     'Notifications': 'Notificaciones',
     'Settings': 'Ajustes',
+    'New Message': 'Nuevo mensaje',
+    'Reply': 'Responder',
     
     // Search
     'Search creators or videos...': 'Buscar creadores o videos...',
@@ -5865,6 +5873,8 @@ export const translations = {
     // Top Header
     'Notifications': 'Teated',
     'Settings': 'Seaded',
+    'New Message': 'Uus sõnum',
+    'Reply': 'Vasta',
     
     // Search
     'Search creators or videos...': 'Otsi loojaid või videoid...',

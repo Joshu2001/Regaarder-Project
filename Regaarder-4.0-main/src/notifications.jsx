@@ -148,7 +148,7 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
           )}
        </div>
      );
-     actionLabel = 'Reply';
+     actionLabel = getTranslation('Reply', selectedLanguage);
   }
 
   const handleSendReply = () => {

@@ -928,7 +928,13 @@
       "selectedTones": [],
       "selectedVideoLength": "long-form",
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T04:08:53.176Z"
   },
   {
     "id": "req_1767181270609",
@@ -1065,7 +1071,13 @@
       "id": "user-1767166657751",
       "name": "John",
       "image": ""
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T04:06:18.872Z"
   },
   {
     "id": "req_1767177359888",
