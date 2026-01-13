@@ -1399,7 +1399,7 @@ const ClaimStatusPanel = ({
                                                 // basic validation (same as before)
                                                 if (!videoFile) { setValidationError('Please upload a video before continuing.'); return; }
                                                 if (!thumbnailFile) { setValidationError('Please upload a thumbnail before continuing.'); return; }
-                                                if (!videoTitle || videoTitle.trim().length === 0) { setValidationError('Please add a video title before continuing.'); return; }
+                                                if (!videoTitle || videoTitle.trim().length === 0) { setValidationError(getTranslation('Please add a video title before continuing.', selectedLanguage)); return; }
                                                 if (!category) { setValidationError(getTranslation('Please select a category for your video.', selectedLanguage)); return; }
                                                 // Script type and script file are now optional - no validation needed
                                                 // if (!scriptType) { setValidationError('Please select a Script Type for your video.'); return; }

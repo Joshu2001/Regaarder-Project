@@ -949,7 +949,13 @@
       "selectedTones": [],
       "selectedVideoLength": "long-form",
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T02:47:12.571Z"
   },
   {
     "id": "req_1767180865681",
@@ -970,7 +976,15 @@
       "selectedTones": [],
       "selectedVideoLength": "short-form",
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T03:33:08.556Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-13T03:39:03.850Z"
   },
   {
     "id": "req_1767179352494",
@@ -991,7 +1005,15 @@
       "selectedTones": [],
       "selectedVideoLength": "extended",
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T02:48:28.061Z",
+    "currentStep": 5,
+    "updatedAt": "2026-01-13T02:51:43.616Z"
   },
   {
     "id": "req_1767178295712",
@@ -1128,7 +1150,15 @@
       "id": "user-1767166657751",
       "name": "John",
       "image": ""
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T03:20:48.511Z",
+    "currentStep": 5,
+    "updatedAt": "2026-01-13T03:21:02.809Z"
   },
   {
     "id": "req_1767175504378",

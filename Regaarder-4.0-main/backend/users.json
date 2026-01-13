@@ -49,13 +49,13 @@
     "token": "5a9ace2d8e6bbf594fcedb4e2274d886",
     "isCreator": true,
     "creatorSince": "2026-01-12T08:24:51.780Z",
-    "image": "http://localhost:4000/uploads/intro-1767699650608-178239.jpg",
+    "image": "http://localhost:4000/uploads/intro-1768275509856-543715.jpg",
     "following": [
       "user-1767585399609",
       "user-1766857658728"
     ],
-    "streak": 4,
-    "lastStreakDate": "2026-01-12",
+    "streak": 5,
+    "lastStreakDate": "2026-01-13",
     "bio": "",
     "categories": [
       {
@@ -1178,7 +1178,8 @@
           }
         ]
       }
-    ]
+    ],
+    "introVideo": "http://localhost:4000/uploads/intro-1768275513124-804289.mp4"
   },
   {
     "id": "user-1768222892161",
