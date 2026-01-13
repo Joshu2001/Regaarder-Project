@@ -1126,7 +1126,10 @@ app.post('/requests', authMiddleware, (req, res) => {
     const body = req.body || {};
     if (!body.title || !body.description) return res.status(400).json({ error: 'Missing title or description' });
     const requests = readRequests();
-    const id = `req_${Date.now()}`;
+    
+    // Use client-provided ID if available (for optimistic UI consistency), else generate one
+    const id = (body.id && String(body.id).startsWith('req_')) ? body.id : `req_${Date.now()}`;
+    
     const parsedAmount = (typeof body.amount === 'number') ? body.amount : (body.amount ? Number(body.amount) : 0);
     const newReq = {
       id,

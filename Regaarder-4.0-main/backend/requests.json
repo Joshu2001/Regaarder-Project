@@ -1114,7 +1114,13 @@
       "id": "user-1767166657751",
       "name": "John",
       "image": ""
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T06:22:43.677Z"
   },
   {
     "id": "req_1767176689754",
@@ -1212,7 +1218,13 @@
       "id": "user-1767166657751",
       "name": "John",
       "image": ""
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T06:21:16.240Z"
   },
   {
     "id": 1,

@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
 import { getTranslation } from './translations.js';
 import {
@@ -2576,6 +2577,7 @@ const ReviewRequestStep = ({
 
 // --- Main Booking Page Component ---
 const App = () => {
+  const navigate = useNavigate();
   // Language State - Load from localStorage
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
     try {
@@ -3699,6 +3701,17 @@ const App = () => {
         },
       };
 
+      // Optimistically save to local storage immediately so it appears on the Requests page 
+      // even if the user navigates before the backend responds.
+      try {
+        const raw = window.localStorage.getItem(REQUESTS_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (!arr.some(r => r.id === newRequest.id)) {
+            arr.unshift(newRequest);
+            window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
+        }
+      } catch (e) { /* ignore storage errors */ }
+
       // Persist to backend so the Requests feed shows it for all users.
       (async () => {
         try {
@@ -3712,6 +3725,7 @@ const App = () => {
             method: 'POST',
             headers,
             body: JSON.stringify({
+              id: newRequest.id, // Share ID with backend for consistency
               title: newRequest.title,
               description: newRequest.description,
               creator: newRequest.creator,
@@ -3723,11 +3737,16 @@ const App = () => {
           // If backend saved and returned the created request, use that object
           const published = (data && data.request) ? data.request : newRequest;
 
-          // Prepend to stored requests list (local cache) using the persisted object
+          // Update the stored request with the authoritative version from backend
           try {
             const raw = window.localStorage.getItem(REQUESTS_KEY);
-            const arr = raw ? JSON.parse(raw) : [];
-            arr.unshift(published);
+            let arr = raw ? JSON.parse(raw) : [];
+            // Replace the optimistic entry with the server response
+            arr = arr.map(r => r.id === newRequest.id ? published : r);
+            // If for some reason it wasn't there (race condition), ensure it is added
+            if (!arr.find(r => r.id === published.id)) {
+                arr.unshift(published);
+            }
             window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
           } catch (e) { /* ignore storage errors */ }
 
@@ -3737,13 +3756,7 @@ const App = () => {
             window.dispatchEvent(ev);
           } catch (e) {}
         } catch (err) {
-          // If network fails, fallback to local-only behavior
-          try {
-            const raw = window.localStorage.getItem(REQUESTS_KEY);
-            const arr = raw ? JSON.parse(raw) : [];
-            arr.unshift(newRequest);
-            window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
-          } catch (e) {}
+          // If network fails, we already have the optimistic save.
           try { const ev = new CustomEvent('ideas:request_created', { detail: newRequest }); window.dispatchEvent(ev); } catch (e) {}
         }
       })();
@@ -3785,6 +3798,15 @@ const App = () => {
     // Clear pending and close modal
     setPendingSubmission(null);
     setPaymentModalOpen(false);
+
+    // Redirect to requests page immediately so user sees the new item
+    setTimeout(() => {
+        try {
+            navigate('/requests?filter=Newest');
+        } catch (e) {
+            window.location.href = '/requests?filter=Newest'; 
+        }
+    }, 100);
   };
 
   // Persist edits made inside the ReviewRequestStep back to global state

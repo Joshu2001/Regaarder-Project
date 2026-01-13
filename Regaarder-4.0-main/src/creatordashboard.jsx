@@ -1948,8 +1948,8 @@ const App = () => {
                 if (claimData) {
                     // Switch to Claims tab
                     setActiveTopTab('Claims');
-                    // Set the claimed request data
-                    setClaimedRequest({
+                    // Add the claimed request data
+                    const newClaim = {
                         id: claimData.requestId,
                         title: claimData.title,
                         requesterName: claimData.requesterName,
@@ -1958,8 +1958,14 @@ const App = () => {
                         description: claimData.description,
                         currentStep: claimData.currentStep || 1,
                         claimedAt: claimData.claimedAt
+                    };
+                    
+                    setClaimedRequests(prev => {
+                         // Avoid duplicates just in case
+                         if (prev.some(r => r.id === newClaim.id)) return prev;
+                         return [newClaim, ...prev];
                     });
-                    // Ensure panel is expanded
+                     // Ensure panel is expanded
                     setClaimsMinimized(false);
                 }
             } catch (e) {
@@ -1993,24 +1999,35 @@ const App = () => {
         const others = baseTopTabs.filter(t => !t.toLowerCase().includes(normalized));
         return [...matches, ...others];
     };
-    const [claimedRequest, setClaimedRequest] = useState(() => {
+    const [claimedRequests, setClaimedRequests] = useState(() => {
         try {
-            const saved = (typeof localStorage !== 'undefined') && localStorage.getItem('claimedRequest');
-            return saved ? JSON.parse(saved) : null;
-        } catch (e) { return null; }
+            const saved = (typeof localStorage !== 'undefined') && localStorage.getItem('claimedRequests');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) { return []; }
     });
+    // For backward compatibility or reupload, we might use a separate state or just append to list.
+    // We will use claimedRequests exclusively for the claims tab.
 
     useEffect(() => {
         try {
             if (typeof localStorage !== 'undefined') {
-                if (claimedRequest) {
-                    localStorage.setItem('claimedRequest', JSON.stringify(claimedRequest));
-                } else {
-                    localStorage.removeItem('claimedRequest');
-                }
+                 localStorage.setItem('claimedRequests', JSON.stringify(claimedRequests));
             }
         } catch (e) {}
-    }, [claimedRequest]);
+    }, [claimedRequests]);
+
+    useEffect(() => {
+        const handleStorage = (e) => {
+            if (e.key === 'claimedRequests') {
+                 try {
+                     const val = e.newValue;
+                     setClaimedRequests(val ? JSON.parse(val) : []);
+                 } catch (err) {}
+            }
+        };
+        window.addEventListener('storage', handleStorage);
+        return () => window.removeEventListener('storage', handleStorage);
+    }, []);
 
     const [pendingReuploadItem, setPendingReuploadItem] = useState(null);
     const [claimsMinimized, setClaimsMinimized] = useState(false);
@@ -2181,56 +2198,73 @@ const App = () => {
         }
     };
 
-    // Re-upload flow: set `pendingReuploadItem` and switch to Claims so ClaimStatusPanel can open the publish modal
+    // Re-upload flow: set `pendingReuploadItem` and switch to Claims
     const openReupload = (item) => {
-        setPendingReuploadItem(item);
-        // Ensure Claims tab shows the Publish UI by setting a claimed request
-        try {
-            setClaimedRequest((prev) => ({
-                ...(prev || {}),
-                title: item && item.title ? item.title : (prev && prev.title) || getTranslation('Untitled', selectedLanguage),
-                requesterName: item && item.requesterName ? item.requesterName : (prev && prev.requesterName) || getTranslation('Requester', selectedLanguage),
-                requesterAvatar: item && item.requesterAvatar ? item.requesterAvatar : (prev && prev.requesterAvatar) || null,
-                currentStep: 5,
-            }));
-        } catch (e) {
-            // ignore
-        }
+        const newId = 'reupload-' + Date.now();
+        const newClaim = {
+            id: newId,
+            title: item?.title || getTranslation('Untitled', selectedLanguage),
+            requesterName: item?.requesterName || getTranslation('Requester', selectedLanguage),
+            requesterAvatar: item?.requesterAvatar || null,
+            currentStep: 5,
+            isReupload: true
+        };
+        setClaimedRequests(prev => [newClaim, ...prev]);
+        setPendingReuploadItem({ ...item, targetClaimId: newId });
+        setActiveTopTab('Claims');
+    };
+
+    const handleStartUpload = () => {
+        const newId = 'upload-' + Date.now();
+        const newClaim = {
+            id: newId,
+            title: '',
+            requesterName: getTranslation('You', selectedLanguage),
+            requesterAvatar: null,
+            currentStep: 5,
+            isReupload: false
+        };
+        setClaimedRequests(prev => [newClaim, ...prev]);
+        setPendingReuploadItem({ 
+            title: '', 
+            thumbnail: null, 
+            openInForm: true, 
+            isReupload: false,
+            targetClaimId: newId 
+        });
         setActiveTopTab('Claims');
     };
 
     // Callback passed to RequestsFeed so it can tell the parent to switch to Claimed
-    // Optionally accepts a `request` object with details (title, requester, avatar, currentStep)
     const handleRequestClaim = (request) => {
         setActiveTopTab('Claims');
-        if (request && typeof request === 'object') setClaimedRequest(request);
+        if (request && typeof request === 'object') {
+             setClaimedRequests(prev => {
+                 if (prev.some(r => r.id === request.id)) return prev;
+                 return [request, ...prev];
+             });
+        }
     };
 
     // Called when the ClaimStatusPanel modal advances the status
-    const handleUpdateClaimStatus = (nextStep, message) => {
-        setClaimedRequest((prev) => {
-            if (!prev) {
-                return { title: 'A night tour of taipei', requesterName: 'AllVater', requesterAvatar: null, currentStep: nextStep };
-            }
-            return { ...prev, currentStep: nextStep };
+    const handleUpdateClaimStatus = (nextStep, message, requestId) => {
+        setClaimedRequests((prev) => {
+            return prev.map(req => {
+                if (req.id === requestId) {
+                    return { ...req, currentStep: nextStep };
+                }
+                return req;
+            });
         });
         // Ensure this request is considered active in the Requests list so
         // the Active Requests card and the Claims view reflect the update.
         try {
             setRequestsList((prev) => {
                 const list = Array.isArray(prev) ? prev.slice() : [];
-                if (!claimedRequest) return list;
+                if (!requestId) return list;
 
-                // try to find by id first
-                let idx = -1;
-                if (claimedRequest.id) {
-                    idx = list.findIndex((r) => r && r.id && r.id === claimedRequest.id);
-                }
-                // fallback to title match
-                if (idx === -1) {
-                    const t = (claimedRequest.title || '').toString().trim().toLowerCase();
-                    idx = list.findIndex((r) => ((r.title || '').toString().trim().toLowerCase() === t));
-                }
+                // try to find by id
+                const idx = list.findIndex((r) => r && r.id === requestId);
 
                 if (idx !== -1) {
                     // update existing entry's step (preserve other fields)
@@ -2238,14 +2272,10 @@ const App = () => {
                     list.splice(idx, 1, updated);
                     return list;
                 }
-
-                // not found — add to the front as an active request
-                const newReq = { ...(claimedRequest || {}), currentStep: nextStep };
-                return [newReq, ...list];
+                return list;
             });
         } catch (e) {
-            // swallow errors — still proceed
-            console.warn('Failed to mark request active', e);
+            console.warn('Update claim stats error', e);
         }
         // Optionally store or send `message` to server here.
         console.log('Status updated to', nextStep, 'message:', message);
@@ -2253,7 +2283,7 @@ const App = () => {
         // Update server and notify requester
         try {
             const token = localStorage.getItem('regaarder_token');
-            const rid = (claimedRequest && claimedRequest.id);
+            const rid = requestId;
             if (token && rid) {
                 const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
                 fetch(`${BACKEND}/requests/${rid}/status`, {
@@ -2270,8 +2300,7 @@ const App = () => {
         } catch (e) {
             console.error('Failed to update status on server', e);
         }
-        // Try to resync published list from localStorage in case the publish
-        // occurred inside ClaimStatusPanel (which writes to localStorage).
+        // Try to resync published list from localStorage
         try {
             const raw = (typeof localStorage !== 'undefined') && localStorage.getItem('publishedItems');
             if (raw) setPublishedList(JSON.parse(raw));
@@ -2584,10 +2613,10 @@ const App = () => {
                     <RequestsFeed onClaim={handleRequestClaim} onData={setRequestsList} />
                 </div>
             ) : activeTopTab === 'Claims' ? (
-                <div className="px-6 mt-7">
-                    <h3 className="text-[18px] font-semibold text-gray-900 mb-2">{getTranslation('Claims', selectedLanguage)}</h3>
-                    {/* Active requests (not yet matched to published items) and total potential earnings */}
-                    {(() => {
+                <div className="px-6 mt-7 pb-20">
+                    <h3 className="text-[18px] font-semibold text-gray-900 mb-4">{getTranslation('Active Claims', selectedLanguage)}</h3>
+                    {/* Active requests stats */}
+                     {(() => {
                         const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title||'')||'').toString().trim().toLowerCase() === ((r.title||'')||'').toString().trim().toLowerCase())));
                         const activeCount = unpublished.length;
                         const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
@@ -2598,8 +2627,8 @@ const App = () => {
                             </div>
                         );
                     })()}
-                    <div>
-                        {!claimedRequest ? (
+                    
+                    {claimedRequests.length === 0 ? (
                             <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
                                 <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
                                     <CheckCheck size={32} className="text-[var(--color-gold)]" />
@@ -2616,60 +2645,24 @@ const App = () => {
                                     {getTranslation('Browse Requests', selectedLanguage)}
                                 </button>
                             </div>
-                        ) : claimsMinimized ? (
-                            <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-4 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-md bg-[var(--color-gold-light-bg)] flex items-center justify-center">
-                                        <Video size={18} className="text-[var(--color-gold)]" />
-                                    </div>
-                                    <div>
-                                        <div className="font-semibold text-gray-900">
-                                            {(() => {
-                                                try {
-                                                    const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title||'')||'').toString().trim().toLowerCase() === ((r.title||'')||'').toString().trim().toLowerCase())));
-                                                    const total = Math.max(1, (unpublished && unpublished.length) || 0);
-                                                    if (!claimedRequest) {
-                                                        const n = 1;
-                                                        return (<><span>{`Request #${n}`}</span><span className="ml-2 text-xs text-gray-500">{`#${n} of ${total}`}</span></>);
-                                                    }
-                                                    // Prefer matching by id when available
-                                                    let idx = -1;
-                                                    if (claimedRequest && claimedRequest.id) {
-                                                        idx = unpublished.findIndex((r) => r && r.id && r.id === claimedRequest.id);
-                                                    }
-                                                    // Fallback to title match (normalized)
-                                                    if (idx === -1) {
-                                                        const targetTitle = (claimedRequest.title || '').toString().trim().toLowerCase();
-                                                        idx = unpublished.findIndex((r) => ((r.title||'').toString().trim().toLowerCase() === targetTitle));
-                                                    }
-                                                    const n = Math.max(1, (idx === -1 ? 0 : idx) + 1);
-                                                    return (<><span>{`Request #${n}`}</span><span className="ml-2 text-xs text-gray-500">{`#${n} of ${total}`}</span></>);
-                                                } catch (e) {
-                                                    return (<><span>Request #1</span><span className="ml-2 text-xs text-gray-500">#1 of 1</span></>);
-                                                }
-                                            })()}
-                                        </div>
-                                        <div className="text-xs text-gray-500 truncate max-w-[260px]">{claimedRequest ? (claimedRequest.title || 'Active claim') : 'No active claim'}</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button onClick={() => setClaimsMinimized(false)} className="px-3 py-1 rounded-md border border-gray-200 bg-white text-sm">{getTranslation('Expand', selectedLanguage)}</button>
-                                    <button onClick={() => { setClaimsMinimized(false); setClaimedRequest(null); }} className="px-3 py-1 rounded-md border border-gray-200 bg-white text-sm">{getTranslation('Close', selectedLanguage)}</button>
-                                </div>
-                            </div>
-                        ) : (
-                            <ClaimStatusPanel
-                                title={claimedRequest ? claimedRequest.title : undefined}
-                                requesterName={claimedRequest ? claimedRequest.requesterName : undefined}
-                                requesterAvatar={claimedRequest ? claimedRequest.requesterAvatar : undefined}
-                                currentStep={claimedRequest ? (claimedRequest.currentStep || 1) : undefined}
-                                onClose={() => setClaimsMinimized(true)}
-                                onUpdateProgress={handleUpdateClaimStatus}
-                                pendingReuploadItem={pendingReuploadItem}
-                                clearPendingReupload={() => setPendingReuploadItem(null)}
-                            />
-                        )}
-                    </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {claimedRequests.map((req) => (
+                                <ClaimStatusPanel
+                                    key={req.id || Math.random()} 
+                                    title={req.title}
+                                    requesterName={req.requesterName}
+                                    requesterAvatar={req.requesterAvatar}
+                                    currentStep={req.currentStep || 1}
+                                    onClose={() => {}}
+                                    onUpdateProgress={(step, msg) => handleUpdateClaimStatus(step, msg, req.id)}
+                                    // Pass pendingReuploadItem ONLY if it targets this request (or if reupload has no target ID, pass to first/active?)
+                                    pendingReuploadItem={pendingReuploadItem && (pendingReuploadItem.targetClaimId === req.id) ? pendingReuploadItem : null}
+                                    clearPendingReupload={() => setPendingReuploadItem(null)}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             ) : activeTopTab === 'Published' ? (
                 <div className="px-6 mt-7">
@@ -2780,14 +2773,7 @@ const App = () => {
                                     if (allowed) {
                                         return (
                                             <>
-                                                <button onClick={() => {
-                                                    // Open the Claims tab and show the publish modal (form step)
-                                                    try {
-                                                        setClaimedRequest((prev) => ({ ...(prev || {}), title: '', requesterName: 'You', requesterAvatar: null, currentStep: 5 }));
-                                                    } catch (e) {}
-                                                    setPendingReuploadItem({ title: '', thumbnail: null, openInForm: true, isReupload: false });
-                                                    setActiveTopTab('Claims');
-                                                }} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>
+                                                <button onClick={handleStartUpload} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>
                                                 <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] text-gray-700 bg-white">{getTranslation('View Published', selectedLanguage)}</button>
                                             </>
                                         );
@@ -2802,7 +2788,7 @@ const App = () => {
                                         </>
                                     );
                                 } catch (e) {
-                                    return (<button onClick={() => { try { setClaimedRequest((prev) => ({ ...(prev || {}), title: '', requesterName: 'You', requesterAvatar: null, currentStep: 5 })); } catch (err) {} setPendingReuploadItem({ title: '', thumbnail: null, openInForm: true, isReupload: false }); setActiveTopTab('Claims'); }} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>);
+                                    return (<button onClick={handleStartUpload} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>);
                                 }
                             })()}
                         </div>

@@ -2097,20 +2097,42 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
             setShowToast(true);
             
             // Dispatch event with full request details for creator dashboard
-            window.dispatchEvent(new CustomEvent('request:claimed', { 
-                detail: { 
-                    requestId: request.id,
-                    title: request.title || 'Untitled Request',
-                    requesterName: request.company || (request.creator && request.creator.name) || 'Anonymous',
-                    requesterAvatar: resolveImageUrl(request.imageUrl) || null,
-                    funding: request.funding || 0,
-                    description: request.description || '',
-                    currentStep: 1,
-                    claimedBy: body.claimedBy,
-                    claimedAt: body.claimedAt || new Date().toISOString()
-                } 
+            const claimData = {
+                requestId: request.id,
+                id: request.id, // Ensure ID is available in both formats
+                title: request.title || 'Untitled Request',
+                requesterName: request.company || (request.creator && request.creator.name) || 'Anonymous',
+                requesterAvatar: resolveImageUrl(request.imageUrl) || null,
+                funding: request.funding || 0,
+                description: request.description || '',
+                currentStep: 1,
+                claimedBy: body.claimedBy,
+                claimedAt: body.claimedAt || new Date().toISOString()
+            };
+
+            // Persist locally so dashboard picks it up on navigation
+            const existingClaimsStr = localStorage.getItem('claimedRequests');
+            let existingClaims = [];
+            try {
+                existingClaims = existingClaimsStr ? JSON.parse(existingClaimsStr) : [];
+                if (!Array.isArray(existingClaims)) existingClaims = [];
+            } catch (e) { existingClaims = []; }
+
+            // Check if already exists to prevent duplicates
+            const exists = existingClaims.some(c => c.id === claimData.id);
+            if (!exists) {
+                existingClaims.push(claimData);
+                localStorage.setItem('claimedRequests', JSON.stringify(existingClaims));
+            } else {
+                 // if exists, update it
+                 const idx = existingClaims.findIndex(c => c.id === claimData.id);
+                 if (idx !== -1) existingClaims[idx] = claimData;
+                 localStorage.setItem('claimedRequests', JSON.stringify(existingClaims));
+            }
+
+            window.dispatchEvent(new CustomEvent('request:claimed', {
+                detail: claimData
             }));
-            
         } catch (err) {
             console.error('Claim error:', err);
             // If unauthorized, prompt login
@@ -3222,7 +3244,18 @@ export default function RequestsFeed() {
         }
     });
 
-    const [activeFilter, setActiveFilter] = useState('For You');
+    const [activeFilter, setActiveFilter] = useState(() => {
+        try {
+            const p = new URLSearchParams(window.location.search);
+            const f = p.get('filter');
+            // Check against valid filters to be safe, or just allow it if the UI can handle it.
+            // Valid maps: 'For You', 'Trending', 'Newest', 'Top Funded', 'Completed'
+            if (['For You', 'Trending', 'Newest', 'Top Funded', 'Completed'].includes(f)) {
+                return f;
+            }
+        } catch(e) {}
+        return 'For You';
+    });
     const [activeNav, setActiveNav] = useState('Requests');
     const [searchQuery, setSearchQuery] = useState('');
     const [bookmarkedReqSet, setBookmarkedReqSet] = useState(new Set());
@@ -3353,7 +3386,31 @@ export default function RequestsFeed() {
                 if (!res.ok) throw new Error('Failed to fetch requests');
                 const body = await res.json();
                 if (cancelled) return;
-                const list = Array.isArray(body.requests) ? body.requests : [];
+                let list = Array.isArray(body.requests) ? body.requests : [];
+
+                // Merge locally submitted requests (from Ideas page) to ensure they appear immediately
+                // even if backend synchronization is slightly delayed or if the user is offline.
+                try {
+                    const localRaw = localStorage.getItem('ideas_requests_v1');
+                    if (localRaw) {
+                        const localReqs = JSON.parse(localRaw);
+                        if (Array.isArray(localReqs)) {
+                            // Deduplicate: Only add local requests that are NOT already in the backend response
+                            const backendIds = new Set(list.map(r => String(r.id)));
+                            const missing = localReqs.filter(r => !backendIds.has(String(r.id)));
+                            
+                            // Prepend missing local requests so they appear at the top (especially for 'Newest')
+                            if (missing.length > 0) {
+                                // Sort missing by date desc just in case
+                                missing.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                                list = [...missing, ...list];
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to merge local requests:', e);
+                }
+
                 // Normalize each request so the UI has the expected fields
                 let normalized = list.map(r => {
                     const base = { likes: 0, boosts: 0, comments: 0, funding: 0, ...r };
