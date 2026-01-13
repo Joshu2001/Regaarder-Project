@@ -1993,7 +1993,25 @@ const App = () => {
         const others = baseTopTabs.filter(t => !t.toLowerCase().includes(normalized));
         return [...matches, ...others];
     };
-    const [claimedRequest, setClaimedRequest] = useState(null);
+    const [claimedRequest, setClaimedRequest] = useState(() => {
+        try {
+            const saved = (typeof localStorage !== 'undefined') && localStorage.getItem('claimedRequest');
+            return saved ? JSON.parse(saved) : null;
+        } catch (e) { return null; }
+    });
+
+    useEffect(() => {
+        try {
+            if (typeof localStorage !== 'undefined') {
+                if (claimedRequest) {
+                    localStorage.setItem('claimedRequest', JSON.stringify(claimedRequest));
+                } else {
+                    localStorage.removeItem('claimedRequest');
+                }
+            }
+        } catch (e) {}
+    }, [claimedRequest]);
+
     const [pendingReuploadItem, setPendingReuploadItem] = useState(null);
     const [claimsMinimized, setClaimsMinimized] = useState(false);
     // Published list stored in local state (backed by localStorage)

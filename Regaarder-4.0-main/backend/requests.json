@@ -1045,7 +1045,15 @@
       "id": "user-1766857658728",
       "name": "Joshua",
       "image": ""
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T06:08:36.148Z",
+    "currentStep": 2,
+    "updatedAt": "2026-01-13T06:08:40.988Z"
   },
   {
     "id": "req_1767177668622",
@@ -1134,7 +1142,13 @@
       "id": "user-1767166657751",
       "name": "John",
       "image": ""
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T06:10:52.655Z"
   },
   {
     "id": "req_1767175815075",
