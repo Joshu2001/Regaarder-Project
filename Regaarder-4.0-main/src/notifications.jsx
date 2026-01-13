@@ -7,64 +7,64 @@ import { translations, getTranslation } from './translations.js';
 // Utility for relative time
 const timeAgo = (iso) => {
   try {
-      if (!iso) return '';
-      const then = new Date(iso);
-      if (isNaN(then.getTime())) return '';
-      const diff = Date.now() - then.getTime();
-      const sec = Math.floor(diff / 1000);
-      if (sec < 60) return 'Just now';
-      const m = Math.floor(sec / 60);
-      if (m < 60) return `${m}m ago`;
-      const h = Math.floor(m / 60);
-      if (h < 24) return `${h}h ago`;
-      const d = Math.floor(h / 24);
-      if (d < 7) return `${d}d ago`;
-      return then.toLocaleDateString();
+    if (!iso) return '';
+    const then = new Date(iso);
+    if (isNaN(then.getTime())) return '';
+    const diff = Date.now() - then.getTime();
+    const sec = Math.floor(diff / 1000);
+    if (sec < 60) return 'Just now';
+    const m = Math.floor(sec / 60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 7) return `${d}d ago`;
+    return then.toLocaleDateString();
   } catch (e) { return ''; }
 };
 
 // Status Tracker Component (copied and adapted from Creator Dashboard for consistency)
 const StatusTracker = ({ currentStep, steps }) => {
-    return (
-        <div className="mt-3 mb-2 px-1">
-            <div className="relative flex flex-col space-y-0">
-                {steps.map((step, index) => {
-                    const stepNum = index + 1;
-                    const isActive = stepNum === currentStep;
-                    const isCompleted = stepNum < currentStep;
-                    const isLast = index === steps.length - 1;
+  return (
+    <div className="mt-3 mb-2 px-1">
+      <div className="relative flex flex-col space-y-0">
+        {steps.map((step, index) => {
+          const stepNum = index + 1;
+          const isActive = stepNum === currentStep;
+          const isCompleted = stepNum < currentStep;
+          const isLast = index === steps.length - 1;
 
-                    return (
-                        <div key={step} className="flex relative pb-6 last:pb-0">
-                            {/* Vertical Line */}
-                            {!isLast && (
-                                <div 
-                                    className={`absolute left-[11px] top-6 w-[2px] h-full transition-colors duration-300 ${isCompleted ? 'bg-green-500' : 'bg-gray-200'}`} 
-                                    style={{ zIndex: 0 }}
-                                />
-                            )}
-                            
-                            {/* Circle Indicator */}
-                            <div 
-                                className={`relative z-10 flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold border-2 transition-all duration-300 flex-shrink-0
+          return (
+            <div key={step} className="flex relative pb-6 last:pb-0">
+              {/* Vertical Line */}
+              {!isLast && (
+                <div
+                  className={`absolute left-[11px] top-6 w-[2px] h-full transition-colors duration-300 ${isCompleted ? 'bg-green-500' : 'bg-gray-200'}`}
+                  style={{ zIndex: 0 }}
+                />
+              )}
+
+              {/* Circle Indicator */}
+              <div
+                className={`relative z-10 flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold border-2 transition-all duration-300 flex-shrink-0
                                 ${isActive ? 'border-[var(--color-gold)] bg-[var(--color-gold)] text-white shadow-[0_0_0_3px_rgba(234,179,8,0.2)]' : ''}
                                 ${isCompleted ? 'border-green-500 bg-green-500 text-white' : ''}
                                 ${!isActive && !isCompleted ? 'border-gray-200 bg-gray-50 text-gray-400' : ''}
                                 `}
-                            >
-                                {isCompleted ? '✓' : stepNum}
-                            </div>
-                            
-                            {/* Label */}
-                            <div className={`ml-3 text-xs font-medium pt-1 ${isActive || isCompleted ? 'text-gray-900' : 'text-gray-400'}`}>
-                                {step}
-                            </div>
-                        </div>
-                    );
-                })}
+              >
+                {isCompleted ? '✓' : stepNum}
+              </div>
+
+              {/* Label */}
+              <div className={`ml-3 text-xs font-medium pt-1 ${isActive || isCompleted ? 'text-gray-900' : 'text-gray-400'}`}>
+                {step}
+              </div>
             </div>
-        </div>
-    );
+          );
+        })}
+      </div>
+    </div>
+  );
 };
 
 // Notification Card Component
@@ -72,34 +72,34 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
   // Use the latest item for display logic, but render the full thread
   const latestItem = thread.items[thread.items.length - 1];
   const items = thread.items || [thread];
-  
+
   // Determine style and content based on item type
   const isStatusUpdate = items.some(i => i.type === 'status_update');
-  
+
   // Extract current step from metadata if available (default to 1)
   let currentStep = 1;
   // Iterate backwards to find the latest step update
   for (let i = items.length - 1; i >= 0; i--) {
-      if (items[i].type === 'status_update' && items[i].metadata && items[i].metadata.step) {
-          currentStep = parseInt(items[i].metadata.step, 10);
-          break;
-      }
+    if (items[i].type === 'status_update' && items[i].metadata && items[i].metadata.step) {
+      currentStep = parseInt(items[i].metadata.step, 10);
+      break;
+    }
   }
-  
+
   // Standard steps (matching Creator Dashboard)
   const steps = [
-      'Request Received',
-      'Under Review',
-      'In Production',
-      'Preview Ready',
-      'Published',
-      'Completed'
+    'Request Received',
+    'Under Review',
+    'In Production',
+    'Preview Ready',
+    'Published',
+    'Completed'
   ];
 
   // Local state for inline reply
   const [isReplying, setIsReplying] = React.useState(false);
   const [replyText, setReplyText] = React.useState('');
-  
+
   // Swipe State
   const [swipeOffset, setSwipeOffset] = React.useState(0);
   const touchStartRef = React.useRef(0);
@@ -117,193 +117,193 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
   const otherPerson = (thread.from && thread.from.id !== currentUserId) ? thread.from : (thread.to && thread.to.id !== currentUserId ? thread.to : { name: 'Unknown' });
 
   if (isStatusUpdate) {
-     title = getTranslation('Status Update from Creator', selectedLanguage);
-     if (currentStep === 5) title = getTranslation('Request Fulfilled!', selectedLanguage);
-     
-     // Use creator avatar
-     Avatar = (
-       <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-          {otherPerson.avatar ? (
-             <img src={otherPerson.avatar} alt={otherPerson.name} className="w-full h-full object-cover" />
-          ) : (
-             <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-bold text-sm">
-                {(otherPerson.name && otherPerson.name[0]) || 'C'}
-             </div>
-          )}
-       </div>
-     );
-     
-     actionLabel = getTranslation('Reply', selectedLanguage);
+    title = getTranslation('Status Update from Creator', selectedLanguage);
+    if (currentStep === 5) title = getTranslation('Request Fulfilled!', selectedLanguage);
+
+    // Use creator avatar
+    Avatar = (
+      <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+        {otherPerson.avatar ? (
+          <img src={otherPerson.avatar} alt={otherPerson.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-bold text-sm">
+            {(otherPerson.name && otherPerson.name[0]) || 'C'}
+          </div>
+        )}
+      </div>
+    );
+
+    actionLabel = getTranslation('Reply', selectedLanguage);
   } else {
-     // Generic suggestion or other
-     title = getTranslation('New Message', selectedLanguage);
-     Avatar = (
-       <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-          {otherPerson.avatar ? (
-             <img src={otherPerson.avatar} alt={otherPerson.name} className="w-full h-full object-cover" />
-          ) : (
-             <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-bold text-sm">
-                {(otherPerson.name && otherPerson.name[0]) || 'C'}
-             </div>
-          )}
-       </div>
-     );
-     actionLabel = getTranslation('Reply', selectedLanguage);
+    // Generic suggestion or other
+    title = getTranslation('New Message', selectedLanguage);
+    Avatar = (
+      <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+        {otherPerson.avatar ? (
+          <img src={otherPerson.avatar} alt={otherPerson.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-bold text-sm">
+            {(otherPerson.name && otherPerson.name[0]) || 'C'}
+          </div>
+        )}
+      </div>
+    );
+    actionLabel = getTranslation('Reply', selectedLanguage);
   }
 
   const handleSendReply = () => {
-      if (!replyText.trim()) return;
-      if (onReply) {
-          // Reply to the other person
-          const targetItem = { 
-              ...latestItem, 
-              from: { id: otherPerson.id } 
-          };
-          onReply(targetItem, replyText);
-      }
-      setReplyText('');
+    if (!replyText.trim()) return;
+    if (onReply) {
+      // Reply to the other person
+      const targetItem = {
+        ...latestItem,
+        from: { id: otherPerson.id }
+      };
+      onReply(targetItem, replyText);
+    }
+    setReplyText('');
   };
 
   // Swipe Handlers
   const handleTouchStart = (e) => {
-      touchStartRef.current = e.touches[0].clientX;
-      isDraggingRef.current = true;
+    touchStartRef.current = e.touches[0].clientX;
+    isDraggingRef.current = true;
   };
 
   const handleTouchMove = (e) => {
-      if (!isDraggingRef.current) return;
-      const currentX = e.touches[0].clientX;
-      const diff = currentX - touchStartRef.current;
-      // Limit swipe range
-      if (diff < -150) setSwipeOffset(-150);
-      else if (diff > 150) setSwipeOffset(150);
-      else setSwipeOffset(diff);
+    if (!isDraggingRef.current) return;
+    const currentX = e.touches[0].clientX;
+    const diff = currentX - touchStartRef.current;
+    // Limit swipe range
+    if (diff < -150) setSwipeOffset(-150);
+    else if (diff > 150) setSwipeOffset(150);
+    else setSwipeOffset(diff);
   };
 
   const handleTouchEnd = () => {
-      isDraggingRef.current = false;
-      if (swipeOffset < -100) {
-          // Swipe Left -> Delete
-          if (onDelete) onDelete(thread);
-          setSwipeOffset(0); // Reset for visual if undo happens, but normally component unmounts
-      } else if (swipeOffset > 100) {
-          // Swipe Right -> Dismiss
-          if (onDismiss) onDismiss(thread);
-          setSwipeOffset(0);
-      } else {
-          // Snap back
-          setSwipeOffset(0);
-      }
+    isDraggingRef.current = false;
+    if (swipeOffset < -100) {
+      // Swipe Left -> Delete
+      if (onDelete) onDelete(thread);
+      setSwipeOffset(0); // Reset for visual if undo happens, but normally component unmounts
+    } else if (swipeOffset > 100) {
+      // Swipe Right -> Dismiss
+      if (onDismiss) onDismiss(thread);
+      setSwipeOffset(0);
+    } else {
+      // Snap back
+      setSwipeOffset(0);
+    }
   };
 
   return (
     <div className="relative mb-3 select-none overflow-hidden rounded-2xl">
-        {/* Swipe Backgrounds */}
-        <div className="absolute inset-0 flex justify-between items-center rounded-2xl">
-            {/* Left Background (revealed when swiping right) - Dismiss */}
-            <div className={`flex items-center justify-start pl-6 w-full h-full bg-blue-500 rounded-2xl transition-opacity duration-200 ${swipeOffset > 0 ? 'opacity-100' : 'opacity-0'}`}>
-                <Archive className="w-6 h-6 text-white" />
-                <span className="text-white font-medium ml-2">Dismiss</span>
+      {/* Swipe Backgrounds */}
+      <div className="absolute inset-0 flex justify-between items-center rounded-2xl">
+        {/* Left Background (revealed when swiping right) - Dismiss */}
+        <div className={`flex items-center justify-start pl-6 w-full h-full bg-blue-500 rounded-2xl transition-opacity duration-200 ${swipeOffset > 0 ? 'opacity-100' : 'opacity-0'}`}>
+          <Archive className="w-6 h-6 text-white" />
+          <span className="text-white font-medium ml-2">Dismiss</span>
+        </div>
+        {/* Right Background (revealed when swiping left) - Delete */}
+        <div className={`absolute inset-0 flex items-center justify-end pr-6 w-full h-full bg-red-500 rounded-2xl transition-opacity duration-200 ${swipeOffset < 0 ? 'opacity-100' : 'opacity-0'}`}>
+          <span className="text-white font-medium mr-2">Delete</span>
+          <Trash2 className="w-6 h-6 text-white" />
+        </div>
+      </div>
+
+      {/* Foreground Card */}
+      <div
+        className="relative p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col space-y-3 transition-transform duration-200 ease-out"
+        style={{ transform: `translateX(${swipeOffset}px)` }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="flex items-start space-x-3">
+          {Avatar ? Avatar : (
+            <div className={`w-10 h-10 rounded-full ${iconBg} flex items-center justify-center flex-shrink-0`}>
+              <Icon className={`w-5 h-5 ${iconColor}`} />
             </div>
-            {/* Right Background (revealed when swiping left) - Delete */}
-            <div className={`absolute inset-0 flex items-center justify-end pr-6 w-full h-full bg-red-500 rounded-2xl transition-opacity duration-200 ${swipeOffset < 0 ? 'opacity-100' : 'opacity-0'}`}>
-                <span className="text-white font-medium mr-2">Delete</span>
-                <Trash2 className="w-6 h-6 text-white" />
+          )}
+
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 leading-tight mb-0.5">{title}</h3>
+                <p className="text-xs font-medium text-gray-500 mb-1">{otherPerson.name}</p>
+              </div>
+              <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1" style={{ backgroundColor: 'var(--color-gold)' }}></div>
             </div>
+
+            {/* Message Thread */}
+            <div className="space-y-2 mt-1 max-h-60 overflow-y-auto">
+              {/* Status Tracker: Show only if this is a status update thread */}
+              {isStatusUpdate && (
+                <div className="mb-4 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <StatusTracker currentStep={currentStep} steps={steps} />
+                </div>
+              )}
+
+              {items.map((msg, idx) => {
+                const isMe = msg.from && msg.from.id === currentUserId;
+                return (
+                  <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`text-sm leading-snug px-3 py-2 rounded-lg max-w-[90%] ${isMe ? 'bg-indigo-50 text-indigo-900 rounded-br-none' : 'bg-gray-50 text-gray-800 rounded-bl-none'}`}>
+                      {msg.text}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-xs text-gray-400">{timeAgo(latestItem.createdAt)}</span>
+              {actionLabel && !isReplying && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setIsReplying(true); }}
+                  className="text-xs font-medium hover:opacity-80 flex items-center px-2 py-1 rounded-md transition-colors hover:bg-gray-50"
+                  style={{ color: 'var(--color-gold)' }}
+                >
+                  {actionLabel} <CornerUpRight className="w-3.5 h-3.5 ml-1" />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Foreground Card */}
-        <div 
-            className="relative p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col space-y-3 transition-transform duration-200 ease-out"
-            style={{ transform: `translateX(${swipeOffset}px)` }}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-        >
-       <div className="flex items-start space-x-3">
-           {Avatar ? Avatar : (
-             <div className={`w-10 h-10 rounded-full ${iconBg} flex items-center justify-center flex-shrink-0`}>
-                <Icon className={`w-5 h-5 ${iconColor}`} />
-             </div>
-           )}
-           
-           <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-start">
-                 <div>
-                    <h3 className="text-sm font-semibold text-gray-900 leading-tight mb-0.5">{title}</h3>
-                    <p className="text-xs font-medium text-gray-500 mb-1">{otherPerson.name}</p>
-                 </div>
-                 <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1" style={{ backgroundColor: 'var(--color-gold)' }}></div>
-              </div>
-              
-              {/* Message Thread */}
-              <div className="space-y-2 mt-1 max-h-60 overflow-y-auto">
-                  {/* Status Tracker: Show only if this is a status update thread */}
-                  {isStatusUpdate && (
-                      <div className="mb-4 bg-gray-50 rounded-xl p-3 border border-gray-100">
-                          <StatusTracker currentStep={currentStep} steps={steps} />
-                      </div>
-                  )}
-
-                  {items.map((msg, idx) => {
-                      const isMe = msg.from && msg.from.id === currentUserId;
-                      return (
-                          <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                              <div className={`text-sm leading-snug px-3 py-2 rounded-lg max-w-[90%] ${isMe ? 'bg-indigo-50 text-indigo-900 rounded-br-none' : 'bg-gray-50 text-gray-800 rounded-bl-none'}`}>
-                                  {msg.text}
-                              </div>
-                          </div>
-                      );
-                  })}
-              </div>
-              
-              <div className="flex justify-between items-center mt-2">
-                 <span className="text-xs text-gray-400">{timeAgo(latestItem.createdAt)}</span>
-                 {actionLabel && !isReplying && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); setIsReplying(true); }}
-                      className="text-xs font-medium hover:opacity-80 flex items-center px-2 py-1 rounded-md transition-colors hover:bg-gray-50"
-                      style={{ color: 'var(--color-gold)' }}
-                    >
-                       {actionLabel} <CornerUpRight className="w-3.5 h-3.5 ml-1" />
-                    </button>
-                 )}
-              </div>
-           </div>
-       </div>
-       
-       {/* Inline Reply Box */}
-       {isReplying && (
-           <div className="mt-2 pl-12 pr-1 w-full animate-fadeIn" onTouchStart={(e) => e.stopPropagation()} onTouchMove={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
-               <div className="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
-                   <input
-                       type="text"
-                       value={replyText}
-                       onChange={(e) => setReplyText(e.target.value)}
-                       placeholder="Type your reply..."
-                       className="flex-1 bg-transparent border-none outline-none text-sm text-gray-800 placeholder-gray-400 min-w-0"
-                       autoFocus
-                       onKeyDown={(e) => {
-                           if (e.key === 'Enter') handleSendReply();
-                       }}
-                   />
-                   <button 
-                       onClick={handleSendReply}
-                       disabled={!replyText.trim()}
-                       className={`p-1.5 rounded-full transition-colors ${replyText.trim() ? 'bg-[var(--color-gold)] text-white' : 'bg-gray-200 text-gray-400'}`}
-                   >
-                       <Send className="w-3.5 h-3.5" />
-                   </button>
-                   <button 
-                       onClick={() => setIsReplying(false)}
-                       className="p-1 text-gray-400 hover:text-gray-600"
-                   >
-                       <X className="w-4 h-4" />
-                   </button>
-               </div>
-           </div>
-       )}
-    </div>
+        {/* Inline Reply Box */}
+        {isReplying && (
+          <div className="mt-2 pl-12 pr-1 w-full animate-fadeIn" onTouchStart={(e) => e.stopPropagation()} onTouchMove={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+            <div className="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+              <input
+                type="text"
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Type your reply..."
+                className="flex-1 bg-transparent border-none outline-none text-sm text-gray-800 placeholder-gray-400 min-w-0"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSendReply();
+                }}
+              />
+              <button
+                onClick={handleSendReply}
+                disabled={!replyText.trim()}
+                className={`p-1.5 rounded-full transition-colors ${replyText.trim() ? 'bg-[var(--color-gold)] text-white' : 'bg-gray-200 text-gray-400'}`}
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setIsReplying(false)}
+                className="p-1 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -341,7 +341,7 @@ const App = ({ onClose }) => {
       const container = document.querySelector('.min-h-screen') || document.body;
       if (!container) return;
       const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
-      const keys = Object.keys(map).sort((a,b) => b.length - a.length);
+      const keys = Object.keys(map).sort((a, b) => b.length - a.length);
       let node;
       while ((node = walker.nextNode())) {
         const txt = node.nodeValue;
@@ -389,53 +389,53 @@ const App = ({ onClose }) => {
 
   // Helper to fetch and group notifications
   const fetchNotifications = async () => {
-      try {
-        const token = localStorage.getItem('regaarder_token');
-        if (!token) return;
-        const res = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/notifications`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+    try {
+      const token = localStorage.getItem('regaarder_token');
+      if (!token) return;
+      const res = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/notifications`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const arr = (data && data.notifications) || [];
+        const uid = data.userId;
+        setUserId(uid);
+
+        // Group notifications by requestId (or loose threading)
+        const threads = {};
+        // Sort by date ascending to build threads
+        arr.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+        arr.forEach(item => {
+          // Create a unique thread key. 
+          // If it has a requestId, use that.
+          // Otherwise, try to group by the 'other' person (conversation partner).
+          let key = item.requestId ? `req-${item.requestId}` : null;
+
+          if (!key) {
+            // Fallback: group by the partner ID (either from or to, whoever is NOT me)
+            const otherId = (item.from && item.from.id === uid) ? (item.to && item.to.id) : (item.from && item.from.id);
+            if (otherId) key = `user-${otherId}`;
+            else key = 'misc';
+          }
+
+          if (!threads[key]) threads[key] = { id: key, items: [], lastTime: item.createdAt, ...item }; // base props from first item
+          threads[key].items.push(item);
+          threads[key].lastTime = item.createdAt; // update to latest
+
+          // Ensure we have the latest 'from' info if it's incoming
+          if (item.from && item.from.id !== uid) {
+            threads[key].from = item.from;
+          }
         });
-        if (res.ok) {
-          const data = await res.json();
-          const arr = (data && data.notifications) || [];
-          const uid = data.userId;
-          setUserId(uid);
-          
-          // Group notifications by requestId (or loose threading)
-          const threads = {};
-          // Sort by date ascending to build threads
-          arr.sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
-          
-          arr.forEach(item => {
-              // Create a unique thread key. 
-              // If it has a requestId, use that.
-              // Otherwise, try to group by the 'other' person (conversation partner).
-              let key = item.requestId ? `req-${item.requestId}` : null;
-              
-              if (!key) {
-                  // Fallback: group by the partner ID (either from or to, whoever is NOT me)
-                  const otherId = (item.from && item.from.id === uid) ? (item.to && item.to.id) : (item.from && item.from.id);
-                  if (otherId) key = `user-${otherId}`;
-                  else key = 'misc';
-              }
-              
-              if (!threads[key]) threads[key] = { id: key, items: [], lastTime: item.createdAt, ...item }; // base props from first item
-              threads[key].items.push(item);
-              threads[key].lastTime = item.createdAt; // update to latest
-              
-              // Ensure we have the latest 'from' info if it's incoming
-              if (item.from && item.from.id !== uid) {
-                  threads[key].from = item.from;
-              }
-          });
-          
-          // Convert back to array and sort by last updated (descending)
-          const sortedThreads = Object.values(threads).sort((a,b) => new Date(b.lastTime) - new Date(a.lastTime));
-          
-          setGroupedSuggestions(sortedThreads);
-          setHasNotifications(sortedThreads.length > 0);
-        }
-      } catch (e) {}
+
+        // Convert back to array and sort by last updated (descending)
+        const sortedThreads = Object.values(threads).sort((a, b) => new Date(b.lastTime) - new Date(a.lastTime));
+
+        setGroupedSuggestions(sortedThreads);
+        setHasNotifications(sortedThreads.length > 0);
+      }
+    } catch (e) { }
   };
 
   React.useEffect(() => {
@@ -454,78 +454,78 @@ const App = ({ onClose }) => {
 
   // Handler for dismissing (local hide, reappear on refresh)
   const handleDismiss = (thread) => {
-      setGroupedSuggestions(prev => prev.filter(t => t.id !== thread.id));
+    setGroupedSuggestions(prev => prev.filter(t => t.id !== thread.id));
   };
 
   // Handler for deletion (persistent delete with undo)
   const handleDelete = (thread) => {
-      // 1. Remove from UI immediately
-      setGroupedSuggestions(prev => prev.filter(t => t.id !== thread.id));
-      
-      // 2. Show Toast with Undo
-      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
-      
-      setToast({
-          message: 'Conversation deleted',
-          onUndo: () => {
-              // Restore
-              setGroupedSuggestions(prev => {
-                  const arr = [...prev, thread];
-                  // re-sort
-                  return arr.sort((a,b) => new Date(b.lastTime) - new Date(a.lastTime));
-              });
-              setToast(null);
-              if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
-          }
+    // 1. Remove from UI immediately
+    setGroupedSuggestions(prev => prev.filter(t => t.id !== thread.id));
+
+    // 2. Show Toast with Undo
+    if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+
+    setToast({
+      message: 'Conversation deleted',
+      onUndo: () => {
+        // Restore
+        setGroupedSuggestions(prev => {
+          const arr = [...prev, thread];
+          // re-sort
+          return arr.sort((a, b) => new Date(b.lastTime) - new Date(a.lastTime));
+        });
+        setToast(null);
+        if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+      }
+    });
+
+    // 3. Set timer to actually delete from backend
+    deleteTimerRef.current = setTimeout(() => {
+      // Perform backend delete for all items in thread
+      const token = localStorage.getItem('regaarder_token');
+      if (!token) return;
+      const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+
+      const items = thread.items || [thread];
+      items.forEach(item => {
+        fetch(`${BACKEND}/notifications/${item.id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(console.warn);
       });
-      
-      // 3. Set timer to actually delete from backend
-      deleteTimerRef.current = setTimeout(() => {
-          // Perform backend delete for all items in thread
-          const token = localStorage.getItem('regaarder_token');
-          if (!token) return;
-          const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
-          
-          const items = thread.items || [thread];
-          items.forEach(item => {
-              fetch(`${BACKEND}/notifications/${item.id}`, {
-                  method: 'DELETE',
-                  headers: { 'Authorization': `Bearer ${token}` }
-              }).catch(console.warn);
-          });
-          
-          setToast(null);
-      }, 4000); // 4 seconds undo window
+
+      setToast(null);
+    }, 4000); // 4 seconds undo window
   };
 
   // Handler for sending a reply
   const handleReply = async (item, text) => {
-      const token = localStorage.getItem('regaarder_token');
-      if (!token) return;
-      try {
-          const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
-          await fetch(`${BACKEND}/suggestion`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                  text: text, // just the text, UI will show it's from me
-                  // If I'm replying to a thread, I send to the other person (who is 'from' in the item I'm replying to)
-                  targetCreatorId: item.from ? item.from.id : null,
-                  requestId: item.requestId,
-                  // mark as reply type
-                  type: 'reply',
-                  parentId: item.id // link to thread
-              })
-          });
-          
-          // Refresh immediately
-          fetchNotifications();
-      } catch (e) {
-          console.error('Failed to send reply', e);
-      }
+    const token = localStorage.getItem('regaarder_token');
+    if (!token) return;
+    try {
+      const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+      await fetch(`${BACKEND}/suggestion`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          text: text, // just the text, UI will show it's from me
+          // If I'm replying to a thread, I send to the other person (who is 'from' in the item I'm replying to)
+          targetCreatorId: item.from ? item.from.id : null,
+          requestId: item.requestId,
+          // mark as reply type
+          type: 'reply',
+          parentId: item.id // link to thread
+        })
+      });
+
+      // Refresh immediately
+      fetchNotifications();
+    } catch (e) {
+      console.error('Failed to send reply', e);
+    }
   };
 
   return (
@@ -632,38 +632,38 @@ const App = ({ onClose }) => {
           }
         `}
       </style>
-      
+
       {/* Outer container for the app screen */}
       {/* Ensures full-screen height and removes padding on mobile (`p-0`) */}
       <div className="min-h-screen bg-gray-50 flex justify-center p-0 font-sans">
-        
+
         {/* Simulation of the Notification Screen content card */}
         {/* `w-full` on mobile, constrained by `sm:max-w-sm` and rounded corners applied only on larger screens */}
         <div className="w-full sm:max-w-sm bg-white shadow-2xl flex flex-col sm:rounded-2xl overflow-hidden">
-          
+
           {/* Header (Top of the Screen) */}
           <header className="p-4 pl-12 border-b border-gray-100 flex items-center justify-start relative">
-              {/* Back button - positioned absolute left */}
-              <ChevronLeft 
-                onClick={handleClose}
-                className="w-6 h-6 cursor-pointer transition hover:text-gray-900 absolute left-4"
-                style={{ color: 'var(--color-gold, #ca8a04)' }}
-              />
-              
-              {/* Centered title with icon */}
-              <div className="flex items-center">
-                <Bell className="w-6 h-6 mr-3" strokeWidth={1.5} style={{ color: 'var(--color-gold, #ca8a04)' }} />
-                <h1 className="text-xl font-bold text-gray-800">{getTranslation('Notifications', selectedLanguage)}</h1>
-              </div>
+            {/* Back button - positioned absolute left */}
+            <ChevronLeft
+              onClick={handleClose}
+              className="w-6 h-6 cursor-pointer transition hover:text-gray-900 absolute left-4"
+              style={{ color: 'var(--color-gold, #ca8a04)' }}
+            />
 
-              {/* Settings button - positioned absolute right */}
-              <button
-                onClick={() => setSettingsActive(!settingsActive)}
-                aria-pressed={settingsActive ? "true" : "false"}
-                className="absolute right-4 w-9 h-9 rounded-full flex items-center justify-center bg-white border border-gray-100 shadow-sm"
-              >
-                <Settings className="w-5 h-5" style={{ color: settingsActive ? 'var(--color-gold)' : 'rgb(107 114 128)' }} />
-              </button>
+            {/* Centered title with icon */}
+            <div className="flex items-center">
+              <Bell className="w-6 h-6 mr-3" strokeWidth={1.5} style={{ color: 'var(--color-gold, #ca8a04)' }} />
+              <h1 className="text-xl font-bold text-gray-800">{getTranslation('Notifications', selectedLanguage)}</h1>
+            </div>
+
+            {/* Settings button - positioned absolute right */}
+            <button
+              onClick={() => setSettingsActive(!settingsActive)}
+              aria-pressed={settingsActive ? "true" : "false"}
+              className="absolute right-4 w-9 h-9 rounded-full flex items-center justify-center bg-white border border-gray-100 shadow-sm"
+            >
+              <Settings className="w-5 h-5" style={{ color: settingsActive ? 'var(--color-gold)' : 'rgb(107 114 128)' }} />
+            </button>
 
           </header>
 
@@ -708,21 +708,21 @@ const App = ({ onClose }) => {
           )}
 
           <main className="p-6 flex-grow overflow-y-auto">
-            
+
             {/* Suggestions list or empty state */}
             {hasNotifications ? (
               <div className="pb-20">
                 {/* Tip Bar */}
                 <div className="w-full px-4 py-3 mb-4 bg-[#F5F5DC] text-gray-700 rounded-xl flex items-start space-x-2" style={{ borderColor: 'var(--color-gold-light)', borderStyle: 'solid', boxShadow: '0 6px 16px rgba(var(--color-gold-rgb,203,138,0),0.06)' }}>
-                    <Lightbulb className="w-4 h-4 mt-0.5 text-[var(--color-gold)] flex-shrink-0" />
-                    <p className="text-xs leading-relaxed font-medium">{getTranslation('Swipe left to delete • Swipe right to dismiss temporarily', selectedLanguage)}</p>
+                  <Lightbulb className="w-4 h-4 mt-0.5 text-[var(--color-gold)] flex-shrink-0" />
+                  <p className="text-xs leading-relaxed font-medium">{getTranslation('Swipe left to delete • Swipe right to dismiss temporarily', selectedLanguage)}</p>
                 </div>
 
                 {groupedSuggestions.map((thread) => (
-                  <NotificationCard 
-                    key={thread.id} 
-                    thread={thread} 
-                    onReply={handleReply} 
+                  <NotificationCard
+                    key={thread.id}
+                    thread={thread}
+                    onReply={handleReply}
                     onDelete={handleDelete}
                     onDismiss={handleDismiss}
                     currentUserId={userId}
@@ -742,29 +742,29 @@ const App = ({ onClose }) => {
 
             {/* Feature Cards Section - The settings/milestone links */}
             {!hasNotifications && (
-            <div className="space-y-4 pt-4">
-              <FeatureCard
-                icon={CheckCircle}
-                title={getTranslation('Request Updates', selectedLanguage)}
-                description={getTranslation('Get notified when creators start or complete your requests', selectedLanguage)}
-                iconColor="#16A34A"
-                iconBg="#ECFDF5"
-              />
-              <FeatureCard
-                icon={Rocket}
-                title={getTranslation('Viral Rewards', selectedLanguage)}
-                description={getTranslation('Earn money when your requests go viral', selectedLanguage)}
-                iconColor="#F97316"
-                iconBg="#FFF7ED"
-              />
-              <FeatureCard
-                icon={Trophy}
-                title={getTranslation('Milestones & Achievements', selectedLanguage)}
-                description={getTranslation('Celebrate your progress and unlock rewards', selectedLanguage)}
-                iconColor="var(--color-gold, #ca8a04)"
-                iconBg="var(--color-gold-light-bg, rgba(202,138,4,0.08))"
-              />
-            </div>
+              <div className="space-y-4 pt-4">
+                <FeatureCard
+                  icon={CheckCircle}
+                  title={getTranslation('Request Updates', selectedLanguage)}
+                  description={getTranslation('Get notified when creators start or complete your requests', selectedLanguage)}
+                  iconColor="#16A34A"
+                  iconBg="#ECFDF5"
+                />
+                <FeatureCard
+                  icon={Rocket}
+                  title={getTranslation('Viral Rewards', selectedLanguage)}
+                  description={getTranslation('Earn money when your requests go viral', selectedLanguage)}
+                  iconColor="#F97316"
+                  iconBg="#FFF7ED"
+                />
+                <FeatureCard
+                  icon={Trophy}
+                  title={getTranslation('Milestones & Achievements', selectedLanguage)}
+                  description={getTranslation('Celebrate your progress and unlock rewards', selectedLanguage)}
+                  iconColor="var(--color-gold, #ca8a04)"
+                  iconBg="var(--color-gold-light-bg, rgba(202,138,4,0.08))"
+                />
+              </div>
             )}
           </main>
 
@@ -773,21 +773,21 @@ const App = ({ onClose }) => {
 
           {/* Toast Notification (Overlay) */}
           {toast && (
-           <div 
-             className="fixed bottom-20 left-0 right-0 flex justify-center z-50 pointer-events-none"
-           >
-             <div 
-               className="bg-gray-900 text-white p-3 mx-4 rounded-xl shadow-2xl flex items-center justify-between space-x-4 transition-all duration-300 max-w-sm w-full pointer-events-auto"
-             >
-               <span className="text-sm font-medium">{toast.message}</span>
-               <button 
-                 onClick={toast.onUndo}
-                 className="text-sm font-bold text-[var(--color-gold)] hover:underline"
-               >
-                 UNDO
-               </button>
-             </div>
-           </div>
+            <div
+              className="fixed bottom-20 left-0 right-0 flex justify-center z-50 pointer-events-none"
+            >
+              <div
+                className="bg-gray-900 text-white p-3 mx-4 rounded-xl shadow-2xl flex items-center justify-between space-x-4 transition-all duration-300 max-w-sm w-full pointer-events-auto"
+              >
+                <span className="text-sm font-medium">{toast.message}</span>
+                <button
+                  onClick={toast.onUndo}
+                  className="text-sm font-bold text-[var(--color-gold)] hover:underline"
+                >
+                  UNDO
+                </button>
+              </div>
+            </div>
           )}
 
         </div>
@@ -835,7 +835,7 @@ const BottomBar = () => {
 
           const IconComp = tab.icon;
 
-              const navigateToTab = (tabName) => {
+          const navigateToTab = (tabName) => {
             try {
               if (tabName === 'Home') {
                 // Navigate to the Home page explicitly instead of refreshing

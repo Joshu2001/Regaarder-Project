@@ -20,7 +20,7 @@ const clamp2 = {
 // Helper to generate placeholder avatar showing a flag derived from name initials
 const getPlaceholderAvatar = (name) => {
     const initials = (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-    const normalized = initials.padEnd(2, 'U').substring(0,2);
+    const normalized = initials.padEnd(2, 'U').substring(0, 2);
     const A_CODE = 'A'.charCodeAt(0);
     if (/^[A-Z]{2}$/.test(normalized)) {
         const hexes = Array.from(normalized).map(ch => {
@@ -207,13 +207,13 @@ const MoreActionsDialog = ({ position = null, onClose, onReportClick, onPinClick
     };
 
     return (
-        <div 
-            className="fixed inset-0 z-[9999] flex items-end justify-center px-4 pb-4" 
-            style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} 
+        <div
+            className="fixed inset-0 z-[9999] flex items-end justify-center px-4 pb-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
             onClick={onClose}
         >
-            <div 
-                className="more-actions-dialog bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-slide-up" 
+            <div
+                className="more-actions-dialog bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-slide-up"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -224,9 +224,9 @@ const MoreActionsDialog = ({ position = null, onClose, onReportClick, onPinClick
                 {/* Scrollable content */}
                 <div className="max-h-[60vh] overflow-y-auto">
                     {actions.map((item, index) => (
-                        <button 
-                            key={index} 
-                            className="flex items-center w-full px-4 py-3 hover:bg-gray-50 transition duration-150" 
+                        <button
+                            key={index}
+                            className="flex items-center w-full px-4 py-3 hover:bg-gray-50 transition duration-150"
                             onClick={() => handleActionClick(item.action)}
                         >
                             {item.isBookmark && item.icon === 'bookmark' && isBookmarked ? (
@@ -241,9 +241,9 @@ const MoreActionsDialog = ({ position = null, onClose, onReportClick, onPinClick
                     <div className="h-px bg-gray-200 my-1 mx-4"></div>
 
                     {destructiveActions.map((item, index) => (
-                        <button 
-                            key={index} 
-                            className="flex items-center w-full px-4 py-3 hover:bg-gray-50 transition duration-150" 
+                        <button
+                            key={index}
+                            className="flex items-center w-full px-4 py-3 hover:bg-gray-50 transition duration-150"
                             onClick={() => handleActionClick(item.action)}
                         >
                             <Icon name={item.icon} size={20} className={`mr-4 ${item.color}`} />
@@ -328,7 +328,7 @@ const ShareDialog = ({ onClose, link, onCopySuccess, selectedLanguage = 'English
         // Give a quick haptic tick if available
         try {
             if (navigator.vibrate) navigator.vibrate(10);
-        } catch (e) {}
+        } catch (e) { }
 
         // Attempt to open the app via location change. If the app isn't installed,
         // the fallback will open the web URL after a short delay.
@@ -372,7 +372,7 @@ const ShareDialog = ({ onClose, link, onCopySuccess, selectedLanguage = 'English
             setActive(true);
             try {
                 if (navigator.vibrate) navigator.vibrate(10);
-            } catch (e) {}
+            } catch (e) { }
             // call the provided onClick (which should call openSocial)
             onClick && onClick();
             // release visual after a short delay so the user sees feedback
@@ -489,7 +489,7 @@ const LanguageDialog = ({ onClose, selectedLanguage, onSelectLanguage }) => {
         const codePoints = countryCode
             .toUpperCase()
             .split('')
-            .map(char =>  127397 + char.charCodeAt(0));
+            .map(char => 127397 + char.charCodeAt(0));
         return `https://twemoji.maxcdn.com/v/latest/72x72/${codePoints.map(c => c.toString(16)).join('-')}.png`;
     };
 
@@ -683,13 +683,13 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                             try {
                                 const current = (auth && auth.user) ? auth.user : JSON.parse(localStorage.getItem('regaarder_user') || '{}');
                                 const updated = { ...(current || {}), introVideo: json.url };
-                                try { localStorage.setItem('regaarder_user', JSON.stringify(updated)); } catch(e){}
+                                try { localStorage.setItem('regaarder_user', JSON.stringify(updated)); } catch (e) { }
                                 if (auth && auth.login) {
                                     const tokenStored = localStorage.getItem('regaarder_token');
                                     auth.login({ ...updated, token: tokenStored });
                                 }
                                 setIntroUrl(json.url);
-                            } catch (e) {}
+                            } catch (e) { }
                         }
                     } catch (e) {
                         console.error('Upload failed', e);
@@ -739,7 +739,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
             // Revoke old URL after a delay to ensure React has finished rendering
             if (oldUrl) {
                 setTimeout(() => {
-                    try { URL.revokeObjectURL(oldUrl); } catch (e) {}
+                    try { URL.revokeObjectURL(oldUrl); } catch (e) { }
                 }, 100);
             }
         }
@@ -749,7 +749,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
         // Only revoke on unmount
         return () => {
             if (introObjectUrlRef.current) {
-                try { URL.revokeObjectURL(introObjectUrlRef.current); } catch (e) {}
+                try { URL.revokeObjectURL(introObjectUrlRef.current); } catch (e) { }
             }
         };
     }, []);
@@ -764,21 +764,21 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
             if (!val || String(val).trim() === '') {
                 el.classList.add('needs-input');
                 // focus for accessibility
-                try { el.focus(); } catch(e) {}
+                try { el.focus(); } catch (e) { }
                 return true;
             }
             return false;
         };
 
         // clear previous needs-input marks
-        [nameRef, bioRef, introRef, socialRef].forEach(r => { try { r.current && r.current.classList.remove('needs-input'); } catch(e) {} });
+        [nameRef, bioRef, introRef, socialRef].forEach(r => { try { r.current && r.current.classList.remove('needs-input'); } catch (e) { } });
 
         // small animate emphasis for highlighted words / labels
         const toUnderline = document.querySelectorAll('[data-guidance="underline"]');
         toUnderline.forEach(el => { el.classList.remove('active'); void el.offsetWidth; el.classList.add('active'); });
 
         const toEmphasize = document.querySelectorAll('[data-guidance="emphasis"]');
-        toEmphasize.forEach(el => { el.classList.add('temporary-emphasis'); setTimeout(() => el.classList.add('fade'), 1400); setTimeout(() => el.classList.remove('temporary-emphasis','fade'), 2800); });
+        toEmphasize.forEach(el => { el.classList.add('temporary-emphasis'); setTimeout(() => el.classList.add('fade'), 1400); setTimeout(() => el.classList.remove('temporary-emphasis', 'fade'), 2800); });
 
         // switch on step
         if (step === 1) {
@@ -967,7 +967,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                 ))}
                             </div>
 
-                                <div className="w-full mt-2">
+                            <div className="w-full mt-2">
                                 <div className="rounded-xl p-6 flex flex-col items-center" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.08), rgba(var(--color-gold-rgb,203,138,0),0.02))' }}>
                                     <div className="text-4xl mb-3">👑</div>
                                     <div className="font-semibold text-[var(--color-gold)]">{getTranslation('Meet your fellow Regaardiens!', selectedLanguage)}</div>
@@ -990,7 +990,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                             <div className="w-full px-2">
                                 <div className="rounded-xl border-2 border-[var(--color-gold)] p-6 mb-6 bg-white">
                                     <div className="flex flex-col items-center">
-                                            <div className="mb-3" style={{ color: 'var(--color-gold)' }}>
+                                        <div className="mb-3" style={{ color: 'var(--color-gold)' }}>
                                             <Icon name="chart" size={56} style={{ color: 'var(--color-gold)' }} />
                                         </div>
 
@@ -1007,7 +1007,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-3 mb-4">
-                                    {[{n:10,share:'60%'},{n:20,share:'70%'},{n:30,share:'80%'}].map((c) => (
+                                    {[{ n: 10, share: '60%' }, { n: 20, share: '70%' }, { n: 30, share: '80%' }].map((c) => (
                                         <div key={c.n} className="bg-gray-50 rounded-xl p-4 text-center">
                                             <div className="text-2xl font-bold text-[var(--color-gold)]">{c.n}</div>
                                             <div className="text-sm text-gray-600">{getTranslation('Creators', selectedLanguage)}</div>
@@ -1065,11 +1065,11 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                                                 const embed = `https://www.youtube.com/embed/${id}`;
                                                                 return (
                                                                     <div className="w-full rounded-lg overflow-hidden" style={{ height: 160, position: 'relative' }}>
-                                                                        <iframe title="YouTube preview" src={embed} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: 'absolute', top:0, left:0, width:'100%', height:'100%' }} />
+                                                                        <iframe title="YouTube preview" src={embed} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
                                                                     </div>
                                                                 );
                                                             }
-                                                        } catch (e) {}
+                                                        } catch (e) { }
                                                     }
                                                     return null;
                                                 })()
@@ -1128,24 +1128,24 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                                 <div className="font-semibold text-gray-900">{getTranslation('Become an Ambassador', selectedLanguage)}: <span className="font-normal text-gray-700">{getTranslation('I commit to inviting and onboarding at least 3 quality creators to join the Regaardien movement within my first 30 days', selectedLanguage)}</span></div>
 
                                                 <div className="mt-3 flex items-center">
-                                                                                                        <button
-                                                                                                            className="rounded-lg px-3 py-1 text-xs mr-3 flex items-center space-x-2"
-                                                                                                            style={{
-                                                                                                                background: 'linear-gradient(90deg, rgba(var(--color-gold-rgb,203,138,0),0.14), rgba(var(--color-gold-rgb,203,138,0),0.04))',
-                                                                                                                color: 'var(--color-gold)',
-                                                                                                                boxShadow: '0 6px 18px rgba(203,138,0,0.08)',
-                                                                                                                border: '1px solid rgba(var(--color-gold-rgb,203,138,0),0.12)',
-                                                                                                                borderRadius: 12
-                                                                                                            }}
-                                                                                                            onClick={() => {
-                                                                                                                // gentle in-page reveal: scroll to top of onboarding as a small affordance
-                                                                                                                const container = document.querySelector('.creator-onboard-scroll');
-                                                                                                                if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
-                                                                                                            }}
-                                                                                                        >
-                                                                                                            <Icon name="star" size={12} className="text-[var(--color-gold)]" />
-                                                                                                            <span>{getTranslation('Ambassador Perks', selectedLanguage)}</span>
-                                                                                                        </button>
+                                                    <button
+                                                        className="rounded-lg px-3 py-1 text-xs mr-3 flex items-center space-x-2"
+                                                        style={{
+                                                            background: 'linear-gradient(90deg, rgba(var(--color-gold-rgb,203,138,0),0.14), rgba(var(--color-gold-rgb,203,138,0),0.04))',
+                                                            color: 'var(--color-gold)',
+                                                            boxShadow: '0 6px 18px rgba(203,138,0,0.08)',
+                                                            border: '1px solid rgba(var(--color-gold-rgb,203,138,0),0.12)',
+                                                            borderRadius: 12
+                                                        }}
+                                                        onClick={() => {
+                                                            // gentle in-page reveal: scroll to top of onboarding as a small affordance
+                                                            const container = document.querySelector('.creator-onboard-scroll');
+                                                            if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+                                                        }}
+                                                    >
+                                                        <Icon name="star" size={12} className="text-[var(--color-gold)]" />
+                                                        <span>{getTranslation('Ambassador Perks', selectedLanguage)}</span>
+                                                    </button>
                                                     <div className="text-sm text-gray-600">{getTranslation('Early access to new features + Priority support', selectedLanguage)}</div>
                                                 </div>
                                             </div>
@@ -1173,14 +1173,14 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                     <label className="flex items-start mb-3">
                                         <input type="checkbox" checked={agreedTOS} onChange={() => setAgreedTOS(!agreedTOS)} className="mr-3 mt-1 w-4 h-4" style={{ accentColor: '#1e3a8a' }} />
                                         <div className="text-left text-sm">
-                                            {getTranslation('I have read and agree to the', selectedLanguage)} <a href="#" onClick={(e)=>{e.preventDefault(); window.open('https://example.com/terms','_blank')}} className="text-[var(--color-gold)] underline">{getTranslation('Terms of Service', selectedLanguage)}</a>
+                                            {getTranslation('I have read and agree to the', selectedLanguage)} <a href="#" onClick={(e) => { e.preventDefault(); window.open('https://example.com/terms', '_blank') }} className="text-[var(--color-gold)] underline">{getTranslation('Terms of Service', selectedLanguage)}</a>
                                         </div>
                                     </label>
 
                                     <label className="flex items-start">
                                         <input type="checkbox" checked={agreedPrivacy} onChange={() => setAgreedPrivacy(!agreedPrivacy)} className="mr-3 mt-1 w-4 h-4" style={{ accentColor: '#1e3a8a' }} />
                                         <div className="text-left text-sm">
-                                            {getTranslation('I have read and agree to the', selectedLanguage)} <a href="#" onClick={(e)=>{e.preventDefault(); window.open('https://example.com/privacy','_blank')}} className="text-[var(--color-gold)] underline">{getTranslation('Privacy Policy', selectedLanguage)}</a>
+                                            {getTranslation('I have read and agree to the', selectedLanguage)} <a href="#" onClick={(e) => { e.preventDefault(); window.open('https://example.com/privacy', '_blank') }} className="text-[var(--color-gold)] underline">{getTranslation('Privacy Policy', selectedLanguage)}</a>
                                         </div>
                                     </label>
                                 </div>
@@ -1197,16 +1197,16 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                     </div>
 
                                     <div className="mt-4 space-y-3 text-left text-sm text-gray-700">
-                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3"/> {getTranslation('Intro video added', selectedLanguage)}</div>
-                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3"/> {has1kFollowers ? getTranslation('1,000+ followers verified', selectedLanguage) : getTranslation('1,000+ followers verified', selectedLanguage)}</div>
-                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3"/> {isAmbassador ? getTranslation('Ambassador commitment', selectedLanguage) : getTranslation('Ambassador commitment', selectedLanguage)}</div>
+                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3" /> {getTranslation('Intro video added', selectedLanguage)}</div>
+                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3" /> {has1kFollowers ? getTranslation('1,000+ followers verified', selectedLanguage) : getTranslation('1,000+ followers verified', selectedLanguage)}</div>
+                                        <div className="flex items-center"><Icon name="check" size={18} className="text-[var(--color-gold)] mr-3" /> {isAmbassador ? getTranslation('Ambassador commitment', selectedLanguage) : getTranslation('Ambassador commitment', selectedLanguage)}</div>
                                     </div>
                                 </div>
 
                                 <div className="rounded-xl p-6 text-center" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.08), rgba(var(--color-gold-rgb,203,138,0),0.02))' }}>
                                     <div className="text-4xl mb-3">🎉</div>
                                     <div className="font-semibold text-gray-900">{getTranslation('Ready to Start Creating?', selectedLanguage)}</div>
-                                                    <div className="text-sm text-gray-600 mt-1">{getTranslation('Click "Next" to learn how to get your first requests!', selectedLanguage)}</div>
+                                    <div className="text-sm text-gray-600 mt-1">{getTranslation('Click "Next" to learn how to get your first requests!', selectedLanguage)}</div>
                                 </div>
                             </div>
                         </div>
@@ -1216,7 +1216,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                     {step === 7 && (
                         <div className="w-full text-left px-1">
                             {/* Header / hero */}
-                                <div className="flex flex-col items-center text-center mb-4">
+                            <div className="flex flex-col items-center text-center mb-4">
                                 <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-3" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', boxShadow: '0 8px 24px rgba(0,0,0,0.06)' }}>
                                     <Icon name="sparkles" size={32} style={{ color: 'var(--color-gold)' }} />
                                 </div>
@@ -1227,7 +1227,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                             {/* ADDED: You're the Marketer card (appears right under the hero) */}
                             <div className="rounded-xl border-2 border-[var(--color-gold)] p-4 mb-6 bg-white">
                                 <div className="flex items-start">
-                                        <div className="w-12 h-12 rounded-lg flex items-center justify-center mr-4" style={{ color: 'var(--color-gold)', background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))' }}>
+                                    <div className="w-12 h-12 rounded-lg flex items-center justify-center mr-4" style={{ color: 'var(--color-gold)', background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))' }}>
                                         <Icon name="users" size={20} style={{ color: 'var(--color-gold)' }} />
                                     </div>
 
@@ -1242,7 +1242,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                             </div>
 
                             {/* Numbered steps stack (will exceed container height and reveal on scroll) */}
-                                <div className="space-y-6">
+                            <div className="space-y-6">
                                 {/* 1 */}
                                 <div className="flex items-start">
                                     <div className="w-8 h-8 rounded-full flex items-center justify-center mr-4 font-semibold" style={{ background: 'linear-gradient(90deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', color: 'var(--color-gold)' }}>1</div>
@@ -1265,7 +1265,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                                         <div className="text-sm text-gray-600 mt-2 mb-3">{getTranslation('Create a compelling call-to-action that invites requests. Examples:', selectedLanguage)}</div>
 
                                         <div className="space-y-3">
-                                            { [
+                                            {[
                                                 { title: getTranslation('Science Creator', selectedLanguage), text: getTranslation('"Which experiment do you want me to try next? Request it now!"', selectedLanguage) },
                                                 { title: getTranslation('Documentary Maker', selectedLanguage), text: getTranslation('"Which topic should I cover next? Tell me your story idea!"', selectedLanguage) },
                                                 { title: getTranslation('Cooking Creator', selectedLanguage), text: getTranslation('"What recipe should I make for you? Send your request!"', selectedLanguage) }
@@ -1323,7 +1323,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                             </div>
                         </div>
                     )}
- 
+
                 </div>
 
                 {/* Footer fixed */}
@@ -1359,13 +1359,13 @@ const DrawerItem = ({ iconName, label, rightText = null, isGold = false, isPurpl
         setPressed(true);
     };
     const handlePressEnd = () => setPressed(false);
-    
+
     const handleClick = (e) => {
         if (typeof onClick === 'function') {
-            try { 
-                onClick(e); 
-            } catch (err) { 
-                console.warn('DrawerItem onClick failed', err); 
+            try {
+                onClick(e);
+            } catch (err) {
+                console.warn('DrawerItem onClick failed', err);
             }
         }
     };
@@ -1458,17 +1458,17 @@ const CollapsibleSectionHeader = ({ title, isExpanded, onToggle, collapsed }) =>
         <button
             className="w-full flex items-center justify-between px-6 pt-4 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors"
             onClick={onToggle}
-            style={{ 
+            style={{
                 borderBottom: isExpanded ? 'none' : '2px solid var(--color-accent, #CA8A04)',
                 paddingBottom: isExpanded ? '0.5rem' : '0.75rem'
             }}
         >
             {!collapsed && <span>{title}</span>}
-            <Icon 
-                name="chevronDown" 
-                size={14} 
+            <Icon
+                name="chevronDown"
+                size={14}
                 className="transition-transform duration-200"
-                style={{ 
+                style={{
                     transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
                     color: 'var(--color-accent, #CA8A04)'
                 }}
@@ -1570,9 +1570,9 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
                     <div className="absolute bottom-0 left-0 right-0 h-6 pointer-events-none bg-gradient-to-t from-white/80 to-transparent" />
 
                     {/* Account Section */}
-                    <CollapsibleSectionHeader 
+                    <CollapsibleSectionHeader
                         title={getTranslation('Account', selectedLanguage)}
-                        isExpanded={expandedSections.account} 
+                        isExpanded={expandedSections.account}
                         onToggle={() => toggleSection('account')}
                         collapsed={collapsed}
                     />
@@ -1590,9 +1590,9 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
                     )}
 
                     {/* Library Section */}
-                    <CollapsibleSectionHeader 
+                    <CollapsibleSectionHeader
                         title={getTranslation('Library', selectedLanguage)}
-                        isExpanded={expandedSections.library} 
+                        isExpanded={expandedSections.library}
                         onToggle={() => toggleSection('library')}
                         collapsed={collapsed}
                     />
@@ -1610,9 +1610,9 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
 
 
                     {/* Create Section */}
-                    <CollapsibleSectionHeader 
+                    <CollapsibleSectionHeader
                         title={getTranslation('Create', selectedLanguage)}
-                        isExpanded={expandedSections.create} 
+                        isExpanded={expandedSections.create}
                         onToggle={() => toggleSection('create')}
                         collapsed={collapsed}
                     />
@@ -1661,8 +1661,8 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
                             {/* --- Upgrade to Premium Card --- */}
                             <button
                                 className="w-full flex items-center p-2 rounded-xl transition-shadow duration-300 mt-3"
-                                style={{ 
-                                    backgroundColor: 'var(--color-gold-cream)', 
+                                style={{
+                                    backgroundColor: 'var(--color-gold-cream)',
                                     boxShadow: '0 2px 6px var(--color-gold-light), inset 0 1px 0 rgba(255, 255, 255, 0.5)'
                                 }}
                                 onClick={() => { try { requireAuthNavigate('/sponsorship'); } catch (err) { console.warn('Navigation to sponsorship failed', err); } }}
@@ -1685,9 +1685,9 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
                     )}
 
                     {/* General Settings */}
-                    <CollapsibleSectionHeader 
+                    <CollapsibleSectionHeader
                         title={getTranslation('General', selectedLanguage)}
-                        isExpanded={expandedSections.general} 
+                        isExpanded={expandedSections.general}
                         onToggle={() => toggleSection('general')}
                         collapsed={collapsed}
                     />
@@ -1714,7 +1714,7 @@ const ReportVideoDialog = ({ video, videoTitle, onClose, selectedLanguage = 'Eng
         const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
         const token = localStorage.getItem('regaarder_token');
         let reporter = null;
-        try { reporter = JSON.parse(localStorage.getItem('regaarder_user') || '{}'); } catch (e) {}
+        try { reporter = JSON.parse(localStorage.getItem('regaarder_user') || '{}'); } catch (e) { }
 
         const payload = {
             videoId: (video && (video.id || video.videoId)) || null,
@@ -1735,7 +1735,7 @@ const ReportVideoDialog = ({ video, videoTitle, onClose, selectedLanguage = 'Eng
                     ...(token ? { Authorization: `Bearer ${token}` } : {})
                 },
                 body: JSON.stringify(payload)
-            }).catch(() => {});
+            }).catch(() => { });
 
             // Best-effort email alert to admin; ignore failures
             const emailBody = {
@@ -1758,7 +1758,7 @@ const ReportVideoDialog = ({ video, videoTitle, onClose, selectedLanguage = 'Eng
                     const subj = encodeURIComponent(emailBody.subject);
                     const body = encodeURIComponent(emailBody.text);
                     window.open(`mailto:regaarder@gmail.com?subject=${subj}&body=${body}`, '_blank');
-                } catch (_) {}
+                } catch (_) { }
             }
         } finally {
             onClose();
@@ -1810,7 +1810,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
     const [followActive, setFollowActive] = useState(false);
     const [requestActive, setRequestActive] = useState(false);
     const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
-    
+
     // Use real data if provided, otherwise use placeholder data
     const initialData = profileData || {
         avatar: null,
@@ -1824,33 +1824,33 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
         verified: false,
         joinedDate: currentYear // Will show 2026 for new users
     };
-    
+
     // Local state for follower count so it updates when following
     const [followerCount, setFollowerCount] = useState(initialData.stats.followers);
-    
+
     // Check if already following this creator and get real follower count
     useEffect(() => {
         const checkFollowStatus = async () => {
             if (!creatorId && !username && !name) return;
-            
+
             const targetId = creatorId || username || name;
             const token = localStorage.getItem('regaarder_token');
-            
+
             try {
                 // Resolve creator real ID from users by id OR email OR name
                 const usersResp = await fetch(`${BACKEND}/users`).then(r => r.json()).catch(() => null);
                 const usersList = usersResp && Array.isArray(usersResp.users) ? usersResp.users : [];
                 let resolvedCreator = null;
                 if (usersList.length) {
-                    resolvedCreator = usersList.find(u => 
-                        u.id === targetId || 
-                        u.email === targetId || 
+                    resolvedCreator = usersList.find(u =>
+                        u.id === targetId ||
+                        u.email === targetId ||
                         u.name === targetId ||
                         (u.email && targetId && targetId.includes('@') && u.email.toLowerCase() === String(targetId).toLowerCase()) ||
                         (u.name && u.name.toLowerCase() === String(targetId).toLowerCase())
                     ) || null;
                 }
-                
+
                 // 1) Check if we're following this creator using canonical creator.id
                 if (resolvedCreator && resolvedCreator.id) {
                     const followingResponse = await fetch(`${BACKEND}/following/${encodeURIComponent(resolvedCreator.id)}`, {
@@ -1863,10 +1863,10 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                         setIsFollowing(!!isFollowing);
                     }
                 }
-                
+
                 // 2) Get real follower count for this creator using creator.id
                 if (resolvedCreator && resolvedCreator.id) {
-                    const followersCount = usersList.filter(u => 
+                    const followersCount = usersList.filter(u =>
                         Array.isArray(u.following) && u.following.includes(resolvedCreator.id)
                     ).length;
                     setFollowerCount(followersCount);
@@ -1875,10 +1875,10 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                 console.error('Error checking follow status:', err);
             }
         };
-        
+
         checkFollowStatus();
     }, [creatorId, username, name, BACKEND]);
-    
+
     // Update data with current follower count
     const data = {
         ...initialData,
@@ -1899,7 +1899,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                 <div className="px-6 pb-6 -mt-12">
                     {/* Avatar */}
                     <div className="relative inline-block">
-                        <div 
+                        <div
                             className="w-24 h-24 rounded-full border-4 border-white shadow-lg flex items-center justify-center overflow-hidden"
                             style={{ background: data.avatar ? 'transparent' : 'linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%)' }}
                         >
@@ -1910,7 +1910,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                             )}
                         </div>
                         {isCreator && data.verified && (
-                            <div 
+                            <div
                                 className="absolute bottom-0 right-0 w-7 h-7 rounded-full border-2 border-white flex items-center justify-center shadow-md"
                                 style={{ backgroundColor: 'var(--color-gold)' }}
                             >
@@ -1924,7 +1924,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                         <div className="flex items-center gap-2">
                             <h3 className="text-2xl font-bold text-gray-900">{name}</h3>
                             {isCreator && (
-                                <div 
+                                <div
                                     className="px-2 py-0.5 rounded-full text-xs font-semibold text-white"
                                     style={{ backgroundColor: 'var(--color-gold)' }}
                                 >
@@ -1961,16 +1961,16 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                     {/* Action buttons */}
                     <div className="mt-6 space-y-3">
                         {isFollowing ? (
-                            <button 
+                            <button
                                 onClick={async (e) => {
                                     e.stopPropagation();
                                     setFollowActive(true);
-                                    
+
                                     try {
                                         // Call backend to unfollow
                                         const token = localStorage.getItem('regaarder_token');
                                         const targetId = creatorId || username || name;
-                                        
+
                                         const response = await fetch(`${BACKEND}/unfollow`, {
                                             method: 'POST',
                                             headers: {
@@ -1979,7 +1979,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                             },
                                             body: JSON.stringify({ creatorId: targetId })
                                         });
-                                        
+
                                         if (response.ok) {
                                             setTimeout(() => {
                                                 setIsFollowing(false);
@@ -1997,7 +1997,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     }
                                 }}
                                 className={`w-full py-3 rounded-xl font-semibold border-2 transition-all duration-150 hover:bg-gray-50`}
-                                style={{ 
+                                style={{
                                     borderColor: 'var(--color-gold)',
                                     color: 'var(--color-gold)',
                                     transform: followActive ? 'scale(0.95)' : 'scale(1)',
@@ -2007,18 +2007,18 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                 {getTranslation('Following', selectedLanguage)}
                             </button>
                         ) : (
-                            <button 
+                            <button
                                 onClick={async (e) => {
                                     e.stopPropagation();
                                     setFollowActive(true);
-                                    
+
                                     try {
                                         // Call backend to follow
                                         const token = localStorage.getItem('regaarder_token');
                                         const targetId = creatorId || username || name;
-                                        
+
                                         console.log('Following:', { targetId, creatorId, username, name });
-                                        
+
                                         const response = await fetch(`${BACKEND}/follow`, {
                                             method: 'POST',
                                             headers: {
@@ -2027,7 +2027,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                             },
                                             body: JSON.stringify({ creatorId: targetId })
                                         });
-                                        
+
                                         if (response.ok) {
                                             setTimeout(() => {
                                                 setIsFollowing(true);
@@ -2046,7 +2046,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     }
                                 }}
                                 className={`w-full py-3 rounded-xl font-semibold text-white transition-all duration-150 hover:opacity-90 shadow-md`}
-                                style={{ 
+                                style={{
                                     backgroundColor: 'var(--color-gold)',
                                     boxShadow: '0 4px 12px rgba(203, 138, 0, 0.3)',
                                     transform: followActive ? 'scale(0.95)' : 'scale(1)',
@@ -2066,7 +2066,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     }, 150);
                                 }}
                                 className={`w-full py-3 rounded-xl border-2 font-semibold transition-all duration-150 hover:bg-gray-50`}
-                                style={{ 
+                                style={{
                                     borderColor: 'var(--color-gold)',
                                     color: 'var(--color-gold)',
                                     transform: requestActive ? 'scale(0.95)' : 'scale(1)',
@@ -2129,7 +2129,7 @@ const PlaylistPickerDialog = ({ video, onClose, onAdded, selectedLanguage = 'Eng
     const [name, setName] = useState('');
     const [err, setErr] = useState('');
 
-    useEffect(() => { (async () => { try { const mod = await import('./playlists.jsx'); setLists(mod.getPlaylists()); } catch (e) {} })(); }, []);
+    useEffect(() => { (async () => { try { const mod = await import('./playlists.jsx'); setLists(mod.getPlaylists()); } catch (e) { } })(); }, []);
 
     const handleSelect = async (id) => {
         try { const mod = await import('./playlists.jsx'); mod.addToPlaylist(id, video); setLists(mod.getPlaylists()); onAdded && onAdded(); onClose(); } catch (e) { onClose(); }
@@ -2154,14 +2154,14 @@ const PlaylistPickerDialog = ({ video, onClose, onAdded, selectedLanguage = 'Eng
                             return (
                                 <button key={l.id} className="w-full text-left bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-gray-300" onClick={() => handleSelect(l.id)}>
                                     <div className="w-full pb-[50%] relative">
-                                        <img src={thumb} alt={l.name} className="absolute inset-0 w-full h-full object-cover" onError={(e)=>{ e.currentTarget.src='https://placehold.co/160x90/efefef/777?text=Playlist'; }} />
+                                        <img src={thumb} alt={l.name} className="absolute inset-0 w-full h-full object-cover" onError={(e) => { e.currentTarget.src = 'https://placehold.co/160x90/efefef/777?text=Playlist'; }} />
                                     </div>
                                     <div className="px-2 py-1">
                                         <div className="text-[11px] font-semibold text-gray-900 truncate">{l.name}</div>
                                         <div className="text-[10px] text-gray-500 flex items-center gap-1 mt-0.5">
                                             <span>{getTranslation('Private', selectedLanguage)}</span>
                                             <span>•</span>
-                                            <span>{(l.items||[]).length}</span>
+                                            <span>{(l.items || []).length}</span>
                                             <Icon name="bookmark" size={12} className="ml-auto text-gray-400" />
                                         </div>
                                     </div>
@@ -2173,7 +2173,7 @@ const PlaylistPickerDialog = ({ video, onClose, onAdded, selectedLanguage = 'Eng
                     <div className="text-sm text-gray-600 mb-2">{getTranslation('No playlists yet. Create one below.', selectedLanguage)}</div>
                 )}
                 <label className="text-sm text-gray-700">{getTranslation('New playlist name', selectedLanguage)}</label>
-                <input value={name} onChange={(e)=>{ setName(e.target.value); setErr(''); }} placeholder={getTranslation('My Playlist', selectedLanguage)} className="mt-1 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md outline-none" />
+                <input value={name} onChange={(e) => { setName(e.target.value); setErr(''); }} placeholder={getTranslation('My Playlist', selectedLanguage)} className="mt-1 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md outline-none" />
                 {err && <div className="text-xs text-red-600 mt-1">{err}</div>}
                 <div className="mt-4 flex justify-end gap-2">
                     <button className="px-3 py-2 text-sm text-gray-700" onClick={onClose}>{getTranslation('Cancel', selectedLanguage)}</button>
@@ -2236,46 +2236,48 @@ const ThemeDialog = ({ onClose, selectedTheme, onThemeChange, accentColor, onOpe
         >
             <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
                 {/* derive language at render time to avoid relying on an outer variable */}
-                {(() => { const selLang = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English'; return (
-                <>
-                <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center">
-                        <Icon name="palette" size={24} className="mr-2" style={{ color: 'var(--color-gold)' }} />
-                        <h3 className="text-xl font-bold text-gray-900">{getTranslation('Choose Your Theme', selLang)}</h3>
-                    </div>
-                    <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-700">
-                        <Icon name="x" size={24} />
-                    </button>
-                </div>
+                {(() => {
+                    const selLang = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English'; return (
+                        <>
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center">
+                                    <Icon name="palette" size={24} className="mr-2" style={{ color: 'var(--color-gold)' }} />
+                                    <h3 className="text-xl font-bold text-gray-900">{getTranslation('Choose Your Theme', selLang)}</h3>
+                                </div>
+                                <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-700">
+                                    <Icon name="x" size={24} />
+                                </button>
+                            </div>
 
-                <p className="text-sm text-gray-600 mb-6">{getTranslation('Select how Regaarder looks on your device', selLang)}</p>
+                            <p className="text-sm text-gray-600 mb-6">{getTranslation('Select how Regaarder looks on your device', selLang)}</p>
 
-                <div className="space-y-3 mb-6">
-                    {themes.map((theme) => (
-                        <ThemeOption
-                            key={theme.id}
-                            theme={theme}
-                            isSelected={selectedTheme === theme.id}
-                            onClick={() => onThemeChange(theme.id)}
-                        />
-                    ))}
-                </div>
+                            <div className="space-y-3 mb-6">
+                                {themes.map((theme) => (
+                                    <ThemeOption
+                                        key={theme.id}
+                                        theme={theme}
+                                        isSelected={selectedTheme === theme.id}
+                                        onClick={() => onThemeChange(theme.id)}
+                                    />
+                                ))}
+                            </div>
 
-                <div className="border-t border-gray-200 pt-4 mb-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <div className="font-semibold text-gray-900">{getTranslation('Accent Color', selLang)}</div>
-                            <div className="text-sm text-gray-600">{getTranslation("Customize the app's highlight color", selLang)}</div>
-                        </div>
-                        <button
-                            onClick={onOpenColorPicker}
-                            className="w-12 h-12 rounded-lg hover:opacity-80 transition-opacity cursor-pointer"
-                            style={{ backgroundColor: accentColor }}
-                        ></button>
-                    </div>
-                </div>
-                </>
-                )})() }
+                            <div className="border-t border-gray-200 pt-4 mb-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="font-semibold text-gray-900">{getTranslation('Accent Color', selLang)}</div>
+                                        <div className="text-sm text-gray-600">{getTranslation("Customize the app's highlight color", selLang)}</div>
+                                    </div>
+                                    <button
+                                        onClick={onOpenColorPicker}
+                                        className="w-12 h-12 rounded-lg hover:opacity-80 transition-opacity cursor-pointer"
+                                        style={{ backgroundColor: accentColor }}
+                                    ></button>
+                                </div>
+                            </div>
+                        </>
+                    )
+                })()}
 
                 <button
                     onClick={onClose}
@@ -2512,7 +2514,7 @@ const Toast = ({ show, type = 'info', title, message, onClose }) => {
 
     return (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[200] w-full max-w-md mx-auto px-4">
-            <div 
+            <div
                 ref={toastRef}
                 className={`flex items-center bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 cursor-grab select-none ${isDismissing ? 'opacity-0 scale-95 -translate-y-4' : 'opacity-100 scale-100'}`}
                 style={{
@@ -2558,7 +2560,7 @@ const Toast = ({ show, type = 'info', title, message, onClose }) => {
 const App = ({ overrideMiniPlayerData = null }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    
+
     // Navigation helper to convert .jsx paths to routes
     const navigateTo = (path) => {
         if (!path) return;
@@ -2624,48 +2626,48 @@ const App = ({ overrideMiniPlayerData = null }) => {
         let lastNotifCount = -1;
         // Function to check notifications
         const checkForNotifications = async () => {
-             const token = localStorage.getItem('regaarder_token');
-             if (!token) return;
-             try {
-                 const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
-                 const res = await fetch(`${BACKEND}/notifications`, {
-                     headers: { 'Authorization': `Bearer ${token}` }
-                 });
-                 if (res.ok) {
-                     const data = await res.json();
-                     const list = data.notifications || [];
-                     const count = list.length;
-                     
-                     // If we have more notifications than before, assume the top one is new
-                     // and show a toaster for it.
-                     if (lastNotifCount !== -1 && count > lastNotifCount) {
-                         const newest = list[0]; 
-                         if (newest) {
-                             setToast({
-                                 show: true,
-                                 type: 'info',
-                                 title: 'New Notification',
-                                 message: newest.text || 'You have a new update'
-                             });
-                             // Auto-hide after 4 seconds
-                             setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
-                         }
-                     }
-                     lastNotifCount = count;
-                     
-                     // Update localStorage so badge in TopHeader updates
-                     localStorage.setItem('notifications_count', String(count));
-                     localStorage.setItem('notifications', JSON.stringify(list));
-                     window.dispatchEvent(new Event('storage'));
-                 }
-             } catch (e) { 
-                 // silent fail on poll error 
-             }
+            const token = localStorage.getItem('regaarder_token');
+            if (!token) return;
+            try {
+                const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                const res = await fetch(`${BACKEND}/notifications`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const list = data.notifications || [];
+                    const count = list.length;
+
+                    // If we have more notifications than before, assume the top one is new
+                    // and show a toaster for it.
+                    if (lastNotifCount !== -1 && count > lastNotifCount) {
+                        const newest = list[0];
+                        if (newest) {
+                            setToast({
+                                show: true,
+                                type: 'info',
+                                title: 'New Notification',
+                                message: newest.text || 'You have a new update'
+                            });
+                            // Auto-hide after 4 seconds
+                            setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
+                        }
+                    }
+                    lastNotifCount = count;
+
+                    // Update localStorage so badge in TopHeader updates
+                    localStorage.setItem('notifications_count', String(count));
+                    localStorage.setItem('notifications', JSON.stringify(list));
+                    window.dispatchEvent(new Event('storage'));
+                }
+            } catch (e) {
+                // silent fail on poll error 
+            }
         };
-        
+
         // Initial check
         checkForNotifications();
-        
+
         // Poll every 8 seconds
         const interval = setInterval(checkForNotifications, 8000);
         return () => clearInterval(interval);
@@ -2673,7 +2675,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
 
     // Theme is managed globally via ThemeProvider
     const theme = useTheme();
-    
+
     // NEW: Language dialog state with localStorage persistence
     const [isLanguageDialogOpen, setIsLanguageDialogOpen] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState(() => {
@@ -2705,7 +2707,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
         const unsubscribe2 = eventBus.on('switchToHome', handleSwitchToHome);
         return () => {
             unsubscribe();
-            try { unsubscribe2(); } catch (e) {}
+            try { unsubscribe2(); } catch (e) { }
         };
     }, []);
 
@@ -2719,7 +2721,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                 setShowMiniPlayer(true);
                 return;
             }
-        } catch (e) {}
+        } catch (e) { }
         try {
             // 1) React Router state (navigate(url, { state }))
             if (location && location.state && location.state.miniPlayerData) {
@@ -2729,7 +2731,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     setMiniPlayerData(data);
                     setMiniPlaying(!(data.paused));
                     setShowMiniPlayer(true);
-                    try { localStorage.removeItem('miniPlayerData'); } catch (e) {}
+                    try { localStorage.removeItem('miniPlayerData'); } catch (e) { }
                     return;
                 }
             }
@@ -2745,10 +2747,10 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     setMiniPlayerData(data);
                     setMiniPlaying(!(data.paused));
                     setShowMiniPlayer(true);
-                    try { localStorage.removeItem('miniPlayerData'); } catch (e) {}
+                    try { localStorage.removeItem('miniPlayerData'); } catch (e) { }
                     return;
                 }
-            } catch (e) {}
+            } catch (e) { }
             // 3) localStorage as last fallback
             const storedData = localStorage.getItem('miniPlayerData');
             console.log('home: found stored miniPlayerData?', !!storedData);
@@ -2792,16 +2794,16 @@ const App = ({ overrideMiniPlayerData = null }) => {
 
                     // Play/pause according to payload (prefer explicit paused flag)
                     if (miniPlayerData && miniPlayerData.paused) {
-                        try { v.pause(); } catch (e) {}
+                        try { v.pause(); } catch (e) { }
                     } else {
                         // attempt to play with muted autoplay, then unmute on success
                         try {
                             v.muted = true;
                             const p = v.play();
                             if (p && p.then) {
-                                p.then(() => { try { v.muted = false; } catch (e) {} }).catch(() => {});
+                                p.then(() => { try { v.muted = false; } catch (e) { } }).catch(() => { });
                             }
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                 } catch (err) { console.warn('miniPlayer applyState failed', err); }
             };
@@ -2819,10 +2821,10 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     const current = Math.floor(v.currentTime || 0);
                     setMiniPlayerData(prev => {
                         const next = { ...(prev || {}), time: current };
-                        try { localStorage.setItem('miniPlayerData', JSON.stringify(next)); } catch (e) {}
+                        try { localStorage.setItem('miniPlayerData', JSON.stringify(next)); } catch (e) { }
                         return next;
                     });
-                } catch (e) {}
+                } catch (e) { }
             };
             v.addEventListener('timeupdate', timeUpdateHandler);
         } catch (e) {
@@ -2833,7 +2835,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
             try {
                 if (loadedHandler && v.removeEventListener) v.removeEventListener('loadedmetadata', loadedHandler);
                 if (timeUpdateHandler && v.removeEventListener) v.removeEventListener('timeupdate', timeUpdateHandler);
-            } catch (e) {}
+            } catch (e) { }
         };
     }, [showMiniPlayer, miniPlayerData]);
 
@@ -2945,8 +2947,8 @@ const App = ({ overrideMiniPlayerData = null }) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
                 body: JSON.stringify({ videoUrl: v.videoUrl || v.url || v.src || null, title: v.title || '' })
-            }).catch(() => {});
-        } catch {}
+            }).catch(() => { });
+        } catch { }
     };
 
     // Handler to unpin a video
@@ -2959,8 +2961,8 @@ const App = ({ overrideMiniPlayerData = null }) => {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
                 body: JSON.stringify({ pinned: false, pinnedDays: null })
-            }).catch(() => {});
-        } catch (e) {}
+            }).catch(() => { });
+        } catch (e) { }
     };
 
     // Define the data for the video cards (empty - videos come from backend)
@@ -3014,13 +3016,13 @@ const App = ({ overrideMiniPlayerData = null }) => {
             try {
                 const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
                 console.log('Fetching videos from:', `${BACKEND}/videos`);
-                
+
                 // Fetch bookmarks to sync state
                 const token = localStorage.getItem('regaarder_token');
                 let bookmarkedVideoUrls = new Set();
                 try {
-                    const bookmarksRes = await fetch(`${BACKEND}/bookmarks`, { 
-                        headers: token ? { Authorization: `Bearer ${token}` } : {} 
+                    const bookmarksRes = await fetch(`${BACKEND}/bookmarks`, {
+                        headers: token ? { Authorization: `Bearer ${token}` } : {}
                     });
                     const bookmarksData = await bookmarksRes.json();
                     if (bookmarksData && bookmarksData.success && Array.isArray(bookmarksData.videos)) {
@@ -3031,7 +3033,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                 } catch (e) {
                     console.warn('Failed to fetch bookmarks:', e);
                 }
-                
+
                 const params = new URLSearchParams();
                 if (selectedTab === 'Recommended') {
                     params.set('feed', 'recommended');
@@ -3046,11 +3048,11 @@ const App = ({ overrideMiniPlayerData = null }) => {
 
                 const response = await fetch(`${BACKEND}/videos?${params.toString()}`);
                 console.log('Fetch response:', response.status, response.ok);
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     console.log('Fetched videos data:', data);
-                    
+
                     if (data.success && data.videos && data.videos.length > 0) {
                         console.log('Adding', data.videos.length, 'videos from backend');
                         // Ensure unique IDs and filter out blob URLs
@@ -3073,7 +3075,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     const days = Math.floor(hours / 24);
                                     const weeks = Math.floor(days / 7);
                                     const months = Math.floor(days / 30);
-                                    
+
                                     if (seconds < 60) relativeTime = 'Just now';
                                     else if (minutes < 60) relativeTime = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
                                     else if (hours < 24) relativeTime = `${hours} hour${hours > 1 ? 's' : ''} ago`;
@@ -3081,7 +3083,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     else if (weeks < 4) relativeTime = `${weeks} week${weeks > 1 ? 's' : ''} ago`;
                                     else relativeTime = `${months} month${months > 1 ? 's' : ''} ago`;
                                 }
-                                
+
                                 // Use a stable ID derived from backend id or timestamp (no random suffix)
                                 const uniqueId = (video.id != null && video.id !== undefined) ? String(video.id) : (video.timestamp ? `ts-${video.timestamp}` : (video.videoUrl ? `url-${video.videoUrl}` : `idx-${index}`));
                                 const videoUrlRaw = (video.videoUrl && !video.videoUrl.startsWith('blob:')) ? video.videoUrl : null;
@@ -3106,8 +3108,8 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     date: relativeTime,
                                     // Replace blob URLs with fallback placeholders and rewrite localhost to current host
                                     imageUrl: (() => {
-                                        const url = (video.imageUrl && !video.imageUrl.startsWith('blob:')) 
-                                            ? video.imageUrl 
+                                        const url = (video.imageUrl && !video.imageUrl.startsWith('blob:'))
+                                            ? video.imageUrl
                                             : video.thumbnail || 'https://placehold.co/600x400/333333/ffffff?text=Video+Image+Unavailable';
                                         try {
                                             const iu = new URL(url);
@@ -3147,7 +3149,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     bookmarked: videoUrl ? bookmarkedVideoUrls.has(String(videoUrl)) : false
                                 };
                             });
-                        
+
                         // Only add if we have valid videos after filtering
                         if (uniqueVideos.length > 0) {
                             // Use a Set to track existing IDs and prevent duplicates
@@ -3167,7 +3169,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                 console.error('Error fetching videos:', error);
             }
         };
-        
+
         fetchVideos();
     }, [selectedTab]);
 
@@ -3209,7 +3211,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
         if (typeof dateStr !== 'string') return dateStr;
-        
+
         const s = dateStr.trim();
         if (s.match(/just\s*now/i)) return getTranslation('Just now', selectedLanguage);
 
@@ -3253,7 +3255,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
     const markRequestsSeen = () => {
         try {
             localStorage.setItem('hasSeenRequests', '1');
-        } catch (e) {}
+        } catch (e) { }
         setShowRequestsTooltip(false);
     };
 
@@ -3286,8 +3288,8 @@ const App = ({ overrideMiniPlayerData = null }) => {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
                 body: JSON.stringify({ pinned: true, pinnedDays: days })
-            }).catch(() => {});
-        } catch (e) {}
+            }).catch(() => { });
+        } catch (e) { }
     };
 
     // Helper: map selected language to flag emoji
@@ -3355,8 +3357,8 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                         localStorage.removeItem('miniPlayerData');
                                         setShowMiniPlayer(false);
                                         setMiniPlayerData(null);
-                                    } catch (e) {}
-                                    
+                                    } catch (e) { }
+
                                     // Navigate to videoplayer with video data
                                     const params = new URLSearchParams({
                                         id: video.id || '',
@@ -3432,24 +3434,24 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     boxShadow: '0 10px 24px rgba(34,197,94,0.06), 0 2px 6px rgba(0,0,0,0.06)',
                                     backgroundImage: 'linear-gradient(90deg, rgba(34,197,94,0.06), rgba(124,58,237,0.04))'
                                 }}
-                            onMouseDown={(e) => {
-                                try { if (e && e.preventDefault) e.preventDefault(); } catch (err) {}
-                                try {
-                                    const url = '/ideas' + (searchTerm ? `?q=${encodeURIComponent(searchTerm)}` : '');
-                                    navigate(url);
-                                } catch (e) {
-                                    console.warn('Redirect failed', e);
-                                }
-                            }}
-                            onTouchStart={(e) => {
-                                try { if (e && e.preventDefault) e.preventDefault(); } catch (err) {}
-                                try {
-                                    const url = '/ideas' + (searchTerm ? `?q=${encodeURIComponent(searchTerm)}` : '');
-                                    navigate(url);
-                                } catch (e) {
-                                    console.warn('Redirect failed', e);
-                                }
-                            }}
+                                onMouseDown={(e) => {
+                                    try { if (e && e.preventDefault) e.preventDefault(); } catch (err) { }
+                                    try {
+                                        const url = '/ideas' + (searchTerm ? `?q=${encodeURIComponent(searchTerm)}` : '');
+                                        navigate(url);
+                                    } catch (e) {
+                                        console.warn('Redirect failed', e);
+                                    }
+                                }}
+                                onTouchStart={(e) => {
+                                    try { if (e && e.preventDefault) e.preventDefault(); } catch (err) { }
+                                    try {
+                                        const url = '/ideas' + (searchTerm ? `?q=${encodeURIComponent(searchTerm)}` : '');
+                                        navigate(url);
+                                    } catch (e) {
+                                        console.warn('Redirect failed', e);
+                                    }
+                                }}
                                 onClick={(e) => { if (e && e.preventDefault) e.preventDefault(); }}
                             >
                                 Request This Video
@@ -3469,8 +3471,8 @@ const App = ({ overrideMiniPlayerData = null }) => {
 
             {/* Mini Player (Floating) - Extracted for performance */}
             {showMiniPlayer && miniPlayerData && (
-                <MiniPlayer 
-                    data={miniPlayerData} 
+                <MiniPlayer
+                    data={miniPlayerData}
                     onClose={() => {
                         setShowMiniPlayer(false);
                         setMiniPlayerData(null);
@@ -3498,10 +3500,10 @@ const App = ({ overrideMiniPlayerData = null }) => {
 
             {/* Render global profile dialog */}
             {isProfileOpen && profileUser && (
-                <ProfileDialog 
-                    name={profileUser} 
-                    username={profileUser} 
-                    isCreator={profileIsCreator} 
+                <ProfileDialog
+                    name={profileUser}
+                    username={profileUser}
+                    isCreator={profileIsCreator}
                     onClose={handleCloseProfile}
                     profileData={profileData}
                     creatorId={profileCreatorId}
@@ -3555,13 +3557,13 @@ const App = ({ overrideMiniPlayerData = null }) => {
 
 // --- ContentCard Component (where the fix is applied) ---
 
-const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggleBookmark, onUnpinVideo, onOpenShare, onNotInterested, onVideoClick, onAddToPlaylistStart, showRequestsTooltip = false, markRequestsSeen = () => {}, isFirstRequested = false, allVideos = [], selectedLanguage = 'English' }) => { // added tooltip props and allVideos
+const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggleBookmark, onUnpinVideo, onOpenShare, onNotInterested, onVideoClick, onAddToPlaylistStart, showRequestsTooltip = false, markRequestsSeen = () => { }, isFirstRequested = false, allVideos = [], selectedLanguage = 'English' }) => { // added tooltip props and allVideos
 
     // Helper to format date string for display with translation (local to card to avoid scoping issues)
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
         if (typeof dateStr !== 'string') return dateStr;
-        
+
         const s = dateStr.trim();
         if (s.match(/just\s*now/i)) return getTranslation('Just now', selectedLanguage);
 
@@ -3605,7 +3607,7 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
     useEffect(() => {
         if (!requestedVisible) return;
         const t = setTimeout(() => {
-            try { localStorage.setItem('requested_badge_seen', '1'); } catch (e) {}
+            try { localStorage.setItem('requested_badge_seen', '1'); } catch (e) { }
             setRequestedVisible(false);
         }, 8000);
         return () => clearTimeout(t);
@@ -3683,7 +3685,7 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
     const handleViewRequestDetails = () => {
         try {
             localStorage.setItem('focus_request_hint', JSON.stringify({ title: video.title || '', requester: video.requester || '' }));
-        } catch (e) {}
+        } catch (e) { }
         const reqId = video.requestId || video.originalRequestId || null;
         const path = reqId ? `/requests?reqId=${encodeURIComponent(reqId)}` : `/requests?q=${encodeURIComponent(video.title || '')}`;
         navigateToRequests(path);
@@ -3730,7 +3732,7 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                     try {
                         localStorage.setItem('swipe_stats_seen', '1');
                         setShowSwipeHint(false);
-                    } catch (e) {}
+                    } catch (e) { }
                 }
             }
             else if (cardState === 'likes') setCardState('views');
@@ -3764,14 +3766,14 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                             <button
                                 className="font-semibold underline hover:text-gray-900"
                                 style={{ color: 'var(--color-gold)', background: 'transparent', padding: 0 }}
-                                onClick={(e) => { 
-                                    e.stopPropagation(); 
+                                onClick={(e) => {
+                                    e.stopPropagation();
                                     if (onOpenProfile) {
                                         // Calculate real stats for the creator
                                         const creatorVideos = allVideos.filter(v => v.author === video.author || v.authorId === video.authorId);
                                         const creatorRequests = creatorVideos.length; // Count of fulfilled requests (published videos)
                                         const creatorFollowers = 0; // TODO: Would need followers data from backend
-                                        
+
                                         const creatorData = {
                                             avatar: video.authorAvatar || null,
                                             bio: 'Creating engaging content for you',
@@ -3783,7 +3785,7 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                                             verified: false,
                                             joinedDate: new Date().getFullYear()
                                         };
-                                        
+
                                         onOpenProfile(video.author, true, creatorData, video.authorId);
                                     }
                                 }}
@@ -3796,14 +3798,14 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                                 {formatDate(video.date)} &middot; {getTranslation('Requested by', selectedLanguage)}
                                 <button
                                     className="text-gray-600 font-medium underline hover:text-gray-800 cursor-pointer ml-1 bg-transparent p-0"
-                                    onClick={(e) => { 
-                                        e.stopPropagation(); 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         if (onOpenProfile) {
                                             // Calculate real stats for the requester
                                             const requesterVideos = allVideos.filter(v => v.requester === video.requester);
                                             const requesterRequests = requesterVideos.length; // Count videos they requested
                                             const requesterFollowers = 0; // TODO: Would need followers data from backend
-                                            
+
                                             const requesterData = {
                                                 avatar: video.requesterAvatar || null,
                                                 bio: 'Enjoying great content',
@@ -3815,7 +3817,7 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                                                 verified: false,
                                                 joinedDate: new Date().getFullYear()
                                             };
-                                            
+
                                             onOpenProfile(video.requester, false, requesterData, video.requester);
                                         }
                                     }}
@@ -3896,7 +3898,7 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                                     try {
                                         localStorage.setItem('swipe_stats_seen', '1');
                                         setShowSwipeHint(false);
-                                    } catch (e) {}
+                                    } catch (e) { }
                                 }
                                 setCardState(page);
                             }}
@@ -3928,10 +3930,10 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                                 thumbnail: v.imageUrl || v.thumbnail
                             })) : [];
                             const idx = list.findIndex(x => String(x.id) === String(video.id) || String(x.url) === String(video.videoUrl || video.url));
-                            
-                            try { localStorage.setItem('videoplayer_source', JSON.stringify(list)); } catch (e) {}
-                            try { localStorage.setItem('videoplayer_index', String(Math.max(0, idx))); } catch (e) {}
-                        } catch (e) {}
+
+                            try { localStorage.setItem('videoplayer_source', JSON.stringify(list)); } catch (e) { }
+                            try { localStorage.setItem('videoplayer_index', String(Math.max(0, idx))); } catch (e) { }
+                        } catch (e) { }
                         onVideoClick && onVideoClick();
                     }
                 }}
@@ -3982,10 +3984,10 @@ const ContentCard = ({ video, onReportVideo, onPinVideo, onOpenProfile, onToggle
                         {/* One-time tooltip shown below the first Requested badge */}
                         {isFirstRequested && showRequestsTooltip && (
                             <div className="absolute top-full mt-3 left-1/2 transform -translate-x-1/2 w-60 bg-white text-sm text-gray-800 p-3 rounded-lg shadow-lg z-50">
-                                    <div className="font-semibold">Requests</div>
-                                    <div className="text-xs text-gray-500 mt-1">See what people want to watch and add your own ideas anytime..</div>
+                                <div className="font-semibold">Requests</div>
+                                <div className="text-xs text-gray-500 mt-1">See what people want to watch and add your own ideas anytime..</div>
                                 <div className="mt-2 text-right">
-                                    <button onClick={() => { try { localStorage.setItem('requested_badge_seen', '1'); } catch (e) {} setRequestedVisible(false); markRequestsSeen && markRequestsSeen(); }} className="text-xs font-medium text-[var(--color-gold)]">Got it</button>
+                                    <button onClick={() => { try { localStorage.setItem('requested_badge_seen', '1'); } catch (e) { } setRequestedVisible(false); markRequestsSeen && markRequestsSeen(); }} className="text-xs font-medium text-[var(--color-gold)]">Got it</button>
                                 </div>
                             </div>
                         )}
@@ -4036,9 +4038,9 @@ const TopHeader = ({ setIsDrawerOpen, navigate }) => {
                     try {
                         const arr = JSON.parse(v2);
                         if (Array.isArray(arr)) { setNotifCount(arr.length); return; }
-                    } catch (e) {}
+                    } catch (e) { }
                 }
-            } catch (e) {}
+            } catch (e) { }
             setNotifCount(0);
         };
         readCount();
@@ -4047,14 +4049,14 @@ const TopHeader = ({ setIsDrawerOpen, navigate }) => {
         return () => window.removeEventListener('storage', onStorage);
     }, []);
 
-    const pressStart = (setter, e) => { try { if (e && e.preventDefault) e.preventDefault(); } catch (err) {} ; setter(true); };
+    const pressStart = (setter, e) => { try { if (e && e.preventDefault) e.preventDefault(); } catch (err) { }; setter(true); };
     const pressEnd = (setter) => setter(false);
 
-            const handleNotifMouseDown = (e) => {
+    const handleNotifMouseDown = (e) => {
         pressStart(setNotifPressed, e);
         if (!notifNavigatedRef.current) {
             notifNavigatedRef.current = true;
-                            try { try { localStorage.setItem('requested_badge_seen', '1'); } catch (e) {} navigate('/notifications?from=home'); } catch (err) { console.warn('Navigation to notifications failed', err); }
+            try { try { localStorage.setItem('requested_badge_seen', '1'); } catch (e) { } navigate('/notifications?from=home'); } catch (err) { console.warn('Navigation to notifications failed', err); }
         }
     };
 
@@ -4136,7 +4138,7 @@ const SearchBar = ({ searchTerm, setSearchTerm, navigate, onFocusChange, selecte
         setSearchTerm('');
         setResults([]);
         setShowDropdown(false);
-        if (onFocusChange) try { onFocusChange(false); } catch (e) {}
+        if (onFocusChange) try { onFocusChange(false); } catch (e) { }
     };
 
     const performSearch = async (q) => {
@@ -4178,9 +4180,9 @@ const SearchBar = ({ searchTerm, setSearchTerm, navigate, onFocusChange, selecte
                 handle: creator.handle,
                 image: creator.image || null
             };
-            try { window.localStorage.setItem(SELECTED_CREATOR_KEY, JSON.stringify(creatorObj)); } catch (e) {}
+            try { window.localStorage.setItem(SELECTED_CREATOR_KEY, JSON.stringify(creatorObj)); } catch (e) { }
         } catch (e) { console.warn('persist creator failed', e); }
-        if (onFocusChange) try { onFocusChange(false); } catch (e) {}
+        if (onFocusChange) try { onFocusChange(false); } catch (e) { }
         // navigate to ideas page so user can type request immediately
         try { window.location.href = '/ideas.jsx'; } catch (e) { if (navigate) navigate('/ideas'); }
     };
@@ -4219,8 +4221,8 @@ const SearchBar = ({ searchTerm, setSearchTerm, navigate, onFocusChange, selecte
                 className="flex-1 text-base placeholder-gray-400 text-gray-700 focus:outline-none bg-transparent"
                 value={searchTerm}
                 onChange={(e) => e.target.value.length < 80 ? onInputChange(e.target.value) : null}
-                onFocus={() => { setIsFocused(true); if (onFocusChange) try { onFocusChange(true); } catch (e) {} if (results && results.length) setShowDropdown(true); }}
-                onBlur={() => { setIsFocused(false); if (onFocusChange) try { onFocusChange(false); } catch (e) {} }}
+                onFocus={() => { setIsFocused(true); if (onFocusChange) try { onFocusChange(true); } catch (e) { } if (results && results.length) setShowDropdown(true); }}
+                onBlur={() => { setIsFocused(false); if (onFocusChange) try { onFocusChange(false); } catch (e) { } }}
                 onKeyDown={onKeyDown}
                 aria-autocomplete="list"
             />
@@ -4242,35 +4244,35 @@ const SearchBar = ({ searchTerm, setSearchTerm, navigate, onFocusChange, selecte
                         className="bg-white rounded-xl shadow-xl border border-gray-100 w-full"
                         style={{ maxHeight: '50vh', overflowY: 'auto', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
                     >
-                    {loading && (
-                        <div className="p-3 text-sm text-gray-500">Searching creators...</div>
-                    )}
-                    {!loading && results.length === 0 && (
-                        <div className="p-3 text-sm text-gray-500">No creators found</div>
-                    )}
-                    {!loading && results.map((u, idx) => (
-                        <button
-                            key={u.id || u.email || idx}
-                            onMouseDown={(e) => { e.preventDefault(); }}
-                            onClick={() => selectCreator(u)}
-                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center justify-between ${highlight === idx ? 'bg-gray-50' : ''}`}
-                        >
-                            <div className="flex items-center">
-                                {u.image ? (
-                                    <img src={u.image} alt={u.name} className="w-10 h-10 rounded-full object-cover mr-3" onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/64x64/cccccc/000000?text=?'; }} />
-                                ) : (
-                                    <img src={getPlaceholderAvatar(u.name)} alt={u.name} className="w-10 h-10 rounded-full object-cover mr-3" onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/64x64/cccccc/000000?text=?'; }} />
-                                )}
-                                <div className="flex flex-col text-sm">
-                                    <span className="font-semibold text-gray-900">{u.name || u.handle || 'Unknown'}</span>
-                                    <span className="text-xs text-gray-500">{u.tagline || u.category || (u.isCreator ? 'Creator' : '')}</span>
+                        {loading && (
+                            <div className="p-3 text-sm text-gray-500">Searching creators...</div>
+                        )}
+                        {!loading && results.length === 0 && (
+                            <div className="p-3 text-sm text-gray-500">No creators found</div>
+                        )}
+                        {!loading && results.map((u, idx) => (
+                            <button
+                                key={u.id || u.email || idx}
+                                onMouseDown={(e) => { e.preventDefault(); }}
+                                onClick={() => selectCreator(u)}
+                                className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center justify-between ${highlight === idx ? 'bg-gray-50' : ''}`}
+                            >
+                                <div className="flex items-center">
+                                    {u.image ? (
+                                        <img src={u.image} alt={u.name} className="w-10 h-10 rounded-full object-cover mr-3" onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/64x64/cccccc/000000?text=?'; }} />
+                                    ) : (
+                                        <img src={getPlaceholderAvatar(u.name)} alt={u.name} className="w-10 h-10 rounded-full object-cover mr-3" onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/64x64/cccccc/000000?text=?'; }} />
+                                    )}
+                                    <div className="flex flex-col text-sm">
+                                        <span className="font-semibold text-gray-900">{u.name || u.handle || 'Unknown'}</span>
+                                        <span className="text-xs text-gray-500">{u.tagline || u.category || (u.isCreator ? 'Creator' : '')}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="text-sm text-gray-600 ml-4">
-                                {u.price ? `$${u.price}` : ''}
-                            </div>
-                        </button>
-                    ))}
+                                <div className="text-sm text-gray-600 ml-4">
+                                    {u.price ? `$${u.price}` : ''}
+                                </div>
+                            </button>
+                        ))}
                     </div>
                 </div>
             )}
@@ -4281,7 +4283,7 @@ const SearchBar = ({ searchTerm, setSearchTerm, navigate, onFocusChange, selecte
 const TabPills = ({ activeTab, setActiveTab, selectedLanguage = 'English' }) => {
     // Use parent-controlled tab state when provided, otherwise fall back to internal defaults
     const currentTab = activeTab || 'Recommended';
-    const setTab = setActiveTab || (() => {});
+    const setTab = setActiveTab || (() => { });
 
     const tabs = [
         { name: 'Recommended', icon: 'star' },
@@ -4365,9 +4367,9 @@ const LikesDislikesStats = ({ stats, selectedLanguage = 'English' }) => (
 const ViewsCommentsStats = ({ stats, selectedLanguage = 'English' }) => (
     <div className="p-4 pt-6 pb-2">
         <StatItem iconName="eye" value={stats.views} label={getTranslation('Views', selectedLanguage)} iconColor="var(--color-gold)" />
-        <StatItem iconName="message" value={stats.comments} label={getTranslation('Comments', selectedLanguage)} iconColor="#57606C" /> 
+        <StatItem iconName="message" value={stats.comments} label={getTranslation('Comments', selectedLanguage)} iconColor="#57606C" />
         <p className="text-xs text-gray-400 mt-4 text-center">{getTranslation('Swipe left for engagement stats', selectedLanguage)}</p>
-        <div className="h-6"></div> 
+        <div className="h-6"></div>
     </div>
 );
 
@@ -4410,7 +4412,7 @@ const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => 
         // if dismissed elsewhere (other tab), update
         const onStorage = (e) => {
             if (e.key === 'fab_dismissed') {
-                try { setDismissed(window.localStorage.getItem('fab_dismissed') === '1'); } catch (err) {}
+                try { setDismissed(window.localStorage.getItem('fab_dismissed') === '1'); } catch (err) { }
             }
         };
         window.addEventListener('storage', onStorage);
@@ -4418,7 +4420,7 @@ const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => 
     }, []);
 
     const handleMouseDown = (e) => {
-        try { if (e && e.preventDefault) e.preventDefault(); } catch (err) {}
+        try { if (e && e.preventDefault) e.preventDefault(); } catch (err) { }
         setPressed(true);
         if (!navigatedRef.current) {
             navigatedRef.current = true;
@@ -4443,7 +4445,7 @@ const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => 
 
     const handleDismiss = (dir) => {
         // animate out then persist dismissal
-        try { window.localStorage.setItem('fab_dismissed', '1'); } catch (e) {}
+        try { window.localStorage.setItem('fab_dismissed', '1'); } catch (e) { }
         setDismissed(true);
     };
 
@@ -4496,7 +4498,7 @@ const BottomBar = ({ navigate, selectedLanguage = 'English' }) => {
     };
     const [activeTab, setActiveTab] = useState(() => mapPathToTab(location && location.pathname));
     useEffect(() => {
-        try { setActiveTab(mapPathToTab(location && location.pathname)); } catch (e) {}
+        try { setActiveTab(mapPathToTab(location && location.pathname)); } catch (e) { }
     }, [location && location.pathname]);
     const navigatedRef = useRef(false);
 
@@ -4513,7 +4515,7 @@ const BottomBar = ({ navigate, selectedLanguage = 'English' }) => {
 
     const inactiveColor = 'rgb(107 114 128)';
 
-        return (
+    return (
         <div
             // Changed bg-white to bg-gray-50 for a softer, off-white look
             className="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 shadow-2xl z-10"
@@ -4583,17 +4585,17 @@ const BottomBar = ({ navigate, selectedLanguage = 'English' }) => {
                                     navigateToTab(tab.name);
                                 }}
                             >
-                                                <div className="w-11 h-11 flex items-center justify-center">
-                                                    <Icon
-                                                        name={tab.icon}
-                                                        size={22}
-                                                        strokeWidth={1.5}
-                                                        style={activeColorStyle}
-                                                    />
-                                                </div>
-                                                <span className={`text-[11px] md:text-xs mt-1 leading-none ${textWeight}`} style={activeColorStyle}>
-                                                    {getTranslation(tab.name, selectedLanguage)}
-                                                </span>
+                                <div className="w-11 h-11 flex items-center justify-center">
+                                    <Icon
+                                        name={tab.icon}
+                                        size={22}
+                                        strokeWidth={1.5}
+                                        style={activeColorStyle}
+                                    />
+                                </div>
+                                <span className={`text-[11px] md:text-xs mt-1 leading-none ${textWeight}`} style={activeColorStyle}>
+                                    {getTranslation(tab.name, selectedLanguage)}
+                                </span>
                             </button>
 
                             {/* Tooltip is rendered next to the first Requested badge inside ContentCard. */}
@@ -4616,14 +4618,14 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
     useEffect(() => {
         const v = videoRef.current;
         if (v && data && typeof data.time === 'number') {
-             // Only set time if we are near the beginning to avoid resetting if already playing
-             // But actually, when data changes (new video), we want to respect the time.
-             // Or when reopening miniplayer.
-             try {
-                 if (Math.abs(v.currentTime - data.time) > 1) {
-                     v.currentTime = data.time;
-                 }
-             } catch(e) {}
+            // Only set time if we are near the beginning to avoid resetting if already playing
+            // But actually, when data changes (new video), we want to respect the time.
+            // Or when reopening miniplayer.
+            try {
+                if (Math.abs(v.currentTime - data.time) > 1) {
+                    v.currentTime = data.time;
+                }
+            } catch (e) { }
         }
     }, [data]);
 
@@ -4649,7 +4651,7 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
             drag.isResizing = false;
         }
         if (e.target.setPointerCapture) {
-            try { e.target.setPointerCapture(e.pointerId); } catch {}
+            try { e.target.setPointerCapture(e.pointerId); } catch { }
         }
     };
 
@@ -4657,8 +4659,8 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
         const drag = dragRef.current;
         const dx = e.clientX - drag.startX;
         const dy = e.clientY - drag.startY;
-        
-        if (!drag.isDragging && !drag.isResizing && Math.sqrt(dx*dx + dy*dy) > 5) {
+
+        if (!drag.isDragging && !drag.isResizing && Math.sqrt(dx * dx + dy * dy) > 5) {
             if (!drag.isResizing) {
                 drag.isDragging = true;
                 drag.hasMoved = true;
@@ -4687,30 +4689,30 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
         drag.isResizing = false;
         setIsResizing(false);
         if (e.target.releasePointerCapture) {
-            try { e.target.releasePointerCapture(e.pointerId); } catch {}
+            try { e.target.releasePointerCapture(e.pointerId); } catch { }
         }
     };
 
     const handleClick = (e) => {
-        if (dragRef.current.hasMoved || dragRef.current.isResizing) return; 
+        if (dragRef.current.hasMoved || dragRef.current.isResizing) return;
         if (onExpand) onExpand();
         else {
-             const video = data.video || {};
-             const params = new URLSearchParams();
-             const idVal = video.id || video.videoId || video.src || video.url || '';
-             const srcVal = video.src || video.videoUrl || video.url || '';
-             if (idVal) params.set('id', idVal);
-             if (srcVal) params.set('src', srcVal);
-             if (video.title) params.set('title', video.title);
-             const channel = data.creatorName || video.creator || video.author || video.channel || '';
-             if (channel) params.set('channel', channel);
-             if (typeof data.time === 'number') params.set('t', String(Math.floor(data.time || 0)));
-             if(onClose) onClose();
-             try {
+            const video = data.video || {};
+            const params = new URLSearchParams();
+            const idVal = video.id || video.videoId || video.src || video.url || '';
+            const srcVal = video.src || video.videoUrl || video.url || '';
+            if (idVal) params.set('id', idVal);
+            if (srcVal) params.set('src', srcVal);
+            if (video.title) params.set('title', video.title);
+            const channel = data.creatorName || video.creator || video.author || video.channel || '';
+            if (channel) params.set('channel', channel);
+            if (typeof data.time === 'number') params.set('t', String(Math.floor(data.time || 0)));
+            if (onClose) onClose();
+            try {
                 navigate(`/videoplayer?${params.toString()}`, { state: { miniPlayerData: data } });
-             } catch(err) {
+            } catch (err) {
                 window.location.href = `/videoplayer?${params.toString()}`;
-             }
+            }
         }
     };
 
@@ -4719,7 +4721,7 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
         const v = videoRef.current;
         if (!v) return;
         if (v.paused) {
-            v.play().catch(() => {});
+            v.play().catch(() => { });
             setPlaying(true);
             if (onUpdateData) onUpdateData(prev => ({ ...prev, paused: false }));
         } else {
@@ -4740,12 +4742,12 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
     const controlsTimeoutRef = useRef(null);
 
     const showControls = () => {
-        try { clearTimeout(controlsTimeoutRef.current); } catch(e) {}
+        try { clearTimeout(controlsTimeoutRef.current); } catch (e) { }
         setControlsVisible(true);
     };
 
     const hideControlsDelayed = () => {
-        try { clearTimeout(controlsTimeoutRef.current); } catch(e) {}
+        try { clearTimeout(controlsTimeoutRef.current); } catch (e) { }
         controlsTimeoutRef.current = setTimeout(() => {
             setControlsVisible(false);
         }, 5000);
@@ -4781,8 +4783,8 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
                 flexDirection: 'column'
             }}
         >
-             {/* Resize Handle (Top-Left) - where requested */}
-             <div 
+            {/* Resize Handle (Top-Left) - where requested */}
+            <div
                 data-resize="true"
                 style={{
                     position: 'absolute',
@@ -4793,19 +4795,19 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
                     display: 'flex',
                     alignItems: 'center', // Icon will be at top-left visually via padding if needed, or centered
                     justifyContent: 'center',
-                    opacity: controlsVisible || isResizing ? 1 : 0, 
+                    opacity: controlsVisible || isResizing ? 1 : 0,
                     transition: 'opacity 0.2s',
                     pointerEvents: 'auto', // Ensure it captures clicks even if opacity is 0
                     touchAction: 'none'
                 }}
-             >
+            >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))', pointerEvents: 'none' }}>
                     <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
                 </svg>
-             </div>
+            </div>
 
-             <div style={{ width: '100%', height: size.height - 48, position: 'relative', background: '#000' }}>
-                 <video
+            <div style={{ width: '100%', height: size.height - 48, position: 'relative', background: '#000' }}>
+                <video
                     ref={videoRef}
                     src={(data && (data.video && (data.video.src || data.video.videoUrl || data.video.url))) || ''}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#000' }}
@@ -4830,24 +4832,24 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
                 >
                     ✕
                 </button>
-             </div>
-            
+            </div>
+
             {/* Control Bar - Below video */}
-            <div style={{ 
+            <div style={{
                 width: '100%',
                 height: 48,
                 background: '#fff',
-                display: 'flex', 
-                alignItems: 'center', 
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'space-evenly',
                 borderTop: '1px solid rgba(0,0,0,0.05)',
                 pointerEvents: 'auto',
                 flexShrink: 0
             }}
-            onClick={(e) => e.stopPropagation()} 
+                onClick={(e) => e.stopPropagation()}
             >
                 {/* Seek Back 10s */}
-                <button 
+                <button
                     onClick={(e) => { e.stopPropagation(); seek(-10); }}
                     className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-transform"
                 >
@@ -4859,11 +4861,11 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
                 </button>
 
                 {/* Play/Pause */}
-                <button 
+                <button
                     onClick={togglePlay}
                     className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-transform"
                 >
-                     {!playing ? (
+                    {!playing ? (
                         <svg width="20" height="22" viewBox="0 0 24 24" fill="#111"><path d="M5 3l14 9-14 9V3z" /></svg>
                     ) : (
                         <svg width="18" height="22" viewBox="0 0 24 24" fill="#111"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
@@ -4871,7 +4873,7 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
                 </button>
 
                 {/* Seek Forward 10s */}
-                <button 
+                <button
                     onClick={(e) => { e.stopPropagation(); seek(10); }}
                     className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-transform"
                 >

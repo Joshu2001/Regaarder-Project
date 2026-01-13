@@ -172,11 +172,11 @@ const Toast = ({ message, duration = 2000, bottom = true }) => {
                 .toast-exit { animation: ${bottom ? 'toastOutDown 220ms cubic-bezier(.2,.8,.2,1) both' : 'toastOutCenter 180ms cubic-bezier(.2,.8,.2,1) both'}; }
             `}</style>
 
-            <div 
+            <div
                 ref={toastRef}
-                className="bg-white text-sm px-4 py-2 rounded-md shadow-lg flex items-center gap-3 cursor-grab select-none" 
-                style={{ 
-                    minWidth: 220, 
+                className="bg-white text-sm px-4 py-2 rounded-md shadow-lg flex items-center gap-3 cursor-grab select-none"
+                style={{
+                    minWidth: 220,
                     transform: `translateX(${swipeOffset}px)`,
                     transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
                 }}
@@ -204,10 +204,10 @@ const ClaimStatusPanel = ({
     requesterRole = getTranslation('Requester', (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English'),
     requesterAvatar = null,
     currentStep = 1,
-    onClose = () => {},
-    onUpdateProgress = () => {},
+    onClose = () => { },
+    onUpdateProgress = () => { },
     pendingReuploadItem = null,
-    clearPendingReupload = () => {},
+    clearPendingReupload = () => { },
 }) => {
     const [showModal, setShowModal] = useState(false);
     const [message, setMessage] = useState('');
@@ -224,8 +224,8 @@ const ClaimStatusPanel = ({
 
     useEffect(() => {
         const handleStorage = () => {
-             const lang = localStorage.getItem('regaarder_language') || 'English';
-             setSelectedLanguage(lang);
+            const lang = localStorage.getItem('regaarder_language') || 'English';
+            setSelectedLanguage(lang);
         };
         window.addEventListener('storage', handleStorage);
         return () => window.removeEventListener('storage', handleStorage);
@@ -607,7 +607,7 @@ const ClaimStatusPanel = ({
         } catch (e) {
             console.warn('Failed to open reupload preview', e);
         } finally {
-            try { clearPendingReupload(); } catch (e) {}
+            try { clearPendingReupload(); } catch (e) { }
         }
     }, [pendingReuploadItem]);
 
@@ -617,7 +617,7 @@ const ClaimStatusPanel = ({
             if (typeof arguments !== 'undefined') {
                 // arguments is available; actual pendingReuploadItem comes from props
             }
-        } catch (e) {}
+        } catch (e) { }
     }, []);
 
     const onAdjustPointerMove = (clientX, clientY) => {
@@ -729,10 +729,10 @@ const ClaimStatusPanel = ({
                     return (
                         <button onClick={() => setShowModal(true)} className="bg-[var(--color-gold)] text-white px-4 py-2 rounded-lg shadow-sm flex items-center gap-2">
                             {isPublishStage ? (
-                                        <React.Fragment>
-                                            <Star size={14} className="mr-1" />
-                                            <span className="font-semibold text-[13px]">{getTranslation('Publish Video', selectedLanguage)}</span>
-                                        </React.Fragment>
+                                <React.Fragment>
+                                    <Star size={14} className="mr-1" />
+                                    <span className="font-semibold text-[13px]">{getTranslation('Publish Video', selectedLanguage)}</span>
+                                </React.Fragment>
                             ) : (
                                 <React.Fragment>
                                     <span className="text-[14px]">→</span>
@@ -785,8 +785,8 @@ const ClaimStatusPanel = ({
                             </div>
 
                             <div>
-                                            <div className={`text-sm font-semibold ${isActive ? 'text-[var(--color-gold-darker)]' : isCompleted ? 'text-gray-500' : 'text-gray-900'}`}>{getTranslation(label, selectedLanguage)}</div>
-                                            <div className="text-xs text-gray-400 mt-1">—</div>
+                                <div className={`text-sm font-semibold ${isActive ? 'text-[var(--color-gold-darker)]' : isCompleted ? 'text-gray-500' : 'text-gray-900'}`}>{getTranslation(label, selectedLanguage)}</div>
+                                <div className="text-xs text-gray-400 mt-1">—</div>
                             </div>
                         </div>
                     );
@@ -815,15 +815,15 @@ const ClaimStatusPanel = ({
                                     </div>
 
                                     {publishStep !== 'preview' && (
-                                    <div className="mt-4 rounded-lg border border-[var(--color-gold-light)] bg-[var(--color-gold-light-bg)] p-4 mb-6">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-8 h-8 rounded-md bg-[var(--color-gold-cream)] flex items-center justify-center text-[var(--color-gold)]">🎬</div>
-                                            <div>
-                                                <div className="text-sm font-semibold text-[var(--color-gold-darker)]">{getTranslation('Publishing Request', selectedLanguage)}</div>
-                                                <div className="text-xs text-gray-600 mt-1">{getTranslation('Requester', selectedLanguage)}: {requesterName} · {getTranslation('Creator: You', selectedLanguage)}</div>
+                                        <div className="mt-4 rounded-lg border border-[var(--color-gold-light)] bg-[var(--color-gold-light-bg)] p-4 mb-6">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div className="w-8 h-8 rounded-md bg-[var(--color-gold-cream)] flex items-center justify-center text-[var(--color-gold)]">🎬</div>
+                                                <div>
+                                                    <div className="text-sm font-semibold text-[var(--color-gold-darker)]">{getTranslation('Publishing Request', selectedLanguage)}</div>
+                                                    <div className="text-xs text-gray-600 mt-1">{getTranslation('Requester', selectedLanguage)}: {requesterName} · {getTranslation('Creator: You', selectedLanguage)}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="mt-3">
+                                            <div className="mt-3">
                                                 <div className="relative" ref={formatRef}>
                                                     <button
                                                         type="button"
@@ -836,7 +836,7 @@ const ClaimStatusPanel = ({
                                                             <div className="text-lg">{selectedFormat?.icon}</div>
                                                             <div className={videoFormat ? 'text-gray-900' : 'text-gray-400'}>{selectedFormat?.fullLabel || selectedFormat?.label}</div>
                                                         </div>
-                                                        <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                                        <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                                                     </button>
 
                                                     {formatOpen && (
@@ -868,8 +868,8 @@ const ClaimStatusPanel = ({
                                                         </div>
                                                     )}
                                                 </div>
+                                            </div>
                                         </div>
-                                    </div>
                                     )}
 
                                     {/* Preview of the most recently published item (card-style preview copied from home.jsx) */}
@@ -966,356 +966,356 @@ const ClaimStatusPanel = ({
                                     )}
 
                                     {publishStep !== 'preview' && (
-                                    <>
-                                    <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Upload Video', selectedLanguage)} <span className="text-red-500">*</span></div>
-                                        <input ref={videoInputRef} type="file" accept="video/mp4,video/quicktime,video/webm" className="hidden" onChange={(e) => {
-                                            const file = e.target.files && e.target.files[0];
-                                            if (file) {
-                                                setVideoFile(file);
-                                                const url = URL.createObjectURL(file);
-                                                setVideoPreview(url);
-                                            }
-                                        }} />
+                                        <>
+                                            <div className="mb-6">
+                                                <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Upload Video', selectedLanguage)} <span className="text-red-500">*</span></div>
+                                                <input ref={videoInputRef} type="file" accept="video/mp4,video/quicktime,video/webm" className="hidden" onChange={(e) => {
+                                                    const file = e.target.files && e.target.files[0];
+                                                    if (file) {
+                                                        setVideoFile(file);
+                                                        const url = URL.createObjectURL(file);
+                                                        setVideoPreview(url);
+                                                    }
+                                                }} />
 
-                                        <div onClick={() => videoInputRef.current && videoInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-44 flex items-center justify-center cursor-pointer">
-                                            {videoPreview ? (
-                                                <video src={videoPreview} className="max-h-[160px] max-w-full" controls />
-                                            ) : (
-                                                <div className="text-center text-gray-500">
-                                                    <div className="w-12 h-12 rounded-md bg-[var(--color-gold-light-bg)] mx-auto mb-3 flex items-center justify-center text-[var(--color-gold)]">
-                                                        <Video size={20} className="text-[var(--color-gold)]" />
-                                                    </div>
-                                                    <div>{getTranslation('Click to upload video', selectedLanguage)}</div>
-                                                    <div className="text-xs text-gray-400 mt-1">{getTranslation('MP4, MOV or WebM · Max 500MB', selectedLanguage)}</div>
-                                                </div>
-                                            )}
-                                        </div>
-                                        {videoFile && <div className="text-xs text-gray-500 mt-2">{getTranslation('Selected:', selectedLanguage)} {videoFile.name} ({Math.round(videoFile.size/1024/1024)} MB)</div>}
-                                    </div>
-
-                                    <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Video Thumbnail', selectedLanguage)} <span className="text-red-500">*</span></div>
-                                        <input ref={thumbInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
-                                            const file = e.target.files && e.target.files[0];
-                                            if (file) {
-                                                setThumbnailFile(file);
-                                                const url = URL.createObjectURL(file);
-                                                setThumbnailPreview(url);
-                                            }
-                                        }} />
-
-                                        <div onClick={() => thumbInputRef.current && thumbInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-32 flex items-center justify-center cursor-pointer overflow-hidden bg-white">
-                                            {thumbnailPreview ? (
-                                                <img src={thumbnailPreview} alt="Video thumbnail preview" className="object-cover w-full h-full" loading="lazy" />
-                                            ) : (
-                                                <div className="text-gray-400 flex flex-col items-center justify-center">
-                                                    <Image size={36} className="text-gray-300 mb-2" />
-                                                    <div>{getTranslation('Click to upload thumbnail', selectedLanguage)}</div>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {thumbnailFile && <div className="text-xs text-gray-500 mt-2">{getTranslation('Selected:', selectedLanguage)} {thumbnailFile.name} ({Math.round(thumbnailFile.size/1024)} KB)</div>}
-
-                                        {/* Adjust thumbnail control */}
-                                        {thumbnailPreview && (
-                                            <div className="mt-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowAdjustModal(true)}
-                                                    className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-gray-200 bg-white text-sm"
-                                                >
-                                                    {getTranslation('Adjust thumbnail', selectedLanguage)}
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        {/* Thumbnail adjust modal */}
-                                        {showAdjustModal && thumbnailPreview && (
-                                            <div className="fixed inset-0 z-50 flex items-center justify-center">
-                                                <div className="absolute inset-0 bg-black opacity-60" onClick={() => setShowAdjustModal(false)} />
-                                                <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 z-10 p-4">
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <div className="font-semibold">{getTranslation('Adjust Thumbnail', selectedLanguage)}</div>
-                                                        <button onClick={() => setShowAdjustModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
-                                                    </div>
-
-                                                    <div className="flex flex-col md:flex-row gap-4">
-                                                        <div className="flex-1">
-                                                            <div ref={adjustContainerRef} className="w-full h-64 bg-gray-100 overflow-hidden relative touch-action-none" style={{ borderRadius: 8 }}
-                                                                 onMouseDown={handleAdjustMouseDown}
-                                                                 onMouseUp={handleAdjustMouseUp}
-                                                                 onMouseMove={handleAdjustMouseMove}
-                                                                 onMouseLeave={handleAdjustMouseUp}
-                                                                 onTouchStart={handleAdjustTouchStart}
-                                                                 onTouchMove={handleAdjustTouchMove}
-                                                                 onTouchEnd={handleAdjustTouchEnd}
-                                                            >
-                                                                <img
-                                                                    ref={adjustImageRef}
-                                                                    src={thumbnailPreview}
-                                                                    alt="Adjustable thumbnail"
-                                                                    loading="lazy"
-                                                                    style={{
-                                                                        position: 'absolute',
-                                                                        left: '50%',
-                                                                        top: '50%',
-                                                                        transform: `translate(-50%, -50%) translate(${adjustPos.x}px, ${adjustPos.y}px) scale(${adjustScale})`,
-                                                                        transformOrigin: 'center center',
-                                                                        userSelect: 'none',
-                                                                        touchAction: 'none',
-                                                                        maxWidth: 'none',
-                                                                    }}
-                                                                />
-
-                                                                {/* 16:9 crop overlay (centered) - uses large inset shadow to dim outside */}
-                                                                <div style={{
-                                                                    position: 'absolute',
-                                                                    left: '50%',
-                                                                    top: '50%',
-                                                                    transform: 'translate(-50%, -50%)',
-                                                                    width: '90%',
-                                                                    aspectRatio: '16/9',
-                                                                    border: '2px dashed rgba(255,255,255,0.9)',
-                                                                    boxShadow: '0 0 0 100vmax rgba(0,0,0,0.45)',
-                                                                    borderRadius: 8,
-                                                                    pointerEvents: 'none'
-                                                                }} />
+                                                <div onClick={() => videoInputRef.current && videoInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-44 flex items-center justify-center cursor-pointer">
+                                                    {videoPreview ? (
+                                                        <video src={videoPreview} className="max-h-[160px] max-w-full" controls />
+                                                    ) : (
+                                                        <div className="text-center text-gray-500">
+                                                            <div className="w-12 h-12 rounded-md bg-[var(--color-gold-light-bg)] mx-auto mb-3 flex items-center justify-center text-[var(--color-gold)]">
+                                                                <Video size={20} className="text-[var(--color-gold)]" />
                                                             </div>
+                                                            <div>{getTranslation('Click to upload video', selectedLanguage)}</div>
+                                                            <div className="text-xs text-gray-400 mt-1">{getTranslation('MP4, MOV or WebM · Max 500MB', selectedLanguage)}</div>
                                                         </div>
+                                                    )}
+                                                </div>
+                                                {videoFile && <div className="text-xs text-gray-500 mt-2">{getTranslation('Selected:', selectedLanguage)} {videoFile.name} ({Math.round(videoFile.size / 1024 / 1024)} MB)</div>}
+                                            </div>
 
-                                                            <div className="w-40 flex-shrink-0 flex flex-col gap-3">
-                                                                <div>
-                                                                    <label className="text-xs text-gray-600">{getTranslation('Zoom', selectedLanguage)}</label>
-                                                                    <input type="range" min="0.2" max="3" step="0.05" value={adjustScale} onChange={(e) => setAdjustScale(Number(e.target.value))} className="w-full mt-1" />
-                                                                    <div className="text-xs text-gray-500 mt-1">{Math.round(adjustScale * 100)}%</div>
+                                            <div className="mb-6">
+                                                <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Video Thumbnail', selectedLanguage)} <span className="text-red-500">*</span></div>
+                                                <input ref={thumbInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                                    const file = e.target.files && e.target.files[0];
+                                                    if (file) {
+                                                        setThumbnailFile(file);
+                                                        const url = URL.createObjectURL(file);
+                                                        setThumbnailPreview(url);
+                                                    }
+                                                }} />
+
+                                                <div onClick={() => thumbInputRef.current && thumbInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-32 flex items-center justify-center cursor-pointer overflow-hidden bg-white">
+                                                    {thumbnailPreview ? (
+                                                        <img src={thumbnailPreview} alt="Video thumbnail preview" className="object-cover w-full h-full" loading="lazy" />
+                                                    ) : (
+                                                        <div className="text-gray-400 flex flex-col items-center justify-center">
+                                                            <Image size={36} className="text-gray-300 mb-2" />
+                                                            <div>{getTranslation('Click to upload thumbnail', selectedLanguage)}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {thumbnailFile && <div className="text-xs text-gray-500 mt-2">{getTranslation('Selected:', selectedLanguage)} {thumbnailFile.name} ({Math.round(thumbnailFile.size / 1024)} KB)</div>}
+
+                                                {/* Adjust thumbnail control */}
+                                                {thumbnailPreview && (
+                                                    <div className="mt-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowAdjustModal(true)}
+                                                            className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-gray-200 bg-white text-sm"
+                                                        >
+                                                            {getTranslation('Adjust thumbnail', selectedLanguage)}
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                {/* Thumbnail adjust modal */}
+                                                {showAdjustModal && thumbnailPreview && (
+                                                    <div className="fixed inset-0 z-50 flex items-center justify-center">
+                                                        <div className="absolute inset-0 bg-black opacity-60" onClick={() => setShowAdjustModal(false)} />
+                                                        <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 z-10 p-4">
+                                                            <div className="flex items-center justify-between mb-3">
+                                                                <div className="font-semibold">{getTranslation('Adjust Thumbnail', selectedLanguage)}</div>
+                                                                <button onClick={() => setShowAdjustModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+                                                            </div>
+
+                                                            <div className="flex flex-col md:flex-row gap-4">
+                                                                <div className="flex-1">
+                                                                    <div ref={adjustContainerRef} className="w-full h-64 bg-gray-100 overflow-hidden relative touch-action-none" style={{ borderRadius: 8 }}
+                                                                        onMouseDown={handleAdjustMouseDown}
+                                                                        onMouseUp={handleAdjustMouseUp}
+                                                                        onMouseMove={handleAdjustMouseMove}
+                                                                        onMouseLeave={handleAdjustMouseUp}
+                                                                        onTouchStart={handleAdjustTouchStart}
+                                                                        onTouchMove={handleAdjustTouchMove}
+                                                                        onTouchEnd={handleAdjustTouchEnd}
+                                                                    >
+                                                                        <img
+                                                                            ref={adjustImageRef}
+                                                                            src={thumbnailPreview}
+                                                                            alt="Adjustable thumbnail"
+                                                                            loading="lazy"
+                                                                            style={{
+                                                                                position: 'absolute',
+                                                                                left: '50%',
+                                                                                top: '50%',
+                                                                                transform: `translate(-50%, -50%) translate(${adjustPos.x}px, ${adjustPos.y}px) scale(${adjustScale})`,
+                                                                                transformOrigin: 'center center',
+                                                                                userSelect: 'none',
+                                                                                touchAction: 'none',
+                                                                                maxWidth: 'none',
+                                                                            }}
+                                                                        />
+
+                                                                        {/* 16:9 crop overlay (centered) - uses large inset shadow to dim outside */}
+                                                                        <div style={{
+                                                                            position: 'absolute',
+                                                                            left: '50%',
+                                                                            top: '50%',
+                                                                            transform: 'translate(-50%, -50%)',
+                                                                            width: '90%',
+                                                                            aspectRatio: '16/9',
+                                                                            border: '2px dashed rgba(255,255,255,0.9)',
+                                                                            boxShadow: '0 0 0 100vmax rgba(0,0,0,0.45)',
+                                                                            borderRadius: 8,
+                                                                            pointerEvents: 'none'
+                                                                        }} />
+                                                                    </div>
                                                                 </div>
-                                                                <div className="flex gap-2">
-                                                                    <button
-                                                                        onMouseDown={() => startZoomRepeat(-0.1)}
-                                                                        onMouseUp={() => stopZoomRepeat()}
-                                                                        onMouseLeave={() => stopZoomRepeat()}
-                                                                        onTouchStart={() => startZoomRepeat(-0.1)}
-                                                                        onTouchEnd={() => stopZoomRepeat()}
-                                                                        className="px-3 py-2 bg-gray-100 rounded-md"
-                                                                    >-</button>
-                                                                    <button
-                                                                        onMouseDown={() => startZoomRepeat(0.1)}
-                                                                        onMouseUp={() => stopZoomRepeat()}
-                                                                        onMouseLeave={() => stopZoomRepeat()}
-                                                                        onTouchStart={() => startZoomRepeat(0.1)}
-                                                                        onTouchEnd={() => stopZoomRepeat()}
-                                                                        className="px-3 py-2 bg-gray-100 rounded-md"
-                                                                    >+</button>
+
+                                                                <div className="w-40 flex-shrink-0 flex flex-col gap-3">
+                                                                    <div>
+                                                                        <label className="text-xs text-gray-600">{getTranslation('Zoom', selectedLanguage)}</label>
+                                                                        <input type="range" min="0.2" max="3" step="0.05" value={adjustScale} onChange={(e) => setAdjustScale(Number(e.target.value))} className="w-full mt-1" />
+                                                                        <div className="text-xs text-gray-500 mt-1">{Math.round(adjustScale * 100)}%</div>
+                                                                    </div>
+                                                                    <div className="flex gap-2">
+                                                                        <button
+                                                                            onMouseDown={() => startZoomRepeat(-0.1)}
+                                                                            onMouseUp={() => stopZoomRepeat()}
+                                                                            onMouseLeave={() => stopZoomRepeat()}
+                                                                            onTouchStart={() => startZoomRepeat(-0.1)}
+                                                                            onTouchEnd={() => stopZoomRepeat()}
+                                                                            className="px-3 py-2 bg-gray-100 rounded-md"
+                                                                        >-</button>
+                                                                        <button
+                                                                            onMouseDown={() => startZoomRepeat(0.1)}
+                                                                            onMouseUp={() => stopZoomRepeat()}
+                                                                            onMouseLeave={() => stopZoomRepeat()}
+                                                                            onTouchStart={() => startZoomRepeat(0.1)}
+                                                                            onTouchEnd={() => stopZoomRepeat()}
+                                                                            className="px-3 py-2 bg-gray-100 rounded-md"
+                                                                        >+</button>
+                                                                    </div>
+                                                                    <div className="mt-2">
+                                                                        <button onClick={handleResetAdjust} className="w-full px-3 py-2 rounded-md border border-gray-200 bg-white mb-2">{getTranslation('Reset', selectedLanguage)}</button>
+                                                                        <div className="mt-auto">
+                                                                            <button onClick={handleSaveAdjustedThumbnail} className="w-full bg-[var(--color-gold)] text-white px-3 py-2 rounded-md">{getTranslation('Save', selectedLanguage)}</button>
+                                                                            <button onClick={() => setShowAdjustModal(false)} className="w-full mt-2 px-3 py-2 rounded-md border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            <div className="mt-2">
-                                                                <button onClick={handleResetAdjust} className="w-full px-3 py-2 rounded-md border border-gray-200 bg-white mb-2">{getTranslation('Reset', selectedLanguage)}</button>
-                                                                <div className="mt-auto">
-                                                                    <button onClick={handleSaveAdjustedThumbnail} className="w-full bg-[var(--color-gold)] text-white px-3 py-2 rounded-md">{getTranslation('Save', selectedLanguage)}</button>
-                                                                    <button onClick={() => setShowAdjustModal(false)} className="w-full mt-2 px-3 py-2 rounded-md border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
-                                                                </div>
                                                             </div>
-                                                            </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Video metadata fields (title, category, appearance) shown after thumbnail */}
-                                    <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Video Title', selectedLanguage)} <span className="text-red-500">*</span></div>
-                                        <input
-                                            value={videoTitle}
-                                            onChange={(e) => {
-                                                const v = e.target.value.slice(0, 100);
-                                                setVideoTitle(v);
-                                            }}
-                                            placeholder={getTranslation('Add a title for your video', selectedLanguage)}
-                                            className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm"
-                                        />
-                                        <div className="text-xs text-gray-400 mt-1">{videoTitle.length}/100 {getTranslation('characters', selectedLanguage)}</div>
-                                    </div>
-
-                                    <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Category', selectedLanguage)} <span className="text-red-500">*</span></div>
-                                        <div className="relative" ref={categoryRef}>
-                                            <button
-                                                type="button"
-                                                onClick={() => setCategoryOpen((s) => !s)}
-                                                aria-haspopup="listbox"
-                                                aria-expanded={categoryOpen}
-                                                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-white flex items-center justify-between"
-                                            >
-                                                <span className={category ? 'text-gray-900' : 'text-gray-400'}>{getTranslation(category || 'Select a category for your video', selectedLanguage)}</span>
-                                                <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                            </button>
-
-                                            {categoryOpen && (
-                                                <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
-                                                    {categories.map((c) => {
-                                                        const selected = c === category;
-                                                        return (
-                                                            <button
-                                                                key={c}
-                                                                type="button"
-                                                                onClick={() => { setCategory(c); setCategoryOpen(false); }}
-                                                                className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
-                                                            >
-                                                                <span className="text-sm text-gray-900">{getTranslation(c, selectedLanguage)}</span>
-                                                                {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
-                                                            </button>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-6">
-                                        <div className="text-sm font-medium text-gray-700 mb-3">{getTranslation('How it appears', selectedLanguage)}</div>
-                                        <div className="flex flex-col gap-3">
-                                            <button type="button" onClick={() => setAppearance('public')} className={`text-left p-4 rounded-lg border ${appearance === 'public' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-start gap-3">
-                                                        <Globe size={20} className="text-[var(--color-gold-darker)] mt-1" />
-                                                        <div>
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="font-semibold">{getTranslation('Public', selectedLanguage)}</div>
-                                                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">{getTranslation('Recommended', selectedLanguage)}</span>
-                                                            </div>
-                                                            <div className="text-xs text-gray-500">{getTranslation('Video appears on home page after completion. Best for maximum reach.', selectedLanguage)}</div>
                                                         </div>
                                                     </div>
-                                                    <div>
-                                                        {appearance === 'public' && <div className="text-[var(--color-gold-darker)]">✓</div>}
-                                                    </div>
-                                                </div>
-                                            </button>
-                                            <button type="button" onClick={() => setAppearance('unlisted')} className={`text-left p-4 rounded-lg border ${appearance === 'unlisted' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-start gap-3">
-                                                        <Link2 size={20} className="text-gray-700 mt-1" />
-                                                        <div>
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="font-semibold">{getTranslation('Unlisted', selectedLanguage)}</div>
-                                                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">{getTranslation('For Review', selectedLanguage)}</span>
-                                                            </div>
-                                                            <div className="text-xs text-gray-500">{getTranslation('Shareable via link only. Not visible on home page.', selectedLanguage)}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        {appearance === 'unlisted' && <div className="text-[var(--color-gold-darker)]">✓</div>}
-                                                    </div>
-                                                </div>
-                                            </button>
-                                            <button type="button" onClick={() => setAppearance('private')} className={`text-left p-4 rounded-lg border ${appearance === 'private' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-start gap-3">
-                                                        <Lock size={20} className="text-gray-700 mt-1" />
-                                                        <div>
-                                                            <div className="font-semibold">{getTranslation('Private', selectedLanguage)}</div>
-                                                            <div className="text-xs text-gray-500">{getTranslation('Only visible to you and the requester.', selectedLanguage)}</div>
-                                                        </div>
-                                                    </div>
-                                                    {appearance === 'private' && <div className="text-[var(--color-gold-darker)]">✓</div>}
-                                                </div>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* Your Video Link + Script fields (appear after 'How it appears') */}
-                                    <div className="mb-6">
-                                        <div className="rounded-lg border border-[var(--color-gold-light)] bg-[var(--color-gold-light-bg)] p-4 mb-4 flex items-center justify-between">
-                                            <div className="flex items-start gap-3">
-                                                <Link size={20} className="text-[var(--color-gold-darker)] mt-1" />
-                                                <div>
-                                                    <div className="font-semibold text-[var(--color-gold-darker)]">{getTranslation('Your Video Link', selectedLanguage)}</div>
-                                                    <div className="text-sm text-gray-600 mt-1">{getTranslation('✨ A permanent link will be generated when you publish', selectedLanguage)}</div>
-                                                </div>
+                                                )}
                                             </div>
-                                            <div>
-                                                <button type="button" onClick={handleCopyLink} className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md">
-                                                    {linkCopied ? <Copy size={16} className="text-[var(--color-gold-darker)]" /> : <Link size={16} className="text-[var(--color-gold-darker)]" />}
-                                                </button>
-                                            </div>
-                                        </div>
 
-                                        <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Script Type', selectedLanguage)} <span className="text-red-500">*</span></div>
-                                        <div className="relative mb-4" ref={scriptRef}>
-                                            <button
-                                                type="button"
-                                                onClick={() => setScriptOpen((s) => !s)}
-                                                aria-haspopup="listbox"
-                                                aria-expanded={scriptOpen}
-                                                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-white flex items-center justify-between"
-                                            >
-                                                <span className={scriptType ? 'text-gray-900' : 'text-gray-400'}>{getTranslation(scriptType || 'Select the script style used', selectedLanguage)}</span>
-                                                <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                            </button>
-
-                                            {scriptOpen && (
-                                                <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
-                                                    {scriptTypes.map((s) => {
-                                                        const selected = s === scriptType;
-                                                        return (
-                                                            <button
-                                                                key={s}
-                                                                type="button"
-                                                                onClick={() => { setScriptType(s); setScriptOpen(false); }}
-                                                                className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
-                                                            >
-                                                                <span className="text-sm text-gray-900">{getTranslation(s, selectedLanguage)}</span>
-                                                                {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
-                                                            </button>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="text-sm font-medium text-gray-700">{getTranslation('Upload Script File', selectedLanguage)} <span className="text-xs text-gray-400">{getTranslation('Optional', selectedLanguage)}</span></div>
-                                        </div>
-
-                                        <input ref={scriptInputRef} type="file" accept=".txt,.doc,.docx,.pdf" className="hidden" onChange={(e) => {
-                                            const file = e.target.files && e.target.files[0];
-                                            if (file) {
-                                                setScriptFile(file);
-                                            }
-                                        }} />
-
-                                        <div onClick={() => scriptInputRef.current && scriptInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-36 flex items-center justify-center cursor-pointer overflow-hidden bg-white">
-                                            {scriptFile ? (
-                                                <div className="text-sm text-gray-700">{getTranslation('Selected:', selectedLanguage)} {scriptFile.name} ({Math.round(scriptFile.size/1024)} KB)</div>
-                                            ) : (
-                                                <div className="text-center text-gray-500">
-                                                    <div className="w-12 h-12 rounded-md bg-[var(--color-gold-light-bg)] mx-auto mb-3 flex items-center justify-center text-[var(--color-gold)]">
-                                                        <FileIcon size={20} className="text-[var(--color-gold)]" />
-                                                    </div>
-                                                    <div className="font-medium">{getTranslation('Upload Script File', selectedLanguage)}</div>
-                                                    <div className="text-xs text-gray-400 mt-1">{getTranslation('TXT, DOC, DOCX, or PDF · Max 10MB', selectedLanguage)}</div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                        {/* If user selected "Other" allow them to describe it */}
-                                        {scriptType === 'Other' && (
-                                            <div className="mb-4">
-                                                <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Please describe the script type', selectedLanguage)}</div>
+                                            {/* Video metadata fields (title, category, appearance) shown after thumbnail */}
+                                            <div className="mb-6">
+                                                <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Video Title', selectedLanguage)} <span className="text-red-500">*</span></div>
                                                 <input
-                                                    value={scriptOther}
-                                                    onChange={(e) => setScriptOther(e.target.value)}
-                                                    placeholder={getTranslation('Describe the script type', selectedLanguage)}
-                                                    className="w-full p-3 border border-gray-200 rounded-lg text-sm"
+                                                    value={videoTitle}
+                                                    onChange={(e) => {
+                                                        const v = e.target.value.slice(0, 100);
+                                                        setVideoTitle(v);
+                                                    }}
+                                                    placeholder={getTranslation('Add a title for your video', selectedLanguage)}
+                                                    className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm"
                                                 />
+                                                <div className="text-xs text-gray-400 mt-1">{videoTitle.length}/100 {getTranslation('characters', selectedLanguage)}</div>
                                             </div>
-                                        )}
 
-                                    {/* Duplicate CTA removed — fixed action area below handles Next/Cancel */}
-                                    </>
+                                            <div className="mb-6">
+                                                <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Category', selectedLanguage)} <span className="text-red-500">*</span></div>
+                                                <div className="relative" ref={categoryRef}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setCategoryOpen((s) => !s)}
+                                                        aria-haspopup="listbox"
+                                                        aria-expanded={categoryOpen}
+                                                        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-white flex items-center justify-between"
+                                                    >
+                                                        <span className={category ? 'text-gray-900' : 'text-gray-400'}>{getTranslation(category || 'Select a category for your video', selectedLanguage)}</span>
+                                                        <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                                    </button>
+
+                                                    {categoryOpen && (
+                                                        <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
+                                                            {categories.map((c) => {
+                                                                const selected = c === category;
+                                                                return (
+                                                                    <button
+                                                                        key={c}
+                                                                        type="button"
+                                                                        onClick={() => { setCategory(c); setCategoryOpen(false); }}
+                                                                        className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
+                                                                    >
+                                                                        <span className="text-sm text-gray-900">{getTranslation(c, selectedLanguage)}</span>
+                                                                        {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-6">
+                                                <div className="text-sm font-medium text-gray-700 mb-3">{getTranslation('How it appears', selectedLanguage)}</div>
+                                                <div className="flex flex-col gap-3">
+                                                    <button type="button" onClick={() => setAppearance('public')} className={`text-left p-4 rounded-lg border ${appearance === 'public' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-start gap-3">
+                                                                <Globe size={20} className="text-[var(--color-gold-darker)] mt-1" />
+                                                                <div>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="font-semibold">{getTranslation('Public', selectedLanguage)}</div>
+                                                                        <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">{getTranslation('Recommended', selectedLanguage)}</span>
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-500">{getTranslation('Video appears on home page after completion. Best for maximum reach.', selectedLanguage)}</div>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                {appearance === 'public' && <div className="text-[var(--color-gold-darker)]">✓</div>}
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                    <button type="button" onClick={() => setAppearance('unlisted')} className={`text-left p-4 rounded-lg border ${appearance === 'unlisted' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-start gap-3">
+                                                                <Link2 size={20} className="text-gray-700 mt-1" />
+                                                                <div>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="font-semibold">{getTranslation('Unlisted', selectedLanguage)}</div>
+                                                                        <span className="inline-block text-xs px-2 py-1 rounded-full bg-[var(--color-gold-cream)] text-[var(--color-gold-darker)] border border-[var(--color-gold)] whitespace-nowrap">{getTranslation('For Review', selectedLanguage)}</span>
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-500">{getTranslation('Shareable via link only. Not visible on home page.', selectedLanguage)}</div>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                {appearance === 'unlisted' && <div className="text-[var(--color-gold-darker)]">✓</div>}
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                    <button type="button" onClick={() => setAppearance('private')} className={`text-left p-4 rounded-lg border ${appearance === 'private' ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' : 'border-gray-200 bg-white'}`}>
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-start gap-3">
+                                                                <Lock size={20} className="text-gray-700 mt-1" />
+                                                                <div>
+                                                                    <div className="font-semibold">{getTranslation('Private', selectedLanguage)}</div>
+                                                                    <div className="text-xs text-gray-500">{getTranslation('Only visible to you and the requester.', selectedLanguage)}</div>
+                                                                </div>
+                                                            </div>
+                                                            {appearance === 'private' && <div className="text-[var(--color-gold-darker)]">✓</div>}
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Your Video Link + Script fields (appear after 'How it appears') */}
+                                            <div className="mb-6">
+                                                <div className="rounded-lg border border-[var(--color-gold-light)] bg-[var(--color-gold-light-bg)] p-4 mb-4 flex items-center justify-between">
+                                                    <div className="flex items-start gap-3">
+                                                        <Link size={20} className="text-[var(--color-gold-darker)] mt-1" />
+                                                        <div>
+                                                            <div className="font-semibold text-[var(--color-gold-darker)]">{getTranslation('Your Video Link', selectedLanguage)}</div>
+                                                            <div className="text-sm text-gray-600 mt-1">{getTranslation('✨ A permanent link will be generated when you publish', selectedLanguage)}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <button type="button" onClick={handleCopyLink} className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md">
+                                                            {linkCopied ? <Copy size={16} className="text-[var(--color-gold-darker)]" /> : <Link size={16} className="text-[var(--color-gold-darker)]" />}
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Script Type', selectedLanguage)} <span className="text-red-500">*</span></div>
+                                                <div className="relative mb-4" ref={scriptRef}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setScriptOpen((s) => !s)}
+                                                        aria-haspopup="listbox"
+                                                        aria-expanded={scriptOpen}
+                                                        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-white flex items-center justify-between"
+                                                    >
+                                                        <span className={scriptType ? 'text-gray-900' : 'text-gray-400'}>{getTranslation(scriptType || 'Select the script style used', selectedLanguage)}</span>
+                                                        <svg className="ml-2" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                                    </button>
+
+                                                    {scriptOpen && (
+                                                        <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
+                                                            {scriptTypes.map((s) => {
+                                                                const selected = s === scriptType;
+                                                                return (
+                                                                    <button
+                                                                        key={s}
+                                                                        type="button"
+                                                                        onClick={() => { setScriptType(s); setScriptOpen(false); }}
+                                                                        className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
+                                                                    >
+                                                                        <span className="text-sm text-gray-900">{getTranslation(s, selectedLanguage)}</span>
+                                                                        {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="text-sm font-medium text-gray-700">{getTranslation('Upload Script File', selectedLanguage)} <span className="text-xs text-gray-400">{getTranslation('Optional', selectedLanguage)}</span></div>
+                                                </div>
+
+                                                <input ref={scriptInputRef} type="file" accept=".txt,.doc,.docx,.pdf" className="hidden" onChange={(e) => {
+                                                    const file = e.target.files && e.target.files[0];
+                                                    if (file) {
+                                                        setScriptFile(file);
+                                                    }
+                                                }} />
+
+                                                <div onClick={() => scriptInputRef.current && scriptInputRef.current.click()} className="w-full rounded-lg border-2 border-dashed border-gray-200 h-36 flex items-center justify-center cursor-pointer overflow-hidden bg-white">
+                                                    {scriptFile ? (
+                                                        <div className="text-sm text-gray-700">{getTranslation('Selected:', selectedLanguage)} {scriptFile.name} ({Math.round(scriptFile.size / 1024)} KB)</div>
+                                                    ) : (
+                                                        <div className="text-center text-gray-500">
+                                                            <div className="w-12 h-12 rounded-md bg-[var(--color-gold-light-bg)] mx-auto mb-3 flex items-center justify-center text-[var(--color-gold)]">
+                                                                <FileIcon size={20} className="text-[var(--color-gold)]" />
+                                                            </div>
+                                                            <div className="font-medium">{getTranslation('Upload Script File', selectedLanguage)}</div>
+                                                            <div className="text-xs text-gray-400 mt-1">{getTranslation('TXT, DOC, DOCX, or PDF · Max 10MB', selectedLanguage)}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* If user selected "Other" allow them to describe it */}
+                                            {scriptType === 'Other' && (
+                                                <div className="mb-4">
+                                                    <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Please describe the script type', selectedLanguage)}</div>
+                                                    <input
+                                                        value={scriptOther}
+                                                        onChange={(e) => setScriptOther(e.target.value)}
+                                                        placeholder={getTranslation('Describe the script type', selectedLanguage)}
+                                                        className="w-full p-3 border border-gray-200 rounded-lg text-sm"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {/* Duplicate CTA removed — fixed action area below handles Next/Cancel */}
+                                        </>
                                     )}
                                 </React.Fragment>
                             ) : (
@@ -1358,7 +1358,7 @@ const ClaimStatusPanel = ({
                                                     try {
                                                         // inform parent we're finishing
                                                         onUpdateProgress(currentStep, message);
-                                                    } catch (e) {}
+                                                    } catch (e) { }
                                                     setShowModal(false);
                                                     setFinished(true);
                                                     setCelebrate(true);
@@ -1371,7 +1371,7 @@ const ClaimStatusPanel = ({
                                                 const next = Math.min(steps.length, currentStep + 1);
                                                 try {
                                                     onUpdateProgress(next, message);
-                                                } catch (e) {}
+                                                } catch (e) { }
                                                 setShowModal(false);
                                             }}
                                             disabled={currentStep > steps.length}
@@ -1442,292 +1442,292 @@ const ClaimStatusPanel = ({
                                     <>
                                         <button
                                             onClick={async () => {
-                                                    // run publish flow using previewData if available, otherwise fallback to current fields
-                                                    const pd = previewData || { title: videoTitle, file: videoFile, thumbnail: thumbnailFile ? thumbnailFile.name : null, format: videoFormat };
-                                                    setValidationError('');
+                                                // run publish flow using previewData if available, otherwise fallback to current fields
+                                                const pd = previewData || { title: videoTitle, file: videoFile, thumbnail: thumbnailFile ? thumbnailFile.name : null, format: videoFormat };
+                                                setValidationError('');
 
-                                                    // Compute file metadata for duplicate detection
-                                                    const fileObj = pd.file || videoFile || null;
-                                                    const fileName = fileObj ? (fileObj.name || '') : '';
-                                                    const fileSize = fileObj ? (fileObj.size || 0) : 0;
-                                                    const fileType = fileObj ? (fileObj.type || '') : '';
-                                                    const titleStr = (pd.title || videoTitle || '').trim();
-                                                    const titleNormalized = titleStr.toLowerCase();
+                                                // Compute file metadata for duplicate detection
+                                                const fileObj = pd.file || videoFile || null;
+                                                const fileName = fileObj ? (fileObj.name || '') : '';
+                                                const fileSize = fileObj ? (fileObj.size || 0) : 0;
+                                                const fileType = fileObj ? (fileObj.type || '') : '';
+                                                const titleStr = (pd.title || videoTitle || '').trim();
+                                                const titleNormalized = titleStr.toLowerCase();
 
-                                                    // Duplicate detection: prevent publishing if an item with same title (normalized), fileName and size already exists
-                                                    // Duplicate detection: prevent publishing if an item with same title (normalized), fileName and size already exists
-                                                    // Skip duplicate detection when performing a re-upload (we will replace the original item)
-                                                    let dup = null;
-                                                    if (!isReuploading) {
-                                                        dup = publishedItems && publishedItems.find((it) => {
-                                                            if (!it) return false;
-                                                            const itTitle = (it.title || '').toString().trim().toLowerCase();
-                                                            const itName = it.fileName || '';
-                                                            const itSize = it.fileSize || 0;
-                                                            return itTitle === titleNormalized && itName === fileName && itSize === fileSize;
-                                                        });
-                                                    }
-                                                    if (dup) {
-                                                        setValidationError(getTranslation('Duplicate upload detected. This video has already been uploaded.', selectedLanguage));
-                                                        return;
+                                                // Duplicate detection: prevent publishing if an item with same title (normalized), fileName and size already exists
+                                                // Duplicate detection: prevent publishing if an item with same title (normalized), fileName and size already exists
+                                                // Skip duplicate detection when performing a re-upload (we will replace the original item)
+                                                let dup = null;
+                                                if (!isReuploading) {
+                                                    dup = publishedItems && publishedItems.find((it) => {
+                                                        if (!it) return false;
+                                                        const itTitle = (it.title || '').toString().trim().toLowerCase();
+                                                        const itName = it.fileName || '';
+                                                        const itSize = it.fileSize || 0;
+                                                        return itTitle === titleNormalized && itName === fileName && itSize === fileSize;
+                                                    });
+                                                }
+                                                if (dup) {
+                                                    setValidationError(getTranslation('Duplicate upload detected. This video has already been uploaded.', selectedLanguage));
+                                                    return;
+                                                }
+
+                                                // If this is a re-upload, require a change note describing edits
+                                                if (isReuploading && (!changeNote || changeNote.trim().length === 0)) {
+                                                    setValidationError(getTranslation('Please provide a short change note describing the re-upload.', selectedLanguage));
+                                                    return;
+                                                }
+                                                setUploading(true);
+                                                setUploadProgress(0);
+                                                try {
+                                                    for (let p = 10; p <= 100; p += 10) {
+                                                        // eslint-disable-next-line no-await-in-loop
+                                                        await new Promise((res) => setTimeout(res, 80));
+                                                        setUploadProgress(p);
                                                     }
 
-                                                    // If this is a re-upload, require a change note describing edits
-                                                    if (isReuploading && (!changeNote || changeNote.trim().length === 0)) {
-                                                        setValidationError(getTranslation('Please provide a short change note describing the re-upload.', selectedLanguage));
-                                                        return;
-                                                    }
-                                                    setUploading(true);
-                                                    setUploadProgress(0);
+                                                    const publishedMeta = {
+                                                        id: Date.now().toString() + '-' + Math.random().toString(36).slice(2),
+                                                        title: titleStr || videoTitle,
+                                                        titleNormalized,
+                                                        fileName,
+                                                        fileSize,
+                                                        fileType,
+                                                        thumbnail: pd.thumbnail || (thumbnailFile ? thumbnailFile.name : null),
+                                                        time: Date.now(),
+                                                        format: pd.format || videoFormat,
+                                                        changeNote: changeNote || null,
+                                                    };
+
+                                                    // POST to backend to save video
+                                                    // Upload video and thumbnail files to server first
                                                     try {
-                                                        for (let p = 10; p <= 100; p += 10) {
-                                                            // eslint-disable-next-line no-await-in-loop
-                                                            await new Promise((res) => setTimeout(res, 80));
-                                                            setUploadProgress(p);
-                                                        }
+                                                        const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                                                        const token = localStorage.getItem('regaarder_token');
 
-                                                        const publishedMeta = {
-                                                            id: Date.now().toString() + '-' + Math.random().toString(36).slice(2),
-                                                            title: titleStr || videoTitle,
-                                                            titleNormalized,
-                                                            fileName,
-                                                            fileSize,
-                                                            fileType,
-                                                            thumbnail: pd.thumbnail || (thumbnailFile ? thumbnailFile.name : null),
-                                                            time: Date.now(),
-                                                            format: pd.format || videoFormat,
-                                                            changeNote: changeNote || null,
-                                                        };
+                                                        console.log('Uploading files to backend:', {
+                                                            backend: BACKEND,
+                                                            hasToken: !!token,
+                                                            hasVideo: !!videoFile,
+                                                            hasThumbnail: !!thumbnailFile
+                                                        });
 
-                                                        // POST to backend to save video
-                                                        // Upload video and thumbnail files to server first
-                                                        try {
-                                                            const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
-                                                            const token = localStorage.getItem('regaarder_token');
-                                                            
-                                                            console.log('Uploading files to backend:', {
-                                                                backend: BACKEND,
-                                                                hasToken: !!token,
-                                                                hasVideo: !!videoFile,
-                                                                hasThumbnail: !!thumbnailFile
-                                                            });
-                                                            
-                                                            // Upload thumbnail
-                                                            let thumbnailUrl = thumbnailPreview;
-                                                            if (thumbnailFile && thumbnailFile instanceof File) {
-                                                                const thumbFormData = new FormData();
-                                                                thumbFormData.append('photo', thumbnailFile);
-                                                                
-                                                                const thumbResponse = await fetch(`${BACKEND}/creator/photo`, {
-                                                                    method: 'POST',
-                                                                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-                                                                    body: thumbFormData
-                                                                });
-                                                                
-                                                                if (thumbResponse.ok) {
-                                                                    const thumbData = await thumbResponse.json();
-                                                                    thumbnailUrl = thumbData.url;
-                                                                    console.log('Thumbnail uploaded:', thumbnailUrl);
-                                                                } else {
-                                                                    console.warn('Thumbnail upload failed, using preview');
-                                                                }
-                                                            }
-                                                            
-                                                            // Upload video
-                                                            let videoUrl = videoPreview;
-                                                            if (videoFile && videoFile instanceof File) {
-                                                                const videoFormData = new FormData();
-                                                                videoFormData.append('video', videoFile);
-                                                                
-                                                                const videoResponse = await fetch(`${BACKEND}/creator/intro-video`, {
-                                                                    method: 'POST',
-                                                                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-                                                                    body: videoFormData
-                                                                });
-                                                                
-                                                                if (videoResponse.ok) {
-                                                                    const videoData = await videoResponse.json();
-                                                                    videoUrl = videoData.url;
-                                                                    console.log('Video uploaded:', videoUrl);
-                                                                } else {
-                                                                    console.warn('Video upload failed, using preview');
-                                                                }
-                                                            }
-                                                            
-                                                            // Calculate video duration from the video file
-                                                            let videoDuration = '0:00';
-                                                            if (videoFile) {
-                                                                try {
-                                                                    const videoElement = document.createElement('video');
-                                                                    videoElement.preload = 'metadata';
-                                                                    
-                                                                    // Create object URL from the file for reliable duration reading
-                                                                    const objectUrl = URL.createObjectURL(videoFile);
-                                                                    videoElement.src = objectUrl;
-                                                                    
-                                                                    await new Promise((resolve, reject) => {
-                                                                        const timeout = setTimeout(() => {
-                                                                            URL.revokeObjectURL(objectUrl);
-                                                                            resolve(); // Don't fail, just continue with 0:00
-                                                                        }, 5000); // 5 second timeout
-                                                                        
-                                                                        videoElement.onloadedmetadata = () => {
-                                                                            clearTimeout(timeout);
-                                                                            const duration = Math.floor(videoElement.duration);
-                                                                            const minutes = Math.floor(duration / 60);
-                                                                            const seconds = duration % 60;
-                                                                            videoDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                                                                            console.log('Video duration calculated:', videoDuration);
-                                                                            URL.revokeObjectURL(objectUrl);
-                                                                            resolve();
-                                                                        };
-                                                                        
-                                                                        videoElement.onerror = (e) => {
-                                                                            clearTimeout(timeout);
-                                                                            console.warn('Video metadata load error:', e);
-                                                                            URL.revokeObjectURL(objectUrl);
-                                                                            resolve(); // Continue even if we can't get duration
-                                                                        };
-                                                                    });
-                                                                } catch (err) {
-                                                                    console.warn('Could not calculate video duration:', err);
-                                                                }
-                                                            }
-                                                            
-                                                            const response = await fetch(`${BACKEND}/videos/publish`, {
+                                                        // Upload thumbnail
+                                                        let thumbnailUrl = thumbnailPreview;
+                                                        if (thumbnailFile && thumbnailFile instanceof File) {
+                                                            const thumbFormData = new FormData();
+                                                            thumbFormData.append('photo', thumbnailFile);
+
+                                                            const thumbResponse = await fetch(`${BACKEND}/creator/photo`, {
                                                                 method: 'POST',
-                                                                headers: {
-                                                                    'Content-Type': 'application/json',
-                                                                    'Authorization': token ? `Bearer ${token}` : ''
-                                                                },
-                                                                body: JSON.stringify({
-                                                                    title: titleStr || videoTitle,
-                                                                    thumbnail: thumbnailUrl || null,
-                                                                    videoUrl: videoUrl || null,
-                                                                    category: category || 'General',
-                                                                    format: pd.format || videoFormat,
-                                                                    time: videoDuration,
-                                                                    requester: requesterName || null
-                                                                })
+                                                                headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                                                                body: thumbFormData
                                                             });
-                                                            
-                                                            if (response.ok) {
-                                                                const result = await response.json();
-                                                                console.log('Video published successfully:', result);
-                                                                
-                                                                // Show success toast with option to view
-                                                                setToastMessage(getTranslation('Video published! Refresh home page to see it.', selectedLanguage));
+
+                                                            if (thumbResponse.ok) {
+                                                                const thumbData = await thumbResponse.json();
+                                                                thumbnailUrl = thumbData.url;
+                                                                console.log('Thumbnail uploaded:', thumbnailUrl);
                                                             } else {
-                                                                console.error('Failed to publish video to backend. Status:', response.status);
-                                                                const errorText = await response.text();
-                                                                console.error('Error details:', errorText);
-                                                                setToastMessage(getTranslation('Publishing failed. Please try again.', selectedLanguage));
+                                                                console.warn('Thumbnail upload failed, using preview');
                                                             }
-                                                        } catch (err) {
-                                                            console.error('Error publishing video to backend:', err);
                                                         }
 
-                                                        // Behavior differs by format
-                                                        if (pd.format === 'recurrent') {
-                                                            const newCount = publishedCount + 1;
-                                                            setPublishedCount(newCount);
-                                                            setPublishedItems((arr) => [...arr, publishedMeta]);
-                                                            setLastPublished(publishedMeta);
-                                                            setToastMessage(`${getTranslation('Published video', selectedLanguage)} #${newCount}`);
+                                                        // Upload video
+                                                        let videoUrl = videoPreview;
+                                                        if (videoFile && videoFile instanceof File) {
+                                                            const videoFormData = new FormData();
+                                                            videoFormData.append('video', videoFile);
 
-                                                            // Reset upload fields so user can add another
-                                                            setVideoFile(null);
-                                                            if (videoPreview) { URL.revokeObjectURL(videoPreview); setVideoPreview(null); }
-                                                            setThumbnailPreview(null);
-                                                            setThumbnailFile(null);
-                                                            setScriptFile(null);
-                                                            setScriptOther('');
-                                                            setPreviewData(null);
-                                                            setUploadProgress(0);
-                                                            setPublishStep('form');
+                                                            const videoResponse = await fetch(`${BACKEND}/creator/intro-video`, {
+                                                                method: 'POST',
+                                                                headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                                                                body: videoFormData
+                                                            });
 
-                                                        } else if (pd.format === 'series') {
-                                                            const prevCount = publishedCount;
-                                                            const newCount = prevCount + 1;
-                                                            setPublishedCount(newCount);
-                                                            setPublishedItems((arr) => [...arr, publishedMeta]);
-                                                            setLastPublished(publishedMeta);
-                                                            setToastMessage(`${getTranslation('Published episode', selectedLanguage)} #${newCount}`);
+                                                            if (videoResponse.ok) {
+                                                                const videoData = await videoResponse.json();
+                                                                videoUrl = videoData.url;
+                                                                console.log('Video uploaded:', videoUrl);
+                                                            } else {
+                                                                console.warn('Video upload failed, using preview');
+                                                            }
+                                                        }
 
-                                                            // Auto-increment title for next episode: strip existing (Part N) and add next
-                                                            const baseTitle = (titleStr || videoTitle || '').replace(/\s*\(Part\s*\d+\)\s*$/i, '').trim();
-                                                            const nextTitle = baseTitle ? `${baseTitle} (Part ${newCount + 1})` : `Part ${newCount + 1}`;
-                                                            setVideoTitle(nextTitle);
+                                                        // Calculate video duration from the video file
+                                                        let videoDuration = '0:00';
+                                                        if (videoFile) {
+                                                            try {
+                                                                const videoElement = document.createElement('video');
+                                                                videoElement.preload = 'metadata';
 
-                                                            // Reset upload fields so user can add the next episode
-                                                            setVideoFile(null);
-                                                            if (videoPreview) { URL.revokeObjectURL(videoPreview); setVideoPreview(null); }
-                                                            setThumbnailPreview(null);
-                                                            setThumbnailFile(null);
-                                                            setScriptFile(null);
-                                                            setScriptOther('');
-                                                            setPreviewData(null);
-                                                            setUploadProgress(0);
-                                                            setPublishStep('form');
-                                                            // Clear reupload state and note after successful re-upload
-                                                            setIsReuploading(false);
-                                                            setChangeNote('');
+                                                                // Create object URL from the file for reliable duration reading
+                                                                const objectUrl = URL.createObjectURL(videoFile);
+                                                                videoElement.src = objectUrl;
 
-                                                        } else if (pd.format === 'catalogue') {
-                                                            const newCount = publishedCount + 1;
-                                                            setPublishedCount(newCount);
-                                                            setPublishedItems((arr) => [...arr, publishedMeta]);
-                                                            setLastPublished(publishedMeta);
-                                                            setToastMessage(`${getTranslation('Published item', selectedLanguage)} #${newCount}`);
+                                                                await new Promise((resolve, reject) => {
+                                                                    const timeout = setTimeout(() => {
+                                                                        URL.revokeObjectURL(objectUrl);
+                                                                        resolve(); // Don't fail, just continue with 0:00
+                                                                    }, 5000); // 5 second timeout
 
-                                                            // Reset upload fields for next catalogue item
-                                                            setVideoFile(null);
-                                                            if (videoPreview) { URL.revokeObjectURL(videoPreview); setVideoPreview(null); }
-                                                            setThumbnailPreview(null);
-                                                            setThumbnailFile(null);
-                                                            setScriptFile(null);
-                                                            setScriptOther('');
-                                                            setPreviewData(null);
-                                                            setUploadProgress(0);
-                                                            setPublishStep('form');
-                                                            // Clear reupload state and note after successful re-upload
-                                                            setIsReuploading(false);
-                                                            setChangeNote('');
+                                                                    videoElement.onloadedmetadata = () => {
+                                                                        clearTimeout(timeout);
+                                                                        const duration = Math.floor(videoElement.duration);
+                                                                        const minutes = Math.floor(duration / 60);
+                                                                        const seconds = duration % 60;
+                                                                        videoDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                                                                        console.log('Video duration calculated:', videoDuration);
+                                                                        URL.revokeObjectURL(objectUrl);
+                                                                        resolve();
+                                                                    };
 
-                                                        } else {
-                                                            // one-time default behaviour: publish once and advance
-                                                            if (isReuploading && pendingReuploadItem && pendingReuploadItem.id) {
-                                                                // Replace the original published item instead of appending
-                                                                const existingId = pendingReuploadItem.id;
-                                                                // preserve previous id
-                                                                publishedMeta.id = existingId;
-                                                                setPublishedItems((arr) => {
-                                                                    const found = arr && arr.some((it) => it && it.id === existingId);
-                                                                    if (found) {
-                                                                        return arr.map((it) => (it && it.id === existingId ? publishedMeta : it));
-                                                                    }
-                                                                    return [...(arr || []), publishedMeta];
+                                                                    videoElement.onerror = (e) => {
+                                                                        clearTimeout(timeout);
+                                                                        console.warn('Video metadata load error:', e);
+                                                                        URL.revokeObjectURL(objectUrl);
+                                                                        resolve(); // Continue even if we can't get duration
+                                                                    };
                                                                 });
-                                                                setLastPublished(publishedMeta);
-                                                                setToastMessage(getTranslation('Updated published video', selectedLanguage));
-                                                                try { onUpdateProgress(Math.min(steps.length, currentStep + 1), `Re-uploaded video:${publishedMeta.fileName} thumb:${publishedMeta.thumbnail || ''}`); } catch (e) {}
-                                                            } else {
-                                                                const newCount = publishedCount + 1;
-                                                                setPublishedCount(newCount);
-                                                                setPublishedItems((arr) => [...arr, publishedMeta]);
-                                                                setLastPublished(publishedMeta);
-                                                                try { onUpdateProgress(Math.min(steps.length, currentStep + 1), `Uploaded video:${publishedMeta.fileName} thumb:${publishedMeta.thumbnail || ''}`); } catch (e) {}
+                                                            } catch (err) {
+                                                                console.warn('Could not calculate video duration:', err);
                                                             }
-                                                            // keep modal open to show preview — user can close when ready
-                                                            setPublishStep('form');
-                                                            setIsReuploading(false);
-                                                            setChangeNote('');
                                                         }
-                                                    } finally {
-                                                        setUploading(false);
-                                                        setUploadProgress(0);
+
+                                                        const response = await fetch(`${BACKEND}/videos/publish`, {
+                                                            method: 'POST',
+                                                            headers: {
+                                                                'Content-Type': 'application/json',
+                                                                'Authorization': token ? `Bearer ${token}` : ''
+                                                            },
+                                                            body: JSON.stringify({
+                                                                title: titleStr || videoTitle,
+                                                                thumbnail: thumbnailUrl || null,
+                                                                videoUrl: videoUrl || null,
+                                                                category: category || 'General',
+                                                                format: pd.format || videoFormat,
+                                                                time: videoDuration,
+                                                                requester: requesterName || null
+                                                            })
+                                                        });
+
+                                                        if (response.ok) {
+                                                            const result = await response.json();
+                                                            console.log('Video published successfully:', result);
+
+                                                            // Show success toast with option to view
+                                                            setToastMessage(getTranslation('Video published! Refresh home page to see it.', selectedLanguage));
+                                                        } else {
+                                                            console.error('Failed to publish video to backend. Status:', response.status);
+                                                            const errorText = await response.text();
+                                                            console.error('Error details:', errorText);
+                                                            setToastMessage(getTranslation('Publishing failed. Please try again.', selectedLanguage));
+                                                        }
+                                                    } catch (err) {
+                                                        console.error('Error publishing video to backend:', err);
                                                     }
-                                                }}
+
+                                                    // Behavior differs by format
+                                                    if (pd.format === 'recurrent') {
+                                                        const newCount = publishedCount + 1;
+                                                        setPublishedCount(newCount);
+                                                        setPublishedItems((arr) => [...arr, publishedMeta]);
+                                                        setLastPublished(publishedMeta);
+                                                        setToastMessage(`${getTranslation('Published video', selectedLanguage)} #${newCount}`);
+
+                                                        // Reset upload fields so user can add another
+                                                        setVideoFile(null);
+                                                        if (videoPreview) { URL.revokeObjectURL(videoPreview); setVideoPreview(null); }
+                                                        setThumbnailPreview(null);
+                                                        setThumbnailFile(null);
+                                                        setScriptFile(null);
+                                                        setScriptOther('');
+                                                        setPreviewData(null);
+                                                        setUploadProgress(0);
+                                                        setPublishStep('form');
+
+                                                    } else if (pd.format === 'series') {
+                                                        const prevCount = publishedCount;
+                                                        const newCount = prevCount + 1;
+                                                        setPublishedCount(newCount);
+                                                        setPublishedItems((arr) => [...arr, publishedMeta]);
+                                                        setLastPublished(publishedMeta);
+                                                        setToastMessage(`${getTranslation('Published episode', selectedLanguage)} #${newCount}`);
+
+                                                        // Auto-increment title for next episode: strip existing (Part N) and add next
+                                                        const baseTitle = (titleStr || videoTitle || '').replace(/\s*\(Part\s*\d+\)\s*$/i, '').trim();
+                                                        const nextTitle = baseTitle ? `${baseTitle} (Part ${newCount + 1})` : `Part ${newCount + 1}`;
+                                                        setVideoTitle(nextTitle);
+
+                                                        // Reset upload fields so user can add the next episode
+                                                        setVideoFile(null);
+                                                        if (videoPreview) { URL.revokeObjectURL(videoPreview); setVideoPreview(null); }
+                                                        setThumbnailPreview(null);
+                                                        setThumbnailFile(null);
+                                                        setScriptFile(null);
+                                                        setScriptOther('');
+                                                        setPreviewData(null);
+                                                        setUploadProgress(0);
+                                                        setPublishStep('form');
+                                                        // Clear reupload state and note after successful re-upload
+                                                        setIsReuploading(false);
+                                                        setChangeNote('');
+
+                                                    } else if (pd.format === 'catalogue') {
+                                                        const newCount = publishedCount + 1;
+                                                        setPublishedCount(newCount);
+                                                        setPublishedItems((arr) => [...arr, publishedMeta]);
+                                                        setLastPublished(publishedMeta);
+                                                        setToastMessage(`${getTranslation('Published item', selectedLanguage)} #${newCount}`);
+
+                                                        // Reset upload fields for next catalogue item
+                                                        setVideoFile(null);
+                                                        if (videoPreview) { URL.revokeObjectURL(videoPreview); setVideoPreview(null); }
+                                                        setThumbnailPreview(null);
+                                                        setThumbnailFile(null);
+                                                        setScriptFile(null);
+                                                        setScriptOther('');
+                                                        setPreviewData(null);
+                                                        setUploadProgress(0);
+                                                        setPublishStep('form');
+                                                        // Clear reupload state and note after successful re-upload
+                                                        setIsReuploading(false);
+                                                        setChangeNote('');
+
+                                                    } else {
+                                                        // one-time default behaviour: publish once and advance
+                                                        if (isReuploading && pendingReuploadItem && pendingReuploadItem.id) {
+                                                            // Replace the original published item instead of appending
+                                                            const existingId = pendingReuploadItem.id;
+                                                            // preserve previous id
+                                                            publishedMeta.id = existingId;
+                                                            setPublishedItems((arr) => {
+                                                                const found = arr && arr.some((it) => it && it.id === existingId);
+                                                                if (found) {
+                                                                    return arr.map((it) => (it && it.id === existingId ? publishedMeta : it));
+                                                                }
+                                                                return [...(arr || []), publishedMeta];
+                                                            });
+                                                            setLastPublished(publishedMeta);
+                                                            setToastMessage(getTranslation('Updated published video', selectedLanguage));
+                                                            try { onUpdateProgress(Math.min(steps.length, currentStep + 1), `Re-uploaded video:${publishedMeta.fileName} thumb:${publishedMeta.thumbnail || ''}`); } catch (e) { }
+                                                        } else {
+                                                            const newCount = publishedCount + 1;
+                                                            setPublishedCount(newCount);
+                                                            setPublishedItems((arr) => [...arr, publishedMeta]);
+                                                            setLastPublished(publishedMeta);
+                                                            try { onUpdateProgress(Math.min(steps.length, currentStep + 1), `Uploaded video:${publishedMeta.fileName} thumb:${publishedMeta.thumbnail || ''}`); } catch (e) { }
+                                                        }
+                                                        // keep modal open to show preview — user can close when ready
+                                                        setPublishStep('form');
+                                                        setIsReuploading(false);
+                                                        setChangeNote('');
+                                                    }
+                                                } finally {
+                                                    setUploading(false);
+                                                    setUploadProgress(0);
+                                                }
+                                            }}
                                             disabled={uploading}
                                             className={`w-full ${uploading ? 'bg-gray-300 cursor-not-allowed' : 'bg-[var(--color-gold)] text-white'} px-4 py-3 rounded-lg font-semibold mb-3`}
                                         >
@@ -1751,10 +1751,10 @@ const ClaimStatusPanel = ({
                     </div>
                 </div>
             )}
-        {/* Confetti + Success toast when celebration occurs */}
-        {celebrate && (
-            <>
-                <style>{`
+            {/* Confetti + Success toast when celebration occurs */}
+            {celebrate && (
+                <>
+                    <style>{`
                     @keyframes confettiFall {
                         0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
                         100% { transform: translateY(110vh) rotate(360deg); opacity: 0.95; }
@@ -1766,44 +1766,44 @@ const ClaimStatusPanel = ({
                     }
                 `}</style>
 
-                <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
-                    {/* Render a handful of confetti pieces with varied positions/delays */}
-                    {(() => {
-                        const colors = ['#F59E0B','#10B981','#3B82F6','#EF4444','#8B5CF6','#06B6D4'];
-                        const pieces = [];
-                        for (let i = 0; i < 28; i++) {
-                            const left = Math.round(Math.random() * 100);
-                            const delay = Math.round(Math.random() * 800);
-                            const dur = 1400 + Math.round(Math.random() * 800);
-                            const w = 6 + Math.round(Math.random() * 8);
-                            const h = 10 + Math.round(Math.random() * 12);
-                            const color = colors[i % colors.length];
-                            pieces.push(
-                                <div
-                                    key={i}
-                                    style={{
-                                        position: 'absolute',
-                                        left: `${left}%`,
-                                        top: '-8%',
-                                        width: w,
-                                        height: h,
-                                        background: color,
-                                        borderRadius: 2,
-                                        transformOrigin: 'center',
-                                        animation: `confettiFall ${dur}ms cubic-bezier(.2,.7,.2,1) ${delay}ms forwards`,
-                                        opacity: 0.95,
-                                    }}
-                                />
-                            );
-                        }
-                        return pieces;
-                    })()}
-                </div>
+                    <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
+                        {/* Render a handful of confetti pieces with varied positions/delays */}
+                        {(() => {
+                            const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6', '#06B6D4'];
+                            const pieces = [];
+                            for (let i = 0; i < 28; i++) {
+                                const left = Math.round(Math.random() * 100);
+                                const delay = Math.round(Math.random() * 800);
+                                const dur = 1400 + Math.round(Math.random() * 800);
+                                const w = 6 + Math.round(Math.random() * 8);
+                                const h = 10 + Math.round(Math.random() * 12);
+                                const color = colors[i % colors.length];
+                                pieces.push(
+                                    <div
+                                        key={i}
+                                        style={{
+                                            position: 'absolute',
+                                            left: `${left}%`,
+                                            top: '-8%',
+                                            width: w,
+                                            height: h,
+                                            background: color,
+                                            borderRadius: 2,
+                                            transformOrigin: 'center',
+                                            animation: `confettiFall ${dur}ms cubic-bezier(.2,.7,.2,1) ${delay}ms forwards`,
+                                            opacity: 0.95,
+                                        }}
+                                    />
+                                );
+                            }
+                            return pieces;
+                        })()}
+                    </div>
 
-                {/* Prominent success toast at bottom-center (uses Toast for animations) */}
-                <Toast message={"Your video has been successfully completed. We're proud of you !"} bottom={false} duration={3500} />
-            </>
-        )}
+                    {/* Prominent success toast at bottom-center (uses Toast for animations) */}
+                    <Toast message={"Your video has been successfully completed. We're proud of you !"} bottom={false} duration={3500} />
+                </>
+            )}
         </div>
     );
 };
@@ -1829,7 +1829,7 @@ const BottomBar = ({ selectedLanguage = 'English' }) => {
 
     const inactiveColor = 'rgb(107 114 128)';
 
-        return (
+    return (
         <div
             // Changed bg-white to bg-gray-50 for a softer, off-white look
             className="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 shadow-2xl z-10"
@@ -1899,17 +1899,17 @@ const BottomBar = ({ selectedLanguage = 'English' }) => {
                                     navigateToTab(tab.name);
                                 }}
                             >
-                                                <div className="w-11 h-11 flex items-center justify-center">
-                                                    {(() => {
-                                                        const IconMap = { home: Home, requests: FileText, pencil: Pencil, more: MoreHorizontal };
-                                                        const IconComp = IconMap[tab.icon] || Home;
-                                                        const iconStyle = isSelected ? { color: 'var(--color-gold)' } : { color: inactiveColor };
-                                                        return <IconComp size={22} strokeWidth={1} style={iconStyle} />;
-                                                    })()}
-                                                </div>
-                                                <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
-                                                    {getTranslation(tab.name, selectedLanguage)}
-                                                </span>
+                                <div className="w-11 h-11 flex items-center justify-center">
+                                    {(() => {
+                                        const IconMap = { home: Home, requests: FileText, pencil: Pencil, more: MoreHorizontal };
+                                        const IconComp = IconMap[tab.icon] || Home;
+                                        const iconStyle = isSelected ? { color: 'var(--color-gold)' } : { color: inactiveColor };
+                                        return <IconComp size={22} strokeWidth={1} style={iconStyle} />;
+                                    })()}
+                                </div>
+                                <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
+                                    {getTranslation(tab.name, selectedLanguage)}
+                                </span>
                             </button>
 
                             {/* Tooltip is rendered next to the first Requested badge inside ContentCard. */}
@@ -1926,7 +1926,7 @@ const App = () => {
     const navigate = useNavigate();
     const [activeTopTab, setActiveTopTab] = useState('Overview');
 
-    
+
     // Check URL parameters on mount to navigate to specific tab
     useEffect(() => {
         try {
@@ -1939,7 +1939,7 @@ const App = () => {
             console.error('Error parsing URL params:', e);
         }
     }, []);
-    
+
     // Listen for claim events from RequestsFeed
     useEffect(() => {
         const handleClaim = (event) => {
@@ -1959,34 +1959,34 @@ const App = () => {
                         currentStep: claimData.currentStep || 1,
                         claimedAt: claimData.claimedAt
                     };
-                    
+
                     setClaimedRequests(prev => {
-                         // Avoid duplicates just in case
-                         if (prev.some(r => r.id === newClaim.id)) return prev;
-                         return [newClaim, ...prev];
+                        // Avoid duplicates just in case
+                        if (prev.some(r => r.id === newClaim.id)) return prev;
+                        return [newClaim, ...prev];
                     });
-                     // Ensure panel is expanded
+                    // Ensure panel is expanded
                     setClaimsMinimized(false);
                 }
             } catch (e) {
                 console.error('Error handling claim event:', e);
             }
         };
-        
+
         window.addEventListener('request:claimed', handleClaim);
         return () => window.removeEventListener('request:claimed', handleClaim);
     }, []);
-    
+
     // Base list of top tabs (kept as canonical order) — display order can change based on search
-    const baseTopTabs = ['Overview','Requests','Claims','Published','Analytics','Upload','Insights','Support','Templates'];
+    const baseTopTabs = ['Overview', 'Requests', 'Claims', 'Published', 'Analytics', 'Upload', 'Insights', 'Support', 'Templates'];
     // Dashboard search state (controls ordering of cards and tabs)
     const [dashboardSearch, setDashboardSearch] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
 
     useEffect(() => {
         const handleStorage = () => {
-             const lang = localStorage.getItem('regaarder_language') || 'English';
-             setSelectedLanguage(lang);
+            const lang = localStorage.getItem('regaarder_language') || 'English';
+            setSelectedLanguage(lang);
         };
         window.addEventListener('storage', handleStorage);
         return () => window.removeEventListener('storage', handleStorage);
@@ -2011,18 +2011,18 @@ const App = () => {
     useEffect(() => {
         try {
             if (typeof localStorage !== 'undefined') {
-                 localStorage.setItem('claimedRequests', JSON.stringify(claimedRequests));
+                localStorage.setItem('claimedRequests', JSON.stringify(claimedRequests));
             }
-        } catch (e) {}
+        } catch (e) { }
     }, [claimedRequests]);
 
     useEffect(() => {
         const handleStorage = (e) => {
             if (e.key === 'claimedRequests') {
-                 try {
-                     const val = e.newValue;
-                     setClaimedRequests(val ? JSON.parse(val) : []);
-                 } catch (err) {}
+                try {
+                    const val = e.newValue;
+                    setClaimedRequests(val ? JSON.parse(val) : []);
+                } catch (err) { }
             }
         };
         window.addEventListener('storage', handleStorage);
@@ -2049,7 +2049,7 @@ const App = () => {
     const [uploadingLocal, setUploadingLocal] = useState(false);
     // Requests list received from RequestsFeed (used to compute active counts and earnings)
     const [requestsList, setRequestsList] = useState([]);
-    
+
     const [appToast, setAppToast] = useState('');
     const [deletingId, setDeletingId] = useState(null);
     const [pressedId, setPressedId] = useState(null);
@@ -2161,7 +2161,7 @@ const App = () => {
     useEffect(() => {
         const onStorage = (e) => {
             if (e.key === 'publishedItems') {
-                try { setPublishedList(e.newValue ? JSON.parse(e.newValue) : []); } catch (err) {}
+                try { setPublishedList(e.newValue ? JSON.parse(e.newValue) : []); } catch (err) { }
             }
         };
         window.addEventListener('storage', onStorage);
@@ -2174,7 +2174,7 @@ const App = () => {
             try {
                 const raw = localStorage.getItem('publishedItems');
                 setPublishedList(raw ? JSON.parse(raw) : []);
-            } catch (e) {}
+            } catch (e) { }
         }
     }, [activeTopTab]);
 
@@ -2225,12 +2225,12 @@ const App = () => {
             isReupload: false
         };
         setClaimedRequests(prev => [newClaim, ...prev]);
-        setPendingReuploadItem({ 
-            title: '', 
-            thumbnail: null, 
-            openInForm: true, 
+        setPendingReuploadItem({
+            title: '',
+            thumbnail: null,
+            openInForm: true,
             isReupload: false,
-            targetClaimId: newId 
+            targetClaimId: newId
         });
         setActiveTopTab('Claims');
     };
@@ -2239,10 +2239,10 @@ const App = () => {
     const handleRequestClaim = (request) => {
         setActiveTopTab('Claims');
         if (request && typeof request === 'object') {
-             setClaimedRequests(prev => {
-                 if (prev.some(r => r.id === request.id)) return prev;
-                 return [request, ...prev];
-             });
+            setClaimedRequests(prev => {
+                if (prev.some(r => r.id === request.id)) return prev;
+                return [request, ...prev];
+            });
         }
     };
 
@@ -2304,7 +2304,7 @@ const App = () => {
         try {
             const raw = (typeof localStorage !== 'undefined') && localStorage.getItem('publishedItems');
             if (raw) setPublishedList(JSON.parse(raw));
-        } catch (e) {}
+        } catch (e) { }
     };
 
     // Header navigation guard and active state for header buttons (prevents double navigation)
@@ -2312,7 +2312,7 @@ const App = () => {
     const [profileActive, setProfileActive] = useState(false);
     // Separate active state for Settings so tapping it doesn't affect Profile
     const [settingsActive, setSettingsActive] = useState(false);
-    
+
     // First-time user welcome popup
     const [showWelcomePopup, setShowWelcomePopup] = useState(() => {
         try {
@@ -2322,7 +2322,7 @@ const App = () => {
             return true;
         }
     });
-    
+
     const closeWelcomePopup = () => {
         setShowWelcomePopup(false);
         try {
@@ -2344,18 +2344,18 @@ const App = () => {
             jsx: (
                 <div key="earnings" className="snap-start min-w-full flex-shrink-0">
                     <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
-                         <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
-                         <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
-                         <div className="flex items-center gap-3 mb-3 relative z-10">
-                             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
-                                 <Trophy size={22} className="text-white" fill="white" />
-                             </div>
-                             <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Total Earnings', selectedLanguage)}</span>
-                         </div>
-                         <div className="flex-1 flex flex-col justify-center relative z-10">
-                             <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
-                             <span className="text-[13px] text-gray-600 font-medium">{getTranslation('Start earning today', selectedLanguage)}</span>
-                         </div>
+                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                        <div className="flex items-center gap-3 mb-3 relative z-10">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
+                                <Trophy size={22} className="text-white" fill="white" />
+                            </div>
+                            <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Total Earnings', selectedLanguage)}</span>
+                        </div>
+                        <div className="flex-1 flex flex-col justify-center relative z-10">
+                            <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
+                            <span className="text-[13px] text-gray-600 font-medium">{getTranslation('Start earning today', selectedLanguage)}</span>
+                        </div>
                     </div>
                 </div>
             )
@@ -2366,35 +2366,35 @@ const App = () => {
             jsx: (
                 <div key="requests" className="snap-start min-w-full flex-shrink-0">
                     <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
-                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
-                     <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
-                     <div className="flex items-center gap-3 mb-3 relative z-10">
-                         <div className="flex items-center gap-2">
-                             <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Active Requests', selectedLanguage)}</span>
-                             <span className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>{getTranslation('NEW', selectedLanguage)}</span>
-                         </div>
-                     </div>
-                    {(() => {
-                        try {
-                            const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title||'')||'').toString().trim().toLowerCase() === ((r.title||'')||'').toString().trim().toLowerCase())));
-                            const activeCount = unpublished.length;
-                            const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
-                            const label = activeCount === 1 ? getTranslation('active request', selectedLanguage) : getTranslation('active requests', selectedLanguage);
-                            return (
-                                <div className="flex-1 flex flex-col justify-center relative z-10">
-                                    <div className="text-[40px] font-normal text-gray-900 mb-2 leading-none">{activeCount}</div>
-                                    <span className="text-[13px] text-gray-600 font-medium">{activeCount ? `${activeCount} ${label}` : getTranslation('No active requests', selectedLanguage)}</span>
-                                </div>
-                            );
-                        } catch (e) {
-                            return (
-                                <div className="flex-1 flex flex-col justify-center relative z-10">
-                                    <div className="text-[40px] font-normal text-gray-900 mb-2 leading-none">0</div>
-                                    <span className="text-[13px] text-gray-600 font-medium">{getTranslation('No active requests', selectedLanguage)}</span>
-                                </div>
-                            );
-                        }
-                    })()}
+                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                        <div className="flex items-center gap-3 mb-3 relative z-10">
+                            <div className="flex items-center gap-2">
+                                <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Active Requests', selectedLanguage)}</span>
+                                <span className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>{getTranslation('NEW', selectedLanguage)}</span>
+                            </div>
+                        </div>
+                        {(() => {
+                            try {
+                                const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title || '') || '').toString().trim().toLowerCase() === ((r.title || '') || '').toString().trim().toLowerCase())));
+                                const activeCount = unpublished.length;
+                                const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
+                                const label = activeCount === 1 ? getTranslation('active request', selectedLanguage) : getTranslation('active requests', selectedLanguage);
+                                return (
+                                    <div className="flex-1 flex flex-col justify-center relative z-10">
+                                        <div className="text-[40px] font-normal text-gray-900 mb-2 leading-none">{activeCount}</div>
+                                        <span className="text-[13px] text-gray-600 font-medium">{activeCount ? `${activeCount} ${label}` : getTranslation('No active requests', selectedLanguage)}</span>
+                                    </div>
+                                );
+                            } catch (e) {
+                                return (
+                                    <div className="flex-1 flex flex-col justify-center relative z-10">
+                                        <div className="text-[40px] font-normal text-gray-900 mb-2 leading-none">0</div>
+                                        <span className="text-[13px] text-gray-600 font-medium">{getTranslation('No active requests', selectedLanguage)}</span>
+                                    </div>
+                                );
+                            }
+                        })()}
                     </div>
                 </div>
             )
@@ -2405,18 +2405,18 @@ const App = () => {
             jsx: (
                 <div key="rating" className="snap-start min-w-full flex-shrink-0">
                     <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
-                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
-                     <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
-                     <div className="flex items-center gap-3 mb-3 relative z-10">
-                         <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
-                             <Star size={22} className="text-white" fill="white" />
-                         </div>
-                         <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Avg Rating', selectedLanguage)}</span>
-                     </div>
-                     <div className="flex-1 flex flex-col justify-center relative z-10">
-                         <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
-                         <span className="text-[14px] text-gray-600 font-semibold">{getTranslation('Not rated yet ⭐', selectedLanguage)}</span>
-                     </div>
+                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                        <div className="flex items-center gap-3 mb-3 relative z-10">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
+                                <Star size={22} className="text-white" fill="white" />
+                            </div>
+                            <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Avg Rating', selectedLanguage)}</span>
+                        </div>
+                        <div className="flex-1 flex flex-col justify-center relative z-10">
+                            <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
+                            <span className="text-[14px] text-gray-600 font-semibold">{getTranslation('Not rated yet ⭐', selectedLanguage)}</span>
+                        </div>
                     </div>
                 </div>
             )
@@ -2427,18 +2427,18 @@ const App = () => {
             jsx: (
                 <div key="response" className="snap-start min-w-full flex-shrink-0">
                     <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
-                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
-                     <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
-                     <div className="flex items-center gap-3 mb-3 relative z-10">
-                         <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
-                             <Zap size={22} className="text-white" fill="white" />
-                         </div>
-                         <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Response Time', selectedLanguage)}</span>
-                     </div>
-                     <div className="flex-1 flex flex-col justify-center relative z-10">
-                         <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
-                         <span className="text-[14px] text-gray-600 font-semibold">{getTranslation('Start responding ⚡', selectedLanguage)}</span>
-                     </div>
+                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                        <div className="flex items-center gap-3 mb-3 relative z-10">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
+                                <Zap size={22} className="text-white" fill="white" />
+                            </div>
+                            <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Response Time', selectedLanguage)}</span>
+                        </div>
+                        <div className="flex-1 flex flex-col justify-center relative z-10">
+                            <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
+                            <span className="text-[14px] text-gray-600 font-semibold">{getTranslation('Start responding ⚡', selectedLanguage)}</span>
+                        </div>
                     </div>
                 </div>
             )
@@ -2476,7 +2476,8 @@ const App = () => {
                         className={`px-3 py-2 rounded-lg border border-gray-200 text-gray-700 text-[13px] font-medium flex items-center justify-center shadow-sm ${profileActive ? 'bg-[var(--color-gold-light-bg)]' : 'bg-white'}`}
                         onMouseDown={() => {
                             setProfileActive(true);
-                            if (!headerNavigatedRef.current) { headerNavigatedRef.current = true; try { window.location.href = '/creatorprofile.jsx'; } catch (e) { console.warn('Navigation failed', e); }
+                            if (!headerNavigatedRef.current) {
+                                headerNavigatedRef.current = true; try { window.location.href = '/creatorprofile.jsx'; } catch (e) { console.warn('Navigation failed', e); }
                             }
                         }}
                         onTouchStart={() => {
@@ -2496,14 +2497,14 @@ const App = () => {
                     </button>
                 </div>
             </div>
-            
+
             {/* Welcome popup for first-time users */}
             {showWelcomePopup && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
                     <div className="absolute inset-0 bg-black opacity-60" onClick={closeWelcomePopup} />
                     <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 z-10 p-6">
                         <button onClick={closeWelcomePopup} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
-                        
+
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-14 h-14 rounded-xl bg-[var(--color-gold)] flex items-center justify-center shadow-md">
                                 <Video size={24} className="text-white" />
@@ -2512,11 +2513,11 @@ const App = () => {
                                 <h3 className="text-[20px] font-semibold text-gray-900">{getTranslation('Welcome to Creator Dashboard', selectedLanguage)}</h3>
                             </div>
                         </div>
-                        
+
                         <p className="text-[15px] text-gray-600 leading-relaxed mb-6">
                             {getTranslation('Manage your video requests and grow your audience. Track your earnings, respond to requests, and publish amazing content all in one place.', selectedLanguage)}
                         </p>
-                        
+
                         <div className="space-y-3 mb-6">
                             <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--color-gold-light-bg)]">
                                 <div className="w-8 h-8 rounded-lg bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -2527,7 +2528,7 @@ const App = () => {
                                     <div className="text-xs text-gray-600 mt-0.5">{getTranslation('Find video requests that match your skills', selectedLanguage)}</div>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--color-gold-light-bg)]">
                                 <div className="w-8 h-8 rounded-lg bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <Video size={16} className="text-white" />
@@ -2537,7 +2538,7 @@ const App = () => {
                                     <div className="text-xs text-gray-600 mt-0.5">{getTranslation('Upload your videos and track their performance', selectedLanguage)}</div>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-start gap-3 p-3 rounded-lg bg-[var(--color-gold-light-bg)]">
                                 <div className="w-8 h-8 rounded-lg bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <Star size={16} className="text-white" />
@@ -2548,8 +2549,8 @@ const App = () => {
                                 </div>
                             </div>
                         </div>
-                        
-                        <button 
+
+                        <button
                             onClick={closeWelcomePopup}
                             className="w-full bg-[var(--color-gold)] text-white px-6 py-3 rounded-lg font-semibold shadow-md"
                         >
@@ -2616,8 +2617,8 @@ const App = () => {
                 <div className="px-6 mt-7 pb-20">
                     <h3 className="text-[18px] font-semibold text-gray-900 mb-4">{getTranslation('Active Claims', selectedLanguage)}</h3>
                     {/* Active requests stats */}
-                     {(() => {
-                        const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title||'')||'').toString().trim().toLowerCase() === ((r.title||'')||'').toString().trim().toLowerCase())));
+                    {(() => {
+                        const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title || '') || '').toString().trim().toLowerCase() === ((r.title || '') || '').toString().trim().toLowerCase())));
                         const activeCount = unpublished.length;
                         const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
                         return (
@@ -2627,34 +2628,34 @@ const App = () => {
                             </div>
                         );
                     })()}
-                    
+
                     {claimedRequests.length === 0 ? (
-                            <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
-                                <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
-                                    <CheckCheck size={32} className="text-[var(--color-gold)]" />
-                                </div>
-                                <h4 className="text-lg font-bold text-gray-900 mb-2">{getTranslation('No Active Claims', selectedLanguage)}</h4>
-                                <p className="text-sm text-gray-600 text-center max-w-sm mb-6">
-                                    {getTranslation('Claim a request from the Requests tab to start working on it and track your progress here.', selectedLanguage)}
-                                </p>
-                                <button 
-                                    onClick={() => setActiveTopTab('Requests')} 
-                                    className="px-5 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-md"
-                                    style={{ backgroundColor: 'var(--color-gold)' }}
-                                >
-                                    {getTranslation('Browse Requests', selectedLanguage)}
-                                </button>
+                        <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
+                            <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
+                                <CheckCheck size={32} className="text-[var(--color-gold)]" />
                             </div>
+                            <h4 className="text-lg font-bold text-gray-900 mb-2">{getTranslation('No Active Claims', selectedLanguage)}</h4>
+                            <p className="text-sm text-gray-600 text-center max-w-sm mb-6">
+                                {getTranslation('Claim a request from the Requests tab to start working on it and track your progress here.', selectedLanguage)}
+                            </p>
+                            <button
+                                onClick={() => setActiveTopTab('Requests')}
+                                className="px-5 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90 shadow-md"
+                                style={{ backgroundColor: 'var(--color-gold)' }}
+                            >
+                                {getTranslation('Browse Requests', selectedLanguage)}
+                            </button>
+                        </div>
                     ) : (
                         <div className="space-y-6">
                             {claimedRequests.map((req) => (
                                 <ClaimStatusPanel
-                                    key={req.id || Math.random()} 
+                                    key={req.id || Math.random()}
                                     title={req.title}
                                     requesterName={req.requesterName}
                                     requesterAvatar={req.requesterAvatar}
                                     currentStep={req.currentStep || 1}
-                                    onClose={() => {}}
+                                    onClose={() => { }}
                                     onUpdateProgress={(step, msg) => handleUpdateClaimStatus(step, msg, req.id)}
                                     // Pass pendingReuploadItem ONLY if it targets this request (or if reupload has no target ID, pass to first/active?)
                                     pendingReuploadItem={pendingReuploadItem && (pendingReuploadItem.targetClaimId === req.id) ? pendingReuploadItem : null}
@@ -2666,29 +2667,29 @@ const App = () => {
                 </div>
             ) : activeTopTab === 'Published' ? (
                 <div className="px-6 mt-7">
-                        <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-[18px] font-semibold text-gray-900">{getTranslation('Published', selectedLanguage)}</h3>
-                            <button onClick={() => { setActiveTopTab('Upload'); }} className="text-[var(--color-gold)] font-medium">{getTranslation('Upload New', selectedLanguage)}</button>
-                        </div>
+                    <div className="mb-4 flex items-center justify-between">
+                        <h3 className="text-[18px] font-semibold text-gray-900">{getTranslation('Published', selectedLanguage)}</h3>
+                        <button onClick={() => { setActiveTopTab('Upload'); }} className="text-[var(--color-gold)] font-medium">{getTranslation('Upload New', selectedLanguage)}</button>
+                    </div>
 
-                        {publishedList && publishedList.length > 0 ? (
-                            <div className="space-y-4">
-                                {publishedList.map((item) => (
-                                    <div key={item.id} className="bg-white rounded-2xl p-4 border border-[var(--color-gold-light-bg)] shadow-sm flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-20 h-12 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
-                                                {item.thumbnail ? (
-                                                    <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <Video size={20} />
-                                                )}
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold text-gray-900">{item.title}</div>
-                                                <div className="text-xs text-gray-500">{new Date(item.time).toLocaleString()} {item.changeNote ? `• ${getTranslation('Updated:', selectedLanguage)} ${item.changeNote}` : ''}</div>
-                                            </div>
+                    {publishedList && publishedList.length > 0 ? (
+                        <div className="space-y-4">
+                            {publishedList.map((item) => (
+                                <div key={item.id} className="bg-white rounded-2xl p-4 border border-[var(--color-gold-light-bg)] shadow-sm flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-20 h-12 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                                            {item.thumbnail ? (
+                                                <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Video size={20} />
+                                            )}
                                         </div>
-                                        <div className="flex items-center gap-2">
+                                        <div>
+                                            <div className="font-semibold text-gray-900">{item.title}</div>
+                                            <div className="text-xs text-gray-500">{new Date(item.time).toLocaleString()} {item.changeNote ? `• ${getTranslation('Updated:', selectedLanguage)} ${item.changeNote}` : ''}</div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
                                         <button onClick={() => openReupload(item)} className="px-3 py-1 rounded-md border border-gray-200 text-sm text-gray-700">{getTranslation('Re-upload', selectedLanguage)}</button>
                                         <button
                                             onClick={() => setDeleteCandidate(item)}
@@ -2703,58 +2704,58 @@ const App = () => {
                                             {deletingId === item.id ? getTranslation('Deleting...', selectedLanguage) : (pressedId === item.id ? getTranslation('Delete', selectedLanguage) : getTranslation('Delete', selectedLanguage))}
                                         </button>
                                     </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[160px]">
-                                <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
-                                    <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
-                                        <Video size={24} className="text-[var(--color-gold)]" />
-                                    </div>
                                 </div>
-                                <h3 className="text-[20px] font-semibold text-gray-900 mb-3">{getTranslation('No Published Videos Yet', selectedLanguage)}</h3>
-                                <p className="text-sm text-gray-500 text-center max-w-[320px]">{getTranslation('Your published videos will appear here', selectedLanguage)}</p>
-                            </div>
-                        )}
-
-                        {/* Reupload modal */}
-                        {deleteCandidate && (
-                            <div className="fixed inset-0 z-50 flex items-center justify-center">
-                                <div className="absolute inset-0 bg-black opacity-60" onClick={() => setDeleteCandidate(null)} />
-                                <div className="relative bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 z-10 p-4">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div>
-                                            <h3 className="text-[18px] font-semibold text-gray-900">{getTranslation('Delete Published Video?', selectedLanguage)}</h3>
-                                            <div className="text-sm text-gray-500 mt-1">{getTranslation('This action cannot be undone. Are you sure you want to delete this video?', selectedLanguage)}</div>
-                                        </div>
-                                        <button onClick={() => setDeleteCandidate(null)} className="text-gray-400 hover:text-gray-600">✕</button>
-                                    </div>
-
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-16 h-10 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
-                                            {deleteCandidate.thumbnail ? <img src={deleteCandidate.thumbnail} alt={deleteCandidate.title} className="w-full h-full object-cover" /> : <Video size={20} />}
-                                        </div>
-                                        <div>
-                                            <div className="font-semibold">{deleteCandidate.title}</div>
-                                            <div className="text-xs text-gray-500">{new Date(deleteCandidate.time).toLocaleString()}</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                        <button onClick={() => { handleDeletePublished(deleteCandidate.id); setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white">{getTranslation('Delete', selectedLanguage)}</button>
-                                        <button onClick={() => { setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
-                                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[160px]">
+                            <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
+                                <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
+                                    <Video size={24} className="text-[var(--color-gold)]" />
                                 </div>
                             </div>
-                        )}
-                    
+                            <h3 className="text-[20px] font-semibold text-gray-900 mb-3">{getTranslation('No Published Videos Yet', selectedLanguage)}</h3>
+                            <p className="text-sm text-gray-500 text-center max-w-[320px]">{getTranslation('Your published videos will appear here', selectedLanguage)}</p>
+                        </div>
+                    )}
 
-                        {/* small toast (moved to top-right for better visibility) */}
-                        {appToast && (
-                            <Toast message={appToast} bottom={false} />
-                        )}
-                    </div>
+                    {/* Reupload modal */}
+                    {deleteCandidate && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-black opacity-60" onClick={() => setDeleteCandidate(null)} />
+                            <div className="relative bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 z-10 p-4">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-[18px] font-semibold text-gray-900">{getTranslation('Delete Published Video?', selectedLanguage)}</h3>
+                                        <div className="text-sm text-gray-500 mt-1">{getTranslation('This action cannot be undone. Are you sure you want to delete this video?', selectedLanguage)}</div>
+                                    </div>
+                                    <button onClick={() => setDeleteCandidate(null)} className="text-gray-400 hover:text-gray-600">✕</button>
+                                </div>
+
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-16 h-10 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                                        {deleteCandidate.thumbnail ? <img src={deleteCandidate.thumbnail} alt={deleteCandidate.title} className="w-full h-full object-cover" /> : <Video size={20} />}
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold">{deleteCandidate.title}</div>
+                                        <div className="text-xs text-gray-500">{new Date(deleteCandidate.time).toLocaleString()}</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <button onClick={() => { handleDeletePublished(deleteCandidate.id); setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white">{getTranslation('Delete', selectedLanguage)}</button>
+                                    <button onClick={() => { setDeleteCandidate(null); setPressedId(null); }} className="flex-1 px-4 py-2 rounded-lg border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+
+                    {/* small toast (moved to top-right for better visibility) */}
+                    {appToast && (
+                        <Toast message={appToast} bottom={false} />
+                    )}
+                </div>
             ) : activeTopTab === 'Upload' ? (
                 <div className="px-6 mt-7">
                     <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
@@ -2947,11 +2948,11 @@ const App = () => {
                             </div>
                         </div>
                     </div>
-                                </React.Fragment>
-                            )}
+                </React.Fragment>
+            )}
             {/* Footer */}
             <BottomBar selectedLanguage={selectedLanguage} />
-            
+
         </div>
     );
 };

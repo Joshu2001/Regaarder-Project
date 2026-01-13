@@ -596,7 +596,7 @@ const MobileNav = ({ selectedLanguage = 'English' }) => {
         return;
       }
       if (tabName === "Requests") {
-        window.location.href = "requests.jsx";
+        window.location.href = "requests.jsx?filter=For You";
         return;
       }
       if (tabName === "Ideas") {
@@ -689,9 +689,8 @@ const SponsorConfirmation = ({ selectedLanguage = 'English' }) => {
                   "#45B7D1",
                   "#96CEB4",
                 ][Math.floor(Math.random() * 5)],
-                animation: `confetti-fall ${
-                  2 + Math.random() * 3
-                }s linear forwards`,
+                animation: `confetti-fall ${2 + Math.random() * 3
+                  }s linear forwards`,
                 animationDelay: `${Math.random() * 2}s`,
                 borderRadius: Math.random() > 0.5 ? "50%" : "0",
               }}
@@ -710,11 +709,10 @@ const SponsorConfirmation = ({ selectedLanguage = 'English' }) => {
                     fixed top-6 left-1/2 transform -translate-x-1/2 w-[90%] max-w-sm
                     bg-[var(--surface)] px-4 py-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100
                     flex items-start space-x-3 z-50 transition-all duration-500
-                    ${
-                      showToast
-                        ? "translate-y-0 opacity-100"
-                        : "-translate-y-20 opacity-0"
-                    }
+                    ${showToast
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-20 opacity-0"
+          }
                 `}
       >
         <div className="bg-green-500 rounded-full p-1 flex-shrink-0 mt-0.5">
@@ -744,21 +742,21 @@ const SponsorConfirmation = ({ selectedLanguage = 'English' }) => {
 
       {/* Sponsor Content Card */}
       <div className="relative rounded-xl cream-glow-box p-6 cursor-pointer hover:shadow-lg transition duration-200"
-          role="button"
-          tabIndex={0}
-          onClick={() => { try { window.location.href = 'advertisewithus.jsx'; } catch(e){} }}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); try { window.location.href = 'advertisewithus.jsx'; } catch(err){} } }}
-          style={{
-            background: "radial-gradient(circle at 12% 18%, rgba(var(--color-gold-rgb,203,138,0),0.16), rgba(var(--color-gold-rgb,203,138,0),0.04))",
-            border: "1px solid rgba(var(--color-gold-rgb, 203,138,0), 0.22)",
-            boxShadow: "inset 0 8px 24px rgba(var(--color-gold-rgb,203,138,0),0.05), 0 10px 30px rgba(6,24,58,0.06)",
-            backgroundBlendMode: "screen, screen, normal, normal",
-          }}
-        >
+        role="button"
+        tabIndex={0}
+        onClick={() => { try { window.location.href = 'advertisewithus.jsx'; } catch (e) { } }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); try { window.location.href = 'advertisewithus.jsx'; } catch (err) { } } }}
+        style={{
+          background: "radial-gradient(circle at 12% 18%, rgba(var(--color-gold-rgb,203,138,0),0.16), rgba(var(--color-gold-rgb,203,138,0),0.04))",
+          border: "1px solid rgba(var(--color-gold-rgb, 203,138,0), 0.22)",
+          boxShadow: "inset 0 8px 24px rgba(var(--color-gold-rgb,203,138,0),0.05), 0 10px 30px rgba(6,24,58,0.06)",
+          backgroundBlendMode: "screen, screen, normal, normal",
+        }}
+      >
         {/* scattered accent blobs (decorative, non-interactive) */}
-        <span style={{position: 'absolute', left: 12, top: 8, width: 44, height: 44, borderRadius: 9999, background: 'radial-gradient(circle, rgba(var(--color-gold-rgb,203,138,0),0.16), rgba(var(--color-gold-rgb,203,138,0),0.04))', filter: 'blur(10px)', opacity: 0.95, pointerEvents: 'none'}} />
-        <span style={{position: 'absolute', right: 18, top: 28, width: 58, height: 58, borderRadius: 9999, background: 'radial-gradient(circle, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', filter: 'blur(14px)', opacity: 0.9, pointerEvents: 'none'}} />
-        <span style={{position: 'absolute', left: '38%', bottom: 6, width: 36, height: 36, borderRadius: 9999, background: 'radial-gradient(circle, rgba(var(--color-gold-rgb,203,138,0),0.10), rgba(var(--color-gold-rgb,203,138,0),0.02))', filter: 'blur(8px)', opacity: 0.95, pointerEvents: 'none'}} />
+        <span style={{ position: 'absolute', left: 12, top: 8, width: 44, height: 44, borderRadius: 9999, background: 'radial-gradient(circle, rgba(var(--color-gold-rgb,203,138,0),0.16), rgba(var(--color-gold-rgb,203,138,0),0.04))', filter: 'blur(10px)', opacity: 0.95, pointerEvents: 'none' }} />
+        <span style={{ position: 'absolute', right: 18, top: 28, width: 58, height: 58, borderRadius: 9999, background: 'radial-gradient(circle, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', filter: 'blur(14px)', opacity: 0.9, pointerEvents: 'none' }} />
+        <span style={{ position: 'absolute', left: '38%', bottom: 6, width: 36, height: 36, borderRadius: 9999, background: 'radial-gradient(circle, rgba(var(--color-gold-rgb,203,138,0),0.10), rgba(var(--color-gold-rgb,203,138,0),0.02))', filter: 'blur(8px)', opacity: 0.95, pointerEvents: 'none' }} />
         <div className="flex items-start justify-between">
           <div className="flex items-center mb-4">
             <span className="p-3 rounded-full mr-4 text-[var(--color-gold)]"
@@ -829,7 +827,7 @@ const OneTimeVideoDetails = ({
     {/* Examples removed per user request */}
 
     <div className="flex items-center justify-between text-sm text-gray-600">
-          <span className="italic">{getTranslation('Using the Description and Title you entered above for this one-time video.', selectedLanguage)}</span>
+      <span className="italic">{getTranslation('Using the Description and Title you entered above for this one-time video.', selectedLanguage)}</span>
       <button
         type="button"
         className="ml-4 text-sm font-medium text-[var(--color-accent)] hover:underline"
@@ -969,13 +967,13 @@ const RecurrentVideoDetails = ({
 
   if (recurrentStep === 3)
     return (
-            <ToneStyleStep
-              selectedTones={selectedTones}
-              setSelectedTones={setSelectedTones}
-              selectedStyles={selectedStyles}
-              setSelectedStyles={setSelectedStyles}
-              selectedLanguage={selectedLanguage}
-            />
+      <ToneStyleStep
+        selectedTones={selectedTones}
+        setSelectedTones={setSelectedTones}
+        selectedStyles={selectedStyles}
+        setSelectedStyles={setSelectedStyles}
+        selectedLanguage={selectedLanguage}
+      />
     );
   if (recurrentStep === 4) return <VideoLengthStep selectedLanguage={selectedLanguage} />;
   if (recurrentStep === 5)
@@ -1094,7 +1092,7 @@ const ToneStyleStep = ({ selectedTones, setSelectedTones, selectedStyles, setSel
         if (!el.contains(e.target)) {
           setOpen(false);
         }
-      } catch (err) {}
+      } catch (err) { }
     };
 
     const handleKey = (e) => {
@@ -1311,34 +1309,34 @@ const VideoLengthStep = ({
 
       {/* Examples Box */}
       {!localStorage.getItem('ideas_examples_seen_v1') && (
-      <div className="rounded-xl cream-glow-box p-5" style={{ background: "radial-gradient(circle at 16% 16%, rgba(var(--color-gold-rgb,203,138,0),0.08), rgba(var(--color-gold-rgb,203,138,0),0.02) 26%, var(--color-cream-bg) 60%), var(--color-cream-bg)", border: "1px solid rgba(var(--color-gold-rgb,203,138,0),0.10)", boxShadow: "inset 0 4px 12px rgba(var(--color-gold-rgb,203,138,0),0.02)" }}>
-        <div className="flex items-center mb-3">
-          <Lightbulb className="w-5 h-5 text-[var(--color-gold)] mr-2" />
-          <h3 className="text-sm font-normal text-gray-700">
-            {getTranslation('Examples for video length:', selectedLanguage)}
-          </h3>
+        <div className="rounded-xl cream-glow-box p-5" style={{ background: "radial-gradient(circle at 16% 16%, rgba(var(--color-gold-rgb,203,138,0),0.08), rgba(var(--color-gold-rgb,203,138,0),0.02) 26%, var(--color-cream-bg) 60%), var(--color-cream-bg)", border: "1px solid rgba(var(--color-gold-rgb,203,138,0),0.10)", boxShadow: "inset 0 4px 12px rgba(var(--color-gold-rgb,203,138,0),0.02)" }}>
+          <div className="flex items-center mb-3">
+            <Lightbulb className="w-5 h-5 text-[var(--color-gold)] mr-2" />
+            <h3 className="text-sm font-normal text-gray-700">
+              {getTranslation('Examples for video length:', selectedLanguage)}
+            </h3>
+          </div>
+          <ul className="space-y-2 text-xs text-gray-600 list-none pl-0">
+            <li>
+              <strong className="text-gray-800">{getTranslation('Short Form (15s–1m):', selectedLanguage)}</strong>{" "}
+              {getTranslation('Quick tips, reactions, TikTok/Reels-style content', selectedLanguage)}
+            </li>
+            <li>
+              <strong className="text-gray-800">{getTranslation('Standard (2–5m):', selectedLanguage)}</strong>{" "}
+              {getTranslation('Tutorials, challenges, product demos, reviews', selectedLanguage)}
+            </li>
+            <li>
+              <strong className="text-gray-800">{getTranslation('Extended (6–15m):', selectedLanguage)}</strong> {getTranslation('Deep dives, vlogs, detailed explanations, discussions', selectedLanguage)}
+            </li>
+            <li>
+              <strong className="text-gray-800">{getTranslation('Long Form (16–30m+):', selectedLanguage)}</strong>{" "}
+              {getTranslation('Documentaries, interviews, masterclasses, podcasts', selectedLanguage)}
+            </li>
+            <li>
+              <strong className="text-gray-800">{getTranslation('Custom:', selectedLanguage)}</strong> {getTranslation('Let creators choose based on your content', selectedLanguage)}
+            </li>
+          </ul>
         </div>
-        <ul className="space-y-2 text-xs text-gray-600 list-none pl-0">
-          <li>
-            <strong className="text-gray-800">{getTranslation('Short Form (15s–1m):', selectedLanguage)}</strong>{" "}
-            {getTranslation('Quick tips, reactions, TikTok/Reels-style content', selectedLanguage)}
-          </li>
-          <li>
-            <strong className="text-gray-800">{getTranslation('Standard (2–5m):', selectedLanguage)}</strong>{" "}
-            {getTranslation('Tutorials, challenges, product demos, reviews', selectedLanguage)}
-          </li>
-          <li>
-            <strong className="text-gray-800">{getTranslation('Extended (6–15m):', selectedLanguage)}</strong> {getTranslation('Deep dives, vlogs, detailed explanations, discussions', selectedLanguage)}
-          </li>
-          <li>
-            <strong className="text-gray-800">{getTranslation('Long Form (16–30m+):', selectedLanguage)}</strong>{" "}
-            {getTranslation('Documentaries, interviews, masterclasses, podcasts', selectedLanguage)}
-          </li>
-          <li>
-            <strong className="text-gray-800">{getTranslation('Custom:', selectedLanguage)}</strong> {getTranslation('Let creators choose based on your content', selectedLanguage)}
-          </li>
-        </ul>
-      </div>
       )}
 
       {/* Lengths Dropdown (compact) */}
@@ -1752,11 +1750,10 @@ const SeriesCalendar = ({ selectedDates, setSelectedDates, selectedLanguage = 'E
               }}
               className={`
                                 h-8 w-8 flex items-center justify-center rounded-full text-sm cursor-pointer transition-colors
-                                ${
-                                  isSelected
-                                    ? "bg-[var(--color-gold)] text-white"
-                                    : "hover:bg-[var(--bg)] text-gray-700"
-                                }
+                                ${isSelected
+                  ? "bg-[var(--color-gold)] text-white"
+                  : "hover:bg-[var(--bg)] text-gray-700"
+                }
                             `}
             >
               {day}
@@ -2186,10 +2183,10 @@ const PrivacySettingsStep = ({ selectedPrivacy, setSelectedPrivacy, prevStepComp
   const runAnim = !selectedPrivacy;
 
   return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="space-y-2 text-left">
-            <div className="relative" ref={containerRef}>
-              <style>{`
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="space-y-2 text-left">
+        <div className="relative" ref={containerRef}>
+          <style>{`
                 .privacy-outline-svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
                 .privacy-outline-base { stroke: rgba(226,232,240,1); stroke-width: 1.5; fill: none; stroke-linejoin: round; }
 
@@ -2255,87 +2252,87 @@ const PrivacySettingsStep = ({ selectedPrivacy, setSelectedPrivacy, prevStepComp
                 }
               `}</style>
 
-              <button
-                type="button"
-                onClick={() => setOpen((s) => !s)}
-                className="w-full flex items-center justify-between p-4 bg-[var(--surface)] border border-gray-200 rounded-xl shadow-sm relative overflow-visible"
-                aria-haspopup="listbox"
-                aria-expanded={open}
-                style={{ zIndex: 1 }}
-              >
-                <div className="text-left">
-                  <div className="text-gray-800 font-semibold text-base block tracking-tight">{getTranslation('Who should be able to see your video?', selectedLanguage)}</div>
-                  <div className="text-sm text-gray-500">{getTranslation(((options.find((o) => o.id === selectedPrivacy) || {}).label || 'Select visibility'), selectedLanguage)}</div>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
-              </button>
-
-              {/* SVG overlay for animated outline (gradient tail + head) */}
-              <svg className="privacy-outline-svg" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden>
-                <defs>
-                  <linearGradient id="privacyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="transparent" stopOpacity="0" />
-                    <stop offset="8%" stopColor="var(--color-accent)" stopOpacity="0.18" />
-                    <stop offset="30%" stopColor="var(--color-accent)" stopOpacity="0.95" />
-                    <stop offset="80%" stopColor="var(--color-accent)" stopOpacity="0.4" />
-                    <stop offset="100%" stopColor="transparent" stopOpacity="0" />
-                  </linearGradient>
-                  {/* clip path inset slightly so animated strokes don't draw sharp corner pixels */}
-                  <clipPath id="privacyClip">
-                    <rect x="2.5" y="2.5" width="95" height="35" rx="11" />
-                  </clipPath>
-                </defs>
-
-                <rect x="1.5" y="1.5" width="97" height="37" rx="12" className="privacy-outline-base" />
-                {/* Animated accent/mover/head removed to avoid corner artifacts */}
-              </svg>
-
-              {open && (
-                <div className="absolute z-20 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg">
-                  <ul role="listbox" className="divide-y divide-gray-100">
-                    {options.map((opt) => (
-                      <li
-                        key={opt.id}
-                        role="option"
-                        tabIndex={0}
-                        aria-selected={selectedPrivacy === opt.id}
-                        onClick={() => {
-                          setSelectedPrivacy(opt.id);
-                          setOpen(false);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setSelectedPrivacy(opt.id);
-                            setOpen(false);
-                          }
-                        }}
-                        className="p-3 flex items-start cursor-pointer hover:bg-gray-50"
-                      >
-                        <opt.icon className={`w-5 h-5 mr-3 mt-0.5 ${selectedPrivacy === opt.id ? "text-[var(--color-gold)]" : "text-gray-400"}`} />
-                        <div className="flex-1">
-                          <div className="flex justify-between items-center">
-                            <div className={`text-sm font-medium ${selectedPrivacy === opt.id ? "text-gray-900" : "text-gray-700"}`}>
-                              {getTranslation(opt.label, selectedLanguage)}
-                            </div>
-                            {opt.price && <div className="text-sm font-normal text-gray-900">{opt.price}</div>}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-0.5">{getTranslation(opt.desc, selectedLanguage)}</div>
-                        </div>
-                        {selectedPrivacy === opt.id && (
-                          <div className="ml-3 mt-0.5">
-                            <Check className="w-4 h-4 text-[var(--color-gold)]" />
-                          </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+          <button
+            type="button"
+            onClick={() => setOpen((s) => !s)}
+            className="w-full flex items-center justify-between p-4 bg-[var(--surface)] border border-gray-200 rounded-xl shadow-sm relative overflow-visible"
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            style={{ zIndex: 1 }}
+          >
+            <div className="text-left">
+              <div className="text-gray-800 font-semibold text-base block tracking-tight">{getTranslation('Who should be able to see your video?', selectedLanguage)}</div>
+              <div className="text-sm text-gray-500">{getTranslation(((options.find((o) => o.id === selectedPrivacy) || {}).label || 'Select visibility'), selectedLanguage)}</div>
             </div>
-          </div>
+            <ChevronDown className="w-4 h-4 text-gray-500" />
+          </button>
+
+          {/* SVG overlay for animated outline (gradient tail + head) */}
+          <svg className="privacy-outline-svg" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden>
+            <defs>
+              <linearGradient id="privacyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="transparent" stopOpacity="0" />
+                <stop offset="8%" stopColor="var(--color-accent)" stopOpacity="0.18" />
+                <stop offset="30%" stopColor="var(--color-accent)" stopOpacity="0.95" />
+                <stop offset="80%" stopColor="var(--color-accent)" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+              </linearGradient>
+              {/* clip path inset slightly so animated strokes don't draw sharp corner pixels */}
+              <clipPath id="privacyClip">
+                <rect x="2.5" y="2.5" width="95" height="35" rx="11" />
+              </clipPath>
+            </defs>
+
+            <rect x="1.5" y="1.5" width="97" height="37" rx="12" className="privacy-outline-base" />
+            {/* Animated accent/mover/head removed to avoid corner artifacts */}
+          </svg>
+
+          {open && (
+            <div className="absolute z-20 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg">
+              <ul role="listbox" className="divide-y divide-gray-100">
+                {options.map((opt) => (
+                  <li
+                    key={opt.id}
+                    role="option"
+                    tabIndex={0}
+                    aria-selected={selectedPrivacy === opt.id}
+                    onClick={() => {
+                      setSelectedPrivacy(opt.id);
+                      setOpen(false);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelectedPrivacy(opt.id);
+                        setOpen(false);
+                      }
+                    }}
+                    className="p-3 flex items-start cursor-pointer hover:bg-gray-50"
+                  >
+                    <opt.icon className={`w-5 h-5 mr-3 mt-0.5 ${selectedPrivacy === opt.id ? "text-[var(--color-gold)]" : "text-gray-400"}`} />
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center">
+                        <div className={`text-sm font-medium ${selectedPrivacy === opt.id ? "text-gray-900" : "text-gray-700"}`}>
+                          {getTranslation(opt.label, selectedLanguage)}
+                        </div>
+                        {opt.price && <div className="text-sm font-normal text-gray-900">{opt.price}</div>}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-0.5">{getTranslation(opt.desc, selectedLanguage)}</div>
+                    </div>
+                    {selectedPrivacy === opt.id && (
+                      <div className="ml-3 mt-0.5">
+                        <Check className="w-4 h-4 text-[var(--color-gold)]" />
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      );
+      </div>
+    </div>
+  );
 };
 
 // --- Component for Review Request ---
@@ -2414,8 +2411,8 @@ const ReviewRequestStep = ({
     previewExpanded || !needsPreviewTruncation
       ? description
       : description
-      ? description.substring(0, PREVIEW_MAX_LENGTH) + "..."
-      : "";
+        ? description.substring(0, PREVIEW_MAX_LENGTH) + "..."
+        : "";
   const togglePreviewExpanded = () => setPreviewExpanded((prev) => !prev);
 
   // Inline-edit state for the review card
@@ -2457,7 +2454,7 @@ const ReviewRequestStep = ({
     }
     // If parent supplied a save handler, call it
     if (typeof onSaveReview === 'function') {
-      try { onSaveReview(localValues); } catch (e) {}
+      try { onSaveReview(localValues); } catch (e) { }
     }
     setEditingField(null);
   };
@@ -2491,10 +2488,10 @@ const ReviewRequestStep = ({
             </div>
             {editingField === 'title' ? (
               <div>
-                <input value={localValues.title} onChange={(e) => setLocalValues({...localValues, title: e.target.value})} className="w-full p-3 rounded-lg border border-gray-200 text-gray-900" />
+                <input value={localValues.title} onChange={(e) => setLocalValues({ ...localValues, title: e.target.value })} className="w-full p-3 rounded-lg border border-gray-200 text-gray-900" />
                 <div className="field-edit-actions">
                   <button onClick={() => saveLocalField('title')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">{getTranslation('Save', selectedLanguage)}</button>
-                  <button onClick={() => { setLocalValues(prev => ({...prev, title: title || ''})); setEditingField(null); }} className="px-3 py-2 rounded-lg border">{getTranslation('Cancel', selectedLanguage)}</button>
+                  <button onClick={() => { setLocalValues(prev => ({ ...prev, title: title || '' })); setEditingField(null); }} className="px-3 py-2 rounded-lg border">{getTranslation('Cancel', selectedLanguage)}</button>
                 </div>
               </div>
             ) : (
@@ -2512,10 +2509,10 @@ const ReviewRequestStep = ({
             </div>
             {editingField === 'description' ? (
               <div>
-                <textarea value={localValues.description} onChange={(e) => setLocalValues({...localValues, description: e.target.value})} rows={4} className="w-full p-3 rounded-lg border border-gray-200 text-gray-900" />
+                <textarea value={localValues.description} onChange={(e) => setLocalValues({ ...localValues, description: e.target.value })} rows={4} className="w-full p-3 rounded-lg border border-gray-200 text-gray-900" />
                 <div className="field-edit-actions">
                   <button onClick={() => saveLocalField('description')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">{getTranslation('Save', selectedLanguage)}</button>
-                  <button onClick={() => { setLocalValues(prev => ({...prev, description: description || ''})); setEditingField(null); }} className="px-3 py-2 rounded-lg border">{getTranslation('Cancel', selectedLanguage)}</button>
+                  <button onClick={() => { setLocalValues(prev => ({ ...prev, description: description || '' })); setEditingField(null); }} className="px-3 py-2 rounded-lg border">{getTranslation('Cancel', selectedLanguage)}</button>
                 </div>
               </div>
             ) : (
@@ -2543,9 +2540,9 @@ const ReviewRequestStep = ({
             </div>
             {editingField === 'privacy' && (
               <div className="mt-2 flex gap-2">
-                <button onClick={() => { setLocalValues(prev=>({...prev, privacy:'public'})); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">{getTranslation('Public', selectedLanguage)}</button>
-                <button onClick={() => { setLocalValues(prev=>({...prev, privacy:'unlisted'})); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">{getTranslation('Unlisted', selectedLanguage)}</button>
-                <button onClick={() => { setLocalValues(prev=>({...prev, privacy:'private'})); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">{getTranslation('Private', selectedLanguage)}</button>
+                <button onClick={() => { setLocalValues(prev => ({ ...prev, privacy: 'public' })); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">{getTranslation('Public', selectedLanguage)}</button>
+                <button onClick={() => { setLocalValues(prev => ({ ...prev, privacy: 'unlisted' })); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">{getTranslation('Unlisted', selectedLanguage)}</button>
+                <button onClick={() => { setLocalValues(prev => ({ ...prev, privacy: 'private' })); saveLocalField('privacy'); }} className="px-3 py-1 rounded-lg border">{getTranslation('Private', selectedLanguage)}</button>
               </div>
             )}
           </div>
@@ -2558,9 +2555,9 @@ const ReviewRequestStep = ({
             </div>
             {editingField === 'budget' && (
               <div className="mt-2 flex items-center gap-2">
-                <input type="number" value={localValues.price} onChange={(e)=>setLocalValues(prev=>({...prev, price: e.target.value}))} className="p-2 rounded-lg border" />
-                <button onClick={()=>saveLocalField('price')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">{getTranslation('Save', selectedLanguage)}</button>
-                <button onClick={()=>{ setLocalValues(prev=>({...prev, price: displayPrice || 0})); setEditingField(null); }} className="px-3 py-2 rounded-lg border">{getTranslation('Cancel', selectedLanguage)}</button>
+                <input type="number" value={localValues.price} onChange={(e) => setLocalValues(prev => ({ ...prev, price: e.target.value }))} className="p-2 rounded-lg border" />
+                <button onClick={() => saveLocalField('price')} className="px-3 py-2 rounded-lg bg-[var(--color-accent)] text-white">{getTranslation('Save', selectedLanguage)}</button>
+                <button onClick={() => { setLocalValues(prev => ({ ...prev, price: displayPrice || 0 })); setEditingField(null); }} className="px-3 py-2 rounded-lg border">{getTranslation('Cancel', selectedLanguage)}</button>
               </div>
             )}
           </div>
@@ -2657,7 +2654,7 @@ const App = () => {
         setTimeout(() => {
           if (chooseCreatorInputRef.current) chooseCreatorInputRef.current.focus();
         }, 80);
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [chooseCreatorFocused]);
 
@@ -2672,7 +2669,7 @@ const App = () => {
       if (localStorage.getItem('ideas_examples_seen_v1')) return;
       setShowExamples(true);
       localStorage.setItem('ideas_examples_seen_v1', '1');
-    } catch (e) {}
+    } catch (e) { }
   };
   // Format-selection followups
   const [formatSelectedMessage, setFormatSelectedMessage] = useState(null);
@@ -2705,7 +2702,7 @@ const App = () => {
           } else {
             clearTimeout(_showExamplesTimer.current);
           }
-        } catch (e) {}
+        } catch (e) { }
         _showExamplesTimer.current = null;
       }
 
@@ -2716,7 +2713,7 @@ const App = () => {
               entries.forEach((entry) => {
                 if (entry.isIntersecting) {
                   showExamplesOnce();
-                  try { obs.disconnect(); } catch (e) {}
+                  try { obs.disconnect(); } catch (e) { }
                   _showExamplesTimer.current = null;
                 }
               });
@@ -2746,7 +2743,7 @@ const App = () => {
           } else {
             clearTimeout(_showExamplesTimer.current);
           }
-        } catch (e) {}
+        } catch (e) { }
         _showExamplesTimer.current = null;
       }
       setShowExamples(false);
@@ -2763,7 +2760,7 @@ const App = () => {
           } else {
             clearTimeout(_showExamplesTimer.current);
           }
-        } catch (e) {}
+        } catch (e) { }
         _showExamplesTimer.current = null;
       }
     };
@@ -2817,11 +2814,11 @@ const App = () => {
         style.id = 'ideas-theme-styles';
         document.head.appendChild(style);
       }
-      
+
       // Combine the global THEME_CSS (creator search, improved cards) with the specific local styles (animations, payment modal)
       // Note: We use THEME_CSS first, but ensure we don't accidentally override the specific payment modal parts if they differ.
       // Actually, we want the NEW creator search styles from THEME_CSS to take precedence or exist.
-      
+
       const extraCss = `
         :root { --brand-gold: var(--color-gold); --color-gold-cream: rgba(255, 242, 199, 1); }
         @keyframes shimmer-gold-premium { 0% { background-position: 100% 0; } 40% { background-position: 0% 0; } 100% { background-position: 0% 0; } }
@@ -2877,7 +2874,7 @@ const App = () => {
         input[type=range]::-moz-range-track { height: 8px; border-radius: 999px; background: linear-gradient(90deg, rgba(15,23,42,0.06), rgba(15,23,42,0.04)); }
         input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(90deg, var(--color-primary), #7a3af0); box-shadow: 0 8px 20px rgba(122,58,240,0.18); border: 3px solid #fff; }
       `;
-      
+
       // Inject updated styles: THEME_CSS (search bar fixes) + extraCss (modal stuff)
       style.textContent = THEME_CSS + extraCss;
     } catch (e) {
@@ -2891,7 +2888,54 @@ const App = () => {
   const CREATORS_SAMPLE = [];
 
   const [creatorsList, setCreatorsList] = useState([]);
-  const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+  const BACKEND = (function() {
+      if (window && window.__BACKEND_URL__) return window.__BACKEND_URL__;
+      // Dynamic backend URL construction to match requests.jsx and support network/IP access
+      const protocol = window.location.protocol;
+      const hostname = window.location.hostname;
+      return `${protocol}//${hostname}:4000`;
+  })();
+
+  // Handle return from payment provider
+  useEffect(() => {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('payment_success') === 'true') {
+            const raw = localStorage.getItem('pending_payment_data');
+            
+            // Clean URL first
+            const url = new URL(window.location.href);
+            url.searchParams.delete('payment_success');
+            url.searchParams.delete('session_id');
+            window.history.replaceState({}, '', url);
+
+            // If we have pending data that wasn't synced to backend, try to sync it now
+            if (raw) {
+              try {
+                const data = JSON.parse(raw);
+                if (!data.backendSynced) {
+                   continuePendingSubmission(data.amount || 0, data).then(() => {
+                      // cleanup storage then return
+                      localStorage.removeItem('pending_payment_data');
+                   });
+                   return; 
+                }
+              } catch(e) {}
+              // cleanup storage
+              localStorage.removeItem('pending_payment_data');
+            }
+
+            // Redirect to requests page immediately (fallback if no pending data found)
+            setTimeout(() => {
+                try {
+                   navigate('/requests?filter=For You');
+                } catch (e) {
+                   window.location.href = '/requests?filter=For You';
+                }
+            }, 300);
+        }
+    } catch(e) { console.warn('Failed to handle payment return', e); }
+  }, []);
 
   // Fetch creators from backend when chooser expands (only once)
   useEffect(() => {
@@ -2907,7 +2951,7 @@ const App = () => {
           const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
           return colors[Math.floor(Math.random() * colors.length)];
         };
-        const creators = json.users.filter(u => u.isCreator).map(u => ({ id: u.id || u.email || u.name, name: u.handle || u.tag || (`@${(u.name||'').toLowerCase()}`), displayName: u.name || u.handle || u.tag, photoURL: u.photoURL || u.avatar, price: u.price || u.rate || 0, fallbackColor: getRandomColor() }));
+        const creators = json.users.filter(u => u.isCreator).map(u => ({ id: u.id || u.email || u.name, name: u.handle || u.tag || (`@${(u.name || '').toLowerCase()}`), displayName: u.name || u.handle || u.tag, photoURL: u.photoURL || u.avatar, price: u.price || u.rate || 0, fallbackColor: getRandomColor() }));
         if (cancelled) return;
         if (creators.length > 0) setCreatorsList(creators);
       } catch (e) {
@@ -2946,7 +2990,7 @@ const App = () => {
       try {
         document.body.style.overflow = "";
         document.body.style.touchAction = "";
-      } catch (e) {}
+      } catch (e) { }
     };
   }, [paymentModalOpen]);
 
@@ -2965,7 +3009,7 @@ const App = () => {
     if (chooseCreatorExpanded) {
       // Clear search to show ALL creators by default
       setCreatorSearch("");
-      
+
       setTimeout(() => {
         if (chooseCreatorInputRef.current)
           chooseCreatorInputRef.current.focus();
@@ -3043,7 +3087,7 @@ const App = () => {
   const showToast = (msg) => {
     try {
       setToastMessage(msg);
-    } catch (e) {}
+    } catch (e) { }
   };
   useEffect(() => {
     if (!toastMessage) return;
@@ -3067,7 +3111,7 @@ const App = () => {
       setChooseCreatorFocused(false);
       try {
         window.localStorage.setItem(SELECTED_CREATOR_KEY, JSON.stringify(c));
-      } catch (e) {}
+      } catch (e) { }
     } catch (e) {
       // ignore
     }
@@ -3156,7 +3200,7 @@ const App = () => {
           } catch (e) { console.warn('auto-scroll failed', e); }
         }, 120);
       }
-    } catch (e) {}
+    } catch (e) { }
   }, [selectedCreator]);
 
   // Save persisted price whenever customPrice changes (or remove when null)
@@ -3298,7 +3342,7 @@ const App = () => {
         if (titleBoxRef.current) {
           setTitleBoxWidth(titleBoxRef.current.offsetWidth);
         }
-      } catch (e) {}
+      } catch (e) { }
     };
     update();
     window.addEventListener('resize', update);
@@ -3517,28 +3561,28 @@ const App = () => {
 
   const handleBack = () => {
     if (isSeries) {
-      if (seriesStep === 1) {/* keep selectedDeliveryType to preserve inputs */}
+      if (seriesStep === 1) {/* keep selectedDeliveryType to preserve inputs */ }
       else if (seriesStep === 2) setSeriesStep(1);
       else if (seriesStep === 3) setSeriesStep(2);
       else if (seriesStep === 4) setSeriesStep(3);
       else if (seriesStep === 5) setSeriesStep(4);
       else if (seriesStep === 6) setSeriesStep(5);
     } else if (isRecurrent) {
-      if (recurrentStep === 1) {/* keep selectedDeliveryType to preserve inputs */}
+      if (recurrentStep === 1) {/* keep selectedDeliveryType to preserve inputs */ }
       else if (recurrentStep === 2) setRecurrentStep(1);
       else if (recurrentStep === 3) setRecurrentStep(2);
       else if (recurrentStep === 4) setRecurrentStep(3);
       else if (recurrentStep === 5) setRecurrentStep(4);
       else if (recurrentStep === 6) setRecurrentStep(5);
     } else if (isCatalogue) {
-      if (catalogueStep === 1) {/* keep selectedDeliveryType to preserve inputs */}
+      if (catalogueStep === 1) {/* keep selectedDeliveryType to preserve inputs */ }
       else if (catalogueStep === 2) setCatalogueStep(1);
       else if (catalogueStep === 3) setCatalogueStep(2);
       else if (catalogueStep === 4) setCatalogueStep(3);
       else if (catalogueStep === 5) setCatalogueStep(4);
       else if (catalogueStep === 6) setCatalogueStep(5);
     } else if (selectedDeliveryType === "one-time") {
-      if (oneTimeStep === 1) {/* keep selectedDeliveryType to preserve inputs */}
+      if (oneTimeStep === 1) {/* keep selectedDeliveryType to preserve inputs */ }
       else if (oneTimeStep === 2) setOneTimeStep(1);
       else if (oneTimeStep === 3) setOneTimeStep(2);
       else if (oneTimeStep === 4) setOneTimeStep(3);
@@ -3596,7 +3640,7 @@ const App = () => {
       };
       try {
         setFormatSelectedMessage(immediateMap[type] || null);
-      } catch (e) {}
+      } catch (e) { }
 
       setIsTransitioning(false);
     }, 1000);
@@ -3610,14 +3654,9 @@ const App = () => {
       auth.openAuthModal();
       return;
     }
-    
+
     // 2. Prepare payload
-    const payload = {
-      amount: paymentAmount, // set by user/slider
-      currency: 'usd',
-      requestType: pendingSubmission ? pendingSubmission.flow : 'one-time', // one-time, recurrent, series, catalogue
-      // metadata for the request to be created after payment
-      requestData: {
+    const requestData = {
         title,
         description,
         deliveryType: selectedDeliveryType,
@@ -3628,14 +3667,104 @@ const App = () => {
         ...(selectedDeliveryType === 'series' ? { episodes: numberOfEpisodes, schedule: selectedReleaseSchedule, customDates: customSeriesDates } : {}),
         ...(selectedDeliveryType === 'recurrent' ? { frequency: selectedFrequency, customDates: customRecurrentDates } : {}),
         ...(selectedDeliveryType === 'catalogue' ? { targetVideos, themes } : {}),
-        selectedCreator: selectedCreator ? selectedCreator.id : null
-      }
+        selectedCreator: selectedCreator ? selectedCreator.id : null,
+        // Added for restoration after redirect
+        flow: pendingSubmission ? pendingSubmission.flow : 'one-time',
+        nextStep: pendingSubmission ? pendingSubmission.nextStep : 1,
+        amount: paymentAmount,
+        currency: 'usd',
+        role: paymentRole
+    };
+
+    // 3. Save Request to Frontend & Backend BEFORE Redirecting
+    let createdRequest = null;
+    let isBackendSynced = false;
+    try {
+        // Frontend Save: Optimistic
+        const REQUESTS_KEY = "ideas_requests_v1";
+        const tempId = `req_${Date.now()}`;
+        const newRequest = {
+            id: tempId,
+            title: requestData.title || "",
+            description: requestData.description || "",
+            delivery: requestData.flow,
+            step: requestData.nextStep,
+            amount: requestData.amount,
+            role: requestData.role,
+            creator: (auth && auth.user) ? { id: auth.user.id, name: auth.user.name } : null,
+            createdAt: new Date().toISOString(),
+            meta: {
+              selectedTones: requestData.tones || [],
+              selectedVideoLength: requestData.videoLength || null,
+              selectedPrivacy: requestData.privacy || null,
+            },
+            isPendingPayment: true // Flag to indicate it's not fully paid yet
+        };
+
+        const raw = window.localStorage.getItem(REQUESTS_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (!arr.some(r => r.id === newRequest.id)) {
+          arr.unshift(newRequest);
+          window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
+        }
+
+        // Backend Save: Create Record
+        const token = localStorage.getItem('regaarder_token');
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const payload = {
+              id: tempId,
+              title: newRequest.title,
+              description: newRequest.description,
+              creator: newRequest.creator,
+              meta: newRequest.meta,
+              amount: newRequest.amount
+        };
+        console.log('Sending request to backend:', payload);
+
+        const saveRes = await fetch(`${BACKEND}/requests`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload)
+        });
+        console.log('Backend save response:', saveRes.status, saveRes.statusText);
+        
+        if (saveRes.ok) {
+            const json = await saveRes.json();
+            createdRequest = json.request || newRequest;
+            isBackendSynced = true;
+        } else {
+             createdRequest = newRequest; // Fallback to optimistic ID
+             isBackendSynced = false;
+        }
+
+    } catch (e) { console.error("Failed to save request before payment", e); }
+
+    // 4. Initiate Payment
+    const payload = {
+      requestId: createdRequest ? createdRequest.id : null, // Pass ID so payment can update it
+      amount: paymentAmount, 
+      currency: 'usd',
+      requestType: pendingSubmission ? pendingSubmission.flow : 'one-time',
+      requestData
+    };
+
+    // Save state to localStorage in case of redirect
+    const requestDataWithId = {
+        ...requestData,
+        id: createdRequest ? createdRequest.id : null,
+        backendSynced: isBackendSynced,
+        flow: pendingSubmission ? pendingSubmission.flow : 'one-time',
+        nextStep: pendingSubmission ? pendingSubmission.nextStep : 'step-3-success'
     };
 
     try {
-      // 3. Call backend to create payment session
-      // Replace with your actual backend endpoint
-      const res = await fetch(`${BACKEND}/api/pay/create-session`, {
+        localStorage.setItem('pending_payment_data', JSON.stringify(requestDataWithId));
+    } catch(e) { }
+
+    try {
+      const res = await fetch(`${BACKEND}/pay/create-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -3650,13 +3779,12 @@ const App = () => {
 
       const data = await res.json();
 
-      // 4. Handle redirect or success
-      if (data.redirectUrl) {
-        // Stripe Checkout flow: redirect user
-        window.location.href = data.redirectUrl;
+      // 5. Handle redirect or success
+      if (data.url) {
+        window.location.href = data.url;
       } else if (data.success) {
         // Direct success (e.g. mocked or zero-amount)
-        continuePendingSubmission(paymentAmount);
+        continuePendingSubmission(paymentAmount, requestDataWithId);
       }
     } catch (err) {
       console.error('Payment error', err);
@@ -3664,13 +3792,18 @@ const App = () => {
     }
   };
 
-  const continuePendingSubmission = (amount) => {
-    if (!pendingSubmission) return;
-    const finalAmount = typeof amount === "number" ? amount : paymentAmount;
+  const continuePendingSubmission = async (amount, overrideData = null) => {
+    // If restoring from redirect, pendingSubmission might be null, so check overrideData too
+    const sourceData = overrideData || {};
+    const effectivePendingSubmission = pendingSubmission || (sourceData.flow ? { flow: sourceData.flow, nextStep: sourceData.nextStep } : null);
+
+    if (!effectivePendingSubmission) return;
+    console.log('continuePendingSubmission start', { amount, effectivePendingSubmission, sourceData });
+    const finalAmount = typeof amount === "number" ? amount : (sourceData.amount || paymentAmount);
     // Persist chosen payment as customPrice so previews reflect the paid amount
     setCustomPrice(finalAmount);
 
-    const { flow, nextStep } = pendingSubmission;
+    const { flow, nextStep } = effectivePendingSubmission;
     // Skip success step to allow fresh start immediately
     // if (flow === "one-time") setOneTimeStep(nextStep);
     // else if (flow === "series") setSeriesStep(nextStep);
@@ -3681,23 +3814,36 @@ const App = () => {
     // of the app (for example `requests.jsx`) can pick it up immediately.
     try {
       const REQUESTS_KEY = "ideas_requests_v1";
-        const newRequest = {
-        id: `req_${Date.now()}`,
-        title: title || "",
-        description: description || "",
+      // Reuse ID if already synced, else generate new
+      const finalId = sourceData.id || `req_${Date.now()}`;
+      
+      // Robustly get the user, falling back to localStorage if AuthContext is not yet ready (e.g. page reload)
+      let currentUser = (auth && auth.user) ? auth.user : null;
+      if (!currentUser) {
+           try {
+               const rawUser = localStorage.getItem('regaarder_user');
+               if (rawUser) currentUser = JSON.parse(rawUser);
+           } catch (e) { }
+      }
+
+      const newRequest = {
+        id: finalId,
+        title: sourceData.title || title || "",
+        description: sourceData.description || description || "",
         delivery: flow,
         step: nextStep,
         amount: finalAmount,
-        role: paymentRole,
-          // The request author should be the logged-in user (the requester), not the selected creator.
-          creator: (auth && auth.user)
-            ? { id: auth.user.id, name: auth.user.name, image: auth.user.image || auth.user.avatar || '' }
-            : null,
+        role: sourceData.role || paymentRole,
+        // The request author should be the logged-in user (the requester), not the selected creator.
+        creator: currentUser 
+          ? { id: currentUser.id, name: currentUser.name, image: currentUser.image || currentUser.avatar || '' }
+          : null,
+        createdBy: currentUser ? currentUser.id : null, 
         createdAt: new Date().toISOString(),
         meta: {
-          selectedTones: selectedTones || [],
-          selectedVideoLength: selectedVideoLength || null,
-          selectedPrivacy: selectedPrivacy || null,
+          selectedTones: sourceData.tones || selectedTones || [],
+          selectedVideoLength: sourceData.videoLength || selectedVideoLength || null,
+          selectedPrivacy: sourceData.privacy || selectedPrivacy || null,
         },
       };
 
@@ -3706,22 +3852,26 @@ const App = () => {
       try {
         const raw = window.localStorage.getItem(REQUESTS_KEY);
         const arr = raw ? JSON.parse(raw) : [];
+        // Check duplication by ID
         if (!arr.some(r => r.id === newRequest.id)) {
-            arr.unshift(newRequest);
-            window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
+          arr.unshift(newRequest);
+          window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
         }
       } catch (e) { /* ignore storage errors */ }
 
       // Persist to backend so the Requests feed shows it for all users.
-      (async () => {
+      // IF already synced in handlePayment, DO NOT create again.
+      console.log('Checking backend sync status:', sourceData.backendSynced);
+      if (!sourceData.backendSynced) {
         try {
           const token = localStorage.getItem('regaarder_token');
           const headers = { 'Content-Type': 'application/json' };
           if (token) {
             headers['Authorization'] = `Bearer ${token}`;
           }
-          
-          const res = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/requests`, {
+
+          console.log('Attempting backup save to backend in continuePendingSubmission', newRequest.id);
+          const res = await fetch(`${BACKEND}/requests`, {
             method: 'POST',
             headers,
             body: JSON.stringify({
@@ -3734,6 +3884,7 @@ const App = () => {
             })
           });
           const data = await res.json();
+          console.log('Backup save result:', res.status, data);
           // If backend saved and returned the created request, use that object
           const published = (data && data.request) ? data.request : newRequest;
 
@@ -3745,7 +3896,7 @@ const App = () => {
             arr = arr.map(r => r.id === newRequest.id ? published : r);
             // If for some reason it wasn't there (race condition), ensure it is added
             if (!arr.find(r => r.id === published.id)) {
-                arr.unshift(published);
+              arr.unshift(published);
             }
             window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
           } catch (e) { /* ignore storage errors */ }
@@ -3754,12 +3905,13 @@ const App = () => {
           try {
             const ev = new CustomEvent('ideas:request_created', { detail: published });
             window.dispatchEvent(ev);
-          } catch (e) {}
+          } catch (e) { }
         } catch (err) {
+          console.error("Failed to persist to backend", err);
           // If network fails, we already have the optimistic save.
-          try { const ev = new CustomEvent('ideas:request_created', { detail: newRequest }); window.dispatchEvent(ev); } catch (e) {}
+          try { const ev = new CustomEvent('ideas:request_created', { detail: newRequest }); window.dispatchEvent(ev); } catch (e) { }
         }
-      })();
+      }
 
       // Broadcast a short-lived event so other windows/components can react immediately
       try {
@@ -3783,7 +3935,7 @@ const App = () => {
     setCustomRecurrentDates([]);
     setCustomSeriesDates([]);
     setCustomPrice(null);
-    try { localStorage.removeItem("ideas_draft_v1"); } catch (e) {}
+    try { localStorage.removeItem("ideas_draft_v1"); } catch (e) { }
 
     // Reset flow to initial state
     setSelectedDeliveryType(null);
@@ -3792,7 +3944,7 @@ const App = () => {
     setRecurrentStep(1);
     setCatalogueStep(1);
     setShowExamples(false);
-    try { localStorage.setItem('ideas_examples_seen_v1', '1'); } catch (e) {}
+    try { localStorage.setItem('ideas_examples_seen_v1', '1'); } catch (e) { }
     showToast("Request submitted successfully!");
 
     // Clear pending and close modal
@@ -3800,13 +3952,11 @@ const App = () => {
     setPaymentModalOpen(false);
 
     // Redirect to requests page immediately so user sees the new item
-    setTimeout(() => {
-        try {
-            navigate('/requests?filter=Newest');
-        } catch (e) {
-            window.location.href = '/requests?filter=Newest'; 
-        }
-    }, 100);
+    try {
+      navigate('/requests?filter=For You');
+    } catch (e) {
+      window.location.href = '/requests?filter=For You';
+    }
   };
 
   // Persist edits made inside the ReviewRequestStep back to global state
@@ -4029,11 +4179,10 @@ const App = () => {
                             text-[26px] font-normal tracking-tighter leading-normal mx-auto max-w-fit 
                             sweeping-text-container 
                             transition-all ease-out
-                            ${
-                              titleVisible
-                                ? "opacity-100 translate-y-0 duration-[500ms]"
-                                : "opacity-0 translate-y-1 duration-[500ms]"
-                            }
+                            ${titleVisible
+                ? "opacity-100 translate-y-0 duration-[500ms]"
+                : "opacity-0 translate-y-1 duration-[500ms]"
+              }
                         `}
             style={{
               color: `rgb(var(--color-gold-rgb,203,138,0))`,
@@ -4131,29 +4280,29 @@ const App = () => {
                 style={{ position: "relative", zIndex: 70 }}
               >
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 flex items-center justify-center rounded-full font-semibold text-sm overflow-hidden">
-                      {selectedCreator.image ? (
-                        <img src={selectedCreator.image} alt={selectedCreator.name || selectedCreator.handle} className="w-full h-full object-cover" />
-                      ) : (
-                        (() => {
-                          const seed = String(selectedCreator.id || selectedCreator.name || selectedCreator.handle || "");
-                          // Preferred palette: blue, red, brown, yellow (choose hue closest to site's accent)
-                          const colors = ["#60A5FA","#EF4444","#8B5E3C","#FBBF24"];
-                          let hash = 0;
-                          for (let i = 0; i < seed.length; i++) hash = (hash << 5) - hash + seed.charCodeAt(i);
-                          const bg = colors[Math.abs(hash) % colors.length];
-                          // prefer handle/name without leading @ when deriving the letter
-                          const raw = (selectedCreator.name || selectedCreator.handle || "?").toString().trim();
-                          const cleaned = raw.replace(/^@+/, "");
-                          const letter = (cleaned && cleaned[0]) ? cleaned[0] : "?";
-                          return (
-                            <div style={{ background: bg, color: "#0f172a" }} className="w-full h-full flex items-center justify-center">
-                              {String(letter).toUpperCase()}
-                            </div>
-                          );
-                        })()
-                      )}
-                    </div>
+                  <div className="w-9 h-9 flex items-center justify-center rounded-full font-semibold text-sm overflow-hidden">
+                    {selectedCreator.image ? (
+                      <img src={selectedCreator.image} alt={selectedCreator.name || selectedCreator.handle} className="w-full h-full object-cover" />
+                    ) : (
+                      (() => {
+                        const seed = String(selectedCreator.id || selectedCreator.name || selectedCreator.handle || "");
+                        // Preferred palette: blue, red, brown, yellow (choose hue closest to site's accent)
+                        const colors = ["#60A5FA", "#EF4444", "#8B5E3C", "#FBBF24"];
+                        let hash = 0;
+                        for (let i = 0; i < seed.length; i++) hash = (hash << 5) - hash + seed.charCodeAt(i);
+                        const bg = colors[Math.abs(hash) % colors.length];
+                        // prefer handle/name without leading @ when deriving the letter
+                        const raw = (selectedCreator.name || selectedCreator.handle || "?").toString().trim();
+                        const cleaned = raw.replace(/^@+/, "");
+                        const letter = (cleaned && cleaned[0]) ? cleaned[0] : "?";
+                        return (
+                          <div style={{ background: bg, color: "#0f172a" }} className="w-full h-full flex items-center justify-center">
+                            {String(letter).toUpperCase()}
+                          </div>
+                        );
+                      })()
+                    )}
+                  </div>
                   <div className="flex flex-col leading-tight">
                     <div className="text-xs text-gray-500">{getTranslation('Requesting to', selectedLanguage)}</div>
                     <div className="text-sm font-semibold text-gray-900">{selectedCreator.name || selectedCreator.handle}</div>
@@ -4167,7 +4316,7 @@ const App = () => {
                       setSelectedCreator(null);
                       try {
                         window.localStorage.removeItem(SELECTED_CREATOR_KEY);
-                      } catch (e) {}
+                      } catch (e) { }
                     }}
                     className="text-sm text-gray-500 hover:text-gray-700 bg-gray-50 border border-transparent hover:border-gray-200 px-3 py-1 rounded-lg"
                   >
@@ -4239,34 +4388,34 @@ const App = () => {
                 className="mb-8 rounded-xl cream-glow-box stagger-animate"
                 style={{ padding: "20px", background: "radial-gradient(circle at 18% 20%, rgba(var(--color-gold-rgb,203,138,0),0.10), rgba(var(--color-gold-rgb,203,138,0),0.03) 28%, var(--color-cream-bg) 60%), var(--color-cream-bg)", border: "1px solid rgba(var(--color-gold-rgb,203,138,0),0.12)", boxShadow: "inset 0 6px 12px rgba(var(--color-gold-rgb,203,138,0),0.03)" }}
               >
-              <div className="flex items-center mb-4">
-                <span className="p-1 rounded-full mr-2 text-[var(--color-gold)]" style={{background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.04))', boxShadow: 'inset 0 2px 6px rgba(var(--color-gold-rgb,203,138,0),0.05)'}}>
-                  <Lightbulb className="w-6 h-6 text-[var(--color-gold)]" />
-                </span>
-                <h3 className="text-base font-semibold text-gray-700">
-                  {getTranslation('Examples to help you choose:', selectedLanguage)}
-                </h3>
+                <div className="flex items-center mb-4">
+                  <span className="p-1 rounded-full mr-2 text-[var(--color-gold)]" style={{ background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.04))', boxShadow: 'inset 0 2px 6px rgba(var(--color-gold-rgb,203,138,0),0.05)' }}>
+                    <Lightbulb className="w-6 h-6 text-[var(--color-gold)]" />
+                  </span>
+                  <h3 className="text-base font-semibold text-gray-700">
+                    {getTranslation('Examples to help you choose:', selectedLanguage)}
+                  </h3>
+                </div>
+                {/* List of Examples */}
+                <ul className="list-none space-y-3 pl-0 text-sm text-gray-700">
+                  <li>
+                    <strong className="text-gray-900">{getTranslation('One-Time:', selectedLanguage)}</strong>{" "}
+                    {getTranslation('"Explain quantum computing," "Review the new iPhone," "My morning routine"', selectedLanguage)}
+                  </li>
+                  <li>
+                    <strong className="text-gray-900">{getTranslation('Recurrent:', selectedLanguage)}</strong>{" "}
+                    {getTranslation('"Daily market updates," "Weekly cooking tips," "Monthly tech news roundup"', selectedLanguage)}
+                  </li>
+                  <li>
+                    <strong className="text-gray-900">{getTranslation('Series:', selectedLanguage)}</strong>{" "}
+                    {getTranslation('"5-part history of Rome," "Learn Spanish in 10 episodes," "Startup journey series"', selectedLanguage)}
+                  </li>
+                  <li>
+                    <strong className="text-gray-900">{getTranslation('Catalogue:', selectedLanguage)}</strong>{" "}
+                    {getTranslation('"50 productivity hacks," "Travel guides for 20 cities," "Complete guitar tutorial library"', selectedLanguage)}
+                  </li>
+                </ul>
               </div>
-              {/* List of Examples */}
-              <ul className="list-none space-y-3 pl-0 text-sm text-gray-700">
-                <li>
-                  <strong className="text-gray-900">{getTranslation('One-Time:', selectedLanguage)}</strong>{" "}
-                  {getTranslation('"Explain quantum computing," "Review the new iPhone," "My morning routine"', selectedLanguage)}
-                </li>
-                <li>
-                  <strong className="text-gray-900">{getTranslation('Recurrent:', selectedLanguage)}</strong>{" "}
-                  {getTranslation('"Daily market updates," "Weekly cooking tips," "Monthly tech news roundup"', selectedLanguage)}
-                </li>
-                <li>
-                  <strong className="text-gray-900">{getTranslation('Series:', selectedLanguage)}</strong>{" "}
-                  {getTranslation('"5-part history of Rome," "Learn Spanish in 10 episodes," "Startup journey series"', selectedLanguage)}
-                </li>
-                <li>
-                  <strong className="text-gray-900">{getTranslation('Catalogue:', selectedLanguage)}</strong>{" "}
-                  {getTranslation('"50 productivity hacks," "Travel guides for 20 cities," "Complete guitar tutorial library"', selectedLanguage)}
-                </li>
-              </ul>
-            </div>
             )}
 
             {/* --- START: Delivery Type Dropdown (compact with icons) --- */}
@@ -4553,7 +4702,7 @@ const App = () => {
                 selectedLanguage={selectedLanguage}
               />
             )
-            ) : selectedDeliveryType === "catalogue" && !isTransitioning ? ( // NEW CATALOGUE RENDER
+          ) : selectedDeliveryType === "catalogue" && !isTransitioning ? ( // NEW CATALOGUE RENDER
             /* SHOW CATALOGUE VIDEO DETAILS (New multi-step flow) */
             catalogueStep === 3 ? (
               <VideoLengthStep
@@ -4702,20 +4851,19 @@ const App = () => {
                   className={`
                                     w-full h-12 rounded-xl flex items-center justify-center space-x-2
                                     text-[15px] font-medium transition-all duration-200
-                                    ${
-                                      !isNextEnabled
-                                        ? "bg-gray-100 text-gray-400 opacity-70 cursor-not-allowed"
-                                        : "text-white hover:opacity-95 active:scale-[0.98]"
-                                    }
+                                    ${!isNextEnabled
+                      ? "bg-gray-100 text-gray-400 opacity-70 cursor-not-allowed"
+                      : "text-white hover:opacity-95 active:scale-[0.98]"
+                    }
                                     ${isAnimating ? "scale-[1.01]" : ""} 
                                 `}
                   style={
                     isNextEnabled
                       ? {
-                          backgroundColor: ACTIVE_BG_COLOR,
-                          boxShadow: "0 4px 12px rgba(6,24,58,0.16)", // Softer, more spread out navy shadow
-                          color: "white",
-                        }
+                        backgroundColor: ACTIVE_BG_COLOR,
+                        boxShadow: "0 4px 12px rgba(6,24,58,0.16)", // Softer, more spread out navy shadow
+                        color: "white",
+                      }
                       : {}
                   }
                 >
@@ -4740,48 +4888,48 @@ const App = () => {
               </div>
             )
           )}
-          </div>
         </div>
-  
-              {/* --- Post-selection message and examples for chosen format --- */}
-              {formatSelectedMessage && (
-              <div className="mt-3 flex items-center text-sm font-normal text-[var(--color-accent)] animate-in fade-in">
-                <Check className="w-4 h-4 mr-2 text-[var(--color-accent)]" />
-                <span>{formatSelectedMessage}</span>
-              </div>
-            )}
+      </div>
 
-            {/* Per-format examples removed — keep only the top 'Examples to help you choose:' block */}
+      {/* --- Post-selection message and examples for chosen format --- */}
+      {formatSelectedMessage && (
+        <div className="mt-3 flex items-center text-sm font-normal text-[var(--color-accent)] animate-in fade-in">
+          <Check className="w-4 h-4 mr-2 text-[var(--color-accent)]" />
+          <span>{formatSelectedMessage}</span>
+        </div>
+      )}
 
-            {/* Shared edit row for any selected format */}
-            {selectedDeliveryType && (
-              <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-                <span className="italic">{selectedDeliveryType === 'one-time' ? getTranslation('Using the Description and Title you entered above for this one-time video.', selectedLanguage) : selectedDeliveryType === 'recurrent' ? getTranslation('Using the Description and Title you entered above for this recurring request.', selectedLanguage) : selectedDeliveryType === 'series' ? getTranslation('Using the Description and Title you entered above for this series.', selectedLanguage) : selectedDeliveryType === 'catalogue' ? getTranslation('Using the Description and Title you entered above for this catalogue.', selectedLanguage) : getTranslation('Using the Description and Title you entered above for this one-time video.', selectedLanguage) }</span>
-                <button
-                  type="button"
-                  className="ml-4 text-sm font-medium text-[var(--color-accent)] hover:underline"
-                  onClick={() => {
-                    const el = document.getElementById("description-input");
-                    if (el) {
-                      el.scrollIntoView({ behavior: "smooth", block: "center" });
-                      el.focus();
-                      el.classList.add("jump-highlight");
-                      setTimeout(() => el.classList.remove("jump-highlight"), 900);
-                    }
-                    const titleEl = document.getElementById("title-input");
-                    if (titleEl) {
-                      setTimeout(() => {
-                        titleEl.focus();
-                        titleEl.classList.add("jump-highlight");
-                        setTimeout(() => titleEl.classList.remove("jump-highlight"), 900);
-                      }, 300);
-                    }
-                  }}
-                >
-                  {getTranslation('Edit', selectedLanguage)}
-                </button>
-              </div>
-            )}
+      {/* Per-format examples removed — keep only the top 'Examples to help you choose:' block */}
+
+      {/* Shared edit row for any selected format */}
+      {selectedDeliveryType && (
+        <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+          <span className="italic">{selectedDeliveryType === 'one-time' ? getTranslation('Using the Description and Title you entered above for this one-time video.', selectedLanguage) : selectedDeliveryType === 'recurrent' ? getTranslation('Using the Description and Title you entered above for this recurring request.', selectedLanguage) : selectedDeliveryType === 'series' ? getTranslation('Using the Description and Title you entered above for this series.', selectedLanguage) : selectedDeliveryType === 'catalogue' ? getTranslation('Using the Description and Title you entered above for this catalogue.', selectedLanguage) : getTranslation('Using the Description and Title you entered above for this one-time video.', selectedLanguage)}</span>
+          <button
+            type="button"
+            className="ml-4 text-sm font-medium text-[var(--color-accent)] hover:underline"
+            onClick={() => {
+              const el = document.getElementById("description-input");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                el.focus();
+                el.classList.add("jump-highlight");
+                setTimeout(() => el.classList.remove("jump-highlight"), 900);
+              }
+              const titleEl = document.getElementById("title-input");
+              if (titleEl) {
+                setTimeout(() => {
+                  titleEl.focus();
+                  titleEl.classList.add("jump-highlight");
+                  setTimeout(() => titleEl.classList.remove("jump-highlight"), 900);
+                }, 300);
+              }
+            }}
+          >
+            {getTranslation('Edit', selectedLanguage)}
+          </button>
+        </div>
+      )}
       {/* Floating See Preview button (fixed) */}
       <button
         onClick={() => setPreviewModalOpen((s) => !s)}
@@ -4904,7 +5052,7 @@ const App = () => {
                           (() => {
                             const displayName = (selectedCreator && (selectedCreator.displayName || selectedCreator.name)) || (auth && auth.user && (auth.user.name || auth.user.handle)) || 'Y';
                             const seed = String(selectedCreator ? (selectedCreator.id || selectedCreator.name || selectedCreator.handle || "") : "");
-                            const colors = ["#60A5FA","#EF4444","#8B5E3C","#FBBF24"];
+                            const colors = ["#60A5FA", "#EF4444", "#8B5E3C", "#FBBF24"];
                             let hash = 0;
                             for (let i = 0; i < seed.length; i++) hash = (hash << 5) - hash + seed.charCodeAt(i);
                             const bg = colors[Math.abs(hash) % colors.length];
@@ -4985,8 +5133,8 @@ const App = () => {
       {/* Payment Modal (appears before final submission) */}
       {paymentModalOpen && (
         <div className="fixed inset-0 z-[9999] overflow-y-auto">
-          <div 
-            className="fixed inset-0 transition-opacity" 
+          <div
+            className="fixed inset-0 transition-opacity"
             style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
             onClick={() => {
               setPaymentModalOpen(false);
@@ -4996,433 +5144,430 @@ const App = () => {
 
           <div className="flex min-h-full items-center justify-center p-4">
             <div
-                className="relative w-full max-w-4xl mx-auto px-6"
-                style={{ zIndex: 10000 }}
-          >
-            <div className="payment-modal-panel relative flex flex-col" style={{ maxHeight: '85vh' }}>
-              <div className="payment-modal-header flex-shrink-0">
-                <div>
-                  <h3 className="payment-modal-title">{getTranslation('Complete Payment', selectedLanguage)}</h3>
-                  <p className="payment-modal-sub">{getTranslation('Minimum per request is', selectedLanguage)} <strong>$15.00</strong>. {getTranslation('Choose a preset or set a custom amount', selectedLanguage)}.</p>
-                </div>
-                <button
-                  onClick={() => {
-                    setPaymentModalOpen(false);
-                    setPendingSubmission(null);
-                  }}
-                  className="text-gray-400 hover:text-gray-700 p-1"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Floating summary card (desktop) */}
-              <div className="hidden md:block" style={{ position: 'absolute', right: -20, top: -28 }}>
-                <div className="rounded-xl p-4" style={{ width: 260, background: '#ffffff', border: '1px solid rgba(15,23,42,0.04)', boxShadow: '0 20px 40px rgba(2,6,23,0.08)' }}>
-                  <div className="text-xs text-gray-500">{getTranslation('Summary', selectedLanguage)}</div>
-                  <div className="mt-2 text-sm text-gray-500">{paymentRole === 'expert' ? getTranslation('Expert selected', selectedLanguage) : getTranslation('Creator selected', selectedLanguage)}</div>
-                  <div className="mt-3 font-extrabold text-2xl">${Number(paymentAmount * (paymentRole === 'expert' ? 1.3 : 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                  <div className="mt-3">
-                    <button
-                      onClick={() => {
-                        const base = paymentAmount;
-                        const withRole = paymentRole === "expert" ? Math.round(base * 1.3 * 100) / 100 : base;
-                        trackEvent("payment_confirmed", {
-                          amount: withRole,
-                          role: paymentRole,
-                          creator: selectedCreator ? selectedCreator.id : null,
-                        });
-                        handlePayment(); // Use the new handlePayment wrapper which calls backend
-                      }}
-                      className="payment-cta"
-                      style={{ width: '100%' }}
-                    >
-                      {getTranslation('Pay', selectedLanguage)} ${Number(paymentAmount * (paymentRole === 'expert' ? 1.3 : 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </button>
+              className="relative w-full max-w-4xl mx-auto px-6"
+              style={{ zIndex: 10000 }}
+            >
+              <div className="payment-modal-panel relative flex flex-col" style={{ maxHeight: '85vh' }}>
+                <div className="payment-modal-header flex-shrink-0">
+                  <div>
+                    <h3 className="payment-modal-title">{getTranslation('Complete Payment', selectedLanguage)}</h3>
+                    <p className="payment-modal-sub">{getTranslation('Minimum per request is', selectedLanguage)} <strong>$15.00</strong>. {getTranslation('Choose a preset or set a custom amount', selectedLanguage)}.</p>
                   </div>
-                  <div className="modal-trust mt-3" style={{ alignItems: 'center' }}>
-                    <span aria-hidden="true">🔒</span>
-                    <span style={{ marginLeft: 8 }}>{getTranslation('Secure payment • Instant delivery', selectedLanguage)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto min-h-0 pr-2 -mr-2 py-2">
-                <div className="grid grid-cols-1 gap-6">
-                {/* Preset Buttons */}
-                <div className="flex gap-3 flex-wrap items-center">
-                  {PAYMENT_PRESETS.map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => {
-                        setPaymentAmount(p);
-                        trackEvent("preset_selected", { preset: p });
-                      }}
-                      className={`preset-btn px-5 py-3 rounded-2xl font-semibold relative ${
-                        paymentAmount === p
-                          ? "bg-primary text-white"
-                          : "bg-gray-50 text-gray-700 border border-gray-100"
-                      }`}
-                      style={
-                        paymentAmount === p
-                          ? {
-                              backgroundColor: "var(--color-primary)",
-                              color: "white",
-                            }
-                          : {}
-                      }
-                    >
-                      {"$" + p}
-                      {p === 25 && (
-                        <span className="most-popular-badge" aria-hidden="true">
-                          {getTranslation('Most popular', selectedLanguage)}
-                        </span>
-                      )}
-                    </button>
-                  ))}
-                  <div className="ml-auto text-sm text-gray-500 self-center">
-                    {getTranslation('Or set a custom amount', selectedLanguage)}
-                  </div>
+                  <button
+                    onClick={() => {
+                      setPaymentModalOpen(false);
+                      setPendingSubmission(null);
+                    }}
+                    className="text-gray-400 hover:text-gray-700 p-1"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
 
-                {/* Slider + input */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-gray-700">
-                      {getTranslation('Amount', selectedLanguage)}
-                    </label>
-                    <div className="text-lg font-bold text-gray-900">
-                      {"$" +
-                        Number(paymentAmount).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                {/* Floating summary card (desktop) */}
+                <div className="hidden md:block" style={{ position: 'absolute', right: -20, top: -28 }}>
+                  <div className="rounded-xl p-4" style={{ width: 260, background: '#ffffff', border: '1px solid rgba(15,23,42,0.04)', boxShadow: '0 20px 40px rgba(2,6,23,0.08)' }}>
+                    <div className="text-xs text-gray-500">{getTranslation('Summary', selectedLanguage)}</div>
+                    <div className="mt-2 text-sm text-gray-500">{paymentRole === 'expert' ? getTranslation('Expert selected', selectedLanguage) : getTranslation('Creator selected', selectedLanguage)}</div>
+                    <div className="mt-3 font-extrabold text-2xl">${Number(paymentAmount * (paymentRole === 'expert' ? 1.3 : 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div className="mt-3">
+                      <button
+                        onClick={() => {
+                          const base = paymentAmount;
+                          const withRole = paymentRole === "expert" ? Math.round(base * 1.3 * 100) / 100 : base;
+                          trackEvent("payment_confirmed", {
+                            amount: withRole,
+                            role: paymentRole,
+                            creator: selectedCreator ? selectedCreator.id : null,
+                          });
+                          handlePayment(); // Use the new handlePayment wrapper which calls backend
+                        }}
+                        className="payment-cta"
+                        style={{ width: '100%' }}
+                      >
+                        {getTranslation('Pay', selectedLanguage)} ${Number(paymentAmount * (paymentRole === 'expert' ? 1.3 : 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </button>
+                    </div>
+                    <div className="modal-trust mt-3" style={{ alignItems: 'center' }}>
+                      <span aria-hidden="true">🔒</span>
+                      <span style={{ marginLeft: 8 }}>{getTranslation('Secure payment • Instant delivery', selectedLanguage)}</span>
                     </div>
                   </div>
-                  <input
-                    type="range"
-                    min={15}
-                    max={5000}
-                    step={1}
-                    value={paymentAmount}
-                    onChange={(e) => {
-                      setPaymentAmount(Number(e.target.value));
-                      trackEvent("slider_changed", {
-                        amount: Number(e.target.value),
-                      });
-                    }}
-                    className="w-full"
-                  />
-
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="number"
-                      min={15}
-                      value={paymentAmount}
-                      onChange={(e) => {
-                        const v = Math.max(15, Number(e.target.value || 0));
-                        setPaymentAmount(v);
-                        trackEvent("custom_amount_input", { amount: v });
-                      }}
-                      className="p-2 border border-gray-200 rounded-lg w-40"
-                    />
-                    <div className="text-xs text-gray-500">{getTranslation('Min', selectedLanguage)} $15.00</div>
-                  </div>
                 </div>
 
-                {/* Role selection */}
-                <div>
-                  <div className="text-sm font-medium text-gray-700 mb-2">
-                    {getTranslation('Choose provider level', selectedLanguage)}
-                  </div>
-                  <style>{`@keyframes pulseBrief{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.7;transform:scale(1.03)}}@keyframes tipHide{to{opacity:0}} .scroll-tip{display:inline-block;margin-bottom:6px;background:#000;color:#fff;border-radius:8px;padding:4px 8px;font-size:11px;animation:pulseBrief 1.6s ease-in-out 0s 3, tipHide .01s linear 6s forwards;}`}</style>
-                  <div className="scroll-tip">{getTranslation('Scroll to find creators', selectedLanguage)}</div>
-
-
-                  <div className="provider-carousel-wrap">
-                      <div className="provider-carousel">
-                      {/* Choose Creator Card (expandable) */}
-                      <div
-                        className={`provider-card ${
-                          selectedCreator ? "selected" : ""
-                        } ${chooseCreatorExpanded ? "expanded" : ""}`}
-                        onClick={() => {
-                          setPaymentRole("creator");
-                          setChooseCreatorExpanded(prev => !prev);
-                        }}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setChooseCreatorExpanded((prev) => !prev);
+                <div className="flex-1 overflow-y-auto min-h-0 pr-2 -mr-2 py-2">
+                  <div className="grid grid-cols-1 gap-6">
+                    {/* Preset Buttons */}
+                    <div className="flex gap-3 flex-wrap items-center">
+                      {PAYMENT_PRESETS.map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => {
+                            setPaymentAmount(p);
+                            trackEvent("preset_selected", { preset: p });
+                          }}
+                          className={`preset-btn px-5 py-3 rounded-2xl font-semibold relative ${paymentAmount === p
+                              ? "bg-primary text-white"
+                              : "bg-gray-50 text-gray-700 border border-gray-100"
+                            }`}
+                          style={
+                            paymentAmount === p
+                              ? {
+                                backgroundColor: "var(--color-primary)",
+                                color: "white",
+                              }
+                              : {}
                           }
-                        }}
-                      >
-                        <div className="card-info" style={{width: '100%'}}>
-                          <div className="flex items-center justify-between">
-                            <div>
-                                <div className="card-title">{getTranslation('Choose Creator', selectedLanguage)}</div>
-                                <div className="card-sub">
-                                  {selectedCreator ? (
-                                    <span className="creator-selected-pill">
-                                      {selectedCreator.name} {getTranslation('selected', selectedLanguage)}
-                                    </span>
-                                  ) : (
-                                    getTranslation('Search by @username', selectedLanguage)
-                                  )}
-                                </div>
-                            </div>
-                            <div className="card-meta">
-                                <Search size={18} strokeWidth={2.5} />
-                            </div>
-                          </div>
-                            {!chooseCreatorExpanded && (
-                                <div className="card-tip-bar">
-                                    <span>{getTranslation('Tap to search & select', selectedLanguage)}</span>
-                                </div>
-                            )}
+                        >
+                          {"$" + p}
+                          {p === 25 && (
+                            <span className="most-popular-badge" aria-hidden="true">
+                              {getTranslation('Most popular', selectedLanguage)}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                      <div className="ml-auto text-sm text-gray-500 self-center">
+                        {getTranslation('Or set a custom amount', selectedLanguage)}
+                      </div>
+                    </div>
 
-                        {/* Expanded content (search + results) */}
-                          <div
-                            className="expanded-body"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <div className="creator-search-row">
-                              <div className="creator-search-input-wrap" style={{ paddingRight: creatorSearch ? 44 : 0 }}>
-                                <span className="creator-search-prefix">@</span>
-                                <input
-                                  ref={chooseCreatorInputRef}
-                                  type="text"
-                                  placeholder={getTranslation('Search creators', selectedLanguage)}
-                                  value={creatorSearch}
-                                  onChange={(e) =>
-                                    setCreatorSearch(
-                                      e.target.value.replace(/^@+/, "")
-                                    )
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      e.preventDefault();
-                                      saveCreatorFromInput(true);
-                                    }
-                                  }}
-                                  className="creator-search-input"
-                                  aria-label="Search creators"
-                                />
-                                {creatorSearch && (
-                                  <button
-                                    type="button"
-                                    className="creator-search-clear"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setCreatorSearch("");
-                                      try {
-                                        if (chooseCreatorInputRef.current)
-                                          chooseCreatorInputRef.current.focus();
-                                      } catch (err) {}
-                                    }}
-                                    aria-label="Clear search"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                )}
-                              </div>
-                              <button
-                                type="button"
-                                className="creator-search-save"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  saveCreatorFromInput(true);
-                                }}
-                                aria-label="Save creator"
-                              >
-                                {getTranslation('Save', selectedLanguage)}
-                              </button>
-                            </div>
-
-                            <div className="choose-creator-list">
-                              {filteredCreators.length === 0 ? (
-                                <div className="no-results flex flex-col items-center text-center p-4">
-                                  <div
-                                    className="no-results-illustration mb-3"
-                                    aria-hidden="true"
-                                  >
-                                    <svg
-                                      width="64"
-                                      height="64"
-                                      viewBox="0 0 64 64"
-                                      fill="none"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <rect
-                                        x="6"
-                                        y="10"
-                                        width="36"
-                                        height="28"
-                                        rx="6"
-                                        fill="var(--color-cream-bg)"
-                                        stroke="rgba(15,23,42,0.06)"
-                                      />
-                                      <path
-                                        d="M44 44L58 58"
-                                        stroke="rgba(15,23,42,0.12)"
-                                        strokeWidth="3"
-                                        strokeLinecap="round"
-                                      />
-                                      <circle
-                                        cx="50"
-                                        cy="50"
-                                        r="2.5"
-                                        fill="var(--brand-gold)"
-                                      />
-                                    </svg>
-                                  </div>
-                                  <div className="no-results-title text-sm font-normal">
-                                    {getTranslation('No creators found', selectedLanguage)}
-                                  </div>
-                                  <div className="no-results-sub text-xs text-gray-400 mt-1">
-                                    {getTranslation('Try a different username or clear your search.', selectedLanguage)}
-                                  </div>
-                                </div>
-                              ) : (
-                                filteredCreators.map((c) => (
-                                  <div
-                                    key={c.id}
-                                    className={`creator-row rounded-md ${
-                                      selectedCreator &&
-                                      selectedCreator.id === c.id
-                                        ? "selected pulse-anim"
-                                        : ""
-                                    }`}
-                                    onClick={() => {
-                                      setSelectedCreator(c);
-                                      setPaymentRole("creator");
-                                      // Enter focused mode when a creator is picked
-                                      setChooseCreatorFocused(true);
-                                      setChooseCreatorExpanded(true);
-                                      trackEvent("creator_selected", {
-                                        creatorId: c.id,
-                                      });
-                                    }}
-                                    style={{
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    cursor: "pointer",
-}}
->
-<div
-style={{
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-}}
->
-<div
-    className="creator-avatar"
-    role="button"
-    style={{ backgroundColor: c.photoURL ? 'transparent' : (c.fallbackColor || '#3b82f6'), color: c.photoURL ? 'inherit' : '#fff' }}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setProfileCreator(c);
-                                          setShowCreatorProfile(true);
-                                        }}
-                                      >
-                                        {c.photoURL ? (
-                                          <img
-                                            src={c.photoURL}
-                                            alt={c.displayName || c.name}
-                                            style={{ width: 44, height: 44, objectFit: 'cover', display: 'block', borderRadius: '50%' }}
-                                          />
-                                        ) : (
-                                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            {String(c.displayName || c.name).replace("@", "").charAt(0).toUpperCase()}
-                                          </div>
-                                        )}
-                                      </div>
-                                      <div className="creator-name">
-                                        <div className="creator-display">
-                                          {c.name}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div
-                                      className="text-sm font-bold text-gray-900"
-                                      role="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setProfileCreator(c);
-                                        setShowCreatorProfile(true);
-                                      }}
-                                    >
-                                      {c.price ? `$${c.price}` : <span className="text-xs font-normal text-gray-400">{getTranslation('Not set', selectedLanguage)}</span>}
-                                    </div>
-                                  </div>
-                                ))
-                              )}
-                            </div>
-                          </div>
+                    {/* Slider + input */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-gray-700">
+                          {getTranslation('Amount', selectedLanguage)}
+                        </label>
+                        <div className="text-lg font-bold text-gray-900">
+                          {"$" +
+                            Number(paymentAmount).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
                         </div>
                       </div>
+                      <input
+                        type="range"
+                        min={15}
+                        max={5000}
+                        step={1}
+                        value={paymentAmount}
+                        onChange={(e) => {
+                          setPaymentAmount(Number(e.target.value));
+                          trackEvent("slider_changed", {
+                            amount: Number(e.target.value),
+                          });
+                        }}
+                        className="w-full"
+                      />
 
-
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="number"
+                          min={15}
+                          value={paymentAmount}
+                          onChange={(e) => {
+                            const v = Math.max(15, Number(e.target.value || 0));
+                            setPaymentAmount(v);
+                            trackEvent("custom_amount_input", { amount: v });
+                          }}
+                          className="p-2 border border-gray-200 rounded-lg w-40"
+                        />
+                        <div className="text-xs text-gray-500">{getTranslation('Min', selectedLanguage)} $15.00</div>
+                      </div>
                     </div>
+
+                    {/* Role selection */}
+                    <div>
+                      <div className="text-sm font-medium text-gray-700 mb-2">
+                        {getTranslation('Choose provider level', selectedLanguage)}
+                      </div>
+                      <style>{`@keyframes pulseBrief{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.7;transform:scale(1.03)}}@keyframes tipHide{to{opacity:0}} .scroll-tip{display:inline-block;margin-bottom:6px;background:#000;color:#fff;border-radius:8px;padding:4px 8px;font-size:11px;animation:pulseBrief 1.6s ease-in-out 0s 3, tipHide .01s linear 6s forwards;}`}</style>
+                      <div className="scroll-tip">{getTranslation('Scroll to find creators', selectedLanguage)}</div>
+
+
+                      <div className="provider-carousel-wrap">
+                        <div className="provider-carousel">
+                          {/* Choose Creator Card (expandable) */}
+                          <div
+                            className={`provider-card ${selectedCreator ? "selected" : ""
+                              } ${chooseCreatorExpanded ? "expanded" : ""}`}
+                            onClick={() => {
+                              setPaymentRole("creator");
+                              setChooseCreatorExpanded(prev => !prev);
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                setChooseCreatorExpanded((prev) => !prev);
+                              }
+                            }}
+                          >
+                            <div className="card-info" style={{ width: '100%' }}>
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="card-title">{getTranslation('Choose Creator', selectedLanguage)}</div>
+                                  <div className="card-sub">
+                                    {selectedCreator ? (
+                                      <span className="creator-selected-pill">
+                                        {selectedCreator.name} {getTranslation('selected', selectedLanguage)}
+                                      </span>
+                                    ) : (
+                                      getTranslation('Search by @username', selectedLanguage)
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="card-meta">
+                                  <Search size={18} strokeWidth={2.5} />
+                                </div>
+                              </div>
+                              {!chooseCreatorExpanded && (
+                                <div className="card-tip-bar">
+                                  <span>{getTranslation('Tap to search & select', selectedLanguage)}</span>
+                                </div>
+                              )}
+
+                              {/* Expanded content (search + results) */}
+                              <div
+                                className="expanded-body"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <div className="creator-search-row">
+                                  <div className="creator-search-input-wrap" style={{ paddingRight: creatorSearch ? 44 : 0 }}>
+                                    <span className="creator-search-prefix">@</span>
+                                    <input
+                                      ref={chooseCreatorInputRef}
+                                      type="text"
+                                      placeholder={getTranslation('Search creators', selectedLanguage)}
+                                      value={creatorSearch}
+                                      onChange={(e) =>
+                                        setCreatorSearch(
+                                          e.target.value.replace(/^@+/, "")
+                                        )
+                                      }
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                          e.preventDefault();
+                                          saveCreatorFromInput(true);
+                                        }
+                                      }}
+                                      className="creator-search-input"
+                                      aria-label="Search creators"
+                                    />
+                                    {creatorSearch && (
+                                      <button
+                                        type="button"
+                                        className="creator-search-clear"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setCreatorSearch("");
+                                          try {
+                                            if (chooseCreatorInputRef.current)
+                                              chooseCreatorInputRef.current.focus();
+                                          } catch (err) { }
+                                        }}
+                                        aria-label="Clear search"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    )}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="creator-search-save"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      saveCreatorFromInput(true);
+                                    }}
+                                    aria-label="Save creator"
+                                  >
+                                    {getTranslation('Save', selectedLanguage)}
+                                  </button>
+                                </div>
+
+                                <div className="choose-creator-list">
+                                  {filteredCreators.length === 0 ? (
+                                    <div className="no-results flex flex-col items-center text-center p-4">
+                                      <div
+                                        className="no-results-illustration mb-3"
+                                        aria-hidden="true"
+                                      >
+                                        <svg
+                                          width="64"
+                                          height="64"
+                                          viewBox="0 0 64 64"
+                                          fill="none"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <rect
+                                            x="6"
+                                            y="10"
+                                            width="36"
+                                            height="28"
+                                            rx="6"
+                                            fill="var(--color-cream-bg)"
+                                            stroke="rgba(15,23,42,0.06)"
+                                          />
+                                          <path
+                                            d="M44 44L58 58"
+                                            stroke="rgba(15,23,42,0.12)"
+                                            strokeWidth="3"
+                                            strokeLinecap="round"
+                                          />
+                                          <circle
+                                            cx="50"
+                                            cy="50"
+                                            r="2.5"
+                                            fill="var(--brand-gold)"
+                                          />
+                                        </svg>
+                                      </div>
+                                      <div className="no-results-title text-sm font-normal">
+                                        {getTranslation('No creators found', selectedLanguage)}
+                                      </div>
+                                      <div className="no-results-sub text-xs text-gray-400 mt-1">
+                                        {getTranslation('Try a different username or clear your search.', selectedLanguage)}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    filteredCreators.map((c) => (
+                                      <div
+                                        key={c.id}
+                                        className={`creator-row rounded-md ${selectedCreator &&
+                                            selectedCreator.id === c.id
+                                            ? "selected pulse-anim"
+                                            : ""
+                                          }`}
+                                        onClick={() => {
+                                          setSelectedCreator(c);
+                                          setPaymentRole("creator");
+                                          // Enter focused mode when a creator is picked
+                                          setChooseCreatorFocused(true);
+                                          setChooseCreatorExpanded(true);
+                                          trackEvent("creator_selected", {
+                                            creatorId: c.id,
+                                          });
+                                        }}
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "space-between",
+                                          cursor: "pointer",
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 12,
+                                          }}
+                                        >
+                                          <div
+                                            className="creator-avatar"
+                                            role="button"
+                                            style={{ backgroundColor: c.photoURL ? 'transparent' : (c.fallbackColor || '#3b82f6'), color: c.photoURL ? 'inherit' : '#fff' }}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setProfileCreator(c);
+                                              setShowCreatorProfile(true);
+                                            }}
+                                          >
+                                            {c.photoURL ? (
+                                              <img
+                                                src={c.photoURL}
+                                                alt={c.displayName || c.name}
+                                                style={{ width: 44, height: 44, objectFit: 'cover', display: 'block', borderRadius: '50%' }}
+                                              />
+                                            ) : (
+                                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {String(c.displayName || c.name).replace("@", "").charAt(0).toUpperCase()}
+                                              </div>
+                                            )}
+                                          </div>
+                                          <div className="creator-name">
+                                            <div className="creator-display">
+                                              {c.name}
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div
+                                          className="text-sm font-bold text-gray-900"
+                                          role="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setProfileCreator(c);
+                                            setShowCreatorProfile(true);
+                                          }}
+                                        >
+                                          {c.price ? `$${c.price}` : <span className="text-xs font-normal text-gray-400">{getTranslation('Not set', selectedLanguage)}</span>}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
-
-                </div>
-              </div>
 
                 {/* CTA */}
                 <div className="flex-shrink-0 pt-4 mt-2 border-t border-gray-100 bg-white">
-                 <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <button
-                      onClick={() => {
-                        setPaymentModalOpen(false);
-                        setPendingSubmission(null);
-                        trackEvent("payment_cancelled");
-                      }}
-                      className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700"
-                    >
-                      {getTranslation('Cancel', selectedLanguage)}
-                    </button>
-                  </div>
-                  <div>
-                    <button
-                      onClick={() => {
-                        const base = paymentAmount;
-                        const withRole =
-                          paymentRole === "expert"
-                            ? Math.round(base * 1.3 * 100) / 100
-                            : base;
-                        trackEvent("payment_confirmed", {
-                          amount: withRole,
-                          role: paymentRole,
-                          creator: selectedCreator ? selectedCreator.id : null,
-                        });
-                        continuePendingSubmission(withRole);
-                      }}
-                      className="px-6 py-3 rounded-xl text-white font-semibold"
-                      style={{ backgroundColor: "var(--color-primary)" }}
-                    >
-                      {getTranslation('Pay', selectedLanguage)}{" "}
-                      {"$" +
-                        Number(
-                          paymentAmount * (paymentRole === "expert" ? 1.3 : 1)
-                        ).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                    </button>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <button
+                        onClick={() => {
+                          setPaymentModalOpen(false);
+                          setPendingSubmission(null);
+                          trackEvent("payment_cancelled");
+                        }}
+                        className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700"
+                      >
+                        {getTranslation('Cancel', selectedLanguage)}
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => {
+                          const base = paymentAmount;
+                          const withRole =
+                            paymentRole === "expert"
+                              ? Math.round(base * 1.3 * 100) / 100
+                              : base;
+                          trackEvent("payment_confirmed", {
+                            amount: withRole,
+                            role: paymentRole,
+                            creator: selectedCreator ? selectedCreator.id : null,
+                          });
+                          continuePendingSubmission(withRole);
+                        }}
+                        className="px-6 py-3 rounded-xl text-white font-semibold"
+                        style={{ backgroundColor: "var(--color-primary)" }}
+                      >
+                        {getTranslation('Pay', selectedLanguage)}{" "}
+                        {"$" +
+                          Number(
+                            paymentAmount * (paymentRole === "expert" ? 1.3 : 1)
+                          ).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
       )}
 
       <MobileNav active={activeNav} onChange={setActiveNav} selectedLanguage={selectedLanguage} />

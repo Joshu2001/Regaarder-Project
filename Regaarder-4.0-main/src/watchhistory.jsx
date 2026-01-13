@@ -32,14 +32,14 @@ const saveHistory = (list) => {
   try {
     if (typeof window === 'undefined' || !window.localStorage) {
       _IN_MEMORY_HISTORY = list;
-      try { window && window.dispatchEvent && window.dispatchEvent(new CustomEvent('watchhistory:updated')); } catch {}
+      try { window && window.dispatchEvent && window.dispatchEvent(new CustomEvent('watchhistory:updated')); } catch { }
       return;
     }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    try { window && window.dispatchEvent && window.dispatchEvent(new CustomEvent('watchhistory:updated')); } catch {}
+    try { window && window.dispatchEvent && window.dispatchEvent(new CustomEvent('watchhistory:updated')); } catch { }
   } catch (e) {
     _IN_MEMORY_HISTORY = list;
-    try { window && window.dispatchEvent && window.dispatchEvent(new CustomEvent('watchhistory:updated')); } catch {}
+    try { window && window.dispatchEvent && window.dispatchEvent(new CustomEvent('watchhistory:updated')); } catch { }
   }
 };
 
@@ -84,7 +84,7 @@ export function recordWatchProgress(payload = {}) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify(entry)
-      }).then(() => { try { window.dispatchEvent(new CustomEvent('watchhistory:updated')); } catch {} }).catch(() => {});
+      }).then(() => { try { window.dispatchEvent(new CustomEvent('watchhistory:updated')); } catch { } }).catch(() => { });
       // Also persist minimal playback position for cross-device resume
       try {
         const pb = { videoId: entry.videoId, currentTime: Math.floor(entry.lastWatchedTime || 0), anonId: localStorage.getItem('playback_anon') };
@@ -92,9 +92,9 @@ export function recordWatchProgress(payload = {}) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
           body: JSON.stringify(pb)
-        }).catch(() => {});
-      } catch {}
-    } catch {}
+        }).catch(() => { });
+      } catch { }
+    } catch { }
 
     return true;
   } catch (e) {
@@ -115,7 +115,7 @@ export function getWatchHistory() {
     window.fetch(`${BACKEND}/watch/history`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
       .then(r => r.json())
       .then(j => { if (j && Array.isArray(j.history)) saveHistory(j.history); })
-      .catch(() => {});
+      .catch(() => { });
     return loadHistory();
   } catch { return loadHistory(); }
 }
@@ -129,8 +129,8 @@ export function clearWatchHistory() {
     try {
       const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
       const token = localStorage.getItem('regaarder_token');
-      window.fetch && window.fetch(`${BACKEND}/watch/history`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} }).catch(() => {});
-    } catch {}
+      window.fetch && window.fetch(`${BACKEND}/watch/history`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} }).catch(() => { });
+    } catch { }
   } catch (e) {
     _IN_MEMORY_HISTORY = null;
   }
@@ -150,10 +150,10 @@ const App = () => {
   // Live watch history (updates when player saves progress)
   const [history, setHistory] = React.useState(() => getWatchHistory());
   React.useEffect(() => {
-    const onUpdate = () => { try { setHistory(getWatchHistory()); } catch {} };
-    try { window.addEventListener('watchhistory:updated', onUpdate); } catch {}
+    const onUpdate = () => { try { setHistory(getWatchHistory()); } catch { } };
+    try { window.addEventListener('watchhistory:updated', onUpdate); } catch { }
     const id = setInterval(onUpdate, 5000);
-    return () => { try { window.removeEventListener('watchhistory:updated', onUpdate); } catch {} clearInterval(id); };
+    return () => { try { window.removeEventListener('watchhistory:updated', onUpdate); } catch { } clearInterval(id); };
   }, []);
 
   // Enriched metadata from backend videos for thumbnails, titles, creator, requester, stats
@@ -174,7 +174,7 @@ const App = () => {
           if (v.title) idx[`title:${String(v.title)}`] = v; // fallback
         });
         setVideoMetaIndex(idx);
-      } catch {}
+      } catch { }
     })();
   }, [history.length]);
 
@@ -225,7 +225,7 @@ const App = () => {
   // Function to handle navigation clicks and state updates
   const handleNavClick = (label) => {
     setActiveTab(label);
-    
+
     if (label === 'Home') {
       console.log(`Simulating navigation/redirect to the file: Regaarder.js`);
     }
@@ -266,14 +266,14 @@ const App = () => {
       try {
         const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
         const token = localStorage.getItem('regaarder_token');
-        window.fetch && window.fetch(`${BACKEND}/watch/history/${encodeURIComponent(videoId)}`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} }).catch(() => {});
-      } catch {}
-    } catch {}
+        window.fetch && window.fetch(`${BACKEND}/watch/history/${encodeURIComponent(videoId)}`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} }).catch(() => { });
+      } catch { }
+    } catch { }
   };
 
   // "Clear All" (persist + toast)
   const handleClearAll = () => {
-    try { clearWatchHistory(); } catch {}
+    try { clearWatchHistory(); } catch { }
     setHistory([]);
     setShowToast(true);
     setTimeout(() => { setShowToast(false); }, 3000);
@@ -283,7 +283,7 @@ const App = () => {
     // Outer container now uses min-h-screen and w-full for fullscreen behavior
     <div className="flex justify-center min-h-screen w-full bg-white relative">
       <div className="w-full flex flex-col bg-white overflow-x-hidden">
-        
+
         {/* === 1. Header === */}
         <header className="p-4 border-b border-gray-100 space-y-3">
           <div className="flex items-center justify-between">
@@ -304,7 +304,7 @@ const App = () => {
 
         {/* === 2. Scrollable Content Area === */}
         <main className="flex-grow flex flex-col items-center justify-start p-6 space-y-6 pb-24">
-          
+
           {/* Content: show list when available, else empty state */}
           {(history && history.length > 0) ? (
             <div className="w-full space-y-4">
@@ -312,10 +312,10 @@ const App = () => {
                 const d = new Date(item.timestamp);
                 const dayKey = d.toLocaleDateString('en-US', { weekday: 'long' });
                 const day = t(dayKey);
-                const key = `${dayKey}-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+                const key = `${dayKey}-${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
                 (acc[key] = acc[key] || { label: day, date: d, items: [] }).items.push(item);
                 return acc;
-              }, {})).sort((a,b)=> b[1].date - a[1].date).map(([key, group]) => (
+              }, {})).sort((a, b) => b[1].date - a[1].date).map(([key, group]) => (
                 <div key={key} className="w-full">
                   <div className="text-sm font-semibold text-gray-700 mb-2">{group.label}</div>
                   {group.items
@@ -329,7 +329,7 @@ const App = () => {
                       const stat = prominentStat(m);
                       return (
                         <div key={`${h.videoId}-${h.timestamp}`} className="w-full bg-white rounded-xl shadow-sm border border-gray-100 p-2 flex items-center space-x-3 select-none"
-                          onClick={async () => { try { const url = await resolveUrl(h.videoId) || h.videoId; if (url) window.location.href = `/videoplayer?video=${encodeURIComponent(url)}&t=${Math.floor(h.lastWatchedTime || 0)}`; } catch {} }}
+                          onClick={async () => { try { const url = await resolveUrl(h.videoId) || h.videoId; if (url) window.location.href = `/videoplayer?video=${encodeURIComponent(url)}&t=${Math.floor(h.lastWatchedTime || 0)}`; } catch { } }}
                           onTouchStart={(e) => { e.currentTarget.dataset.startX = e.touches[0].clientX; }}
                           onTouchMove={(e) => { const sx = parseFloat(e.currentTarget.dataset.startX || '0'); const dx = e.touches[0].clientX - sx; e.currentTarget.style.transform = `translateX(${dx}px)`; }}
                           onTouchEnd={(e) => { const sx = parseFloat(e.currentTarget.dataset.startX || '0'); const dx = e.changedTouches[0].clientX - sx; e.currentTarget.style.transform = ''; if (dx < -80) deleteEntry(h.videoId); e.currentTarget.dataset.startX = '0'; }}
@@ -364,13 +364,13 @@ const App = () => {
             </p>
           </div>
         </main>
-        
+
         {/* === 3. Bottom Navigation Bar === */}
         <BottomBar />
 
         {/* === 4. Toast Notification (Overlay) === */}
         {showToast && (
-          <div 
+          <div
             className="fixed top-6 left-0 right-0 flex justify-center z-50"
             onTouchStart={(e) => {
               e.currentTarget.dataset.dragStartX = e.touches[0].clientX;
@@ -394,24 +394,24 @@ const App = () => {
               e.currentTarget.dataset.dragStartX = '0';
             }}
           >
-            <div 
+            <div
               className="bg-white p-3 mx-4 rounded-xl shadow-2xl flex items-center space-x-3 transition-all duration-300 max-w-sm w-full cursor-grab select-none"
-              style={{ 
+              style={{
                 borderLeft: '4px solid #4CAF50',
                 animation: 'toastSlideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
             >
               <CheckCircle className="w-6 h-6 text-[#4CAF50] fill-[#4CAF50]/10" strokeWidth={2} />
-              
+
               <span className="text-base font-medium text-gray-800">
                 {t('Watch history cleared')}
               </span>
             </div>
           </div>
         )}
-        
+
       </div>
-      
+
       {/* Define Tailwind custom animation for the toast */}
       <style>{`
         @keyframes toastSlideDown {
@@ -431,145 +431,145 @@ const App = () => {
 
 // Helper Component for Navigation Items
 const NavItem = ({ icon: Icon, label, active, onClick, activeColor }) => {
-    // Gold color class for active state
-    const activeColorClass = `text-[${activeColor}]`; 
-    const inactiveColorClass = 'text-gray-500'; 
-    
-    // Choose color based on active state
-    const iconColor = active ? activeColorClass : inactiveColorClass;
-    const labelColor = active 
-        ? `${activeColorClass} font-medium` 
-        : `${inactiveColorClass} font-normal`;
-    const iconStroke = active ? '2' : '1.5';
+  // Gold color class for active state
+  const activeColorClass = `text-[${activeColor}]`;
+  const inactiveColorClass = 'text-gray-500';
 
-    // Home navigation link
-    const href = label === 'Home' ? 'Regaarder.js' : '#';
+  // Choose color based on active state
+  const iconColor = active ? activeColorClass : inactiveColorClass;
+  const labelColor = active
+    ? `${activeColorClass} font-medium`
+    : `${inactiveColorClass} font-normal`;
+  const iconStroke = active ? '2' : '1.5';
 
-    return (
-        <a 
-            href={href}
-            onClick={(e) => {
-                e.preventDefault(); 
-                onClick(label);
-            }} 
-            className="flex flex-col items-center p-2 space-y-1 transition duration-150 cursor-pointer"
-        >
-            <Icon 
-                className={`w-6 h-6 ${iconColor}`} 
-                strokeWidth={iconStroke}
-                // Ensure no fill is applied when active
-            />
-            <span className={`text-xs ${labelColor}`} style={{ color: active ? activeColor : undefined }}>
-                {label}
-            </span>
-        </a>
-    );
+  // Home navigation link
+  const href = label === 'Home' ? 'Regaarder.js' : '#';
+
+  return (
+    <a
+      href={href}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick(label);
+      }}
+      className="flex flex-col items-center p-2 space-y-1 transition duration-150 cursor-pointer"
+    >
+      <Icon
+        className={`w-6 h-6 ${iconColor}`}
+        strokeWidth={iconStroke}
+      // Ensure no fill is applied when active
+      />
+      <span className={`text-xs ${labelColor}`} style={{ color: active ? activeColor : undefined }}>
+        {label}
+      </span>
+    </a>
+  );
 };
 
-      // BottomBar: verbatim styling/behavior adapted from `home.jsx` BottomBar
-      const BottomBar = () => {
-        const [activeTab, setActiveTab] = React.useState(null);
-        const navigatedRef = React.useRef(false);
+// BottomBar: verbatim styling/behavior adapted from `home.jsx` BottomBar
+const BottomBar = () => {
+  const [activeTab, setActiveTab] = React.useState(null);
+  const navigatedRef = React.useRef(false);
 
-        const tabs = [
-          { name: 'Home', label: t('Home'), icon: Home },
-          { name: 'Requests', label: t('Requests'), icon: FileText },
-          { name: 'Ideas', label: t('Ideas'), icon: Pencil },
-          { name: 'More', label: t('More'), icon: MoreHorizontal },
-        ];
+  const tabs = [
+    { name: 'Home', label: t('Home'), icon: Home },
+    { name: 'Requests', label: t('Requests'), icon: FileText },
+    { name: 'Ideas', label: t('Ideas'), icon: Pencil },
+    { name: 'More', label: t('More'), icon: MoreHorizontal },
+  ];
 
-        const inactiveColor = 'rgb(107 114 128)';
+  const inactiveColor = 'rgb(107 114 128)';
 
-        return (
-          <div
-            className="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 shadow-2xl z-10"
-            style={{
-              paddingTop: '10px',
-              paddingBottom: 'calc(44px + env(safe-area-inset-bottom))'
-            }}
-          >
-            <div className="flex justify-around max-w-md mx-auto">
-              {tabs.map((tab) => {
-                const isSelected = tab.name === activeTab;
+  return (
+    <div
+      className="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 shadow-2xl z-10"
+      style={{
+        paddingTop: '10px',
+        paddingBottom: 'calc(44px + env(safe-area-inset-bottom))'
+      }}
+    >
+      <div className="flex justify-around max-w-md mx-auto">
+        {tabs.map((tab) => {
+          const isSelected = tab.name === activeTab;
 
-                const activeColorStyle = isSelected
-                  ? { color: 'var(--color-gold)' }
-                  : { color: inactiveColor };
+          const activeColorStyle = isSelected
+            ? { color: 'var(--color-gold)' }
+            : { color: inactiveColor };
 
-                const textWeight = isSelected ? 'font-semibold' : 'font-normal';
+          const textWeight = isSelected ? 'font-semibold' : 'font-normal';
 
-                let wrapperStyle = {};
-                if (isSelected) {
-                  wrapperStyle.textShadow = `0 0 8px var(--color-gold-light)`;
-                }
+          let wrapperStyle = {};
+          if (isSelected) {
+            wrapperStyle.textShadow = `0 0 8px var(--color-gold-light)`;
+          }
 
-                const IconComp = tab.icon;
+          const IconComp = tab.icon;
 
-                    const navigateToTab = (tabName) => {
-                  try {
-                    if (tabName === 'Home') {
-                      // Navigate to the Home page explicitly instead of refreshing
-                      window.location.href = '/home.jsx';
-                      return;
-                    }
-                    if (tabName === 'Requests') {
-                      window.location.href = '/requests.jsx';
-                      return;
-                    }
-                    if (tabName === 'Ideas') {
-                      window.location.href = '/ideas.jsx';
-                      return;
-                    }
-                    if (tabName === 'More') {
-                      window.location.href = '/more.jsx';
-                      return;
-                    }
-                  } catch (e) {
-                    console.warn('Navigation failed', e);
-                  }
-                };
+          const navigateToTab = (tabName) => {
+            try {
+              if (tabName === 'Home') {
+                // Navigate to the Home page explicitly instead of refreshing
+                window.location.href = '/home.jsx';
+                return;
+              }
+              if (tabName === 'Requests') {
+                window.location.href = '/requests.jsx';
+                return;
+              }
+              if (tabName === 'Ideas') {
+                window.location.href = '/ideas.jsx';
+                return;
+              }
+              if (tabName === 'More') {
+                window.location.href = '/more.jsx';
+                return;
+              }
+            } catch (e) {
+              console.warn('Navigation failed', e);
+            }
+          };
 
-                return (
-                  <div
-                    key={tab.name}
-                    className={`relative flex flex-col items-center w-1/4 focus:outline-none`}
-                    style={wrapperStyle}
-                  >
-                    <button
-                      className="flex flex-col items-center w-full"
-                      onMouseDown={() => {
-                        setActiveTab(tab.name);
-                        if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); }
-                      }}
-                      onTouchStart={() => {
-                        setActiveTab(tab.name);
-                        if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); }
-                      }}
-                      onClick={(e) => {
-                        if (navigatedRef.current) { navigatedRef.current = false; e.preventDefault(); return; }
-                        setActiveTab(tab.name);
-                        navigateToTab(tab.name);
-                      }}
-                    >
-                      <div className="w-11 h-11 flex items-center justify-center">
-                        <IconComp
-                          size={22}
-                          strokeWidth={1.5}
-                          style={activeColorStyle}
-                        />
-                      </div>
-                      <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
-                        {tab.label}
-                      </span>
-                    </button>
+          return (
+            <div
+              key={tab.name}
+              className={`relative flex flex-col items-center w-1/4 focus:outline-none`}
+              style={wrapperStyle}
+            >
+              <button
+                className="flex flex-col items-center w-full"
+                onMouseDown={() => {
+                  setActiveTab(tab.name);
+                  if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); }
+                }}
+                onTouchStart={() => {
+                  setActiveTab(tab.name);
+                  if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); }
+                }}
+                onClick={(e) => {
+                  if (navigatedRef.current) { navigatedRef.current = false; e.preventDefault(); return; }
+                  setActiveTab(tab.name);
+                  navigateToTab(tab.name);
+                }}
+              >
+                <div className="w-11 h-11 flex items-center justify-center">
+                  <IconComp
+                    size={22}
+                    strokeWidth={1.5}
+                    style={activeColorStyle}
+                  />
+                </div>
+                <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
+                  {tab.label}
+                </span>
+              </button>
 
-                    {/* Tooltip placeholder (mirrors home.jsx behavior) */}
-                  </div>
-                );
-              })}
+              {/* Tooltip placeholder (mirrors home.jsx behavior) */}
             </div>
-          </div>
-        );
-      };
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default App;

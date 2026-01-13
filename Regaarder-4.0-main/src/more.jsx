@@ -101,7 +101,7 @@ const MorePage = () => {
       return 'English';
     }
   });
-  
+
   // State is used here to toggle between signed-in and signed-out views
   const [activeTab, setActiveTab] = useState('More');
   const [isCreatorMode, setIsCreatorMode] = useState(true);
@@ -116,16 +116,16 @@ const MorePage = () => {
 
   const SignInCard = () => (
     // Card is set to max-w-md to ensure texts have more horizontal space
-    <div className="bg-white p-8 rounded-xl shadow-lg text-center mx-auto w-full max-w-md"> 
+    <div className="bg-white p-8 rounded-xl shadow-lg text-center mx-auto w-full max-w-md">
       <User className="w-14 h-14 text-gray-500 mx-auto mb-6" />
-      
+
       <h2 className="text-xl font-semibold text-gray-800 mb-2">
         {getTranslation('Sign in to access more features', selectedLanguage)}
       </h2>
       <p className="text-sm text-gray-500 mb-8 leading-relaxed">
         {getTranslation('Create an account or log in to manage your settings', selectedLanguage)}
       </p>
-      
+
       <button
         onClick={handleAuthClick}
         // Use global CSS variables for accent so ThemeProvider controls color
@@ -140,111 +140,110 @@ const MorePage = () => {
       </button>
     </div>
   );
-  
+
   const SettingsList = () => {
-      const navigate = useNavigate();
-      const auth = useAuth();
-      const [showCreatorGate, setShowCreatorGate] = useState(false);
+    const navigate = useNavigate();
+    const auth = useAuth();
+    const [showCreatorGate, setShowCreatorGate] = useState(false);
 
-      // Notification badge: read count from localStorage (kept by home.jsx) and poll periodically so the More page shows it
-      const [notifCount, setNotifCount] = useState(() => {
-        try { return parseInt(localStorage.getItem('notifications_count') || '0', 10) || 0; } catch (e) { return 0; }
-      });
+    // Notification badge: read count from localStorage (kept by home.jsx) and poll periodically so the More page shows it
+    const [notifCount, setNotifCount] = useState(() => {
+      try { return parseInt(localStorage.getItem('notifications_count') || '0', 10) || 0; } catch (e) { return 0; }
+    });
 
-      React.useEffect(() => {
-        let mounted = true;
-        const read = () => {
-          try {
-            const v = parseInt(localStorage.getItem('notifications_count') || '0', 10) || 0;
-            if (mounted) setNotifCount(v);
-          } catch (e) {}
-        };
-        read();
-        const iv = setInterval(read, 3000);
-        const onStorage = (e) => { if (e.key === 'notifications_count') read(); };
-        window.addEventListener('storage', onStorage);
-        return () => { mounted = false; clearInterval(iv); window.removeEventListener('storage', onStorage); };
-      }, []);
+    React.useEffect(() => {
+      let mounted = true;
+      const read = () => {
+        try {
+          const v = parseInt(localStorage.getItem('notifications_count') || '0', 10) || 0;
+          if (mounted) setNotifCount(v);
+        } catch (e) { }
+      };
+      read();
+      const iv = setInterval(read, 3000);
+      const onStorage = (e) => { if (e.key === 'notifications_count') read(); };
+      window.addEventListener('storage', onStorage);
+      return () => { mounted = false; clearInterval(iv); window.removeEventListener('storage', onStorage); };
+    }, []);
 
-      const menuItems = [
-        { icon: User, label: 'Profile Settings', href: '/settings' },
-        { icon: User, label: 'User Profile', href: '/userprofile' },
-        { icon: Video, label: 'Creator Profile', href: '/creatorprofile' },
-        { icon: CreditCard, label: 'Payment Methods', href: '#' },
-        { icon: Bell, label: 'Notifications', href: '/notifications?from=more', badge: notifCount },
-        { icon: Settings, label: 'Help & Support', href: '#' },
-      ];
+    const menuItems = [
+      { icon: User, label: 'Profile Settings', href: '/settings' },
+      { icon: User, label: 'User Profile', href: '/userprofile' },
+      { icon: Video, label: 'Creator Profile', href: '/creatorprofile' },
+      { icon: CreditCard, label: 'Payment Methods', href: '#' },
+      { icon: Bell, label: 'Notifications', href: '/notifications?from=more', badge: notifCount },
+      { icon: Settings, label: 'Help & Support', href: '#' },
+    ];
 
-      return (
-        <div className="w-full max-w-md space-y-3">
-          {menuItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                // Allow Help & Support to be public; protect everything else
-                if (item.label !== 'Help & Support' && !auth?.user) return auth.openAuthModal();
-                // If the user is signed-in but hasn't completed creator onboarding, gate Creator Profile
-                if (item.label === 'Creator Profile' && auth?.user && !auth.user.isCreator) {
-                  return setShowCreatorGate(true);
-                }
-                try { if (item.href && item.href !== '#') navigate(item.href); } catch (e) { /* noop */ }
-              }}
-              className="w-full bg-white p-4 rounded-2xl shadow-sm flex items-center justify-between group active:scale-[0.99] transition-transform border border-gray-100"
-            >
-              <div className="flex items-center space-x-4">
-                <item.icon className="w-6 h-6" style={{ color: 'var(--color-gold)' }} />
-                <span className="text-gray-700 font-medium text-base">{getTranslation(item.label, selectedLanguage)}</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                {item.badge && item.badge > 0 && (
-                  <span className="text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full" style={{ backgroundColor: 'var(--color-gold)' }}>
-                    {item.badge}
-                  </span>
-                )}
-                <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500" />
-              </div>
-            </button>
-          ))}
+    return (
+      <div className="w-full max-w-md space-y-3">
+        {menuItems.map((item, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              // Allow Help & Support to be public; protect everything else
+              if (item.label !== 'Help & Support' && !auth?.user) return auth.openAuthModal();
+              // If the user is signed-in but hasn't completed creator onboarding, gate Creator Profile
+              if (item.label === 'Creator Profile' && auth?.user && !auth.user.isCreator) {
+                return setShowCreatorGate(true);
+              }
+              try { if (item.href && item.href !== '#') navigate(item.href); } catch (e) { /* noop */ }
+            }}
+            className="w-full bg-white p-4 rounded-2xl shadow-sm flex items-center justify-between group active:scale-[0.99] transition-transform border border-gray-100"
+          >
+            <div className="flex items-center space-x-4">
+              <item.icon className="w-6 h-6" style={{ color: 'var(--color-gold)' }} />
+              <span className="text-gray-700 font-medium text-base">{getTranslation(item.label, selectedLanguage)}</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              {item.badge && item.badge > 0 && (
+                <span className="text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full" style={{ backgroundColor: 'var(--color-gold)' }}>
+                  {item.badge}
+                </span>
+              )}
+              <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500" />
+            </div>
+          </button>
+        ))}
 
         {/* Switch Mode */}
-        <button 
+        <button
           onClick={() => {
             if (!auth.user) return auth.openAuthModal();
             setIsCreatorMode(!isCreatorMode);
           }}
           className="w-full bg-white p-4 rounded-2xl shadow-sm flex items-center justify-between group active:scale-[0.99] transition-transform border border-gray-100 mt-3"
         >
-            <div className="flex items-center space-x-4">
-              {isCreatorMode ? (
-                  <Video className="w-6 h-6 text-green-600" />
-              ) : (
-                  <User className="w-6 h-6" style={{ color: 'var(--color-gold)' }} />
-              )}
-              <span className="text-gray-700 font-medium text-base">
-                  {isCreatorMode ? getTranslation('Switch to User Mode', selectedLanguage) : getTranslation('Switch to Creator Mode', selectedLanguage)}
-              </span>
-            </div>
-            <div className="flex items-center space-x-3">
-                <span className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${
-                    isCreatorMode 
-                        ? 'bg-green-100 text-green-700' 
-                        : ''
-                }`}>
-                  {isCreatorMode ? getTranslation('Creator', selectedLanguage) : getTranslation('User', selectedLanguage)}
-                </span>
-              <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500" />
-            </div>
+          <div className="flex items-center space-x-4">
+            {isCreatorMode ? (
+              <Video className="w-6 h-6 text-green-600" />
+            ) : (
+              <User className="w-6 h-6" style={{ color: 'var(--color-gold)' }} />
+            )}
+            <span className="text-gray-700 font-medium text-base">
+              {isCreatorMode ? getTranslation('Switch to User Mode', selectedLanguage) : getTranslation('Switch to Creator Mode', selectedLanguage)}
+            </span>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${isCreatorMode
+                ? 'bg-green-100 text-green-700'
+                : ''
+              }`}>
+              {isCreatorMode ? getTranslation('Creator', selectedLanguage) : getTranslation('User', selectedLanguage)}
+            </span>
+            <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500" />
+          </div>
         </button>
 
         {/* Log Out */}
         <div className="pt-4">
-            <button 
-                onClick={handleLogout}
-                className="w-full bg-white p-4 rounded-2xl shadow-sm flex items-center space-x-4 active:scale-[0.99] transition-transform border border-gray-100"
-            >
-                <LogOut className="w-6 h-6 text-red-500" />
-                <span className="text-red-500 font-medium text-base">{getTranslation('Log Out', selectedLanguage)}</span>
-            </button>
+          <button
+            onClick={handleLogout}
+            className="w-full bg-white p-4 rounded-2xl shadow-sm flex items-center space-x-4 active:scale-[0.99] transition-transform border border-gray-100"
+          >
+            <LogOut className="w-6 h-6 text-red-500" />
+            <span className="text-red-500 font-medium text-base">{getTranslation('Log Out', selectedLanguage)}</span>
+          </button>
         </div>
         {/* Creator gating modal */}
         {showCreatorGate && (
@@ -274,7 +273,7 @@ const MorePage = () => {
 
                     const current = auth && auth.user ? auth.user : JSON.parse(localStorage.getItem('regaarder_user') || '{}');
                     const updated = { ...(current || {}), isCreator: true };
-                    try { localStorage.setItem('regaarder_user', JSON.stringify(updated)); } catch (e) {}
+                    try { localStorage.setItem('regaarder_user', JSON.stringify(updated)); } catch (e) { }
                     if (auth && auth.login) {
                       const tokenStored = localStorage.getItem('regaarder_token');
                       auth.login({ ...updated, token: tokenStored });
@@ -296,15 +295,15 @@ const MorePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-gray-50 flex flex-col items-center"
     >
       <div className="w-full max-w-xl min-h-screen flex flex-col" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
-        
+
         <header className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20">
           <div className="flex items-center space-x-4">
-            <ChevronLeft 
-              className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900" 
+            <ChevronLeft
+              className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900"
               onClick={() => navigate('/home')}
             />
             <h1 className="text-2xl font-semibold text-gray-800">{getTranslation('More', selectedLanguage)}</h1>
@@ -321,7 +320,7 @@ const MorePage = () => {
         </main>
       </div>
 
-      
+
       <BottomBar navigate={navigate} selectedLanguage={selectedLanguage} />
     </div>
   );

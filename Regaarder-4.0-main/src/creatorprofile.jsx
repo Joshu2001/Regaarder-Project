@@ -8,7 +8,7 @@ import { getTranslation } from './translations';
 
 const CustomPencilLine = ({ size = 24, className = '', ...props }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`lucide lucide-pencil-line-icon lucide-pencil-line ${className}`} {...props}>
-        <path d="M13 21h8"/><path d="m15 5 4 4"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+        <path d="M13 21h8" /><path d="m15 5 4 4" /><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
     </svg>
 );
 
@@ -234,11 +234,11 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
         <div className="flex items-center w-full gap-3 mb-3 relative" ref={dropdownRef}>
             <div className="flex-grow bg-gray-100 rounded-xl px-4 py-3 flex items-center relative">
                 {prefix && <span className="text-gray-500 mr-1">{prefix}</span>}
-                
+
                 {(type === 'text' || type === 'textarea' || (type === 'select' && isCustomInput)) && (
                     type === 'textarea' ? (
-                        <textarea 
-                            value={tempValue} 
+                        <textarea
+                            value={tempValue}
                             onChange={(e) => setTempValue(e.target.value)}
                             className="bg-transparent w-full outline-none text-gray-900 resize-none font-medium"
                             rows={2}
@@ -246,9 +246,9 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                             autoFocus
                         />
                     ) : (
-                        <input 
-                            type="text" 
-                            value={tempValue} 
+                        <input
+                            type="text"
+                            value={tempValue}
                             onChange={(e) => setTempValue(e.target.value)}
                             className="bg-transparent w-full outline-none text-gray-900 font-medium"
                             placeholder={isCustomInput ? "Enter new category name" : placeholder}
@@ -256,9 +256,9 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                         />
                     )
                 )}
-                
-                 {type === 'select' && !isCustomInput && (
-                    <div 
+
+                {type === 'select' && !isCustomInput && (
+                    <div
                         className="w-full flex items-center justify-between cursor-pointer"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
@@ -273,8 +273,8 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                 {type === 'select' && isDropdownOpen && !isCustomInput && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-60 overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-100">
                         {options && options.map((opt) => (
-                            <div 
-                                key={opt.value} 
+                            <div
+                                key={opt.value}
                                 onClick={() => handleOptionClick(opt.value)}
                                 className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-gray-900 font-medium text-sm border-b border-gray-50 last:border-0 flex items-center justify-between"
                             >
@@ -282,7 +282,7 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                                 {tempValue === opt.value && <Icon name="check" size={14} className="text-[var(--color-gold)]" />}
                             </div>
                         ))}
-                        <div 
+                        <div
                             onClick={handleCreateNewClick}
                             className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-[var(--color-gold)] font-medium text-sm flex items-center border-t border-gray-100 sticky bottom-0 bg-white"
                         >
@@ -292,13 +292,13 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                     </div>
                 )}
             </div>
-            
+
             <button onClick={(e) => { e.stopPropagation(); onCancel(); }} className="p-2 text-gray-500 hover:text-gray-700">
                 <Icon name="x" size={24} />
             </button>
 
-            <button 
-                onClick={() => onSave(tempValue)} 
+            <button
+                onClick={() => onSave(tempValue)}
                 className="p-3 bg-[var(--color-gold)] rounded-xl text-black shadow-sm hover:bg-[var(--color-gold-darker)] transition-colors flex items-center justify-center w-12 h-12"
             >
                 <Icon name="save" size={20} />
@@ -310,7 +310,7 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
 const StatCard = ({ label, value, selectedLanguage = 'English' }) => (
     <div className="bg-white rounded-2xl shadow-md p-2 flex flex-col items-center justify-center w-16 h-16 md:w-20 md:h-20 border border-gray-200">
         <div className="text-xs text-gray-700 font-medium mb-1">{getTranslation(label, selectedLanguage)}</div>
-        <div className="font-bold text-sm md:text-lg" style={{ 
+        <div className="font-bold text-sm md:text-lg" style={{
             background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -352,7 +352,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                 // Use regaarder_token consistently with other operations
                 const token = localStorage.getItem('regaarder_token');
                 if (!token) return;
-                
+
                 const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
                 const res = await fetch(`${BACKEND}/following/${profile.id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -442,9 +442,9 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
             const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
             const endpoint = isFollowing ? '/unfollow' : '/follow';
-            
+
             setFollowActive(true);
-            
+
             const res = await fetch(`${BACKEND}${endpoint}`, {
                 method: 'POST',
                 headers: {
@@ -457,16 +457,16 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
             if (res.ok) {
                 setTimeout(() => setIsFollowing(!isFollowing), 120);
                 if (onShowToast) {
-                    onShowToast({ 
-                        title: isFollowing ? getTranslation("Unfollowed", selectedLanguage) : getTranslation("Following!", selectedLanguage), 
-                        subtitle: isFollowing ? getTranslation("You unfollowed {creator}", selectedLanguage).replace('{creator}', profile.name) : getTranslation("You're now following {creator}", selectedLanguage).replace('{creator}', profile.name) 
+                    onShowToast({
+                        title: isFollowing ? getTranslation("Unfollowed", selectedLanguage) : getTranslation("Following!", selectedLanguage),
+                        subtitle: isFollowing ? getTranslation("You unfollowed {creator}", selectedLanguage).replace('{creator}', profile.name) : getTranslation("You're now following {creator}", selectedLanguage).replace('{creator}', profile.name)
                     });
                 }
             } else {
                 const error = await res.json();
                 if (onShowToast) onShowToast({ title: getTranslation("Error", selectedLanguage), subtitle: getTranslation(error.error || "Failed to update follow status", selectedLanguage) });
             }
-            
+
             setTimeout(() => setFollowActive(false), 420);
         } catch (err) {
             console.error('Follow error:', err);
@@ -486,7 +486,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
         ];
 
         const ext = (file.name && file.name.split('.').pop() || '').toLowerCase();
-        const allowedExts = ['jpg','jpeg','png','gif','webp','svg','jfif','bmp','heic','heif','pdf','txt'];
+        const allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'jfif', 'bmp', 'heic', 'heif', 'pdf', 'txt'];
 
         const hasValidMime = file.type && (file.type.startsWith('image/') || allowedMimes.includes(file.type));
         const hasValidExt = ext && allowedExts.includes(ext);
@@ -515,7 +515,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
             } else {
                 setPreviewDocument({ name: file.name, type: file.type });
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // Upload to backend so the profile is updated for everyone
         try {
@@ -525,7 +525,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                 if (onShowToast) onShowToast({ title: getTranslation("Not Authenticated", selectedLanguage), subtitle: getTranslation("Changes saved locally only. Please login to sync across devices.", selectedLanguage) });
                 return;
             }
-            
+
             const fd = new FormData();
             fd.append('image', file);
             const res = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/creator/photo`, {
@@ -533,7 +533,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: fd
             });
-            
+
             if (!res.ok) {
                 if (res.status === 401) {
                     console.warn('Authentication failed. Token may be invalid or expired.');
@@ -542,7 +542,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                 }
                 throw new Error(`Upload failed with status ${res.status}`);
             }
-            
+
             const data = await res.json();
             if (data && data.url) {
                 // If backend tells us it's an image, persist to `image`; otherwise persist as `document`
@@ -562,7 +562,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                 } else {
                     // non-image document uploaded: save as `document` field and show filename
                     onUpdate('document', data.url);
-                    setPreviewDocument(prev => ({ ...(prev||{}), url: data.url }));
+                    setPreviewDocument(prev => ({ ...(prev || {}), url: data.url }));
                     try {
                         await fetch(`${window.location.protocol}//${window.location.hostname}:4000/creator/complete`, {
                             method: 'POST',
@@ -638,7 +638,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
             `}</style>
             {/* Background Gradient - Darkened for better contrast */}
             <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-br from-purple-950 via-red-600 to-orange-500" style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}></div>
-            
+
             {/* Top Navigation */}
             <div className="relative z-10 flex justify-between items-center px-4 pt-4 text-white">
                 <button
@@ -660,13 +660,13 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                     <Icon name="arrowLeft" size={24} />
                 </button>
                 <div className="flex space-x-3">
-                    <button 
+                    <button
                         className="w-11 h-11 flex items-center justify-center bg-black/20 rounded-full backdrop-blur-sm hover:bg-black/30 transition"
                         onClick={onTogglePreview}
                     >
                         <Icon name={isPreviewMode ? "pencilLine" : "eye"} size={24} style={{ width: 24, height: 24 }} />
                     </button>
-                    <button 
+                    <button
                         className="w-11 h-11 flex items-center justify-center bg-black/20 rounded-full backdrop-blur-sm hover:bg-black/30 transition"
                         onClick={handleShare}
                     >
@@ -697,19 +697,19 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                 </div>
                             </div>
                         </div>
-                        
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            className="hidden" 
+
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
                             accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip"
                             onChange={handleFileChange}
                         />
-                        
+
                         {!isPreviewMode && (
-                            <div 
+                            <div
                                 className="absolute bottom-1 left-1 rounded-full p-2 border-4 border-white cursor-pointer z-20 transition-all shadow-sm hover:scale-110 relative overflow-hidden"
-                                style={{ 
+                                style={{
                                     background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
                                     boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
                                 }}
@@ -733,14 +733,14 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                 <div className="mt-4 text-left">
                     {/* Name */}
                     {editingField === 'name' && !isPreviewMode ? (
-                        <EditableField 
-                            value={profile.name} 
-                            onSave={(val) => handleSave('name', val)} 
+                        <EditableField
+                            value={profile.name}
+                            onSave={(val) => handleSave('name', val)}
                             onCancel={() => setEditingField(null)}
                         />
                     ) : (
                         <div className="flex items-center flex-wrap gap-2">
-                            <h1 className="text-2xl font-bold" style={{ 
+                            <h1 className="text-2xl font-bold" style={{
                                 background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent',
@@ -761,9 +761,9 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
                     {/* Handle */}
                     {editingField === 'handle' && !isPreviewMode ? (
-                        <EditableField 
-                            value={profile.handle} 
-                            onSave={(val) => handleSave('handle', val)} 
+                        <EditableField
+                            value={profile.handle}
+                            onSave={(val) => handleSave('handle', val)}
                             onCancel={() => setEditingField(null)}
                             prefix="@"
                         />
@@ -776,9 +776,9 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
                     {/* Bio */}
                     {editingField === 'bio' && !isPreviewMode ? (
-                        <EditableField 
-                            value={profile.bio} 
-                            onSave={(val) => handleSave('bio', val)} 
+                        <EditableField
+                            value={profile.bio}
+                            onSave={(val) => handleSave('bio', val)}
                             onCancel={() => setEditingField(null)}
                             type="textarea"
                         />
@@ -793,9 +793,9 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
                     {/* Tag */}
                     {editingField === 'tag' && !isPreviewMode ? (
-                        <EditableField 
-                            value={profile.tag} 
-                            onSave={(val) => handleSave('tag', val)} 
+                        <EditableField
+                            value={profile.tag}
+                            onSave={(val) => handleSave('tag', val)}
                             onCancel={() => setEditingField(null)}
                             type="select"
                             placeholder={getTranslation('Select a category', selectedLanguage)}
@@ -816,7 +816,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                     <>
                         <div className="flex gap-3 mt-8">
                             {isFollowing ? (
-                                <button 
+                                <button
                                     className={`flex-grow bg-white border border-gray-200 text-gray-900 font-semibold py-2.5 rounded-xl text-base shadow-sm flex items-center justify-center hover:bg-gray-50 transition ${followActive ? 'scale-95 opacity-90' : ''}`}
                                     onClick={handleFollow}
                                 >
@@ -826,7 +826,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                     {getTranslation('Following', selectedLanguage)}
                                 </button>
                             ) : (
-                                <button 
+                                <button
                                     className={`flex-grow bg-[var(--color-gold)] text-black font-semibold py-2.5 rounded-xl text-base shadow-sm flex items-center justify-center hover:bg-[var(--color-gold-darker)] transition ${followActive ? 'scale-95 opacity-90' : ''}`}
                                     onClick={handleFollow}
                                 >
@@ -834,7 +834,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                     {getTranslation('Follow', selectedLanguage)}
                                 </button>
                             )}
-                            <button 
+                            <button
                                 className="px-6 bg-white border border-gray-200 text-gray-900 font-semibold py-2.5 rounded-xl text-base shadow-sm flex items-center justify-center hover:bg-gray-50 transition"
                                 onClick={onTip}
                             >
@@ -842,25 +842,25 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                 {getTranslation('Tip', selectedLanguage)}
                             </button>
                         </div>
-                        
+
                         <div className="mt-3">
-                            <button 
-                                    onClick={() => {
-                                        // show a brief active state then call the provided CTA handler
-                                        setCtaActive(true);
-                                        setTimeout(() => {
-                                            if (onCTAClick) onCTAClick();
-                                        }, 120);
-                                        // clear active state shortly after so it doesn't persist
-                                        setTimeout(() => setCtaActive(false), 420);
-                                    }}
-                                    className={`w-full shimmer-gold text-black font-medium py-2.5 px-4 rounded-xl text-base shadow-sm hover:opacity-90 transition flex items-center justify-center ${ctaActive ? 'scale-95 opacity-90' : ''}`}
-                                >
-                                    <Icon name="video" size={18} className="mr-2 flex-shrink-0" />
-                                    <span className={`text-center leading-tight transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-                                        {getTranslation(ctaText, selectedLanguage).replace('{creator}', profile.name)}
-                                    </span>
-                                </button>
+                            <button
+                                onClick={() => {
+                                    // show a brief active state then call the provided CTA handler
+                                    setCtaActive(true);
+                                    setTimeout(() => {
+                                        if (onCTAClick) onCTAClick();
+                                    }, 120);
+                                    // clear active state shortly after so it doesn't persist
+                                    setTimeout(() => setCtaActive(false), 420);
+                                }}
+                                className={`w-full shimmer-gold text-black font-medium py-2.5 px-4 rounded-xl text-base shadow-sm hover:opacity-90 transition flex items-center justify-center ${ctaActive ? 'scale-95 opacity-90' : ''}`}
+                            >
+                                <Icon name="video" size={18} className="mr-2 flex-shrink-0" />
+                                <span className={`text-center leading-tight transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+                                    {getTranslation(ctaText, selectedLanguage).replace('{creator}', profile.name)}
+                                </span>
+                            </button>
                         </div>
                     </>
                 ) : (
@@ -868,18 +868,18 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                         <div className="w-full mt-8 flex items-center gap-2">
                             <div className="flex-grow bg-[var(--color-gold-light-bg)] rounded-xl px-4 py-4 flex items-center shadow-sm">
                                 <span className="mr-2 opacity-50 text-gray-800 font-semibold text-lg">$</span>
-                                <input 
-                                    type="number" 
+                                <input
+                                    type="number"
                                     value={tempPrice}
                                     onChange={(e) => setTempPrice(e.target.value)}
                                     className="bg-transparent w-24 outline-none text-gray-800 font-semibold text-lg placeholder-gray-600"
                                     autoFocus
                                     onKeyDown={(e) => {
-                                        if(e.key === 'Enter') handlePriceSave();
+                                        if (e.key === 'Enter') handlePriceSave();
                                     }}
                                 />
                                 <div className="h-6 w-px bg-black/10 mx-2"></div>
-                                <select 
+                                <select
                                     value={tempPricingType}
                                     onChange={(e) => setTempPricingType(e.target.value)}
                                     className="bg-transparent outline-none text-gray-800 font-semibold text-sm appearance-none flex-grow cursor-pointer"
@@ -893,8 +893,8 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                             <button onClick={() => setEditingField(null)} className="p-3 text-gray-500 hover:text-gray-700 bg-white rounded-xl shadow-sm border border-gray-100">
                                 <Icon name="x" size={24} />
                             </button>
-                            <button 
-                                onClick={handlePriceSave} 
+                            <button
+                                onClick={handlePriceSave}
                                 className="p-3 bg-black text-white rounded-xl shadow-sm hover:bg-gray-800"
                             >
                                 <Icon name="check" size={24} />
@@ -938,7 +938,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
                                 {/* Edit + visibility controls (top-right) */}
                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-                                    <div 
+                                    <div
                                         className="cursor-pointer p-2 rounded-md hover:bg-gray-100 transition"
                                         onClick={(e) => { e.stopPropagation(); setTempPrice(profile.price); setTempPricingType(profile.pricingType || 'One Time'); setEditingField('price'); }}
                                         title="Edit price"
@@ -966,7 +966,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
 const ActionCard = ({ title, progress, missingFields, icon, isPopup, onClick, onPreview, selectedLanguage = 'English' }) => {
     return (
-        <div 
+        <div
             className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4 cursor-pointer transition hover:shadow-md"
             onClick={onClick}
         >
@@ -1003,7 +1003,7 @@ const ActionCard = ({ title, progress, missingFields, icon, isPopup, onClick, on
                     <p className="text-gray-500 text-sm mb-4 leading-relaxed">
                         {getTranslation('Create a personalized greeting for fans who visit your profile', selectedLanguage)}
                     </p>
-                    <button 
+                    <button
                         onClick={(e) => {
                             e.stopPropagation();
                             if (onPreview) onPreview();
@@ -1037,16 +1037,16 @@ const FeaturedVideo = ({ isPreviewMode, video, onUpload, onDelete, selectedLangu
     return (
         <div className="mb-8">
             <h2 className="text-xl font-normal text-gray-900 mb-4 px-1">{getTranslation('Featured Video', selectedLanguage)}</h2>
-            
+
             {video ? (
                 <div className="relative bg-black rounded-2xl overflow-hidden shadow-sm border border-gray-100 aspect-video group">
-                    <video 
-                        src={video.url} 
-                        controls 
+                    <video
+                        src={video.url}
+                        controls
                         className="w-full h-full object-contain bg-black"
                     />
                     {!isPreviewMode && (
-                        <button 
+                        <button
                             onClick={onDelete}
                             className="absolute top-3 right-3 p-2 bg-black/50 text-white rounded-full hover:bg-red-500 transition backdrop-blur-sm opacity-0 group-hover:opacity-100"
                             title="Remove video"
@@ -1069,17 +1069,17 @@ const FeaturedVideo = ({ isPreviewMode, video, onUpload, onDelete, selectedLangu
                     <p className="text-gray-500 text-sm mb-6 max-w-xs leading-relaxed">
                         {getTranslation('Upload an introduction video to showcase your content', selectedLanguage)}
                     </p>
-                    
-                    <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        className="hidden" 
+
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
                         accept="video/*"
                         onChange={handleFileChange}
                     />
-                    
+
                     {!isPreviewMode && (
-                        <button 
+                        <button
                             onClick={handleUploadClick}
                             className="w-full border border-gray-200 rounded-xl py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition"
                         >
@@ -1115,9 +1115,9 @@ const AllVideosPopup = ({ videos, onClose, onDelete, isPreview = false, selected
                             <div className="relative aspect-video rounded-xl overflow-hidden bg-gray-200 shadow-sm">
                                 <img src={video.image} alt={video.title} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                                
+
                                 {/* Delete Button */}
-                                <button 
+                                <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onDelete(video.id);
@@ -1201,7 +1201,7 @@ const TopVideos = ({ videos, onViewAll, isPreviewMode, selectedLanguage = 'Engli
                 {displayVideos.map((video) => (
                     <div key={video.id} className="relative min-w-[85%] aspect-video rounded-xl overflow-hidden bg-gray-200 shadow-sm snap-center flex-shrink-0">
                         <img src={video.image} alt={video.title} className="w-full h-full object-cover" />
-                        
+
                         {/* Edit Button */}
                         {!isPreviewMode && (
                             <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-md flex items-center cursor-pointer hover:bg-black/70 transition">
@@ -1242,7 +1242,7 @@ const QuickCTATemplates = ({ onCustomize, selectedLanguage = 'English' }) => {
                 <Icon name="more" className="text-gray-400" size={20} />
             </div>
             <p className="text-gray-500 text-sm mb-4 px-1">{getTranslation('Customize how fans request videos from you', selectedLanguage)}</p>
-            
+
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                 <div className="flex items-center mb-3">
                     <span className="text-gray-400 text-sm mr-2">{getTranslation('Current CTA Preview:', selectedLanguage)}</span>
@@ -1250,19 +1250,19 @@ const QuickCTATemplates = ({ onCustomize, selectedLanguage = 'English' }) => {
                         {getTranslation('Rotating (2/2)', selectedLanguage)}
                     </span>
                 </div>
-                
+
                 <div className="flex justify-between items-center mb-4">
                     <p className="text-gray-900 font-medium text-lg pr-4 leading-tight">
                         {getTranslation("Your idea → Alex Morgan's next video", selectedLanguage)}
                     </p>
-                    <button 
+                    <button
                         onClick={onCustomize}
                         className="text-[var(--color-gold)] border border-[var(--color-gold)] px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[var(--color-gold-light-bg)] transition"
                     >
                         {getTranslation('Customize', selectedLanguage)}
                     </button>
                 </div>
-                
+
                 <div className="flex items-center text-gray-400 text-xs">
                     <Icon name="ideas" size={14} className="text-[var(--color-gold)] mr-1.5" />
                     {getTranslation('CTAs rotate every 30 seconds', selectedLanguage)}
@@ -1311,7 +1311,7 @@ const CTAPopup = ({ isOpen, onClose, onShowToast, categories, onToggleCategory, 
         <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center sm:px-4">
             <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
             <div className="relative bg-white w-full max-w-md h-[85vh] sm:h-auto sm:max-h-[90vh] rounded-t-3xl sm:rounded-3xl shadow-2xl animate-in slide-in-from-bottom-full sm:zoom-in duration-300 flex flex-col overflow-hidden">
-                
+
                 {isCreating ? (
                     <div className="flex flex-col h-full border-2 border-[var(--color-gold)] rounded-t-3xl sm:rounded-3xl m-1">
                         <div className="p-6 pb-2 bg-white z-10 flex items-center gap-3">
@@ -1320,15 +1320,15 @@ const CTAPopup = ({ isOpen, onClose, onShowToast, categories, onToggleCategory, 
                             </button>
                             <h2 className="text-xl font-bold text-gray-900">{getTranslation('Create Custom CTA', selectedLanguage)}</h2>
                         </div>
-                        
+
                         <div className="p-6 pt-4 overflow-y-auto flex-grow scrollbar-hide">
                             {/* Category */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('Category', selectedLanguage)}</label>
                                 <div className="relative">
-                                    <select 
+                                    <select
                                         value={newTemplate.categoryId}
-                                        onChange={(e) => setNewTemplate({...newTemplate, categoryId: e.target.value})}
+                                        onChange={(e) => setNewTemplate({ ...newTemplate, categoryId: e.target.value })}
                                         className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none appearance-none focus:border-[var(--color-gold)] text-gray-900"
                                     >
                                         {categories.map(cat => (
@@ -1344,10 +1344,10 @@ const CTAPopup = ({ isOpen, onClose, onShowToast, categories, onToggleCategory, 
                             {/* CTA Text */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('CTA Text (use {creator} for name)', selectedLanguage)}</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={newTemplate.text}
-                                    onChange={(e) => setNewTemplate({...newTemplate, text: e.target.value})}
+                                    onChange={(e) => setNewTemplate({ ...newTemplate, text: e.target.value })}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[var(--color-gold)] text-gray-900"
                                     placeholder={getTranslation('e.g., Tell {creator} what to create next', selectedLanguage)}
                                 />
@@ -1356,10 +1356,10 @@ const CTAPopup = ({ isOpen, onClose, onShowToast, categories, onToggleCategory, 
                             {/* Heading */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('Heading (optional)', selectedLanguage)}</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={newTemplate.heading}
-                                    onChange={(e) => setNewTemplate({...newTemplate, heading: e.target.value})}
+                                    onChange={(e) => setNewTemplate({ ...newTemplate, heading: e.target.value })}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[var(--color-gold)] text-gray-900"
                                     placeholder={getTranslation('e.g., Your ideas matter', selectedLanguage)}
                                 />
@@ -1368,9 +1368,9 @@ const CTAPopup = ({ isOpen, onClose, onShowToast, categories, onToggleCategory, 
                             {/* Subtext */}
                             <div className="mb-6">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('Subtext (optional)', selectedLanguage)}</label>
-                                <textarea 
+                                <textarea
                                     value={newTemplate.subtext}
-                                    onChange={(e) => setNewTemplate({...newTemplate, subtext: e.target.value})}
+                                    onChange={(e) => setNewTemplate({ ...newTemplate, subtext: e.target.value })}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[var(--color-gold)] resize-none text-gray-900"
                                     rows={3}
                                     placeholder={getTranslation('e.g., Every request helps {creator} create better content', selectedLanguage)}
@@ -1379,14 +1379,14 @@ const CTAPopup = ({ isOpen, onClose, onShowToast, categories, onToggleCategory, 
 
                             {/* Buttons */}
                             <div className="flex gap-3 mt-auto">
-                                <button 
+                                <button
                                     onClick={handleCreateTemplate}
                                     className="flex-1 bg-[var(--color-gold)] text-black font-semibold py-3 rounded-xl shadow-sm hover:bg-[var(--color-gold-darker)] transition flex items-center justify-center"
                                 >
                                     <Icon name="check" size={18} className="mr-2" />
                                     {getTranslation('Create Template', selectedLanguage)}
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => setIsCreating(false)}
                                     className="flex-1 bg-white border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition"
                                 >
@@ -1410,14 +1410,14 @@ const CTAPopup = ({ isOpen, onClose, onShowToast, categories, onToggleCategory, 
 
                         {/* Scrollable Content */}
                         <div className="overflow-y-auto p-6 pt-4 space-y-4 scrollbar-hide pb-20">
-                            
+
                             {/* Intro Section */}
                             <div>
                                 <div className="flex justify-between items-start gap-4 mb-4">
                                     <p className="text-gray-500 text-sm leading-relaxed">
                                         {getTranslation('Choose from 140+ templates across 23 categories (Max 3 selected)', selectedLanguage)}
                                     </p>
-                                    <button 
+                                    <button
                                         onClick={() => setIsCreating(true)}
                                         className="flex items-center gap-1 px-3 py-1.5 border border-[var(--color-gold)] text-[var(--color-gold)] rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[var(--color-gold-light-bg)] transition"
                                     >
@@ -1441,7 +1441,7 @@ const CTAPopup = ({ isOpen, onClose, onShowToast, categories, onToggleCategory, 
                                 {categories.map((cat) => (
                                     <div key={cat.id} className="border border-gray-200 rounded-2xl overflow-hidden bg-white">
                                         {/* Category Header */}
-                                        <div 
+                                        <div
                                             className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition"
                                             onClick={() => onToggleCategory(cat.id)}
                                         >
@@ -1473,77 +1473,76 @@ const CTAPopup = ({ isOpen, onClose, onShowToast, categories, onToggleCategory, 
                                         {cat.isOpen && cat.templates && (
                                             <div className="px-4 pb-4 space-y-3">
                                                 {cat.templates.map((template) => (
-                                                    <div 
+                                                    <div
                                                         key={template.id}
                                                         onClick={() => onToggleTemplate(cat.id, template.id)}
-                                                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                                                            template.selected 
-                                                            ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]' 
+                                                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${template.selected 
+                                                            ? 'border-[var(--color-gold)] bg-[var(--color-gold-light-bg)]'
                                                             : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                                                         }`}
                                                     >
-                                                        <div className="pr-4">
-                                                            {template.label && (
-                                                                <p className="text-xs text-gray-400 mb-1">{getTranslation(template.label, selectedLanguage)}</p>
-                                                            )}
-                                                            <p className={`text-sm font-medium ${template.selected ? 'text-[var(--color-gold-darker)]' : 'text-gray-900'}`}>
-                                                                {getTranslation(template.text, selectedLanguage)}
-                                                            </p>
-                                                            {template.subtext && (
-                                                                <p className="text-xs text-gray-400 mt-1">{getTranslation(template.subtext, selectedLanguage)}</p>
-                                                            )}
-                                                        </div>
-                                                        {template.selected && (
-                                                            <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0">
-                                                                <Icon name="check" size={14} className="text-white" strokeWidth={3} />
-                                                            </div>
-                                                        )}
+                                                <div className="pr-4">
+                                                    {template.label && (
+                                                        <p className="text-xs text-gray-400 mb-1">{getTranslation(template.label, selectedLanguage)}</p>
+                                                    )}
+                                                    <p className={`text-sm font-medium ${template.selected ? 'text-[var(--color-gold-darker)]' : 'text-gray-900'}`}>
+                                                        {getTranslation(template.text, selectedLanguage)}
+                                                    </p>
+                                                    {template.subtext && (
+                                                        <p className="text-xs text-gray-400 mt-1">{getTranslation(template.subtext, selectedLanguage)}</p>
+                                                    )}
+                                                </div>
+                                                {template.selected && (
+                                                    <div className="w-6 h-6 rounded-full bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0">
+                                                        <Icon name="check" size={14} className="text-white" strokeWidth={3} />
                                                     </div>
-                                                ))}
+                                                )}
                                             </div>
-                                        )}
+                                        ))}
                                     </div>
+                                )}
+                            </div>
                                 ))}
-                            </div>
-
-                            {/* How CTAs Work Section */}
-                            <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 mt-6">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <Icon name="ideas" className="text-[var(--color-gold)]" size={24} />
-                                    <h3 className="font-semibold text-gray-900 text-lg">{getTranslation('How CTAs Work', selectedLanguage)}</h3>
-                                </div>
-                                <ul className="space-y-3 text-gray-500 text-sm">
-                                    <li className="flex items-start gap-2">
-                                        <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
-                                        <span>{getTranslation("Select multiple templates - they'll rotate every 30 seconds on your profile", selectedLanguage)}</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
-                                        <span>{getTranslation('Hover over any template to edit or delete (custom templates only)', selectedLanguage)}</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
-                                        <span>{getTranslation('All {creator} placeholders automatically use your name', selectedLanguage)}</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
-                                        <span>{getTranslation('23 specialized categories: Tech, Podcasts, Fashion, Business, Psychology & more', selectedLanguage)}</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
-                                        <span>Emotional CTAs convert better than transactional ones</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
-                                        <span>Create and customize CTAs to match your unique style</span>
-                                    </li>
-                                </ul>
-                            </div>
                         </div>
-                    </>
+
+                        {/* How CTAs Work Section */}
+                        <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 mt-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Icon name="ideas" className="text-[var(--color-gold)]" size={24} />
+                                <h3 className="font-semibold text-gray-900 text-lg">{getTranslation('How CTAs Work', selectedLanguage)}</h3>
+                            </div>
+                            <ul className="space-y-3 text-gray-500 text-sm">
+                                <li className="flex items-start gap-2">
+                                    <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
+                                    <span>{getTranslation("Select multiple templates - they'll rotate every 30 seconds on your profile", selectedLanguage)}</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
+                                    <span>{getTranslation('Hover over any template to edit or delete (custom templates only)', selectedLanguage)}</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
+                                    <span>{getTranslation('All {creator} placeholders automatically use your name', selectedLanguage)}</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
+                                    <span>{getTranslation('23 specialized categories: Tech, Podcasts, Fashion, Business, Psychology & more', selectedLanguage)}</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
+                                    <span>Emotional CTAs convert better than transactional ones</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0"></span>
+                                    <span>Create and customize CTAs to match your unique style</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+            </>
                 )}
-            </div>
         </div>
+        </div >
     );
 };
 
@@ -1565,21 +1564,21 @@ const AllVideos = ({ selectedCTAs, profileName, onCTAClick, selectedLanguage = '
         return () => clearInterval(interval);
     }, [selectedCTAs.length]);
 
-    const ctaText = selectedCTAs.length > 0 
+    const ctaText = selectedCTAs.length > 0
         ? selectedCTAs[currentIndex].replace('{creator}', profileName)
         : `Your idea → ${profileName}'s next video`;
 
     return (
         <div className="mb-24">
             <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight mb-4 px-1">{getTranslation('All Videos (0)', selectedLanguage)}</h2>
-            
+
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center text-center min-h-[280px] justify-center">
                 <div className="mb-6 text-gray-400">
                     <Icon name="video" size={48} strokeWidth={1.5} />
                 </div>
                 <h3 className="text-gray-400 text-lg mb-10">{getTranslation('Full video catalog coming soon', selectedLanguage)}</h3>
-                
-                <button 
+
+                <button
                     onClick={() => {
                         // show a brief active state so users perceive the press, then navigate
                         setCtaActive(true);
@@ -1626,8 +1625,8 @@ const AboutSection = ({ profile, onUpdate, isPreviewMode, selectedLanguage = 'En
                     <div className="mb-4">
                         <label className="block text-gray-700 font-medium mb-2 text-sm">{getTranslation('About You', selectedLanguage)}</label>
                         <div className="bg-gray-100 rounded-xl px-4 py-3">
-                            <textarea 
-                                className="bg-transparent w-full outline-none text-gray-900 text-base resize-none" 
+                            <textarea
+                                className="bg-transparent w-full outline-none text-gray-900 text-base resize-none"
                                 rows={4}
                                 value={tempBio}
                                 onChange={(e) => setTempBio(e.target.value)}
@@ -1640,35 +1639,35 @@ const AboutSection = ({ profile, onUpdate, isPreviewMode, selectedLanguage = 'En
                         <label className="block text-gray-700 font-medium mb-2 text-sm">{getTranslation('Social Links (Optional)', selectedLanguage)}</label>
                         <div className="bg-gray-100 rounded-xl px-4 py-3 mb-3 flex items-center">
                             <Icon name="twitter" size={18} className="text-gray-500 mr-3" />
-                            <input 
-                                type="text" 
-                                placeholder={getTranslation('Twitter/X username (without @)', selectedLanguage)} 
+                            <input
+                                type="text"
+                                placeholder={getTranslation('Twitter/X username (without @)', selectedLanguage)}
                                 value={tempSocial.twitter}
-                                onChange={(e) => setTempSocial({...tempSocial, twitter: e.target.value})}
-                                className="bg-transparent w-full outline-none text-gray-900 text-base" 
+                                onChange={(e) => setTempSocial({ ...tempSocial, twitter: e.target.value })}
+                                className="bg-transparent w-full outline-none text-gray-900 text-base"
                             />
                         </div>
                         <div className="bg-gray-100 rounded-xl px-4 py-3 flex items-center">
                             <Icon name="instagram" size={18} className="text-gray-500 mr-3" />
-                            <input 
-                                type="text" 
-                                placeholder={getTranslation('Instagram username (without @)', selectedLanguage)} 
+                            <input
+                                type="text"
+                                placeholder={getTranslation('Instagram username (without @)', selectedLanguage)}
                                 value={tempSocial.instagram}
-                                onChange={(e) => setTempSocial({...tempSocial, instagram: e.target.value})}
-                                className="bg-transparent w-full outline-none text-gray-900 text-base" 
+                                onChange={(e) => setTempSocial({ ...tempSocial, instagram: e.target.value })}
+                                className="bg-transparent w-full outline-none text-gray-900 text-base"
                             />
                         </div>
                     </div>
 
                     <div className="flex justify-end gap-3">
-                        <button 
+                        <button
                             onClick={() => setIsEditing(false)}
                             className="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 flex items-center text-sm"
                         >
                             <Icon name="x" size={16} className="mr-2" />
                             {getTranslation('Cancel', selectedLanguage)}
                         </button>
-                        <button 
+                        <button
                             onClick={handleSave}
                             className="px-6 py-2 rounded-lg bg-[var(--color-gold)] font-medium text-black hover:bg-[var(--color-gold-darker)] flex items-center shadow-sm text-sm"
                         >
@@ -1686,7 +1685,7 @@ const AboutSection = ({ profile, onUpdate, isPreviewMode, selectedLanguage = 'En
             <div className="flex justify-between items-center mb-4 px-1">
                 <h2 className="text-xl font-normal text-gray-900">{getTranslation('About', selectedLanguage)}</h2>
                 {!isPreviewMode && (
-                    <button 
+                    <button
                         onClick={handleEditClick}
                         className="flex items-center text-gray-900 font-medium text-sm hover:text-gray-600 transition"
                     >
@@ -1695,7 +1694,7 @@ const AboutSection = ({ profile, onUpdate, isPreviewMode, selectedLanguage = 'En
                     </button>
                 )}
             </div>
-            
+
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                 <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
                     {profile.bio}
@@ -1709,7 +1708,7 @@ const ShareProfile = ({ profile, onCopy, selectedLanguage = 'English' }) => {
     const handleCopy = async () => {
         // Construct the profile URL (using current origin + handle for demo)
         const url = `${window.location.origin}/@${profile?.handle || 'user'}`;
-        
+
         const successData = { title: "Link Copied", subtitle: "Profile link copied to clipboard" };
 
         try {
@@ -1725,19 +1724,19 @@ const ShareProfile = ({ profile, onCopy, selectedLanguage = 'English' }) => {
             try {
                 const textArea = document.createElement("textarea");
                 textArea.value = url;
-                
+
                 // Ensure it's not visible but part of the DOM
                 textArea.style.position = "fixed";
                 textArea.style.left = "-9999px";
                 textArea.style.top = "0";
                 document.body.appendChild(textArea);
-                
+
                 textArea.focus();
                 textArea.select();
-                
+
                 const successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
-                
+
                 if (successful) {
                     if (onCopy) onCopy(successData);
                 } else {
@@ -1766,8 +1765,8 @@ const ShareProfile = ({ profile, onCopy, selectedLanguage = 'English' }) => {
                         <p className="text-gray-500 text-sm">{getTranslation('Copy your unique profile link', selectedLanguage)}</p>
                     </div>
                 </div>
-                
-                <button 
+
+                <button
                     onClick={handleCopy}
                     className="flex items-center px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 hover:bg-gray-50 transition whitespace-nowrap active:scale-95 active:bg-gray-100"
                 >
@@ -1841,7 +1840,7 @@ const Toast = ({ data, onClose }) => {
     if (!data) return null;
 
     return (
-        <div 
+        <div
             ref={toastRef}
             className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl min-w-[280px] max-w-[360px] transition-all duration-300 cursor-grab select-none backdrop-blur-xl ${isDismissing ? 'opacity-0 scale-95 -translate-y-4' : 'opacity-100 scale-100'}`}
             style={{
@@ -1883,7 +1882,7 @@ const Toast = ({ data, onClose }) => {
                 }
             `}</style>
             <div className="relative flex-shrink-0">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center relative overflow-hidden" 
+                <div className="w-10 h-10 rounded-full flex items-center justify-center relative overflow-hidden"
                     style={{
                         background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                         boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
@@ -1891,7 +1890,7 @@ const Toast = ({ data, onClose }) => {
                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
                     <Icon name="check" size={18} className="text-white relative z-10 toast-check-icon" strokeWidth={3} />
                 </div>
-                <div className="absolute -inset-1 rounded-full animate-pulse" 
+                <div className="absolute -inset-1 rounded-full animate-pulse"
                     style={{
                         background: 'radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%)',
                         animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
@@ -1901,7 +1900,7 @@ const Toast = ({ data, onClose }) => {
                 <h4 className="font-semibold text-sm text-gray-900 leading-tight">{data.title}</h4>
                 {data.subtitle && <p className="text-gray-600 text-xs mt-0.5 leading-snug">{data.subtitle}</p>}
             </div>
-            <button 
+            <button
                 onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
                 className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-gray-200/50 transition-colors"
                 aria-label="Dismiss notification"
@@ -1933,7 +1932,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
             <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
             <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
                 {/* Header */}
-                    <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
+                <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
                     <div className="flex items-center gap-2 mb-1">
                         <span className="text-[var(--color-gold)] font-semibold text-xl">$</span>
                         <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
@@ -1948,7 +1947,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                     {/* Creator Card */}
                     <div className="bg-gray-50 rounded-2xl p-4 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                             <img src={profile.image || "https://placehold.co/400x400/e2e8f0/1e293b?text=User"} alt="Profile" className="w-full h-full object-cover" />
+                            <img src={profile.image || "https://placehold.co/400x400/e2e8f0/1e293b?text=User"} alt="Profile" className="w-full h-full object-cover" />
                         </div>
                         <div>
                             <p className="text-gray-600 text-sm sm:text-base">{getTranslation('Sending tip to', selectedLanguage)}</p>
@@ -1986,15 +1985,15 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                         <div className="flex gap-3">
                             <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
                                 <span className="text-gray-400 mr-2 text-lg">$</span>
-                                <input 
-                                    type="number" 
+                                <input
+                                    type="number"
                                     value={customAmount}
                                     onChange={(e) => {
                                         setCustomAmount(e.target.value);
                                         setSelectedAmount(null);
                                     }}
-                                    className="bg-transparent w-full outline-none text-gray-900 font-semibold text-lg" 
-                                    placeholder={getTranslation('Enter amount', selectedLanguage)} 
+                                    className="bg-transparent w-full outline-none text-gray-900 font-semibold text-lg"
+                                    placeholder={getTranslation('Enter amount', selectedLanguage)}
                                 />
                             </div>
                             <button
@@ -2081,7 +2080,7 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
 
                 {/* Avatar */}
                 <div className="mb-4 relative">
-                     <div className="w-28 h-28 rounded-full p-1 shadow-sm bg-transparent">
+                    <div className="w-28 h-28 rounded-full p-1 shadow-sm bg-transparent">
                         <div className="w-full h-full rounded-full p-1 shimmer-gold">
                             <div className="w-full h-full rounded-full border-4 border-white overflow-hidden bg-gray-200 relative">
                                 <img
@@ -2120,7 +2119,7 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
                     }}
                     aria-label={ctaText}
                 >
-                    <div 
+                    <div
                         className="absolute top-0 h-full w-2/3 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                         style={{ animation: 'shine 6s infinite' }}
                     ></div>
@@ -2129,14 +2128,14 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
                 </button>
 
                 <div className="flex gap-3 w-full mb-4 flex-nowrap">
-                    <button 
+                    <button
                         onClick={onSendTip}
                         className="flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide"
                     >
                         <Icon name="heart" size={18} className="mr-2 flex-shrink-0" />
                         <span className="truncate">{getTranslation('Send Tip', selectedLanguage)}</span>
                     </button>
-                    <button 
+                    <button
                         onClick={onBecomeSponsor}
                         className="flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide"
                     >
@@ -2192,8 +2191,8 @@ const WelcomePopupConfig = ({ isOpen, onClose, data, onSave, onPreview, isPrevie
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('Title', selectedLanguage)}</label>
                         <div className="bg-gray-100 rounded-xl px-4 py-3">
-                            <input 
-                                type="text" 
+                            <input
+                                type="text"
                                 value={tempData.title}
                                 onChange={(e) => handleChange('title', e.target.value)}
                                 className="bg-transparent w-full outline-none text-gray-900 font-medium"
@@ -2208,7 +2207,7 @@ const WelcomePopupConfig = ({ isOpen, onClose, data, onSave, onPreview, isPrevie
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('Message', selectedLanguage)}</label>
                         <div className="bg-gray-100 rounded-xl px-4 py-3">
-                            <textarea 
+                            <textarea
                                 value={tempData.message}
                                 onChange={(e) => handleChange('message', e.target.value)}
                                 className="bg-transparent w-full outline-none text-gray-900 resize-none font-medium"
@@ -2223,8 +2222,8 @@ const WelcomePopupConfig = ({ isOpen, onClose, data, onSave, onPreview, isPrevie
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{getTranslation('CTA Button Text', selectedLanguage)}</label>
                         <div className="bg-gray-100 rounded-xl px-4 py-3">
-                            <input 
-                                type="text" 
+                            <input
+                                type="text"
                                 value={tempData.ctaText}
                                 onChange={(e) => handleChange('ctaText', e.target.value)}
                                 className="bg-transparent w-full outline-none text-gray-900 font-medium"
@@ -2233,24 +2232,24 @@ const WelcomePopupConfig = ({ isOpen, onClose, data, onSave, onPreview, isPrevie
                         </div>
                         <div className="text-right text-xs text-gray-400 mt-1">{tempData.ctaText.length}/40 {getTranslation('characters', selectedLanguage)}</div>
                     </div>
-                    
+
                     {/* Buttons */}
                     <div className="flex gap-3 mt-auto">
-                        <button 
+                        <button
                             onClick={handleReset}
                             className="flex-1 bg-white border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center"
                         >
                             <Icon name="refresh" size={18} className="mr-2" />
                             {getTranslation('Reset', selectedLanguage)}
                         </button>
-                        <button 
+                        <button
                             onClick={() => onPreview(tempData)}
                             className="flex-1 bg-white border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition flex items-center justify-center"
                         >
                             <Icon name="eye" size={18} className="mr-2" />
                             {getTranslation('Preview', selectedLanguage)}
                         </button>
-                        <button 
+                        <button
                             onClick={() => { onSave(tempData); onClose(); }}
                             className="flex-grow flex items-center justify-center px-4 py-3 bg-[var(--color-gold)] rounded-xl text-sm font-bold text-black hover:bg-[var(--color-gold-darker)] transition shadow-sm"
                         >
@@ -2317,9 +2316,9 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                 {/* Header */}
                 <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
                     <div className="text-center px-4">
-                                <h2 className="text-lg sm:text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight leading-tight">{getTranslation('Become a Sponsor', selectedLanguage)}</h2>
-                                <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1 max-w-[90%] mx-auto">{getTranslation('Support {name} and get exclusive perks', selectedLanguage).replace('{name}', profile.name)}</p>
-                            </div>
+                        <h2 className="text-lg sm:text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight leading-tight">{getTranslation('Become a Sponsor', selectedLanguage)}</h2>
+                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1 max-w-[90%] mx-auto">{getTranslation('Support {name} and get exclusive perks', selectedLanguage).replace('{name}', profile.name)}</p>
+                    </div>
                     <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
                         <Icon name="x" size={24} />
                     </button>
@@ -2574,7 +2573,7 @@ const CompleteProfilePopup = ({ onClose, profile, onUpdate, isPreview = false })
                                                 />
                                             )
                                             : <span className="text-gray-400">{getTranslation('Email not verified yet', selectedLanguage)}</span>
-                            }
+                                }
                             </div>
                             {!emailVerified && <Icon name="alertCircle" size={20} className="text-orange-400 ml-2" />}
                         </div>
@@ -2639,7 +2638,7 @@ const App = () => {
     const [selectedLanguage, setSelectedLanguage] = useState(() => {
         return localStorage.getItem('regaarder_language') || 'English';
     });
-    
+
     useEffect(() => {
         const handleLanguageChange = () => {
             const newLang = localStorage.getItem('regaarder_language') || 'English';
@@ -2648,7 +2647,7 @@ const App = () => {
         window.addEventListener('languageChanged', handleLanguageChange);
         return () => window.removeEventListener('languageChanged', handleLanguageChange);
     }, []);
-    
+
     const [isPreviewMode, setIsPreviewMode] = useState(false);
     const [showCompleteProfile, setShowCompleteProfile] = useState(false);
     const [showWelcomePopup, setShowWelcomePopup] = useState(false);
@@ -2657,7 +2656,7 @@ const App = () => {
     const [showSendTipPopup, setShowSendTipPopup] = useState(false);
     const [showCTAPopup, setShowCTAPopup] = useState(false);
     const [showAllVideos, setShowAllVideos] = useState(false);
-    const [toastMessage, setToastMessage] = useState(null); 
+    const [toastMessage, setToastMessage] = useState(null);
     const [featuredVideo, setFeaturedVideo] = useState(null);
     const [profile, setProfile] = useState({
         name: 'Nejdkr',
@@ -2699,7 +2698,7 @@ const App = () => {
                             if (json && json.user) {
                                 const safeUser = { ...json.user };
                                 if (safeUser.image && String(safeUser.image).startsWith('blob:')) safeUser.image = '';
-                                if (safeUser.image) { try { const u = new URL(safeUser.image); if (u.hostname === 'localhost') u.hostname = window.location.hostname; if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; safeUser.image = u.toString(); } catch (e) {} }
+                                if (safeUser.image) { try { const u = new URL(safeUser.image); if (u.hostname === 'localhost') u.hostname = window.location.hostname; if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; safeUser.image = u.toString(); } catch (e) { } }
                                 if (safeUser.document && String(safeUser.document).startsWith('blob:')) safeUser.document = '';
                                 setProfile(prev => ({ ...prev, ...safeUser }));
                                 if (json.user.introVideo) setFeaturedVideo({ url: json.user.introVideo });
@@ -2721,7 +2720,7 @@ const App = () => {
                             if (json && json.user) {
                                 const safeUser = { ...json.user };
                                 if (safeUser.image && String(safeUser.image).startsWith('blob:')) safeUser.image = '';
-                                if (safeUser.image) { try { const u = new URL(safeUser.image); if (u.hostname === 'localhost') u.hostname = window.location.hostname; if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; safeUser.image = u.toString(); } catch (e) {} }
+                                if (safeUser.image) { try { const u = new URL(safeUser.image); if (u.hostname === 'localhost') u.hostname = window.location.hostname; if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; safeUser.image = u.toString(); } catch (e) { } }
                                 if (safeUser.document && String(safeUser.document).startsWith('blob:')) safeUser.document = '';
                                 setProfile(prev => ({ ...prev, ...safeUser }));
                                 if (json.user.introVideo) setFeaturedVideo({ url: json.user.introVideo });
@@ -2740,7 +2739,7 @@ const App = () => {
                     if (stored && typeof stored === 'object') {
                         const safeStored = { ...stored };
                         if (safeStored.image && String(safeStored.image).startsWith('blob:')) safeStored.image = '';
-                        if (safeStored.image) { try { const u = new URL(safeStored.image); if (u.hostname === 'localhost') u.hostname = window.location.hostname; if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; safeStored.image = u.toString(); } catch (e) {} }
+                        if (safeStored.image) { try { const u = new URL(safeStored.image); if (u.hostname === 'localhost') u.hostname = window.location.hostname; if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; safeStored.image = u.toString(); } catch (e) { } }
                         if (safeStored.document && String(safeStored.document).startsWith('blob:')) safeStored.document = '';
                         setProfile(prev => ({ ...prev, ...safeStored }));
                         if (stored.introVideo) {
@@ -2752,7 +2751,7 @@ const App = () => {
                         }
                     }
                 } catch (e) { /* ignore */ }
-                
+
                 // Check if user has a valid token, if not show a helpful message
                 const token = localStorage.getItem('regaarder_token');
                 if (!token) {
@@ -3232,9 +3231,9 @@ const App = () => {
                 }
                 const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/creator/complete`, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'Authorization': `Bearer ${token}` 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ introVideo: videoData.url })
                 });
@@ -3262,9 +3261,9 @@ const App = () => {
                 }
                 const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/creator/complete`, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'Authorization': `Bearer ${token}` 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ introVideo: null })
                 });
@@ -3294,17 +3293,17 @@ const App = () => {
                 console.warn('No authentication token found. Profile changes saved locally only.');
                 return;
             }
-            
+
             const payload = { [field]: value };
             const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/creator/complete`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'Authorization': `Bearer ${token}` 
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(payload)
             });
-            
+
             if (!response.ok) {
                 if (response.status === 401) {
                     console.warn('Authentication failed. Token may be invalid or expired. Changes saved locally only.');
@@ -3328,9 +3327,9 @@ const App = () => {
     const getSelectedTemplates = () => {
         const selected = [];
         categories.forEach(cat => {
-            if(cat.templates) {
+            if (cat.templates) {
                 cat.templates.forEach(t => {
-                    if(t.selected) selected.push(t.text);
+                    if (t.selected) selected.push(t.text);
                 });
             }
         });
@@ -3338,14 +3337,14 @@ const App = () => {
     };
 
     const handleToggleCategory = (id) => {
-        setCategories(categories.map(cat => 
+        setCategories(categories.map(cat =>
             cat.id === id ? { ...cat, isOpen: !cat.isOpen } : cat
         ));
     };
 
     const handleToggleTemplate = (categoryId, templateId) => {
         const selectedCount = getSelectedTemplates().length;
-        
+
         // Check if we are selecting a new one (not deselecting)
         let isSelecting = false;
         const category = categories.find(c => c.id === categoryId);
@@ -3369,7 +3368,7 @@ const App = () => {
             if (!cat.templates) return cat;
             return {
                 ...cat,
-                templates: cat.templates.map(t => 
+                templates: cat.templates.map(t =>
                     t.id === templateId ? { ...t, selected: !t.selected } : t
                 )
             };
@@ -3382,7 +3381,7 @@ const App = () => {
             const existing = JSON.parse(localStorage.getItem('regaarder_user') || '{}');
             localStorage.setItem('regaarder_user', JSON.stringify({ ...existing, categories: updated }));
         } catch (e) { console.warn('Failed saving categories locally', e); }
-        
+
         (async () => {
             try {
                 const token = localStorage.getItem('regaarder_token');
@@ -3392,9 +3391,9 @@ const App = () => {
                 }
                 const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/creator/complete`, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'Authorization': `Bearer ${token}` 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ categories: updated })
                 });
@@ -3426,7 +3425,7 @@ const App = () => {
             const existing = JSON.parse(localStorage.getItem('regaarder_user') || '{}');
             localStorage.setItem('regaarder_user', JSON.stringify({ ...existing, categories: updated }));
         } catch (e) { console.warn('Failed saving new template locally', e); }
-        
+
         (async () => {
             try {
                 const token = localStorage.getItem('regaarder_token');
@@ -3436,9 +3435,9 @@ const App = () => {
                 }
                 const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/creator/complete`, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'Authorization': `Bearer ${token}` 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ categories: updated })
                 });
@@ -3480,148 +3479,148 @@ const App = () => {
     };
 
     return (
-            <div className="max-w-md mx-auto min-h-screen bg-gray-50 font-sans relative overflow-hidden">
-                {/* Toast Notification */}
-                {toastMessage && <Toast data={toastMessage} onClose={() => setToastMessage(null)} />}
+        <div className="max-w-md mx-auto min-h-screen bg-gray-50 font-sans relative overflow-hidden">
+            {/* Toast Notification */}
+            {toastMessage && <Toast data={toastMessage} onClose={() => setToastMessage(null)} />}
 
-                {showCompleteProfile && <CompleteProfilePopup isPreview={isPreviewMode} onClose={() => setShowCompleteProfile(false)} profile={profile} onUpdate={handleUpdateProfile} selectedLanguage={selectedLanguage} />}
-                {showWelcomePopup && (
-                    <WelcomePopup 
-                        isOpen={showWelcomePopup} 
-                        isPreview={isPreviewMode}
-                        onClose={() => {
-                            setShowWelcomePopup(false);
-                            setPreviewWelcomeData(null);
-                        }} 
-                        profile={profile} 
-                        customData={previewWelcomeData || welcomeData}
-                        onBecomeSponsor={() => {
-                            setShowWelcomePopup(false);
-                            setShowSponsorPopup(true);
-                        }}
-                        onSendTip={() => {
-                            setShowWelcomePopup(false);
-                            setShowSendTipPopup(true);
-                        }}
-                        selectedLanguage={selectedLanguage}
-                    />
-                )}
-                {showWelcomeConfig && (
-                    <WelcomePopupConfig 
-                        isOpen={showWelcomeConfig}
-                        isPreview={isPreviewMode}
-                        onClose={() => setShowWelcomeConfig(false)}
-                        data={welcomeData}
-                        selectedLanguage={selectedLanguage}
-                        onSave={setWelcomeData}
-                        onPreview={(data) => {
-                            setPreviewWelcomeData(data);
-                            setShowWelcomePopup(true);
-                        }}
-                        selectedLanguage={selectedLanguage}
-                    />
-                )}
-                {showSponsorPopup && <SponsorPopup isOpen={showSponsorPopup} isPreview={isPreviewMode} onClose={() => setShowSponsorPopup(false)} profile={profile} selectedLanguage={selectedLanguage} />}
-                {showSendTipPopup && <SendTipPopup isOpen={showSendTipPopup} isPreview={isPreviewMode} onClose={() => setShowSendTipPopup(false)} profile={profile} selectedLanguage={selectedLanguage} />}
-                {showCTAPopup && (
-                    <CTAPopup 
-                        isOpen={showCTAPopup} 
-                        isPreview={isPreviewMode}
-                        onClose={() => setShowCTAPopup(false)} 
-                        onShowToast={setToastMessage} 
-                        categories={categories}
-                        onToggleCategory={handleToggleCategory}
-                        onToggleTemplate={handleToggleTemplate}
-                        onCreateTemplate={handleCreateTemplate}
-                        selectedLanguage={selectedLanguage}
-                    />
-                )}
-                {showAllVideos && <AllVideosPopup videos={videos} isPreview={isPreviewMode} onClose={() => setShowAllVideos(false)} onDelete={handleDeleteVideo} selectedLanguage={selectedLanguage} />}
-                
-                {/* Scrollable Container */}
-                <div className="h-screen overflow-y-auto pb-20 scrollbar-hide">
-                    <ProfileHeader 
-                        profile={profile} 
-                        onUpdate={handleUpdateProfile} 
-                        isPreviewMode={isPreviewMode}
-                        onTogglePreview={togglePreviewMode}
-                        onTip={() => setShowSendTipPopup(true)}
-                        selectedCTAs={getSelectedTemplates()}
-                        onCTAClick={handleFanRequest}
-                        availableTags={creatorTags}
-                        onShowToast={setToastMessage}
-                        selectedLanguage={selectedLanguage}
-                    />
-                    
-                    <div className="px-4 mt-6">
-                        {!isPreviewMode && (
-                            <>
-                                {/* Complete Your Profile Card - matches provided design */}
-                                <div 
-                                    className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4 cursor-pointer transition hover:shadow-md"
-                                    onClick={() => setShowCompleteProfile(true)}
-                                >
-                                    <div className="flex justify-between items-center mb-2">
-                                        <div className="flex items-center">
-                                            <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-3 relative overflow-hidden"
-                                                style={{
-                                                    background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
-                                                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-                                                }}>
-                                                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-                                                <Icon name="sparkles" size={20} className="text-white relative z-10" />
-                                            </div>
-                                            <h3 className="font-semibold text-lg text-gray-900">{getTranslation('Complete Your Profile', selectedLanguage)}</h3>
+            {showCompleteProfile && <CompleteProfilePopup isPreview={isPreviewMode} onClose={() => setShowCompleteProfile(false)} profile={profile} onUpdate={handleUpdateProfile} selectedLanguage={selectedLanguage} />}
+            {showWelcomePopup && (
+                <WelcomePopup
+                    isOpen={showWelcomePopup}
+                    isPreview={isPreviewMode}
+                    onClose={() => {
+                        setShowWelcomePopup(false);
+                        setPreviewWelcomeData(null);
+                    }}
+                    profile={profile}
+                    customData={previewWelcomeData || welcomeData}
+                    onBecomeSponsor={() => {
+                        setShowWelcomePopup(false);
+                        setShowSponsorPopup(true);
+                    }}
+                    onSendTip={() => {
+                        setShowWelcomePopup(false);
+                        setShowSendTipPopup(true);
+                    }}
+                    selectedLanguage={selectedLanguage}
+                />
+            )}
+            {showWelcomeConfig && (
+                <WelcomePopupConfig
+                    isOpen={showWelcomeConfig}
+                    isPreview={isPreviewMode}
+                    onClose={() => setShowWelcomeConfig(false)}
+                    data={welcomeData}
+                    selectedLanguage={selectedLanguage}
+                    onSave={setWelcomeData}
+                    onPreview={(data) => {
+                        setPreviewWelcomeData(data);
+                        setShowWelcomePopup(true);
+                    }}
+                    selectedLanguage={selectedLanguage}
+                />
+            )}
+            {showSponsorPopup && <SponsorPopup isOpen={showSponsorPopup} isPreview={isPreviewMode} onClose={() => setShowSponsorPopup(false)} profile={profile} selectedLanguage={selectedLanguage} />}
+            {showSendTipPopup && <SendTipPopup isOpen={showSendTipPopup} isPreview={isPreviewMode} onClose={() => setShowSendTipPopup(false)} profile={profile} selectedLanguage={selectedLanguage} />}
+            {showCTAPopup && (
+                <CTAPopup
+                    isOpen={showCTAPopup}
+                    isPreview={isPreviewMode}
+                    onClose={() => setShowCTAPopup(false)}
+                    onShowToast={setToastMessage}
+                    categories={categories}
+                    onToggleCategory={handleToggleCategory}
+                    onToggleTemplate={handleToggleTemplate}
+                    onCreateTemplate={handleCreateTemplate}
+                    selectedLanguage={selectedLanguage}
+                />
+            )}
+            {showAllVideos && <AllVideosPopup videos={videos} isPreview={isPreviewMode} onClose={() => setShowAllVideos(false)} onDelete={handleDeleteVideo} selectedLanguage={selectedLanguage} />}
+
+            {/* Scrollable Container */}
+            <div className="h-screen overflow-y-auto pb-20 scrollbar-hide">
+                <ProfileHeader
+                    profile={profile}
+                    onUpdate={handleUpdateProfile}
+                    isPreviewMode={isPreviewMode}
+                    onTogglePreview={togglePreviewMode}
+                    onTip={() => setShowSendTipPopup(true)}
+                    selectedCTAs={getSelectedTemplates()}
+                    onCTAClick={handleFanRequest}
+                    availableTags={creatorTags}
+                    onShowToast={setToastMessage}
+                    selectedLanguage={selectedLanguage}
+                />
+
+                <div className="px-4 mt-6">
+                    {!isPreviewMode && (
+                        <>
+                            {/* Complete Your Profile Card - matches provided design */}
+                            <div
+                                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4 cursor-pointer transition hover:shadow-md"
+                                onClick={() => setShowCompleteProfile(true)}
+                            >
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="flex items-center">
+                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-3 relative overflow-hidden"
+                                            style={{
+                                                background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+                                                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+                                            }}>
+                                            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+                                            <Icon name="sparkles" size={20} className="text-white relative z-10" />
                                         </div>
-                                        <span className="text-blue-600 font-bold text-base">0%</span>
+                                        <h3 className="font-semibold text-lg text-gray-900">{getTranslation('Complete Your Profile', selectedLanguage)}</h3>
                                     </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                        <div className="h-2 rounded-full" style={{ width: `80%`, background: 'linear-gradient(90deg, #3B82F6 0%, #8B5CF6 100%)' }}></div>
-                                    </div>
-                                    <p className="text-xs text-gray-500 mb-3">{getTranslation('0 of 10 fields completed • Tap to edit', selectedLanguage)}</p>
-                                    <div className="flex flex-wrap gap-2 items-center">
-                                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md">{getTranslation('Missing fields:', selectedLanguage)}</span>
-                                        <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md font-medium">{getTranslation('Tagline', selectedLanguage)}</span>
-                                        <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md font-medium">{getTranslation('Email Verified', selectedLanguage)}</span>
-                                    </div>
+                                    <span className="text-blue-600 font-bold text-base">0%</span>
                                 </div>
-                                {/* End Complete Your Profile Card */}
+                                <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                    <div className="h-2 rounded-full" style={{ width: `80%`, background: 'linear-gradient(90deg, #3B82F6 0%, #8B5CF6 100%)' }}></div>
+                                </div>
+                                <p className="text-xs text-gray-500 mb-3">{getTranslation('0 of 10 fields completed • Tap to edit', selectedLanguage)}</p>
+                                <div className="flex flex-wrap gap-2 items-center">
+                                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md">{getTranslation('Missing fields:', selectedLanguage)}</span>
+                                    <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md font-medium">{getTranslation('Tagline', selectedLanguage)}</span>
+                                    <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md font-medium">{getTranslation('Email Verified', selectedLanguage)}</span>
+                                </div>
+                            </div>
+                            {/* End Complete Your Profile Card */}
 
-                                <ActionCard 
-                                    title={getTranslation('Customize Welcome Popup', selectedLanguage)} 
-                                    icon="sparkles"
-                                    isPopup={true}
-                                    onClick={() => setShowWelcomeConfig(true)}
-                                    onPreview={() => setShowWelcomePopup(true)}
-                                    selectedLanguage={selectedLanguage}
-                                />
-                            </>
-                        )}
+                            <ActionCard
+                                title={getTranslation('Customize Welcome Popup', selectedLanguage)}
+                                icon="sparkles"
+                                isPopup={true}
+                                onClick={() => setShowWelcomeConfig(true)}
+                                onPreview={() => setShowWelcomePopup(true)}
+                                selectedLanguage={selectedLanguage}
+                            />
+                        </>
+                    )}
 
-                        <FeaturedVideo 
-                            isPreviewMode={isPreviewMode} 
-                            video={featuredVideo}
-                            onUpload={handleFeaturedVideoUpload}
-                            onDelete={handleDeleteFeaturedVideo}
-                            selectedLanguage={selectedLanguage}
-                        />
-                        <TopVideos videos={videos} onViewAll={() => setShowAllVideos(true)} isPreviewMode={isPreviewMode} selectedLanguage={selectedLanguage} />
-                        <AboutSection profile={profile} onUpdate={handleUpdateProfile} isPreviewMode={isPreviewMode} selectedLanguage={selectedLanguage} />
-                        
-                        {!isPreviewMode && <QuickCTATemplates onCustomize={() => setShowCTAPopup(true)} selectedLanguage={selectedLanguage} />}
-                        {!isPreviewMode && <ShareProfile profile={profile} onCopy={setToastMessage} selectedLanguage={selectedLanguage} />}
-                        
-                        <AllVideos 
-                            selectedCTAs={getSelectedTemplates()} 
-                            profileName={profile.name} 
-                            onCTAClick={handleFanRequest}
-                            selectedLanguage={selectedLanguage}
-                        />
-                    </div>
+                    <FeaturedVideo
+                        isPreviewMode={isPreviewMode}
+                        video={featuredVideo}
+                        onUpload={handleFeaturedVideoUpload}
+                        onDelete={handleDeleteFeaturedVideo}
+                        selectedLanguage={selectedLanguage}
+                    />
+                    <TopVideos videos={videos} onViewAll={() => setShowAllVideos(true)} isPreviewMode={isPreviewMode} selectedLanguage={selectedLanguage} />
+                    <AboutSection profile={profile} onUpdate={handleUpdateProfile} isPreviewMode={isPreviewMode} selectedLanguage={selectedLanguage} />
+
+                    {!isPreviewMode && <QuickCTATemplates onCustomize={() => setShowCTAPopup(true)} selectedLanguage={selectedLanguage} />}
+                    {!isPreviewMode && <ShareProfile profile={profile} onCopy={setToastMessage} selectedLanguage={selectedLanguage} />}
+
+                    <AllVideos
+                        selectedCTAs={getSelectedTemplates()}
+                        profileName={profile.name}
+                        onCTAClick={handleFanRequest}
+                        selectedLanguage={selectedLanguage}
+                    />
                 </div>
-
-                <BottomBar selectedLanguage={selectedLanguage} />
             </div>
+
+            <BottomBar selectedLanguage={selectedLanguage} />
+        </div>
     );
 };
 

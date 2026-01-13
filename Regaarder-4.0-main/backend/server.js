@@ -11,6 +11,15 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(bodyParser.json());
 
+// DEBUG LOGGER
+app.use((req, res, next) => {
+    if (req.method === 'POST' || req.method === 'PUT') {
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+        // console.log('Body:', JSON.stringify(req.body, null, 2));
+    }
+    next();
+});
+
 const DATA_FILE = path.join(__dirname, 'users.json');
 const SPONSORS_FILE = path.join(__dirname, 'sponsors.json');
 const REQUESTS_FILE = path.join(__dirname, 'requests.json');
@@ -1961,18 +1970,39 @@ app.get('/requests/react/me', authMiddleware, (req, res) => {
   }
 });
 
-// Payment session stub: update boosts and return success
-app.post('/api/pay/create-session', (req, res) => {
+// Payment session stub: update boosts and return success. works for new request creation too (no existing request)
+app.post('/pay/create-session', (req, res) => {
   try {
     const { requestId, amount, provider } = req.body || {};
-    if (!requestId || !amount) return res.status(400).json({ error: 'Missing requestId or amount' });
-    const requests = readRequests();
-    const idx = requests.findIndex(r => String(r.id) === String(requestId));
-    if (idx === -1) return res.status(404).json({ error: 'Request not found' });
-    const prev = Number(requests[idx].boosts || 0);
-    requests[idx].boosts = prev + Number(amount);
-    writeRequests(requests);
-    return res.json({ success: true, provider: provider || 'unknown' });
+    // Allow payment without requestId for new creation flows
+    if (!amount) return res.status(400).json({ error: 'Missing amount' });
+    
+    // If requestId is present, treat as boost
+    if (requestId) {
+        const requests = readRequests();
+        const idx = requests.findIndex(r => String(r.id) === String(requestId));
+        if (idx !== -1) {
+            const prev = Number(requests[idx].boosts || 0);
+            requests[idx].boosts = prev + Number(amount);
+            writeRequests(requests);
+        }
+    }
+    
+    // For zero-amount requests, return success without URL
+    if (amount <= 0) {
+        return res.json({ success: true, provider: provider || 'unknown' });
+    }
+    
+    // For paid requests, return Stripe checkout URL
+    // TODO: Integrate actual Stripe API to generate checkout session
+    // For now, return a mock success response that redirects to the app
+    // In production this would be the Stripe checkout URL
+    const origin = req.get('origin') || req.headers.referer || 'http://localhost:5173';
+    // Clean origin of trailing slash
+    const cleanOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+    
+    const mockCheckoutUrl = `${cleanOrigin}/ideas?payment_success=true&session_id=mock_session_${Date.now()}`;
+    return res.json({ success: true, url: mockCheckoutUrl, provider: provider || 'unknown' });
   } catch (err) {
     console.error('create-session error', err);
     return res.status(500).json({ error: 'Server error' });

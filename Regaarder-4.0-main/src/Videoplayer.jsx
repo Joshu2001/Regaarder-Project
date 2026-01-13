@@ -6,28 +6,28 @@ import * as eventBus from './eventbus.js';
 import { PlayerContext } from './PlayerProvider.jsx';
 
 const VideoPlayer = () => {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 	const location = useLocation();
-	
+
 	// FIX: Ensure selectedLanguage updates dynamically when changed elsewhere in the app.
 	const [selectedLanguage, setSelectedLanguage] = useState(
 		(typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English')
 	);
-	
+
 	useEffect(() => {
 		const handleStorageChange = () => {
 			const current = localStorage.getItem('regaarder_language') || 'English';
 			setSelectedLanguage(current);
 		};
-		
+
 		// Poll specifically for this legacy component style
 		const interval = setInterval(handleStorageChange, 1000);
 		return () => clearInterval(interval);
 	}, []);
 
-  const [error, setError] = useState(null);
-  const [videoInfo, setVideoInfo] = useState(null);
-  const videoRef = useRef(null);
+	const [error, setError] = useState(null);
+	const [videoInfo, setVideoInfo] = useState(null);
+	const videoRef = useRef(null);
 	const _recordFnRef = useRef(null);
 	const containerRef = useRef(null);
 	const player = useContext(PlayerContext) || {};
@@ -100,11 +100,11 @@ const VideoPlayer = () => {
 						const list = JSON.parse(raw);
 						if (Array.isArray(list) && list.length) {
 							currentSourceRef.current = list; // Update the correct ref
-							
+
 							// Always try to match the current video to the list first to ensure sync
 							const key = info.id || info.src || info.url || info.videoUrl || info.title;
 							let idx = list.findIndex(x => String(x) === String(key) || String(x) === String(info.url) || String(x) === String(info.src) || (typeof x === 'object' && (String(x.id) === String(key) || String(x.url) === String(key))));
-							
+
 							// If explicit index provided and valid, prioritize it but verify it matches
 							if (rawIdx != null && rawIdx !== undefined && !isNaN(parseInt(rawIdx, 10))) {
 								const storedIdx = parseInt(rawIdx, 10);
@@ -113,14 +113,14 @@ const VideoPlayer = () => {
 									// Otherwise trust the found idx (user might have deep linked to a different video while old state persisted)
 									const itemAtIdx = list[storedIdx];
 									const itemKey = typeof itemAtIdx === 'object' ? (itemAtIdx.id || itemAtIdx.url) : itemAtIdx;
-									
+
 									// Loose matching
 									if (idx === -1 || String(itemKey) === String(key) || String(itemKey) === String(info.url)) {
 										idx = storedIdx;
 									}
 								}
 							}
-							
+
 							if (idx !== -1) {
 								currentIndexRef.current = idx;
 								setCurrentIndex(idx);
@@ -132,7 +132,7 @@ const VideoPlayer = () => {
 							}
 						}
 					}
-				} catch (e) {}
+				} catch (e) { }
 
 				// end of videoInfo init
 			} catch (err) {
@@ -149,12 +149,12 @@ const VideoPlayer = () => {
 		// mount global video element into our container so it's visible in this route
 		try {
 			if (containerRef.current && v) {
-				try { containerRef.current.innerHTML = ''; } catch {}
-				try { containerRef.current.appendChild(v); } catch {}
-				try { v.style.display = 'block'; v.className = 'w-full rounded-lg bg-black'; } catch {}
-				try { videoRef.current = v; } catch {}
+				try { containerRef.current.innerHTML = ''; } catch { }
+				try { containerRef.current.appendChild(v); } catch { }
+				try { v.style.display = 'block'; v.className = 'w-full rounded-lg bg-black'; } catch { }
+				try { videoRef.current = v; } catch { }
 			}
-		} catch (e) {}
+		} catch (e) { }
 
 		// set source and attempt autoplay (muted trick)
 		try {
@@ -168,22 +168,22 @@ const VideoPlayer = () => {
 						const parsed = JSON.parse(raw);
 						if (parsed && parsed.currentTime) startTime = parsed.currentTime;
 					}
-				} catch {}
+				} catch { }
 				setSource(videoInfo.src, startTime, true);
 			} else if (v && videoInfo.src) {
-				if (v.src !== videoInfo.src) { v.src = videoInfo.src; try { v.load(); } catch {} }
-				try { v.currentTime = 0; } catch {}
-				const p = v.play(); if (p && p.catch) p.catch(() => {});
+				if (v.src !== videoInfo.src) { v.src = videoInfo.src; try { v.load(); } catch { } }
+				try { v.currentTime = 0; } catch { }
+				const p = v.play(); if (p && p.catch) p.catch(() => { });
 			}
 
 			if (v) {
-				try { v.muted = true; } catch {}
+				try { v.muted = true; } catch { }
 				const p = v.play();
 				if (p && typeof p.then === 'function') {
-					p.then(() => { try { v.muted = false; } catch {} }).catch((err) => { console.warn('Autoplay prevented:', err); });
+					p.then(() => { try { v.muted = false; } catch { } }).catch((err) => { console.warn('Autoplay prevented:', err); });
 				}
 			}
-		} catch (e) {}
+		} catch (e) { }
 	}, [videoInfo, globalVideoRef, setSource]);
 
 	// Attach important event listeners to the global video element (previously inline JSX handlers)
@@ -196,21 +196,21 @@ const VideoPlayer = () => {
 				const w = v.videoWidth || 16;
 				const h = v.videoHeight || 9;
 				const aspect = (w && h) ? (w / h) : (16 / 9);
-				try { setDuration(v.duration || 0); } catch {}
-				try { setNaturalAspect(aspect); } catch {}
-				try { setOrientation(aspect < 1 ? 'portrait' : 'landscape'); } catch {}
-			} catch {}
+				try { setDuration(v.duration || 0); } catch { }
+				try { setNaturalAspect(aspect); } catch { }
+				try { setOrientation(aspect < 1 ? 'portrait' : 'landscape'); } catch { }
+			} catch { }
 		};
 		const onTime = () => {
-			try { if (v.duration && !draggingRef.current) setProgress(v.currentTime / v.duration); } catch {}
+			try { if (v.duration && !draggingRef.current) setProgress(v.currentTime / v.duration); } catch { }
 		};
 		const onSeeking = () => {
-			try { console.debug('video seeking', v && v.currentTime); } catch {}
+			try { console.debug('video seeking', v && v.currentTime); } catch { }
 		};
-		const onSeeked = () => { try { console.debug('video seeked', v && v.currentTime); } catch {} };
-		const onPlay = () => { try { setIsPlaying(true); handlePlayRecord(); } catch {} };
-		const onPause = () => { try { setIsPlaying(false); } catch {} };
-		const onEnded = () => { try { setIsPlaying(false); setShowSuggestionCard(true); } catch {} };
+		const onSeeked = () => { try { console.debug('video seeked', v && v.currentTime); } catch { } };
+		const onPlay = () => { try { setIsPlaying(true); handlePlayRecord(); } catch { } };
+		const onPause = () => { try { setIsPlaying(false); } catch { } };
+		const onEnded = () => { try { setIsPlaying(false); setShowSuggestionCard(true); } catch { } };
 
 		v.addEventListener('loadedmetadata', onLoaded);
 		v.addEventListener('timeupdate', onTime);
@@ -221,73 +221,73 @@ const VideoPlayer = () => {
 		v.addEventListener('ended', onEnded);
 
 		return () => {
-			try { v.removeEventListener('loadedmetadata', onLoaded); } catch {}
-			try { v.removeEventListener('timeupdate', onTime); } catch {}
-			try { v.removeEventListener('seeking', onSeeking); } catch {}
-			try { v.removeEventListener('seeked', onSeeked); } catch {}
-			try { v.removeEventListener('play', onPlay); } catch {}
-			try { v.removeEventListener('pause', onPause); } catch {}
-			try { v.removeEventListener('ended', onEnded); } catch {}
+			try { v.removeEventListener('loadedmetadata', onLoaded); } catch { }
+			try { v.removeEventListener('timeupdate', onTime); } catch { }
+			try { v.removeEventListener('seeking', onSeeking); } catch { }
+			try { v.removeEventListener('seeked', onSeeked); } catch { }
+			try { v.removeEventListener('play', onPlay); } catch { }
+			try { v.removeEventListener('pause', onPause); } catch { }
+			try { v.removeEventListener('ended', onEnded); } catch { }
 		};
 	}, [globalVideoRef]);
 
-  // Allow vertical scroll (wheel) to navigate through the playlist persisted by the homepage.
-  useEffect(() => {
-    const handler = async (e) => {
-      try {
-        const now = Date.now();
-        if (now - lastWheelTimeRef.current < 650) return; // throttle
-        // deltaY < 0 => user scrolled up -> show next (below) video in homepage order
-        // deltaY > 0 => scrolled down -> show previous (above)
-        const dir = e.deltaY < 0 ? 1 : -1;
-        const list = currentPlaylistRef.current || [];
-        if (!list || !list.length) return;
-        let idx = currentIndexRef.current;
-        if (typeof idx !== 'number') idx = -1;
-        const next = idx + dir;
-        if (next < 0 || next >= list.length) return;
-        lastWheelTimeRef.current = now;
+	// Allow vertical scroll (wheel) to navigate through the playlist persisted by the homepage.
+	useEffect(() => {
+		const handler = async (e) => {
+			try {
+				const now = Date.now();
+				if (now - lastWheelTimeRef.current < 650) return; // throttle
+				// deltaY < 0 => user scrolled up -> show next (below) video in homepage order
+				// deltaY > 0 => scrolled down -> show previous (above)
+				const dir = e.deltaY < 0 ? 1 : -1;
+				const list = currentPlaylistRef.current || [];
+				if (!list || !list.length) return;
+				let idx = currentIndexRef.current;
+				if (typeof idx !== 'number') idx = -1;
+				const next = idx + dir;
+				if (next < 0 || next >= list.length) return;
+				lastWheelTimeRef.current = now;
 
-        // Try to resolve item to a video object using home.jsx exports
-        const targetId = list[next];
-        try {
-          const mod = await import('./home.jsx');
-          const getVideoById = mod.getVideoById;
-          const VIDEOS = mod.VIDEOS || mod.default?.VIDEOS || mod.homeVideos || mod.discoverItems || null;
-          let info = null;
-          if (typeof getVideoById === 'function') info = getVideoById(targetId);
-          if (!info && Array.isArray(VIDEOS)) info = VIDEOS.find(v => (v.id && String(v.id) === String(targetId)) || (v.url && String(v.url) === String(targetId)) || (v.src && String(v.src) === String(targetId)));
-          if (!info) {
-            // if targetId looks like a URL, create minimal info
-            if (typeof targetId === 'string' && /^(https?:)?\/\//.test(targetId)) {
-              info = { id: targetId, title: 'Video', src: targetId };
-            }
-          }
-          if (info) {
-            currentIndexRef.current = next;
-            setVideoInfo(info);
-            // update the video element source if present
-            try {
-              const v = videoRef.current;
-              if (v) {
-                if (info.src || info.url) {
-                  v.src = info.src || info.url;
-                  v.currentTime = 0;
-                  const p = v.play(); if (p && p.catch) p.catch(() => {});
-                }
-              }
-            } catch (err) {}
-            // persist index
-            try { localStorage.setItem('videoplayer_index', String(next)); } catch (e) {}
-          }
-        } catch (err) {
-          // ignore import errors
-        }
-      } catch (err) { }
-    };
-    window.addEventListener('wheel', handler, { passive: true });
-    return () => window.removeEventListener('wheel', handler);
-  }, []);
+				// Try to resolve item to a video object using home.jsx exports
+				const targetId = list[next];
+				try {
+					const mod = await import('./home.jsx');
+					const getVideoById = mod.getVideoById;
+					const VIDEOS = mod.VIDEOS || mod.default?.VIDEOS || mod.homeVideos || mod.discoverItems || null;
+					let info = null;
+					if (typeof getVideoById === 'function') info = getVideoById(targetId);
+					if (!info && Array.isArray(VIDEOS)) info = VIDEOS.find(v => (v.id && String(v.id) === String(targetId)) || (v.url && String(v.url) === String(targetId)) || (v.src && String(v.src) === String(targetId)));
+					if (!info) {
+						// if targetId looks like a URL, create minimal info
+						if (typeof targetId === 'string' && /^(https?:)?\/\//.test(targetId)) {
+							info = { id: targetId, title: 'Video', src: targetId };
+						}
+					}
+					if (info) {
+						currentIndexRef.current = next;
+						setVideoInfo(info);
+						// update the video element source if present
+						try {
+							const v = videoRef.current;
+							if (v) {
+								if (info.src || info.url) {
+									v.src = info.src || info.url;
+									v.currentTime = 0;
+									const p = v.play(); if (p && p.catch) p.catch(() => { });
+								}
+							}
+						} catch (err) { }
+						// persist index
+						try { localStorage.setItem('videoplayer_index', String(next)); } catch (e) { }
+					}
+				} catch (err) {
+					// ignore import errors
+				}
+			} catch (err) { }
+		};
+		window.addEventListener('wheel', handler, { passive: true });
+		return () => window.removeEventListener('wheel', handler);
+	}, []);
 
 	// Wire watch-history recording for this simple player instance (dynamic import to avoid bundler errors)
 	useEffect(() => {
@@ -295,7 +295,7 @@ const VideoPlayer = () => {
 		if (!v || !videoInfo) return;
 		let mounted = true;
 		// import once and cache the recording function
-		import('./watchhistory.jsx').then((m) => { if (mounted) _recordFnRef.current = m.recordWatchProgress; }).catch(() => {});
+		import('./watchhistory.jsx').then((m) => { if (mounted) _recordFnRef.current = m.recordWatchProgress; }).catch(() => { });
 
 		const saveProgress = (isComplete = false) => {
 			try {
@@ -314,7 +314,7 @@ const VideoPlayer = () => {
 				try {
 					const key = 'playback:' + (videoInfo.id || videoInfo.src || videoInfo.url || videoInfo.title || '');
 					localStorage.setItem(key, JSON.stringify({ videoId: videoInfo.id || videoInfo.src || videoInfo.title || null, currentTime: Math.floor(v.currentTime || 0), updatedAt: new Date().toISOString() }));
-				} catch (e) {}
+				} catch (e) { }
 			} catch (e) {
 				// best-effort
 			}
@@ -327,7 +327,7 @@ const VideoPlayer = () => {
 		v.addEventListener('ended', onEnded);
 
 		// periodic save while playing
-		const interval = setInterval(() => { try { if (!v.paused && !v.ended) saveProgress(false); } catch {} }, 15000);
+		const interval = setInterval(() => { try { if (!v.paused && !v.ended) saveProgress(false); } catch { } }, 15000);
 
 		const onPageHide = () => saveProgress(v.ended || false);
 		window.addEventListener('pagehide', onPageHide);
@@ -336,35 +336,35 @@ const VideoPlayer = () => {
 
 		return () => {
 			mounted = false;
-			try { v.removeEventListener('pause', onPause); v.removeEventListener('ended', onEnded); } catch {}
-			try { window.removeEventListener('pagehide', onPageHide); document.removeEventListener('visibilitychange', onVis); } catch {}
+			try { v.removeEventListener('pause', onPause); v.removeEventListener('ended', onEnded); } catch { }
+			try { window.removeEventListener('pagehide', onPageHide); document.removeEventListener('visibilitychange', onVis); } catch { }
 			clearInterval(interval);
 		};
 	}, [videoInfo]);
 
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">
-          <strong>Error:</strong> {error}
-        </div>
-      </div>
-    );
-  }
+	if (error) {
+		return (
+			<div className="p-6">
+				<div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">
+					<strong>Error:</strong> {error}
+				</div>
+			</div>
+		);
+	}
 
-  if (!videoInfo) {
-    return (
-      <div className="p-6">
-        <div className="text-gray-600">Loading video...</div>
-      </div>
-    );
-  }
+	if (!videoInfo) {
+		return (
+			<div className="p-6">
+				<div className="text-gray-600">Loading video...</div>
+			</div>
+		);
+	}
 
-  return (
-    <div className="min-h-screen bg-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-2">{videoInfo.title}</h1>
-        {videoInfo.channel && <p className="text-sm text-gray-500 mb-4">{videoInfo.channel}</p>}
+	return (
+		<div className="min-h-screen bg-white p-6">
+			<div className="max-w-4xl mx-auto">
+				<h1 className="text-2xl font-semibold text-gray-800 mb-2">{videoInfo.title}</h1>
+				{videoInfo.channel && <p className="text-sm text-gray-500 mb-4">{videoInfo.channel}</p>}
 
 				{videoInfo.src ? (
 					<div ref={containerRef} className="w-full rounded-lg bg-black" />
@@ -373,9 +373,9 @@ const VideoPlayer = () => {
 						No playable source provided for this video.
 					</div>
 				)}
-      </div>
-    </div>
-  );
+			</div>
+		</div>
+	);
 };
 
 export { VideoPlayer };
@@ -386,9 +386,9 @@ export { VideoPlayer };
 // run `npm install qrcode` and switch back to the static import.
 
 const ChevronRight = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 18l6-6-6-6" />
-  </svg>
+	<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+		<path d="M9 18l6-6-6-6" />
+	</svg>
 );
 
 const ChevronDown = ({ size = 20 }) => (
@@ -406,113 +406,113 @@ const MoveRight = ({ size = 14, stroke = 'currentColor' }) => (
 );
 
 const Lock = ({ active = false, size = 24, inCircle = false, color = undefined }) => {
-  // Prefer an explicitly supplied color; otherwise keep previous blue-on-active fallback.
-  const defaultActiveColor = "#60a5fa";
-  const strokeColor = color ?? ((inCircle || active) ? defaultActiveColor : "#fff");
-  // slightly increase stroke width when rendering larger
-  const strokeW = size > 32 ? 2.6 : 2;
-  return (
-    <svg width={size} height={size} fill="none" viewBox="0 0 24 24" aria-hidden="true" style={{ display: "block" }}>
-      <rect x="5" y="11" width="14" height="8" rx="2" stroke={strokeColor} strokeWidth={strokeW}/>
-      <path d="M7 11V8a5 5 0 0110 0v3" stroke={strokeColor} strokeWidth={strokeW}/>
-    </svg>
-  );
+	// Prefer an explicitly supplied color; otherwise keep previous blue-on-active fallback.
+	const defaultActiveColor = "#60a5fa";
+	const strokeColor = color ?? ((inCircle || active) ? defaultActiveColor : "#fff");
+	// slightly increase stroke width when rendering larger
+	const strokeW = size > 32 ? 2.6 : 2;
+	return (
+		<svg width={size} height={size} fill="none" viewBox="0 0 24 24" aria-hidden="true" style={{ display: "block" }}>
+			<rect x="5" y="11" width="14" height="8" rx="2" stroke={strokeColor} strokeWidth={strokeW} />
+			<path d="M7 11V8a5 5 0 0110 0v3" stroke={strokeColor} strokeWidth={strokeW} />
+		</svg>
+	);
 };
 
 // Replace previous LockOpen implementation with the supplied SVG (JSX)
 // new LockOpen accepts size and color (defaults to white) and maps strokeWidth
 const LockOpen = ({ size = 24, color = "#fff" }) => {
-  const strokeW = size > 32 ? 2.6 : 2;
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={color}
-      strokeWidth={strokeW}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      style={{ display: "block" }}
-    >
-      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-    </svg>
-  );
+	const strokeW = size > 32 ? 2.6 : 2;
+	return (
+		<svg
+			width={size}
+			height={size}
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke={color}
+			strokeWidth={strokeW}
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+			style={{ display: "block" }}
+		>
+			<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+			<path d="M7 11V7a5 5 0 0 1 9.9-1" />
+		</svg>
+	);
 };
 
 const Captions = () => (
-  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" style={{ color: "currentColor" }}>
-    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
-    <path d="M7 15h2M11 15h2M15 15h2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M7 11h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
+	<svg width="24" height="24" fill="none" viewBox="0 0 24 24" style={{ color: "currentColor" }}>
+		<rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
+		<path d="M7 15h2M11 15h2M15 15h2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+		<path d="M7 11h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+	</svg>
 );
 
 const PictureInPicture2 = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: "currentColor" }}>
-    <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
-    <rect x="12" y="11" width="8" height="6" rx="1" fill="black" stroke="currentColor" strokeWidth="2" />
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: "currentColor" }}>
+		<rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
+		<rect x="12" y="11" width="8" height="6" rx="1" fill="black" stroke="currentColor" strokeWidth="2" />
+	</svg>
 );
 
 const Ellipsis = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: "currentColor" }}>
-    <circle cx="5" cy="12" r="2" fill="currentColor"/>
-    <circle cx="12" cy="12" r="2" fill="currentColor"/>
-    <circle cx="19" cy="12" r="2" fill="currentColor"/>
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: "currentColor" }}>
+		<circle cx="5" cy="12" r="2" fill="currentColor" />
+		<circle cx="12" cy="12" r="2" fill="currentColor" />
+		<circle cx="19" cy="12" r="2" fill="currentColor" />
+	</svg>
 );
 
 const Users = ({ size = 18 }) => (
 	<svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-		<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-		<circle cx="8.5" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-		<path d="M20 8v6M23 11h-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+		<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+		<circle cx="8.5" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+		<path d="M20 8v6M23 11h-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 	</svg>
 );
 
 // Single user with plus icon (matches the requested glyph)
 const UserPlusIcon = ({ size = 22, color = '#fff' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="12" cy="7" r="4" />
-    <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <path d="M19 8v6" />
-    <path d="M22 11h-6" />
-  </svg>
+	<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+		<circle cx="12" cy="7" r="4" />
+		<path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+		<path d="M19 8v6" />
+		<path d="M22 11h-6" />
+	</svg>
 );
 
 const Bookmark = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+		<path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
 );
 
 // Add filled Bookmark + new icons
 const BookmarkFilled = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z" fill="currentColor" />
-  </svg>
+	</svg>
 );
 
 const MessageSquare = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+		<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
 );
 
 const Heart = ({ filled = false }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" style={{ color: "currentColor" }} fill="none">
-    <path
-      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-      stroke={filled ? "none" : "currentColor"}
-      fill={filled ? "currentColor" : "none"}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" style={{ color: "currentColor" }} fill="none">
+		<path
+			d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+			stroke={filled ? "none" : "currentColor"}
+			fill={filled ? "currentColor" : "none"}
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
 );
 
 // HeartOff: explicit outline heart used for the quick-action dislike toggle
@@ -526,14 +526,14 @@ const HeartOff = ({ size = 24, color = 'currentColor' }) => (
 
 const ThumbDown = () => (
 	<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-		<path d="M10 14H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5l1-4 6 8v6a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+		<path d="M10 14H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5l1-4 6 8v6a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 	</svg>
 );
 
 const Maximize = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+		<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
 );
 
 // Rounded Play Icon
@@ -553,86 +553,86 @@ const PauseIcon = ({ width = 56, height = 56 }) => (
 
 // Tip (dollar) icon
 const TipIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-	<path d="M12 8v8M10 9.5h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+		<circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+		<path d="M12 8v8M10 9.5h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
 );
 
 // Add small rewind/forward icons (place near other small icons)
 const RewindIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="mr-2">
-    <path d="M11.5 12L20 18V6L11.5 12Z" transform="scale(-1 1) translate(-31 0)" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-    <path d="M6 6v12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+	<svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="mr-2">
+		<path d="M11.5 12L20 18V6L11.5 12Z" transform="scale(-1 1) translate(-31 0)" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+		<path d="M6 6v12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
 );
 const ForwardIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="ml-2">
-    <path d="M11.5 12L20 18V6L11.5 12Z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-    <path d="M6 6v12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+	<svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="ml-2">
+		<path d="M11.5 12L20 18V6L11.5 12Z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+		<path d="M6 6v12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
 );
 
 const DollarSign = () => (
 	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" x2="12" y1="2" y2="22" />
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-  </svg>
+		<line x1="12" x2="12" y1="2" y2="22" />
+		<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+	</svg>
 );
 
 const EyeOff = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
-    <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
-    <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
-    <path d="M2 2l20 20" />
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+		<path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+		<path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+		<path d="M2 2l20 20" />
+	</svg>
 );
 
 const Repeat = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m17 2 4 4-4 4" />
-    <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
-    <path d="m7 22-4-4 4-4" />
-    <path d="M21 13v1a4 4 0 0 1-4 4H3" />
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<path d="m17 2 4 4-4 4" />
+		<path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+		<path d="m7 22-4-4 4-4" />
+		<path d="M21 13v1a4 4 0 0 1-4 4H3" />
+	</svg>
 );
 
 const PenLine = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M13 21h8" />
-    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-  </svg>
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<path d="M13 21h8" />
+		<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+	</svg>
 );
 
 // add Share / quick-action SVGs
 const CopyIcon = () => (
 	<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M8 7h10v10H8z" />
-    <path d="M16 7v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
-  </svg>
+		<path d="M8 7h10v10H8z" />
+		<path d="M16 7v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+	</svg>
 );
 const ShareViaIcon = () => (
 	<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
-    <path d="M16 6l-4-4-4 4" />
-    <path d="M12 2v11" />
-  </svg>
+		<path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
+		<path d="M16 6l-4-4-4 4" />
+		<path d="M12 2v11" />
+	</svg>
 );
 const QrIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="6" height="6" />
-    <rect x="15" y="3" width="6" height="6" />
-    <rect x="3" y="15" width="6" height="6" />
-    <path d="M15 15h2v2h-2zM19 19h2v2h-2zM15 19h2v2h-2z" />
-  </svg>
+	<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+		<rect x="3" y="3" width="6" height="6" />
+		<rect x="15" y="3" width="6" height="6" />
+		<rect x="3" y="15" width="6" height="6" />
+		<path d="M15 15h2v2h-2zM19 19h2v2h-2zM15 19h2v2h-2z" />
+	</svg>
 );
 const DownloadIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <path d="M7 10l5 5 5-5" />
-    <path d="M12 15V3" />
-  </svg>
+	<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+		<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+		<path d="M7 10l5 5 5-5" />
+		<path d="M12 15V3" />
+	</svg>
 );
 
 // Social icons (simple colored circles with glyph)
@@ -648,10 +648,10 @@ const SocialButton = ({ bg, children, label, onClick }) => (
 // Add missing ShareIcon used by the Options dialog
 const ShareIcon = () => (
 	<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
-    <path d="M12 2v14" />
-    <path d="M8 6l4-4 4 4" />
-  </svg>
+		<path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
+		<path d="M12 2v14" />
+		<path d="M8 6l4-4 4 4" />
+	</svg>
 );
 
 // --- Main Component ---
@@ -662,659 +662,659 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	const auth = useAuth();
 	const [searchParams] = useSearchParams();
 	const containerRef = useRef(null);
-		const [showMenu, setShowMenu] = useState(false);
-		const [locked, setLocked] = useState(false); // NEW: lock toggle state
-		const [showLockToast, setShowLockToast] = useState(false); // transient toast
-		const [showLockVisual, setShowLockVisual] = useState(false); // transient visual inside circle
-		// pulsating state used for lock button animation (was referenced but not declared)
-		const [pulsating, setPulsating] = useState(false);
+	const [showMenu, setShowMenu] = useState(false);
+	const [locked, setLocked] = useState(false); // NEW: lock toggle state
+	const [showLockToast, setShowLockToast] = useState(false); // transient toast
+	const [showLockVisual, setShowLockVisual] = useState(false); // transient visual inside circle
+	// pulsating state used for lock button animation (was referenced but not declared)
+	const [pulsating, setPulsating] = useState(false);
 
-		// Brighten lock briefly when user taps while locked (non-blocking hint)
-		const [brightLock, setBrightLock] = useState(false);
-		const brightLockTimerRef = useRef(null);
+	// Brighten lock briefly when user taps while locked (non-blocking hint)
+	const [brightLock, setBrightLock] = useState(false);
+	const brightLockTimerRef = useRef(null);
 
-		// Local video info state (was missing causing ReferenceError)
-		const [videoInfo, setVideoInfo] = useState(initialVideo || null);
+	// Local video info state (was missing causing ReferenceError)
+	const [videoInfo, setVideoInfo] = useState(initialVideo || null);
 
-		// start with no custom URL so the built-in fallback video is shown
-		const [videoUrl, setVideoUrl] = useState("");
-		// Track current video metadata so dialogs (Report, Share, etc.) reflect the active media
-		const [videoTitle, setVideoTitle] = useState("What if the cold war went hot? an alternate history");
-		const [creatorName, setCreatorName] = useState("Krypton T");
-		const [notes, setNotes] = useState([]);
-		const [noteText, setNoteText] = useState("");
-		const [linkNoteTimestamp, setLinkNoteTimestamp] = useState(true);
+	// start with no custom URL so the built-in fallback video is shown
+	const [videoUrl, setVideoUrl] = useState("");
+	// Track current video metadata so dialogs (Report, Share, etc.) reflect the active media
+	const [videoTitle, setVideoTitle] = useState("What if the cold war went hot? an alternate history");
+	const [creatorName, setCreatorName] = useState("Krypton T");
+	const [notes, setNotes] = useState([]);
+	const [noteText, setNoteText] = useState("");
+	const [linkNoteTimestamp, setLinkNoteTimestamp] = useState(true);
 
-		// Persistent preference helpers (define early so usePref can be used below)
-		const prefKey = (k) => `vx:pref:${k}`;
-		const readPref = (key, defaultVal) => {
+	// Persistent preference helpers (define early so usePref can be used below)
+	const prefKey = (k) => `vx:pref:${k}`;
+	const readPref = (key, defaultVal) => {
+		try {
+			const raw = localStorage.getItem(prefKey(key));
+			if (raw === null) return defaultVal;
+			return JSON.parse(raw);
+		} catch (e) { return defaultVal; }
+	};
+
+	// NOTE: confetti removed — celebration visual was removed to simplify UI.
+	const writePref = (key, value) => { try { localStorage.setItem(prefKey(key), JSON.stringify(value)); } catch (e) { } };
+	const usePref = (key, defaultVal) => {
+		const k = key;
+		const [val, setVal] = useState(() => readPref(k, defaultVal));
+		useEffect(() => { writePref(k, val); }, [k, val]);
+		return [val, setVal];
+	};
+
+	// NEW: error toast when trying to interact while locked
+	const [showLockedError, setShowLockedError] = useState(false);
+	const lockedErrorTimerRef = useRef(null);
+
+	// timer ref for the transient lock-button pulsation (4s)
+	const pulseTimerRef = useRef(null);
+
+	// NEW: state for heart/like button
+	const [liked, setLiked] = useState(false);
+	const [disliked, setDisliked] = useState(false); // Make sure this is declared if not already
+	const tapTimerRef = useRef(null); // NEW: ref for double-tap timer
+
+	// Sync Like/Dislike state from backend on video load
+	useEffect(() => {
+		if (!videoInfo) return;
+		const vidId = videoInfo.id || videoInfo.src || videoInfo.url || videoTitle || null;
+		if (!vidId) return;
+
+		const checkState = async () => {
 			try {
-				const raw = localStorage.getItem(prefKey(key));
-				if (raw === null) return defaultVal;
-				return JSON.parse(raw);
-			} catch (e) { return defaultVal; }
-		};
-
-		// NOTE: confetti removed — celebration visual was removed to simplify UI.
-		const writePref = (key, value) => { try { localStorage.setItem(prefKey(key), JSON.stringify(value)); } catch (e) {} };
-		const usePref = (key, defaultVal) => {
-			const k = key;
-			const [val, setVal] = useState(() => readPref(k, defaultVal));
-			useEffect(() => { writePref(k, val); }, [k, val]);
-			return [val, setVal];
-		};
-
-		// NEW: error toast when trying to interact while locked
-		const [showLockedError, setShowLockedError] = useState(false);
-		const lockedErrorTimerRef = useRef(null);
-
-		// timer ref for the transient lock-button pulsation (4s)
-		const pulseTimerRef = useRef(null);
-
-		// NEW: state for heart/like button
-		const [liked, setLiked] = useState(false);
-		const [disliked, setDisliked] = useState(false); // Make sure this is declared if not already
-		const tapTimerRef = useRef(null); // NEW: ref for double-tap timer
-
-		// Sync Like/Dislike state from backend on video load
-		useEffect(() => {
-			if (!videoInfo) return;
-			const vidId = videoInfo.id || videoInfo.src || videoInfo.url || videoTitle || null;
-			if (!vidId) return;
-
-			const checkState = async () => {
+				// Check local storage for likes (fast cache)
 				try {
-					// Check local storage for likes (fast cache)
-					try {
-						const raw = localStorage.getItem('likedVideos');
-						if (raw) {
-							const arr = JSON.parse(raw);
-							if (arr.some(x => String(x.videoId) === String(vidId))) setLiked(true);
-						}
-					} catch {}
-
-					const token = localStorage.getItem('regaarder_token');
-					if (!token) return;
-					const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
-					
-					// Fetch like/dislike status
-					const res = await fetch(`${BACKEND}/likes/status?videoId=${encodeURIComponent(vidId)}`, {
-						headers: { 'Authorization': `Bearer ${token}` }
-					});
-					if (res.ok) {
-						const data = await res.json();
-						if (typeof data.liked === 'boolean') setLiked(data.liked);
-						if (typeof data.disliked === 'boolean') setDisliked(data.disliked);
+					const raw = localStorage.getItem('likedVideos');
+					if (raw) {
+						const arr = JSON.parse(raw);
+						if (arr.some(x => String(x.videoId) === String(vidId))) setLiked(true);
 					}
-				} catch (e) {}
-			};
-			checkState();
-		}, [videoInfo, videoTitle]);
+				} catch { }
 
-		// Handle lock/unlock button press -> perform explicit lock/unlock flows
-		const handleLockPress = (e) => {
-			// prevent the tap from bubbling to the video area (safe when called without an event)
-			try { e?.stopPropagation?.(); } catch {}
+				const token = localStorage.getItem('regaarder_token');
+				if (!token) return;
+				const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
 
-			if (locked) {
-				// UNLOCK: reverse locking effects immediately
-				setLocked(false);
-				setShowLockedError(false);
-				// clear any pending locked-error timer
-				if (lockedErrorTimerRef.current) {
-					clearTimeout(lockedErrorTimerRef.current);
-					lockedErrorTimerRef.current = null;
+				// Fetch like/dislike status
+				const res = await fetch(`${BACKEND}/likes/status?videoId=${encodeURIComponent(vidId)}`, {
+					headers: { 'Authorization': `Bearer ${token}` }
+				});
+				if (res.ok) {
+					const data = await res.json();
+					if (typeof data.liked === 'boolean') setLiked(data.liked);
+					if (typeof data.disliked === 'boolean') setDisliked(data.disliked);
 				}
-				// clear any pending pulse timer
-				if (pulseTimerRef.current) {
-					clearTimeout(pulseTimerRef.current);
-					pulseTimerRef.current = null;
+			} catch (e) { }
+		};
+		checkState();
+	}, [videoInfo, videoTitle]);
+
+	// Handle lock/unlock button press -> perform explicit lock/unlock flows
+	const handleLockPress = (e) => {
+		// prevent the tap from bubbling to the video area (safe when called without an event)
+		try { e?.stopPropagation?.(); } catch { }
+
+		if (locked) {
+			// UNLOCK: reverse locking effects immediately
+			setLocked(false);
+			setShowLockedError(false);
+			// clear any pending locked-error timer
+			if (lockedErrorTimerRef.current) {
+				clearTimeout(lockedErrorTimerRef.current);
+				lockedErrorTimerRef.current = null;
+			}
+			// clear any pending pulse timer
+			if (pulseTimerRef.current) {
+				clearTimeout(pulseTimerRef.current);
+				pulseTimerRef.current = null;
+			}
+			// stop pulsation and visual states (useEffect also ensures these)
+			setPulsating(false);
+			setShowLockToast(false);
+			setShowLockVisual(false);
+			// bring controls back (do not auto-hide)
+			setControlsVisible(true);
+		} else {
+			// LOCK: enable locked state (existing useEffect shows toast/visual)
+			setLocked(true);
+			// make controls visible immediately (do not auto-hide)
+			setControlsVisible(true);
+		}
+	};
+
+	// --- existing state ---
+	const [controlsVisible, setControlsVisible] = useState(true);
+	// center play/pause overlay visibility (fades independently)
+	const [centerVisible, setCenterVisible] = useState(true);
+	const centerHideTimerRef = useRef(null);
+	const seekBy = (sec) => {
+		const v = videoRef.current;
+		if (v && typeof v.currentTime === "number" && v.duration) {
+			const next = Math.max(0, Math.min(v.duration, (v.currentTime || 0) + sec));
+			try { v.currentTime = next; } catch { /* noop */ }
+		}
+	};
+	const [progress, setProgress] = useState(0.05); // 0..1
+	const barRef = useRef(null);
+	const draggingRef = useRef(false);
+	const [progressDragging, setProgressDragging] = useState(false);
+	const videoRef = useRef(null);
+	const [isPlaying, setIsPlaying] = useState(false);
+	const [duration, setDuration] = useState(0);
+
+	// NEW: orientation + natural aspect
+	const [orientation, setOrientation] = useState("landscape"); // "landscape" (16:9 default) or "portrait" (9:16)
+	const [naturalAspect, setNaturalAspect] = useState(16 / 9);
+	// Fallback CSS rotate when browser won't rotate
+	const [forceLandscapeCss, setForceLandscapeCss] = useState(false);
+
+	// Discover panel search query (persisted so home<>discover can sync)
+	const [discoverQuery, setDiscoverQuery] = usePref('discover:query', '');
+	// Discover selected chip (filters list) — persisted for cross-page sync
+	const [selectedChip, setSelectedChip] = usePref('discover:selectedChip', 'All Videos');
+
+
+
+	// If `home.jsx` exports discover items, we'll load them dynamically at runtime
+	const [discoverItemsData, setDiscoverItemsData] = useState(null);
+	useEffect(() => {
+		if (discoverItems) return; // prop takes precedence
+		let cancelled = false;
+		// try dynamic import; if `home.jsx` isn't present this will fail silently
+		import('./home').then((m) => {
+			if (cancelled) return;
+			const exported = m.default || m.homeVideos || m.VIDEOS || m.discoverItems || null;
+			if (Array.isArray(exported)) setDiscoverItemsData(exported);
+		}).catch(() => {
+			// ignore if not found
+		});
+		return () => { cancelled = true; };
+	}, [discoverItems]);
+
+	// keep track of the current visible source and index so swipes navigate the same list
+	const currentSourceRef = useRef([]);
+	const [currentIndex, setCurrentIndex] = useState(-1);
+	// Playlist refs for this component
+	const playlistIdsRef = currentSourceRef;
+	const playlistIndexRef = useRef(-1);
+	const lastWheelTimeRef = useRef(0);
+	// Initialize playlist from localStorage (set by home.jsx when opening the player)
+	useEffect(() => {
+		try {
+			const raw = localStorage.getItem('videoplayer_source');
+			const rawIdx = localStorage.getItem('videoplayer_index');
+			if (raw) {
+				const arr = JSON.parse(raw);
+				if (Array.isArray(arr) && arr.length) {
+					playlistIdsRef.current = arr;
+					if (rawIdx != null && rawIdx !== undefined && !isNaN(parseInt(rawIdx, 10))) {
+						playlistIndexRef.current = parseInt(rawIdx, 10);
+						setCurrentIndex(playlistIndexRef.current);
+					} else {
+						// try to infer index from current videoUrl if available
+						try {
+							const key = (initialVideo && (initialVideo.id || initialVideo.url || initialVideo.videoUrl)) || searchParams.get('id') || null;
+							if (key) {
+								const found = arr.findIndex(x => String(x) === String(key));
+								if (found !== -1) {
+									playlistIndexRef.current = found;
+									setCurrentIndex(found);
+								}
+							}
+						} catch (e) { }
+					}
 				}
-				// stop pulsation and visual states (useEffect also ensures these)
-				setPulsating(false);
-				setShowLockToast(false);
-				setShowLockVisual(false);
-				// bring controls back (do not auto-hide)
-				setControlsVisible(true);
-			} else {
-				// LOCK: enable locked state (existing useEffect shows toast/visual)
-				setLocked(true);
-				// make controls visible immediately (do not auto-hide)
-				setControlsVisible(true);
 			}
-		};
+		} catch (e) { }
+	}, [initialVideo, searchParams]);
 
-		// --- existing state ---
-		const [controlsVisible, setControlsVisible] = useState(true);
-		// center play/pause overlay visibility (fades independently)
-		const [centerVisible, setCenterVisible] = useState(true);
-		const centerHideTimerRef = useRef(null);
-		const seekBy = (sec) => {
-			const v = videoRef.current;
-			if (v && typeof v.currentTime === "number" && v.duration) {
-				const next = Math.max(0, Math.min(v.duration, (v.currentTime || 0) + sec));
-				try { v.currentTime = next; } catch { /* noop */ }
-			}
-		};
-		const [progress, setProgress] = useState(0.05); // 0..1
-		const barRef = useRef(null);
-		const draggingRef = useRef(false);
-		const [progressDragging, setProgressDragging] = useState(false);
-		const videoRef = useRef(null);
-		const [isPlaying, setIsPlaying] = useState(false);
-		const [duration, setDuration] = useState(0);
-
-		// NEW: orientation + natural aspect
-		const [orientation, setOrientation] = useState("landscape"); // "landscape" (16:9 default) or "portrait" (9:16)
-		const [naturalAspect, setNaturalAspect] = useState(16 / 9);
-		// Fallback CSS rotate when browser won't rotate
-		const [forceLandscapeCss, setForceLandscapeCss] = useState(false);
-
-		// Discover panel search query (persisted so home<>discover can sync)
-		const [discoverQuery, setDiscoverQuery] = usePref('discover:query', '');
-		// Discover selected chip (filters list) — persisted for cross-page sync
-		const [selectedChip, setSelectedChip] = usePref('discover:selectedChip', 'All Videos');
-
-
-
-		// If `home.jsx` exports discover items, we'll load them dynamically at runtime
-		const [discoverItemsData, setDiscoverItemsData] = useState(null);
-		useEffect(() => {
-			if (discoverItems) return; // prop takes precedence
-			let cancelled = false;
-			// try dynamic import; if `home.jsx` isn't present this will fail silently
-			import('./home').then((m) => {
-				if (cancelled) return;
-				const exported = m.default || m.homeVideos || m.VIDEOS || m.discoverItems || null;
-				if (Array.isArray(exported)) setDiscoverItemsData(exported);
-			}).catch(() => {
-				// ignore if not found
-			});
-			return () => { cancelled = true; };
-		}, [discoverItems]);
-
-		// keep track of the current visible source and index so swipes navigate the same list
-		const currentSourceRef = useRef([]);
-		const [currentIndex, setCurrentIndex] = useState(-1);
-		// Playlist refs for this component
-		const playlistIdsRef = currentSourceRef;
-		const playlistIndexRef = useRef(-1);
-		const lastWheelTimeRef = useRef(0);
-		// Initialize playlist from localStorage (set by home.jsx when opening the player)
-		useEffect(() => {
+	// Wheel handler to navigate playlist (up = next, down = prev)
+	useEffect(() => {
+		const handler = (e) => {
 			try {
-				const raw = localStorage.getItem('videoplayer_source');
-				const rawIdx = localStorage.getItem('videoplayer_index');
-				if (raw) {
-					const arr = JSON.parse(raw);
-					if (Array.isArray(arr) && arr.length) {
-						playlistIdsRef.current = arr;
-						if (rawIdx != null && rawIdx !== undefined && !isNaN(parseInt(rawIdx,10))) {
-							playlistIndexRef.current = parseInt(rawIdx,10);
-							setCurrentIndex(playlistIndexRef.current);
-						} else {
-							// try to infer index from current videoUrl if available
-							try {
-								const key = (initialVideo && (initialVideo.id || initialVideo.url || initialVideo.videoUrl)) || searchParams.get('id') || null;
-								if (key) {
-									const found = arr.findIndex(x => String(x) === String(key));
-									if (found !== -1) {
-										playlistIndexRef.current = found;
-										setCurrentIndex(found);
-									}
-								}
-							} catch (e) {}
-						}
-					}
-				}
-			} catch (e) {}
-		}, [initialVideo, searchParams]);
-
-		// Wheel handler to navigate playlist (up = next, down = prev)
-		useEffect(() => {
-			const handler = (e) => {
+				const now = Date.now();
+				if (now - lastWheelTimeRef.current < 650) return;
+				const dir = e.deltaY < 0 ? 1 : -1;
+				const list = playlistIdsRef.current || [];
+				try { console.debug && console.debug('wheel nav: list length', (list && list.length) || 0); } catch { }
+				if (!list || !list.length) return;
+				let idx = playlistIndexRef.current;
+				if (typeof idx !== 'number') idx = -1;
+				const nextIdx = idx + dir;
+				if (nextIdx < 0 || nextIdx >= list.length) return;
+				lastWheelTimeRef.current = now;
+				const target = list[nextIdx];
+				// try to resolve target to a full item from discoverItemsData or dynamic home
+				let info = null;
 				try {
-					const now = Date.now();
-					if (now - lastWheelTimeRef.current < 650) return;
-					const dir = e.deltaY < 0 ? 1 : -1;
-					const list = playlistIdsRef.current || [];
-					try { console.debug && console.debug('wheel nav: list length', (list && list.length) || 0); } catch {}
-					if (!list || !list.length) return;
-					let idx = playlistIndexRef.current;
-					if (typeof idx !== 'number') idx = -1;
-					const nextIdx = idx + dir;
-					if (nextIdx < 0 || nextIdx >= list.length) return;
-					lastWheelTimeRef.current = now;
-					const target = list[nextIdx];
-					// try to resolve target to a full item from discoverItemsData or dynamic home
-					let info = null;
-					try {
-						// check discoverItems prop and discovered data
-						const candidates = (discoverItems && discoverItems.length) ? discoverItems : (discoverItemsData || []);
-						if (Array.isArray(candidates)) {
-							info = candidates.find(v => (v.id && String(v.id) === String(target)) || (v.url && String(v.url) === String(target)) || (v.videoUrl && String(v.videoUrl) === String(target)));
-						}
-						if (!info) {
-							// try dynamic import of home
-							import('./home.jsx').then((mod) => {
-								const VIDEOS = mod.default || mod.VIDEOS || mod.homeVideos || mod.discoverItems || null;
-								if (Array.isArray(VIDEOS)) {
-									const found = VIDEOS.find(v => (v.id && String(v.id) === String(target)) || (v.url && String(v.url) === String(target)) || (v.videoUrl && String(v.videoUrl) === String(target)));
-									if (found) {
-										info = found;
-									}
-								}
-							}).catch(() => {});
-						}
-					} catch (err) {
-						// ignore
+					// check discoverItems prop and discovered data
+					const candidates = (discoverItems && discoverItems.length) ? discoverItems : (discoverItemsData || []);
+					if (Array.isArray(candidates)) {
+						info = candidates.find(v => (v.id && String(v.id) === String(target)) || (v.url && String(v.url) === String(target)) || (v.videoUrl && String(v.videoUrl) === String(target)));
 					}
-					if (info) {
+					if (!info) {
+						// try dynamic import of home
+						import('./home.jsx').then((mod) => {
+							const VIDEOS = mod.default || mod.VIDEOS || mod.homeVideos || mod.discoverItems || null;
+							if (Array.isArray(VIDEOS)) {
+								const found = VIDEOS.find(v => (v.id && String(v.id) === String(target)) || (v.url && String(v.url) === String(target)) || (v.videoUrl && String(v.videoUrl) === String(target)));
+								if (found) {
+									info = found;
+								}
+							}
+						}).catch(() => { });
+					}
+				} catch (err) {
+					// ignore
+				}
+				if (info) {
+					playlistIndexRef.current = nextIdx;
+					setCurrentIndex(nextIdx);
+					try { setVideoTitle(info.title || 'Video'); } catch { }
+					try { setCreatorName(info.creator || info.channel || ''); } catch { }
+					try { if (info.url) setVideoUrl(info.url); else if (info.videoUrl) setVideoUrl(info.videoUrl); else if (info.src) setVideoUrl(info.src); } catch { }
+					try { setControlsVisible(true); showCenterTemporarily(1600); } catch { }
+					try { setToastMessage('Next video'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400); } catch { }
+				} else {
+					// fallback: if target looks like URL, just play it
+					if (typeof target === 'string' && /^(https?:)?\/\//.test(target)) {
 						playlistIndexRef.current = nextIdx;
 						setCurrentIndex(nextIdx);
-						try { setVideoTitle(info.title || 'Video'); } catch {}
-						try { setCreatorName(info.creator || info.channel || ''); } catch {}
-						try { if (info.url) setVideoUrl(info.url); else if (info.videoUrl) setVideoUrl(info.videoUrl); else if (info.src) setVideoUrl(info.src); } catch {}
-						try { setControlsVisible(true); showCenterTemporarily(1600); } catch {}
-						try { setToastMessage('Next video'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400); } catch {}
-					} else {
-						// fallback: if target looks like URL, just play it
-						if (typeof target === 'string' && /^(https?:)?\/\//.test(target)) {
-							playlistIndexRef.current = nextIdx;
-							setCurrentIndex(nextIdx);
-							try { setVideoUrl(target); setVideoTitle('Video'); setCreatorName(''); } catch {}
-						}
+						try { setVideoUrl(target); setVideoTitle('Video'); setCreatorName(''); } catch { }
 					}
-				} catch (err) {}
-			};
-			window.addEventListener('wheel', handler, { passive: true });
-			return () => window.removeEventListener('wheel', handler);
-		}, [discoverItemsData, discoverItems]);
-		// playlist refs declared earlier to avoid redeclaration
-		useEffect(() => {
-			const onChip = (e) => {
-				try {
-					const v = e && e.detail ? e.detail : null;
-					if (typeof v === 'string' && v !== selectedChip) setSelectedChip(v);
-				} catch {}
-			};
-			const onQuery = (e) => {
-				try {
-					const v = e && e.detail ? e.detail : null;
-					if (typeof v === 'string' && v !== discoverQuery) setDiscoverQuery(v);
-				} catch {}
-			};
-			window.addEventListener('discover:chip', onChip);
-			window.addEventListener('discover:query', onQuery);
-			return () => {
-				window.removeEventListener('discover:chip', onChip);
-				window.removeEventListener('discover:query', onQuery);
-			};
-		}, [selectedChip, discoverQuery, setSelectedChip, setDiscoverQuery]);
+				}
+			} catch (err) { }
+		};
+		window.addEventListener('wheel', handler, { passive: true });
+		return () => window.removeEventListener('wheel', handler);
+	}, [discoverItemsData, discoverItems]);
+	// playlist refs declared earlier to avoid redeclaration
+	useEffect(() => {
+		const onChip = (e) => {
+			try {
+				const v = e && e.detail ? e.detail : null;
+				if (typeof v === 'string' && v !== selectedChip) setSelectedChip(v);
+			} catch { }
+		};
+		const onQuery = (e) => {
+			try {
+				const v = e && e.detail ? e.detail : null;
+				if (typeof v === 'string' && v !== discoverQuery) setDiscoverQuery(v);
+			} catch { }
+		};
+		window.addEventListener('discover:chip', onChip);
+		window.addEventListener('discover:query', onQuery);
+		return () => {
+			window.removeEventListener('discover:chip', onChip);
+			window.removeEventListener('discover:query', onQuery);
+		};
+	}, [selectedChip, discoverQuery, setSelectedChip, setDiscoverQuery]);
 
-		// Broadcast changes so other pages/components (e.g., `home.jsx`) can stay in sync
-		useEffect(() => {
-			try { window.dispatchEvent(new CustomEvent('discover:chip', { detail: selectedChip })); } catch {}
-		}, [selectedChip]);
-		useEffect(() => {
-			try { window.dispatchEvent(new CustomEvent('discover:query', { detail: discoverQuery })); } catch {}
-		}, [discoverQuery]);
-		// whether discover is showing live items from home.jsx or using placeholders
-		const isDiscoverLive = Boolean((discoverItems && discoverItems.length) || (discoverItemsData && discoverItemsData.length));
+	// Broadcast changes so other pages/components (e.g., `home.jsx`) can stay in sync
+	useEffect(() => {
+		try { window.dispatchEvent(new CustomEvent('discover:chip', { detail: selectedChip })); } catch { }
+	}, [selectedChip]);
+	useEffect(() => {
+		try { window.dispatchEvent(new CustomEvent('discover:query', { detail: discoverQuery })); } catch { }
+	}, [discoverQuery]);
+	// whether discover is showing live items from home.jsx or using placeholders
+	const isDiscoverLive = Boolean((discoverItems && discoverItems.length) || (discoverItemsData && discoverItemsData.length));
 
-		// NEW: preview canvas + refs/state
-		const canvasRef = useRef(null);
-		// NEW: offscreen canvas for sampling dominant color
-		const colorCanvasRef = useRef(null);
-		// dominant ambient color sampled from the video (used for gradients above/below)
-		const [dominantColor, setDominantColor] = useState('#000000');
-		const seekInFlightRef = useRef(false);
-		const [previewVisible, setPreviewVisible] = useState(false);
-		const [previewLeft, setPreviewLeft] = useState(0);
-		const [previewTop, setPreviewTop] = useState(0);
-		const [previewSize, setPreviewSize] = useState({ w: 160, h: 90 }); // default 16:9 preview
+	// NEW: preview canvas + refs/state
+	const canvasRef = useRef(null);
+	// NEW: offscreen canvas for sampling dominant color
+	const colorCanvasRef = useRef(null);
+	// dominant ambient color sampled from the video (used for gradients above/below)
+	const [dominantColor, setDominantColor] = useState('#000000');
+	const seekInFlightRef = useRef(false);
+	const [previewVisible, setPreviewVisible] = useState(false);
+	const [previewLeft, setPreviewLeft] = useState(0);
+	const [previewTop, setPreviewTop] = useState(0);
+	const [previewSize, setPreviewSize] = useState({ w: 160, h: 90 }); // default 16:9 preview
 
-		// NEW: preview video element used only for seeking/drawing previews (keeps main video visible)
-		const previewVideoRef = useRef(null);
+	// NEW: preview video element used only for seeking/drawing previews (keeps main video visible)
+	const previewVideoRef = useRef(null);
 
-		// compute progress from clientX
-		const updateProgressFromPointer = (clientX) => {
-			const el = barRef.current;
-			if (!el) return;
-			const rect = el.getBoundingClientRect();
-			const p = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-			setProgress(p);
+	// compute progress from clientX
+	const updateProgressFromPointer = (clientX) => {
+		const el = barRef.current;
+		if (!el) return;
+		const rect = el.getBoundingClientRect();
+		const p = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+		setProgress(p);
 
-			// update preview position above the thumb
-			const previewW = previewSize.w;
-			const previewH = previewSize.h;
-			const thumbCenterX = rect.left + p * rect.width;
-			const top = rect.top - previewH - 10; // 10px gap above bar
-			setPreviewLeft(Math.max(8, thumbCenterX - previewW / 2)); // keep some left padding
-			setPreviewTop(Math.max(8, top));
+		// update preview position above the thumb
+		const previewW = previewSize.w;
+		const previewH = previewSize.h;
+		const thumbCenterX = rect.left + p * rect.width;
+		const top = rect.top - previewH - 10; // 10px gap above bar
+		setPreviewLeft(Math.max(8, thumbCenterX - previewW / 2)); // keep some left padding
+		setPreviewTop(Math.max(8, top));
 
-			// seek the preview video (not the main video) so the main player remains visible
+		// seek the preview video (not the main video) so the main player remains visible
+		const pv = previewVideoRef.current;
+		if (pv && duration > 0) {
+			try {
+				seekInFlightRef.current = true;
+				pv.currentTime = p * duration;
+			} catch {
+				// noop
+			}
+		}
+	};
+
+	// Draw current video frame to the preview canvas (use previewVideoRef)
+	const drawPreviewFrame = () => {
+		const pv = previewVideoRef.current;
+		const c = canvasRef.current;
+		if (!pv || !c) return;
+		const ctx = c.getContext("2d");
+		const { w, h } = previewSize;
+		c.width = w;
+		c.height = h;
+
+		const vw = pv.videoWidth || w;
+		const vh = pv.videoHeight || h;
+		const scale = Math.min(w / vw, h / vh);
+		const dw = vw * scale;
+		const dh = vh * scale;
+		const dx = (w - dw) / 2;
+		const dy = (h - dh) / 2;
+
+		ctx.fillStyle = "#000";
+		ctx.fillRect(0, 0, w, h);
+		try {
+			ctx.drawImage(pv, 0, 0, vw, vh, dx, dy, dw, dh);
+		} catch {
+			// noop
+		}
+	};
+
+	// Listen for preview video 'seeked' to draw a frame (was previously attached to main video)
+	useEffect(() => {
+		const pv = previewVideoRef.current;
+		if (!pv) return;
+		const onSeeked = () => {
+			if (previewVisible && seekInFlightRef.current) {
+				drawPreviewFrame();
+				seekInFlightRef.current = false;
+			}
+		};
+		pv.addEventListener("seeked", onSeeked);
+		return () => pv.removeEventListener("seeked", onSeeked);
+	}, [previewVisible, previewSize]);
+
+	// Ensure preview video uses the same source only when preview is visible to avoid decoding two videos simultaneously
+	useEffect(() => {
+		try {
 			const pv = previewVideoRef.current;
-			if (pv && duration > 0) {
+			if (!pv) return;
+			if (previewVisible && (typeof videoUrl !== 'undefined') && videoUrl) {
+				if (pv.src !== videoUrl) {
+					pv.src = videoUrl;
+					try { pv.load(); } catch { }
+				}
+			} else {
+				try { pv.pause(); } catch { }
+				try { pv.removeAttribute && pv.removeAttribute('src'); pv.load && pv.load(); } catch { }
+			}
+		} catch (e) { }
+	}, [previewVisible, videoUrl]);
+
+	// --- Dominant color sampling for ambient gradients ---
+	// Lightweight quantization: downscale frame to small canvas and bucket colors
+	const sampleDominantColorFromVideo = useCallback(() => {
+		try {
+			const v = videoRef.current;
+			if (!v || v.readyState < 2) return; // HAVE_CURRENT_DATA
+			// create canvas once
+			if (!colorCanvasRef.current) colorCanvasRef.current = document.createElement('canvas');
+			const c = colorCanvasRef.current;
+			const W = 32;
+			const H = 32;
+			c.width = W;
+			c.height = H;
+			const ctx = c.getContext('2d', { willReadFrequently: true });
+			// draw current frame scaled down
+			try {
+				ctx.drawImage(v, 0, 0, W, H);
+			} catch (e) {
+				// some browsers may throw if cross-origin video; bail silently
+				return;
+			}
+			const data = ctx.getImageData(0, 0, W, H).data;
+			const counts = new Map();
+			let maxCount = 0;
+			let bestKey = null;
+			for (let i = 0; i < data.length; i += 4) {
+				const r = data[i];
+				const g = data[i + 1];
+				const b = data[i + 2];
+				const a = data[i + 3];
+				if (a < 40) continue; // ignore mostly-transparent pixels
+				// reduce color resolution to 5 bits per channel (quantize)
+				const rq = r >> 3;
+				const gq = g >> 3;
+				const bq = b >> 3;
+				const key = (rq << 10) | (gq << 5) | bq;
+				const cur = (counts.get(key) || 0) + 1;
+				counts.set(key, cur);
+				if (cur > maxCount) { maxCount = cur; bestKey = key; }
+			}
+			if (bestKey == null) return;
+			// expand quantized color back to 8-bit per channel (center of bucket)
+			const rq = (bestKey >> 10) & 0x1f;
+			const gq = (bestKey >> 5) & 0x1f;
+			const bq = bestKey & 0x1f;
+			const r = (rq << 3) | (rq >> 2);
+			const g = (gq << 3) | (gq >> 2);
+			const b = (bq << 3) | (bq >> 2);
+			const toHex = (n) => n.toString(16).padStart(2, '0');
+			const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+			setDominantColor(hex);
+		} catch (err) {
+			// ignore errors (e.g., cross-origin draws)
+		}
+	}, [videoRef]);
+
+	// sample periodically while playing and also on metadata load
+	useEffect(() => {
+		let id = null;
+		if (isPlaying) {
+			// sample every ~1200ms while playing
+			sampleDominantColorFromVideo();
+			id = setInterval(sampleDominantColorFromVideo, 1200);
+		}
+		return () => { if (id) clearInterval(id); };
+	}, [isPlaying, sampleDominantColorFromVideo]);
+
+	// Handle global pointer move/up while dragging — update progress and onPointerUp commit to main video
+	useEffect(() => {
+		const onPointerMove = (e) => {
+			if (!draggingRef.current) return;
+			const clientX = e.clientX || (e.touches && e.touches[0]?.clientX);
+			if (clientX) {
+				updateProgressFromPointer(clientX);
+			}
+		};
+		const onPointerUp = () => {
+			if (!draggingRef.current) return;
+			draggingRef.current = false;
+			setProgressDragging(false);
+
+			// hide preview after small delay so user sees final frame briefly
+			setTimeout(() => setPreviewVisible(false), 200);
+
+			// Commit final time to the main video once dragging finishes
+			const mv = videoRef.current;
+			if (mv && duration > 0) {
 				try {
-					seekInFlightRef.current = true;
-					pv.currentTime = p * duration;
+					mv.currentTime = progress * duration;
 				} catch {
 					// noop
 				}
 			}
 		};
-
-		// Draw current video frame to the preview canvas (use previewVideoRef)
-		const drawPreviewFrame = () => {
-			const pv = previewVideoRef.current;
-			const c = canvasRef.current;
-			if (!pv || !c) return;
-			const ctx = c.getContext("2d");
-			const { w, h } = previewSize;
-			c.width = w;
-			c.height = h;
-
-			const vw = pv.videoWidth || w;
-			const vh = pv.videoHeight || h;
-			const scale = Math.min(w / vw, h / vh);
-			const dw = vw * scale;
-			const dh = vh * scale;
-			const dx = (w - dw) / 2;
-			const dy = (h - dh) / 2;
-
-			ctx.fillStyle = "#000";
-			ctx.fillRect(0, 0, w, h);
-			try {
-				ctx.drawImage(pv, 0, 0, vw, vh, dx, dy, dw, dh);
-			} catch {
-				// noop
-			}
+		window.addEventListener("pointermove", onPointerMove);
+		window.addEventListener("pointerup", onPointerUp);
+		return () => {
+			window.removeEventListener("pointermove", onPointerMove);
+			window.removeEventListener("pointerup", onPointerUp);
 		};
+	}, [duration, previewSize, progress]);
 
-		// Listen for preview video 'seeked' to draw a frame (was previously attached to main video)
-		useEffect(() => {
-			const pv = previewVideoRef.current;
-			if (!pv) return;
-			const onSeeked = () => {
-				if (previewVisible && seekInFlightRef.current) {
-					drawPreviewFrame();
-					seekInFlightRef.current = false;
-				}
-			};
-			pv.addEventListener("seeked", onSeeked);
-			return () => pv.removeEventListener("seeked", onSeeked);
-		}, [previewVisible, previewSize]);
+	// NEW: share modal state + helpers
+	const [showShareModal, setShowShareModal] = useState(false);
+	// Report modal state (declare near other modal flags)
+	const [showReportModal, setShowReportModal] = useState(false);
+	const [reportCategory, setReportCategory] = useState("");
+	const [reportText, setReportText] = useState("");
+	const REPORT_MAX = 500;
+	// Make dialogs resizable/draggable: Options, Captions, Share
+	// Make Options sheet initially shorter so its visible area ends earlier
+	// (matches the requested "cutoff" visual where the sheet doesn't fill as much of the viewport).
+	const [optionsHeight, setOptionsHeight] = useState(window.innerHeight * 0.62);
+	const optionsMinRef = useRef(window.innerHeight * 0.32);
+	const optionsMaxRef = useRef(window.innerHeight * 0.95);
+	const optionsDragRef = useRef({ dragging: false, startY: 0, startHeight: 0 });
 
-		// Ensure preview video uses the same source only when preview is visible to avoid decoding two videos simultaneously
-		useEffect(() => {
-			try {
-				const pv = previewVideoRef.current;
-				if (!pv) return;
-				if (previewVisible && (typeof videoUrl !== 'undefined') && videoUrl) {
-					if (pv.src !== videoUrl) {
-						pv.src = videoUrl;
-						try { pv.load(); } catch {}
-					}
-				} else {
-					try { pv.pause(); } catch {}
-					try { pv.removeAttribute && pv.removeAttribute('src'); pv.load && pv.load(); } catch {}
-				}
-			} catch (e) {}
-		}, [previewVisible, videoUrl]);
+	// Match the Options sheet size so Captions appears the same initially
+	const [captionsHeight, setCaptionsHeight] = useState(window.innerHeight * 0.62);
+	const captionsMinRef = useRef(window.innerHeight * 0.32);
+	const captionsMaxRef = useRef(window.innerHeight * 0.95);
+	const captionsDragRef = useRef({ dragging: false, startY: 0, startHeight: 0 });
 
-		// --- Dominant color sampling for ambient gradients ---
-		// Lightweight quantization: downscale frame to small canvas and bucket colors
-		const sampleDominantColorFromVideo = useCallback(() => {
-			try {
-				const v = videoRef.current;
-				if (!v || v.readyState < 2) return; // HAVE_CURRENT_DATA
-				// create canvas once
-				if (!colorCanvasRef.current) colorCanvasRef.current = document.createElement('canvas');
-				const c = colorCanvasRef.current;
-				const W = 32;
-				const H = 32;
-				c.width = W;
-				c.height = H;
-				const ctx = c.getContext('2d', { willReadFrequently: true });
-				// draw current frame scaled down
-				try {
-					ctx.drawImage(v, 0, 0, W, H);
-				} catch (e) {
-					// some browsers may throw if cross-origin video; bail silently
-					return;
-				}
-				const data = ctx.getImageData(0, 0, W, H).data;
-				const counts = new Map();
-				let maxCount = 0;
-				let bestKey = null;
-				for (let i = 0; i < data.length; i += 4) {
-					const r = data[i];
-					const g = data[i+1];
-					const b = data[i+2];
-					const a = data[i+3];
-					if (a < 40) continue; // ignore mostly-transparent pixels
-					// reduce color resolution to 5 bits per channel (quantize)
-					const rq = r >> 3;
-					const gq = g >> 3;
-					const bq = b >> 3;
-					const key = (rq << 10) | (gq << 5) | bq;
-					const cur = (counts.get(key) || 0) + 1;
-					counts.set(key, cur);
-					if (cur > maxCount) { maxCount = cur; bestKey = key; }
-				}
-				if (bestKey == null) return;
-				// expand quantized color back to 8-bit per channel (center of bucket)
-				const rq = (bestKey >> 10) & 0x1f;
-				const gq = (bestKey >> 5) & 0x1f;
-				const bq = bestKey & 0x1f;
-				const r = (rq << 3) | (rq >> 2);
-				const g = (gq << 3) | (gq >> 2);
-				const b = (bq << 3) | (bq >> 2);
-				const toHex = (n) => n.toString(16).padStart(2, '0');
-				const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-				setDominantColor(hex);
-			} catch (err) {
-				// ignore errors (e.g., cross-origin draws)
-			}
-		}, [videoRef]);
+	const [shareHeight, setShareHeight] = useState(window.innerHeight * 0.7);
+	const shareMinRef = useRef(window.innerHeight * 0.3);
+	const shareMaxRef = useRef(window.innerHeight * 0.95);
+	const shareDragRef = useRef({ dragging: false, startY: 0, startHeight: 0 });
 
-		// sample periodically while playing and also on metadata load
-		useEffect(() => {
-			let id = null;
-			if (isPlaying) {
-				// sample every ~1200ms while playing
-				sampleDominantColorFromVideo();
-				id = setInterval(sampleDominantColorFromVideo, 1200);
-			}
-			return () => { if (id) clearInterval(id); };
-		}, [isPlaying, sampleDominantColorFromVideo]);
+	// Tip Creator drag state (allow user to resize the Tip modal like other sheets)
+	// Persist height across sessions using usePref
+	const [tipHeight, setTipHeight] = usePref('tipHeight', window.innerHeight * 0.58);
+	const tipMinRef = useRef(window.innerHeight * 0.28);
+	const tipMaxRef = useRef(window.innerHeight * 0.95);
+	const tipDragRef = useRef({ dragging: false, startY: 0, startHeight: 0 });
 
-		// Handle global pointer move/up while dragging — update progress and onPointerUp commit to main video
-		useEffect(() => {
-			const onPointerMove = (e) => {
-				if (!draggingRef.current) return;
-				const clientX = e.clientX || (e.touches && e.touches[0]?.clientX);
-				if (clientX) {
-					updateProgressFromPointer(clientX);
-				}
-			};
-			const onPointerUp = () => {
-				if (!draggingRef.current) return;
-				draggingRef.current = false;
-				setProgressDragging(false);
+	// Options drag handlers
+	const onOptionsHandlePointerDown = (e) => {
+		e.preventDefault();
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		optionsDragRef.current.dragging = true;
+		optionsDragRef.current.startY = clientY;
+		optionsDragRef.current.startHeight = optionsHeight;
+		window.addEventListener("pointermove", onOptionsHandlePointerMove);
+		window.addEventListener("pointerup", onOptionsHandlePointerUp);
+	};
+	const onOptionsHandlePointerMove = (e) => {
+		if (!optionsDragRef.current.dragging) return;
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof clientY !== "number") return;
+		const dy = optionsDragRef.current.startY - clientY; // upward increases height
+		let next = optionsDragRef.current.startHeight + dy;
+		next = Math.max(optionsMinRef.current, Math.min(optionsMaxRef.current, next));
+		setOptionsHeight(next);
+	};
+	const onOptionsHandlePointerUp = (e) => {
+		if (!optionsDragRef.current.dragging) return;
+		optionsDragRef.current.dragging = false;
+		window.removeEventListener("pointermove", onOptionsHandlePointerMove);
+		window.removeEventListener("pointerup", onOptionsHandlePointerUp);
+	};
 
-				// hide preview after small delay so user sees final frame briefly
-				setTimeout(() => setPreviewVisible(false), 200);
+	// Captions drag handlers
+	const onCaptionsHandlePointerDown = (e) => {
+		e.preventDefault();
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		captionsDragRef.current.dragging = true;
+		captionsDragRef.current.startY = clientY;
+		captionsDragRef.current.startHeight = captionsHeight;
+		window.addEventListener("pointermove", onCaptionsHandlePointerMove);
+		window.addEventListener("pointerup", onCaptionsHandlePointerUp);
+	};
+	const onCaptionsHandlePointerMove = (e) => {
+		if (!captionsDragRef.current.dragging) return;
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof clientY !== "number") return;
+		const dy = captionsDragRef.current.startY - clientY;
+		let next = captionsDragRef.current.startHeight + dy;
+		next = Math.max(captionsMinRef.current, Math.min(captionsMaxRef.current, next));
+		setCaptionsHeight(next);
+	};
+	const onCaptionsHandlePointerUp = (e) => {
+		if (!captionsDragRef.current.dragging) return;
+		captionsDragRef.current.dragging = false;
+		window.removeEventListener("pointermove", onCaptionsHandlePointerMove);
+		window.removeEventListener("pointerup", onCaptionsHandlePointerUp);
+	};
 
-				// Commit final time to the main video once dragging finishes
-				const mv = videoRef.current;
-				if (mv && duration > 0) {
-					try {
-						mv.currentTime = progress * duration;
-					} catch {
-						// noop
-					}
-				}
-			};
-			window.addEventListener("pointermove", onPointerMove);
-			window.addEventListener("pointerup", onPointerUp);
-			return () => {
-				window.removeEventListener("pointermove", onPointerMove);
-				window.removeEventListener("pointerup", onPointerUp);
-			};
-		}, [duration, previewSize, progress]);
+	// Share drag handlers
+	const onShareHandlePointerDown = (e) => {
+		e.preventDefault();
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		shareDragRef.current.dragging = true;
+		shareDragRef.current.startY = clientY;
+		shareDragRef.current.startHeight = shareHeight;
+		window.addEventListener("pointermove", onShareHandlePointerMove);
+		window.addEventListener("pointerup", onShareHandlePointerUp);
+	};
+	const onShareHandlePointerMove = (e) => {
+		if (!shareDragRef.current.dragging) return;
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof clientY !== "number") return;
+		const dy = shareDragRef.current.startY - clientY;
+		let next = shareDragRef.current.startHeight + dy;
+		next = Math.max(shareMinRef.current, Math.min(shareMaxRef.current, next));
+		setShareHeight(next);
+	};
+	const onShareHandlePointerUp = (e) => {
+		if (!shareDragRef.current.dragging) return;
+		shareDragRef.current.dragging = false;
+		window.removeEventListener("pointermove", onShareHandlePointerMove);
+		window.removeEventListener("pointerup", onShareHandlePointerUp);
+	};
 
-		// NEW: share modal state + helpers
-		const [showShareModal, setShowShareModal] = useState(false);
-		// Report modal state (declare near other modal flags)
-		const [showReportModal, setShowReportModal] = useState(false);
-		const [reportCategory, setReportCategory] = useState("");
-		const [reportText, setReportText] = useState("");
-		const REPORT_MAX = 500;
-		// Make dialogs resizable/draggable: Options, Captions, Share
-		// Make Options sheet initially shorter so its visible area ends earlier
-		// (matches the requested "cutoff" visual where the sheet doesn't fill as much of the viewport).
-		const [optionsHeight, setOptionsHeight] = useState(window.innerHeight * 0.62);
-		const optionsMinRef = useRef(window.innerHeight * 0.32);
-		const optionsMaxRef = useRef(window.innerHeight * 0.95);
-		const optionsDragRef = useRef({ dragging: false, startY: 0, startHeight: 0 });
+	// Tip drag handlers (mirror pattern used for Options/Captions/Share)
+	const onTipHandlePointerDown = (e) => {
+		e.preventDefault();
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		tipDragRef.current.dragging = true;
+		tipDragRef.current.startY = clientY;
+		tipDragRef.current.startHeight = tipHeight;
+		window.addEventListener("pointermove", onTipHandlePointerMove);
+		window.addEventListener("pointerup", onTipHandlePointerUp);
+	};
+	const onTipHandlePointerMove = (e) => {
+		if (!tipDragRef.current.dragging) return;
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof clientY !== "number") return;
+		const dy = tipDragRef.current.startY - clientY;
+		let next = tipDragRef.current.startHeight + dy;
+		next = Math.max(tipMinRef.current, Math.min(tipMaxRef.current, next));
+		setTipHeight(next);
+	};
+	const onTipHandlePointerUp = (e) => {
+		if (!tipDragRef.current.dragging) return;
+		tipDragRef.current.dragging = false;
+		window.removeEventListener("pointermove", onTipHandlePointerMove);
+		window.removeEventListener("pointerup", onTipHandlePointerUp);
+	};
 
-		// Match the Options sheet size so Captions appears the same initially
-		const [captionsHeight, setCaptionsHeight] = useState(window.innerHeight * 0.62);
-		const captionsMinRef = useRef(window.innerHeight * 0.32);
-		const captionsMaxRef = useRef(window.innerHeight * 0.95);
-		const captionsDragRef = useRef({ dragging: false, startY: 0, startHeight: 0 });
-
-		const [shareHeight, setShareHeight] = useState(window.innerHeight * 0.7);
-		const shareMinRef = useRef(window.innerHeight * 0.3);
-		const shareMaxRef = useRef(window.innerHeight * 0.95);
-		const shareDragRef = useRef({ dragging: false, startY: 0, startHeight: 0 });
-
-		// Tip Creator drag state (allow user to resize the Tip modal like other sheets)
-		// Persist height across sessions using usePref
-		const [tipHeight, setTipHeight] = usePref('tipHeight', window.innerHeight * 0.58);
-		const tipMinRef = useRef(window.innerHeight * 0.28);
-		const tipMaxRef = useRef(window.innerHeight * 0.95);
-		const tipDragRef = useRef({ dragging: false, startY: 0, startHeight: 0 });
-
-		// Options drag handlers
-		const onOptionsHandlePointerDown = (e) => {
-			e.preventDefault();
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			optionsDragRef.current.dragging = true;
-			optionsDragRef.current.startY = clientY;
-			optionsDragRef.current.startHeight = optionsHeight;
-			window.addEventListener("pointermove", onOptionsHandlePointerMove);
-			window.addEventListener("pointerup", onOptionsHandlePointerUp);
-		};
-		const onOptionsHandlePointerMove = (e) => {
-			if (!optionsDragRef.current.dragging) return;
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			if (typeof clientY !== "number") return;
-			const dy = optionsDragRef.current.startY - clientY; // upward increases height
-			let next = optionsDragRef.current.startHeight + dy;
-			next = Math.max(optionsMinRef.current, Math.min(optionsMaxRef.current, next));
-			setOptionsHeight(next);
-		};
-		const onOptionsHandlePointerUp = (e) => {
-			if (!optionsDragRef.current.dragging) return;
-			optionsDragRef.current.dragging = false;
+	// Cleanup any lingering listeners on unmount
+	useEffect(() => {
+		return () => {
 			window.removeEventListener("pointermove", onOptionsHandlePointerMove);
 			window.removeEventListener("pointerup", onOptionsHandlePointerUp);
-		};
-
-		// Captions drag handlers
-		const onCaptionsHandlePointerDown = (e) => {
-			e.preventDefault();
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			captionsDragRef.current.dragging = true;
-			captionsDragRef.current.startY = clientY;
-			captionsDragRef.current.startHeight = captionsHeight;
-			window.addEventListener("pointermove", onCaptionsHandlePointerMove);
-			window.addEventListener("pointerup", onCaptionsHandlePointerUp);
-		};
-		const onCaptionsHandlePointerMove = (e) => {
-			if (!captionsDragRef.current.dragging) return;
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			if (typeof clientY !== "number") return;
-			const dy = captionsDragRef.current.startY - clientY;
-			let next = captionsDragRef.current.startHeight + dy;
-			next = Math.max(captionsMinRef.current, Math.min(captionsMaxRef.current, next));
-			setCaptionsHeight(next);
-		};
-		const onCaptionsHandlePointerUp = (e) => {
-			if (!captionsDragRef.current.dragging) return;
-			captionsDragRef.current.dragging = false;
 			window.removeEventListener("pointermove", onCaptionsHandlePointerMove);
 			window.removeEventListener("pointerup", onCaptionsHandlePointerUp);
-		};
-
-		// Share drag handlers
-		const onShareHandlePointerDown = (e) => {
-			e.preventDefault();
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			shareDragRef.current.dragging = true;
-			shareDragRef.current.startY = clientY;
-			shareDragRef.current.startHeight = shareHeight;
-			window.addEventListener("pointermove", onShareHandlePointerMove);
-			window.addEventListener("pointerup", onShareHandlePointerUp);
-		};
-		const onShareHandlePointerMove = (e) => {
-			if (!shareDragRef.current.dragging) return;
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			if (typeof clientY !== "number") return;
-			const dy = shareDragRef.current.startY - clientY;
-			let next = shareDragRef.current.startHeight + dy;
-			next = Math.max(shareMinRef.current, Math.min(shareMaxRef.current, next));
-			setShareHeight(next);
-		};
-		const onShareHandlePointerUp = (e) => {
-			if (!shareDragRef.current.dragging) return;
-			shareDragRef.current.dragging = false;
 			window.removeEventListener("pointermove", onShareHandlePointerMove);
 			window.removeEventListener("pointerup", onShareHandlePointerUp);
-		};
-
-		// Tip drag handlers (mirror pattern used for Options/Captions/Share)
-		const onTipHandlePointerDown = (e) => {
-			e.preventDefault();
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			tipDragRef.current.dragging = true;
-			tipDragRef.current.startY = clientY;
-			tipDragRef.current.startHeight = tipHeight;
-			window.addEventListener("pointermove", onTipHandlePointerMove);
-			window.addEventListener("pointerup", onTipHandlePointerUp);
-		};
-		const onTipHandlePointerMove = (e) => {
-			if (!tipDragRef.current.dragging) return;
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			if (typeof clientY !== "number") return;
-			const dy = tipDragRef.current.startY - clientY;
-			let next = tipDragRef.current.startHeight + dy;
-			next = Math.max(tipMinRef.current, Math.min(tipMaxRef.current, next));
-			setTipHeight(next);
-		};
-		const onTipHandlePointerUp = (e) => {
-			if (!tipDragRef.current.dragging) return;
-			tipDragRef.current.dragging = false;
 			window.removeEventListener("pointermove", onTipHandlePointerMove);
 			window.removeEventListener("pointerup", onTipHandlePointerUp);
 		};
-
-		// Cleanup any lingering listeners on unmount
-		useEffect(() => {
-			return () => {
-				window.removeEventListener("pointermove", onOptionsHandlePointerMove);
-				window.removeEventListener("pointerup", onOptionsHandlePointerUp);
-				window.removeEventListener("pointermove", onCaptionsHandlePointerMove);
-				window.removeEventListener("pointerup", onCaptionsHandlePointerUp);
-				window.removeEventListener("pointermove", onShareHandlePointerMove);
-				window.removeEventListener("pointerup", onShareHandlePointerUp);
-				window.removeEventListener("pointermove", onTipHandlePointerMove);
-				window.removeEventListener("pointerup", onTipHandlePointerUp);
-			};
-		}, []);
+	}, []);
 
 	// Modal button press feedback: add/remove `data-pressed` on pointerdown/up for buttons inside `.modal-dialog`.
 	useEffect(() => {
@@ -1324,13 +1324,13 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				if (!btn) return;
 				if (!btn.closest('.modal-dialog')) return;
 				btn.setAttribute('data-pressed', 'true');
-			} catch {}
+			} catch { }
 		};
 
 		const clearPressed = () => {
 			try {
 				document.querySelectorAll('.modal-dialog button[data-pressed]').forEach((b) => b.removeAttribute('data-pressed'));
-			} catch {}
+			} catch { }
 		};
 
 		window.addEventListener('pointerdown', onPointerDown, { passive: true });
@@ -1347,7 +1347,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 
 
-		// If parent passes an initialVideo object, initialize player state from it
+	// If parent passes an initialVideo object, initialize player state from it
 	useEffect(() => {
 		if (!initialVideo) return;
 		try {
@@ -1356,18 +1356,18 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			if (initialVideo.title) setVideoTitle(initialVideo.title);
 			if (initialVideo.author) setCreatorName(initialVideo.author);
 			// If the opener provided a seek time (restore from mini-player), preserve it
-			try { if (initialVideo.seekTo != null) pendingDeepLinkTimeRef.current = initialVideo.seekTo; } catch {}
-		} catch (e) {}
+			try { if (initialVideo.seekTo != null) pendingDeepLinkTimeRef.current = initialVideo.seekTo; } catch { }
+		} catch (e) { }
 	}, [initialVideo]);
 
 	// Read URL parameters and set video info if no initialVideo prop
 	useEffect(() => {
 		if (initialVideo) return; // Skip if initialVideo prop is provided
-		
+
 		const src = searchParams.get('src');
 		const title = searchParams.get('title');
 		const channel = searchParams.get('channel');
-		
+
 		if (src) {
 			setVideoUrl(src);
 		}
@@ -1379,1169 +1379,1169 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 		}
 	}, [searchParams, initialVideo]);
 
-		// BEST-EFFORT: attempt autoplay when an initialVideo is provided.
-		// Browsers may block autoplay without user gesture; this silently ignores failures.
-		useEffect(() => {
-			if (!initialVideo) return;
-			const tryAutoplay = async () => {
-				try {
-					const v = videoRef.current;
-					if (!v) return;
-					// ensure src is set
-					if (videoUrl) {
-						try { v.src = videoUrl; } catch {}
-					}
-					// small delay to allow mount/paint
-					await new Promise(r => setTimeout(r, 80));
-					const p = v.play();
-					if (p && typeof p.then === 'function') {
-						await p;
-					}
-					setIsPlaying(true);
-				} catch (err) {
-					// Autoplay likely blocked — leave UI for user to start playback.
-				}
-			};
-			// fire but don't block render
-			tryAutoplay();
-		}, [initialVideo, videoUrl]);
-		// Tip Creator modal state
-		const [showTipModal, setShowTipModal] = useState(false);
-		const [tipAmount, setTipAmount] = useState(0);
-		const TIP_PRESETS = [1,5,10,25];
-		const [copied, setCopied] = useState(false);
-		// global toast + haptic helpers for Share modal actions
-		const [toastMessage, setToastMessage] = useState("");
-		const toastTimerRef = useRef(null);
-		const shareContentRef = useRef(null);
-		const qrRef = useRef(null);
-
-		// Add copy helper used by the Share dialog
-		const copyToClipboard = async (text) => {
-			try {
-				if (navigator.clipboard && navigator.clipboard.writeText) {
-					await navigator.clipboard.writeText(text);
-				} else {
-					// fallback for older browsers
-					const ta = document.createElement("textarea");
-					ta.value = text;
-					ta.setAttribute("readonly", "");
-					ta.style.position = "absolute";
-					ta.style.left = "-9999px";
-					document.body.appendChild(ta);
-					ta.select();
-					document.execCommand("copy");
-					document.body.removeChild(ta);
-				}
-				setCopied(true);
-				setTimeout(() => setCopied(false), 1500);
-				// vibration disabled per user preference
-				setToastMessage('Link copied');
-				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-			} catch {
-				// noop on failure
-			}
-		};
-
-		// --- Notes helpers: load/save notes per-video (localStorage-backed) ---
-		const notesStorageKey = (u) => `notes:${u}`;
-
-		const loadNotesFor = (u) => {
-			try {
-				const raw = localStorage.getItem(notesStorageKey(u));
-				return raw ? JSON.parse(raw) : [];
-			} catch {
-				return [];
-			}
-		};
-
-		const saveNotesFor = (u, arr) => {
-			try { localStorage.setItem(notesStorageKey(u), JSON.stringify(arr)); } catch {}
-		};
-
-		// --- Bookmarks helpers: load/save bookmarks per-video (localStorage-backed) ---
-		const bookmarksStorageKey = (u) => `bookmarks:${u}`;
-
-		const loadBookmarksFor = (u) => {
-			try {
-				const raw = localStorage.getItem(bookmarksStorageKey(u));
-				return raw ? JSON.parse(raw) : [];
-			} catch {
-				return [];
-			}
-		};
-
-		const saveBookmarksFor = (u, arr) => {
-			try { localStorage.setItem(bookmarksStorageKey(u), JSON.stringify(arr)); } catch {}
-		};
-
-		// Enumerate all bookmarked videos across localStorage (returns [{ url, bookmarks: [...] }])
-		const loadAllBookmarkedVideos = () => {
-			const out = [];
-			try {
-				for (let i = 0; i < localStorage.length; i++) {
-					const key = localStorage.key(i);
-					if (!key) continue;
-					if (key.startsWith('bookmarks:')) {
-						const url = key.slice('bookmarks:'.length);
-						try {
-							const raw = localStorage.getItem(key);
-							const arr = raw ? JSON.parse(raw) : [];
-							if (arr && arr.length) {
-								out.push({ url, bookmarks: arr });
-							}
-						} catch {}
-					}
-				}
-			} catch (e) {}
-			return out;
-		};
-
-		// Bookmark modal state
-		const [showBookmarkModal, setShowBookmarkModal] = useState(false);
-		const [bookmarkLabel, setBookmarkLabel] = useState('');
-		const [bookmarkTime, setBookmarkTime] = useState(0);
-
-		// current video's bookmarks (for rendering markers on the progress bar)
-		const [currentVideoBookmarks, setCurrentVideoBookmarks] = useState([]);
-
-		// pending deep link time (when app opened with ?video=...&t=...)
-		const pendingDeepLinkTimeRef = useRef(null);
-
-		// which bookmark's share popover is open (key format: `${url}::${bookmarkId}`)
-		const [sharePopoverFor, setSharePopoverFor] = useState(null);
-
-		// click-away handler for share popovers: close when clicking outside
-		useEffect(() => {
-			function handleDocClick(e) {
-				try {
-					const key = sharePopoverFor;
-					if (!key) return;
-					const target = e.target;
-					// if clicked on anchor with matching data-share-anchor, do nothing
-					if (target && target.closest && target.closest(`[data-share-anchor="${key}"]`)) return;
-					// if clicked inside the popover, ignore
-					if (target && target.closest && target.closest(`[data-share-key="${key}"]`)) return;
-					setSharePopoverFor(null);
-				} catch {}
-			}
-			document.addEventListener('click', handleDocClick);
-			return () => document.removeEventListener('click', handleDocClick);
-		}, [sharePopoverFor]);
-
-		const makeShareLink = (url, time) => {
-			try {
-				const loc = window.location ? `${window.location.origin}${window.location.pathname}` : '';
-				return `${loc}?video=${encodeURIComponent(url)}&t=${Math.max(0, Math.floor(time || 0))}`;
-			} catch { return url; }
-		};
-
-		// Quick centered bookmark modal (triggered from quick-action card)
-		const [showQuickBookmarkModal, setShowQuickBookmarkModal] = useState(false);
-
-		// Transient pulse animation for bookmark feedback (fills and fades)
-		const [quickBookmarkPulse, setQuickBookmarkPulse] = useState({ show: false, x: 0, y: 0 });
-		const [quickBookmarkPulseActive, setQuickBookmarkPulseActive] = useState(false);
-		const quickBookmarkPulseTimerRef = useRef(null);
-		const quickBookmarkPulseActiveTimerRef = useRef(null);
-
-
-
-
-		const openBookmarkModalAtCurrent = () => {
-			try {
-				const v = videoRef.current;
-				const t = v ? Math.floor(v.currentTime || 0) : Math.floor(progress * duration || 0);
-				setBookmarkTime(t);
-				setBookmarkLabel('');
-				setShowBookmarkModal(true);
-			} catch {}
-		};
-
-		const saveBookmark = () => {
-			try {
-				const b = { id: Date.now(), time: bookmarkTime, label: (bookmarkLabel || '').trim() };
-				const list = loadBookmarksFor(videoUrl);
-				const next = [b, ...list];
-				saveBookmarksFor(videoUrl, next);
-				// refresh in-memory list for the current video
-				try { setCurrentVideoBookmarks(next); } catch {}
-				setShowBookmarkModal(false);
-				setBookmarkLabel('');
-				setToastMessage('Bookmark saved');
-				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
-			} catch {}
-		};
-
-		// Save bookmark from the quick-centered modal and show transient filled-pulse
-		const saveQuickBookmark = () => {
-			try {
-				const b = { id: Date.now(), time: bookmarkTime, label: (bookmarkLabel || '').trim() };
-				const list = loadBookmarksFor(videoUrl);
-				const next = [b, ...list];
-				saveBookmarksFor(videoUrl, next);
-				// refresh in-memory list for the current video
-				try { setCurrentVideoBookmarks(next); } catch {}
-				setShowQuickBookmarkModal(false);
-				setBookmarkLabel('');
-				setToastMessage('Moment Bookmarked');
-				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
-
-				// Ensure segment bookmarks are enabled so backend syncing can occur
-				try { localStorage.setItem('vx:pref:segmentBookmarksEnabled', JSON.stringify(true)); } catch {}
-				// Persist to backend as a segment (start==end when saving a single moment)
-				try {
-					const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
-					const token = localStorage.getItem('regaarder_token');
-					fetch(`${BACKEND}/bookmarks/segments`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-						body: JSON.stringify({ videoUrl, label: (bookmarkLabel || '').trim(), startTime: Math.floor(bookmarkTime || 0), endTime: Math.floor(bookmarkTime || 0) })
-					}).catch(() => {});
-				} catch {}
-
-					// Trigger pulse animation near the quick-card position
-				try {
-					setQuickBookmarkPulse({ show: true, x: quickCardPos.x, y: quickCardPos.y });
-						// confetti removed — replaced by a pulse and toast
-					// start active phase (animate) shortly after render
-					if (quickBookmarkPulseActiveTimerRef.current) clearTimeout(quickBookmarkPulseActiveTimerRef.current);
-					quickBookmarkPulseActiveTimerRef.current = setTimeout(() => setQuickBookmarkPulseActive(true), 30);
-					// hide pulse after animation
-					if (quickBookmarkPulseTimerRef.current) clearTimeout(quickBookmarkPulseTimerRef.current);
-					quickBookmarkPulseTimerRef.current = setTimeout(() => {
-						setQuickBookmarkPulse({ show: false, x: 0, y: 0 });
-						setQuickBookmarkPulseActive(false);
-						quickBookmarkPulseTimerRef.current = null;
-					}, 900);
-				} catch {}
-			} catch {}
-		};
-
-
-
-		// Parse deep-link query on mount (e.g., ?video=<url>&t=<seconds>)
-		useEffect(() => {
-			try {
-				const sp = new URLSearchParams(window.location.search || '');
-				const v = sp.get('video');
-				const t = sp.get('t');
-				if (v) {
-					try { setVideoUrl(decodeURIComponent(v)); } catch { setVideoUrl(v); }
-					if (t != null) {
-						const n = parseInt(t, 10);
-						if (!Number.isNaN(n)) pendingDeepLinkTimeRef.current = n;
-					}
-				}
-			} catch {}
-		}, []);
-
-		// When videoUrl changes, also handle any pending deep-link seek/play
-		useEffect(() => {
-			try {
-				if (!videoUrl) {
-					setCurrentVideoBookmarks([]);
-					return;
-				}
-				const list = loadBookmarksFor(videoUrl) || [];
-				setCurrentVideoBookmarks(list);
-				if (pendingDeepLinkTimeRef.current != null) {
-					const time = pendingDeepLinkTimeRef.current;
-					pendingDeepLinkTimeRef.current = null;
-					setTimeout(() => {
-						try {
-							const v = videoRef.current;
-							if (v) {
-								try { v.src = videoUrl; } catch {}
-								try { v.currentTime = Math.max(0, time); } catch {}
-								try { const p = v.play(); if (p && p.catch) p.catch(() => {}); setIsPlaying(true); } catch {}
-								try { setControlsVisible(true); showCenterTemporarily(2000); } catch {}
-							}
-						} catch {}
-					}, 180);
-				}
-			} catch {}
-		}, [videoUrl]);
-
-			// Helper: keep quick card visible for a short moment after an action
-			const scheduleHideQuickCard = (delay = 1800) => {
-				if (quickCardTimerRef.current) { clearTimeout(quickCardTimerRef.current); quickCardTimerRef.current = null; }
-				quickCardTimerRef.current = setTimeout(() => {
-					setShowQuickCard(false);
-					quickCardTimerRef.current = null;
-				}, delay);
-			};
-
-			// Quick-action handlers for the floating long-press card
-			const onQuickLike = (e) => {
-				e?.stopPropagation?.();
-				if (!auth.user) { auth.openAuthModal(); return; }
-				setLiked((s) => {
-					const next = !s;
-					// if we're liking, ensure dislike is cleared and synced to backend
-					if (next) {
-						setDisliked(false);
-						try {
-							const token = localStorage.getItem('regaarder_token');
-							if (token) {
-								const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
-								fetch(`${BACKEND}/dislikes`, {
-									method: 'DELETE',
-									headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-									body: JSON.stringify({ videoId: videoUrl || videoTitle || null })
-								}).catch(() => {});
-							}
-						} catch (e) {}
-					}
-					// persist like/unlike to backend
-					try {
-						const token = localStorage.getItem('regaarder_token');
-						if (token) {
-							const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
-							fetch(`${BACKEND}/likes`, {
-								method: next ? 'POST' : 'DELETE',
-								headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-								body: JSON.stringify({ videoId: videoUrl || videoTitle || null })
-							}).catch(() => {});
-						}
-					} catch (e) {}
-					// persist like (or unlike) for real-time Liked Videos updates when not incognito
-					try {
-						if (!incognitoMode) {
-							import('./likedvideos').then((m) => {
-								if (m && typeof m.recordLike === 'function') {
-									m.recordLike({
-										videoId: videoUrl || videoTitle || null,
-										url: videoUrl || null,
-										title: videoTitle || null,
-										creatorName,
-										imageUrl: (() => {
-											// Try to resolve a thumbnail from discover items or dynamic home list
-											try {
-												const candidates = (discoverItems && Array.isArray(discoverItems) ? discoverItems : (discoverItemsData || []));
-												if (Array.isArray(candidates) && candidates.length) {
-													const found = candidates.find(v => (v.url && String(v.url) === String(videoUrl)) || (v.videoUrl && String(v.videoUrl) === String(videoUrl)) || (v.title && String(v.title) === String(videoTitle)));
-													if (found) return found.thumbnail || found.imageUrl || null;
-												}
-											} catch {}
-											// dynamic import as a fallback
-											try {
-												// avoid blocking: return null and allow likedvideos to fetch /videos
-												/* no-op */
-											} catch {}
-											return null;
-										})(),
-										liked: next,
-										timestamp: new Date().toISOString()
-									});
-								}
-							});
-						}
-					} catch {}
-					return next;
-				});
-				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-				setToastMessage(getTranslation('Liked', selectedLanguage));
-				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1200);
-				// keep card visible briefly so user can see feedback
-				scheduleHideQuickCard(1800);
-			};
-
-			const onQuickDislike = (e) => {
-				e?.stopPropagation?.();
-				if (!auth.user) { auth.openAuthModal(); return; }
-				setDisliked((s) => {
-					const next = !s;
-					// if we're disliking, ensure like is cleared
-					if (next) setLiked(false);
-					
-					// Persist dislike to backend
-					try {
-						const token = localStorage.getItem('regaarder_token');
-						if (token) {
-							const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
-							fetch(`${BACKEND}/dislikes`, {
-								method: next ? 'POST' : 'DELETE',
-								headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-								body: JSON.stringify({ videoId: videoUrl || videoTitle || null })
-							}).catch(() => {});
-						}
-					} catch (e) {}
-
-					// when user dislikes, remove from liked list (if not incognito)
-					try {
-						if (!incognitoMode && next) {
-							import('./likedvideos').then((m) => {
-								if (m && typeof m.recordLike === 'function') {
-									m.recordLike({
-										videoId: videoUrl || videoTitle || null,
-										url: videoUrl || null,
-										title: videoTitle || null,
-										creatorName,
-										liked: false,
-										timestamp: new Date().toISOString()
-									});
-								}
-							});
-						}
-					} catch {}
-					return next;
-				});
-				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-				setToastMessage(getTranslation('Video Disliked', selectedLanguage));
-				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1200);
-				// keep card visible briefly so user can see feedback
-				scheduleHideQuickCard(1800);
-			};
-
-			const onQuickBookmark = (e) => {
-				e?.stopPropagation?.();
-				try {
-					const v = videoRef.current;
-					const t = v ? Math.floor(v.currentTime || 0) : Math.floor(progress * duration || 0);
-					setBookmarkTime(t);
-					setBookmarkLabel('');
-					// show the quick-centered bookmark modal
-					setShowQuickBookmarkModal(true);
-					// keep quick card visible briefly while modal animates in
-					scheduleHideQuickCard(2200);
-				} catch {}
-			};
-
-		const formatTime = (secs) => {
-			const s = Math.max(0, Math.floor(secs || 0));
-			return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
-		};
-
-		// Perform share with feedback
-		const performShare = async (u) => {
-			if (!u) return;
-			try {
-				if (navigator.share) {
-					await navigator.share({ title: 'Watch video', url: u });
-					setToastMessage(getTranslation('Shared', selectedLanguage));
-				} else {
-					await copyToClipboard(u);
-					setToastMessage(getTranslation('Link copied', selectedLanguage));
-					// vibration disabled per user preference
-				}
-			} catch (err) {
-				// fallback: copy and notify
-				try { await copyToClipboard(u); } catch {}
-				setToastMessage(getTranslation('Link copied', selectedLanguage));
-			}
-			if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-			toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-		};
-
-		// Perform watch-together action: provide haptic feedback and navigate
-		const performWatchTogether = (e) => {
-			try { e?.stopPropagation?.(); } catch {}
-			try { if (navigator.vibrate) navigator.vibrate(12); } catch {}
-			// small delay to allow vibration to trigger on some devices
-			setTimeout(() => {
-				try { window.location.href = './watchtogether.jsx'; } catch {}
-			}, 50);
-		};
-
-		// Share dialog helpers: QR preview, download, and social share actions
-		const [showQrPreview, setShowQrPreview] = useState(false);
-		const [qrImageSrc, setQrImageSrc] = useState("");
-
-		const openQrFor = async (u) => {
-			if (!u) return;
-			try {
-				// Prefer a globally available QR generator (injected via CDN or provided by the host app).
-				if (typeof window !== 'undefined' && window.QRCode && typeof window.QRCode.toDataURL === 'function') {
-					const dataUrl = await window.QRCode.toDataURL(u, { width: 360 });
-					setQrImageSrc(dataUrl);
-				} else if (typeof window !== 'undefined' && typeof window.kjua === 'function') {
-					// kjua returns an element (canvas or svg). Convert to data URL.
-					const el = window.kjua({ text: u, fill: '#000', back: '#fff', size: 360 });
-					if (el && el.tagName === 'CANVAS') {
-						setQrImageSrc(el.toDataURL('image/png'));
-					} else if (el) {
-						const svg = new XMLSerializer().serializeToString(el);
-						const svg64 = btoa(unescape(encodeURIComponent(svg)));
-						setQrImageSrc('data:image/svg+xml;base64,' + svg64);
-					} else {
-						throw new Error('kjua returned no element');
-					}
-				} else {
-					// No local generator available — use the public QR API as a safe runtime fallback
-					const src = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${encodeURIComponent(u)}`;
-					setQrImageSrc(src);
-				}
-				setShowQrPreview(true);
-				setTimeout(() => {
-					try {
-						if (qrRef.current) qrRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-						else if (shareContentRef.current) shareContentRef.current.scrollTop = shareContentRef.current.scrollHeight;
-						// vibration disabled per user preference
-					} catch {}
-				}, 90);
-			} catch (err) {
-				// final fallback to server-generated QR
-				const src = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${encodeURIComponent(u)}`;
-				setQrImageSrc(src);
-				setShowQrPreview(true);
-				setTimeout(() => {
-					try { if (qrRef.current) qrRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch {}
-				}, 90);
-			}
-		};
-
-		const downloadQr = () => {
-			if (!qrImageSrc) return;
-			const a = document.createElement('a');
-			a.href = qrImageSrc;
-			a.download = 'video-qr.png';
-			document.body.appendChild(a);
-			a.click();
-			a.remove();
-		};
-
-		// handleDownloadVideo removed here to avoid duplicate declarations;
-		// a single implementation lives later in the file (uses UI state and fallbacks).
-
-		const shareToFacebook = (u) => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}`, '_blank', 'noopener');
-		const shareToTwitter = (u, text = 'Watch this video') => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}`, '_blank', 'noopener');
-		const shareToEmail = (u) => { window.location.href = `mailto:?subject=${encodeURIComponent('Watch video')}&body=${encodeURIComponent(u)}`; };
-		const shareToInstagram = (u) => { copyToClipboard(u); alert('Link copied — open Instagram and paste it into a new post or story.'); };
-
-		// Bookmarked state for the current video (backend-persisted per user)
-		const [bookmarked, setBookmarked] = useState(false);
-		const BACKEND_URL = typeof window !== 'undefined'
-		  ? (window.__BACKEND_URL__ || `${window.location.protocol}//${window.location.hostname}:4000`)
-		  : 'http://localhost:4000';
-		// Refresh bookmark state when video changes
-		useEffect(() => {
-			try {
-				if (!videoUrl) { setBookmarked(false); return; }
-				const token = localStorage.getItem('regaarder_token');
-				fetch(`${BACKEND_URL}/bookmarks`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-					.then(r => r.json()).then(data => {
-						if (data && data.success) {
-							const isBookmarked = Array.isArray(data.videos) && data.videos.some(v => String(v.videoUrl) === String(videoUrl));
-							setBookmarked(!!isBookmarked);
-						}
-					}).catch(()=>{});
-			} catch {}
-		}, [videoUrl]);
-
-		// NEW: captions modal state & settings
-		const [showCaptions, setShowCaptions] = useState(false);
-		const [captionsEnabled, setCaptionsEnabled] = usePref('captionsEnabled', false);
-		const [captionLanguage, setCaptionLanguage] = usePref('captionLanguage', "English");
-		const [captionFontSize, setCaptionFontSize] = usePref('captionFontSize', 16); // px
-		const [captionPosition, setCaptionPosition] = usePref('captionPosition', "Bottom");
-		const [captionTextColor, setCaptionTextColor] = usePref('captionTextColor', "#FFFFFF");
-		const [captionBgOpacity, setCaptionBgOpacity] = usePref('captionBgOpacity', "100% Black");
-		// NEW: editable preview text for captions preview
-		const [captionPreviewText, setCaptionPreviewText] = useState(
-			getTranslation("Example subtitle text", (typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English'))
-		);
-
-		// One-time handle hint visibility (shown once per dialog using localStorage)
-		const [optionsHandleHintVisible, setOptionsHandleHintVisible] = useState(false);
-		const [captionsHandleHintVisible, setCaptionsHandleHintVisible] = useState(false);
-		const [shareHandleHintVisible, setShareHandleHintVisible] = useState(false);
-		const [tipHandleHintVisible, setTipHandleHintVisible] = useState(false);
-		const [reportHandleHintVisible, setReportHandleHintVisible] = useState(false);
-		const [notesHandleHintVisible, setNotesHandleHintVisible] = useState(false);
-		// One-time quick-options hint (shown once after user watches >2s)
-		const [quickOptionsHintVisible, setQuickOptionsHintVisible] = useState(false);
-
-		// Suggestion card state (appears after full video end)
-		const [showSuggestionCard, setShowSuggestionCard] = useState(false);
-		const [suggestionText, setSuggestionText] = useState("I’d like a video about …");
-		// Controls a brief exit animation so the card can animate out before unmounting
-		const [suggestionExiting, setSuggestionExiting] = useState(false);
-
-		// Progressive expansion + goal-gradient progress
-		const [suggestionFocused, setSuggestionFocused] = useState(false);
-		const SUGGESTION_GOAL = 120; // characters used to compute the progress fill
-		const suggestionExpanded = suggestionFocused || ((suggestionText || '').length > 0);
-		const suggestionProgress = Math.min(((suggestionText || '').length) / SUGGESTION_GOAL, 1);
-		const suggestionTextareaHeight = suggestionExpanded ? 140 : 36; // px
-
-		const closeSuggestionCard = (delay = 360) => {
-			setSuggestionExiting(true);
-			setTimeout(() => {
-				setSuggestionExiting(false);
-				setShowSuggestionCard(false);
-			}, delay);
-		};
-		const [suggestionSending, setSuggestionSending] = useState(false);
-
-		const sendSuggestionToCreator = async () => {
-			if (!auth.user) { auth.openAuthModal(); return; }
-			try {
-				setSuggestionSending(true);
-				const payload = {
-					requestId: null,
-					text: (suggestionText || '').trim(),
-					videoTitle: videoTitle || null,
-					videoUrl: videoUrl || null,
-					targetCreatorHandle: creatorName || null
-				};
-				let sent = false;
-				try {
-					const token = localStorage.getItem('regaarder_token');
-					if (token && payload.text) {
-						const res = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/suggestion`, {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-							body: JSON.stringify(payload)
-						});
-						const data = await res.json().catch(() => ({}));
-						sent = res.ok && data && data.success;
-					}
-				} catch {}
-				// Fallback: local storage if backend fails
-				if (!sent) {
-					try {
-						const key = 'creatorSuggestions';
-						const raw = localStorage.getItem(key);
-						const arr = raw ? JSON.parse(raw) : [];
-						arr.unshift({ id: Date.now(), ...payload, timestamp: new Date().toISOString() });
-						localStorage.setItem(key, JSON.stringify(arr.slice(0, 200)));
-					} catch {}
-				}
-				setSuggestionSending(false);
-				try { closeSuggestionCard(360); } catch { setShowSuggestionCard(false); }
-				try { setToastMessage('Suggestion sent — thanks!'); } catch {}
-				return true;
-			} catch (err) {
-				setSuggestionSending(false);
-				try { setToastMessage('Failed to send suggestion'); } catch {}
-				return false;
-			}
-		};
-
-			
-		// demonstrating swipe-down (previous) then swipe-left (discover).
-		const [gestureHintVisible, setGestureHintVisible] = useState(false);
-		const gestureStateRef = useRef({ startX: 0, startY: 0 });
-		const [gestureStep, setGestureStep] = useState(0); // 0=down,1=up,2=left
-		const prevGestureHintVisibleRef = useRef(false);
-
-		useEffect(() => {
-			try {
-				if (!localStorage.getItem('vx:hint:gesture')) {
-					// show the gesture hint (we'll mark it persisted once the user interacts)
-					setGestureHintVisible(true);
-					setGestureStep(0);
-				}
-			} catch {}
-		}, []);
-
-		useEffect(() => {
-			if (!showMenu) return;
-			try {
-				const key = 'handleHintShownOptions';
-				if (!localStorage.getItem(key)) {
-					setOptionsHandleHintVisible(true);
-					setTimeout(() => setOptionsHandleHintVisible(false), 3400);
-					localStorage.setItem(key, '1');
-				}
-			} catch {}
-		}, [showMenu]);
-
-		useEffect(() => {
-			if (!showCaptions) return;
-			try {
-				const key = 'handleHintShownCaptions';
-				if (!localStorage.getItem(key)) {
-					setCaptionsHandleHintVisible(true);
-					setTimeout(() => setCaptionsHandleHintVisible(false), 3400);
-					localStorage.setItem(key, '1');
-				}
-			} catch {}
-		}, [showCaptions]);
-
-		useEffect(() => {
-			if (!showShareModal) return;
-			try {
-				const key = 'handleHintShownShare';
-				if (!localStorage.getItem(key)) {
-					setShareHandleHintVisible(true);
-					setTimeout(() => setShareHandleHintVisible(false), 3400);
-					localStorage.setItem(key, '1');
-				}
-			} catch {}
-		}, [showShareModal]);
-
-		useEffect(() => {
-			if (!showTipModal) return;
-			try {
-				const key = 'handleHintShownTip';
-				if (!localStorage.getItem(key)) {
-					setTipHandleHintVisible(true);
-					setTimeout(() => setTipHandleHintVisible(false), 3400);
-					localStorage.setItem(key, '1');
-				}
-			} catch {}
-		}, [showTipModal]);
-
-		useEffect(() => {
-			if (!showReportModal) return;
-			try {
-				const key = 'handleHintShownReport';
-				if (!localStorage.getItem(key)) {
-					setReportHandleHintVisible(true);
-					setTimeout(() => setReportHandleHintVisible(false), 3400);
-					localStorage.setItem(key, '1');
-				}
-			} catch {}
-		}, [showReportModal]);
-
-		const [showCommentsModal, setShowCommentsModal] = useState(false);
-		const [showNotesModal, setShowNotesModal] = useState(false);
-
-		useEffect(() => {
-			if (!showNotesModal) return;
-			try {
-				const key = 'handleHintShownNotes';
-				if (!localStorage.getItem(key)) {
-					setNotesHandleHintVisible(true);
-					setTimeout(() => setNotesHandleHintVisible(false), 3400);
-					localStorage.setItem(key, '1');
-				}
-			} catch {}
-		}, [showNotesModal]);
-
-		// Show a one-time quick-options hint immediately after the gesture onboarding finishes.
-		useEffect(() => {
-			try {
-				const key = 'handleHintShownQuickOptions';
-				if (localStorage.getItem(key)) return; // already shown
-				// track previous visibility so we only fire when the gesture hint transitions from visible -> hidden
-				const prevRef = { current: null };
-				// use a small ref outside render to track previous value
-				let prev = null;
-				try { prev = prevGestureHintVisibleRef.current; } catch {}
-				// if gesture was visible and now it's hidden, show the quick-options hint
-				if (prev === true && !gestureHintVisible) {
-					// show the hint and keep it visible until the user performs the long-press
-					setQuickOptionsHintVisible(true);
-				}
-				// update tracking ref
-				try { prevGestureHintVisibleRef.current = gestureHintVisible; } catch {}
-			} catch {}
-		}, [gestureHintVisible]);
-
-
-
-		// NEW: progress bar color state & presets (persisted)
-		// UPDATED: Default color slightly dimmer to keep focus on the video
-		const [progressColor, setProgressColor] = usePref('progressColor', "#2563eb");
-		// Loop + playback controls (persisted)
-		const [loopVideo, setLoopVideo] = usePref('loopVideo', false);
-		const colorPresets = ["#4ade80", "#eab308","#ef4444","#3b82f6","#10b981","#a78bfa","#fb7185","#fb923c","#06b6d4","#84cc16","#8b5cf6","#f472b6","#ffffff"];
-
-		// Persist progressColor to backend preference
-		useEffect(() => {
-			const savePref = async () => {
-				try {
-					const token = localStorage.getItem('regaarder_token');
-					if (!token) return;
-					const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
-					await fetch(`${BACKEND}/users/preferences`, {
-						method: 'PATCH',
-						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-						body: JSON.stringify({ preferences: { progressColor } })
-					});
-				} catch (e) {}
-			};
-			const t = setTimeout(savePref, 2000); // debounce 2s
-			return () => clearTimeout(t);
-		}, [progressColor]);
-
-		// derive accent & contrast for UI elements from the progressColor
-		const hexToRgba = (hex, a = 1) => {
-			let h = hex.replace("#","").trim();
-			if (h.length === 3) h = h.split("").map(c=>c+c).join("");
-			const r = parseInt(h.substr(0,2),16);
-			const g = parseInt(h.substr(2,2),16);
-			const b = parseInt(h.substr(4,2),16);
-			return `rgba(${r}, ${g}, ${b}, ${a})`;
-		};
-		const getContrastColor = (hex) => {
-			let h = hex.replace("#","").trim();
-			if (h.length === 3) h = h.split("").map(c=>c+c).join("");
-			const r = parseInt(h.substr(0,2),16)/255;
-			const g = parseInt(h.substr(2,2),16)/255;
-			const b = parseInt(h.substr(4,2),16)/255;
-			const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-			return lum > 0.6 ? "#000" : "#fff";
-		};
-		const accentColor = progressColor;
-		// Bookmark accent (gold/mustard) used specifically for the Bookmark modal
-		const bookmarkAccent = '#d4a017';
-		// slightly reduce border alpha so accents feel dimmer
-		const accentBorder = hexToRgba(progressColor, 0.06);
-		const accentText = getContrastColor(progressColor);
-
-		// New UI states for modal controls (persisted preferences)
-		const [darkMode, setDarkMode] = usePref('darkMode', true);
-		const [selectedQuality, setSelectedQuality] = usePref('selectedQuality', "480p");
-
-		// map of quality -> source URL (can be extended/overridden)
-		const qualitySources = useRef({});
-
-		const getQualitySrc = (quality) => {
-			// priority: explicit mapping in qualitySources, otherwise try to derive from videoUrl
-			if (qualitySources.current && qualitySources.current[quality]) return qualitySources.current[quality];
-			const base = videoUrl && videoUrl.trim() ? videoUrl.trim() : "";
-			try {
-				// try replace resolution token like 480p/720p in filename
-				if (/\b\d{3,4}p\b/.test(base)) {
-					return base.replace(/\b\d{3,4}p\b/, quality);
-				}
-				// fallback: append query param so server (if aware) may serve variant
-				const url = new URL(base, window.location.origin);
-				url.searchParams.set('quality', quality);
-				return url.toString();
-			} catch (e) {
-				// last resort: return base unchanged
-				return base;
-			}
-		};
-
-		// When selectedQuality changes, attempt to swap the video src while preserving time/play state
-		useEffect(() => {
+	// BEST-EFFORT: attempt autoplay when an initialVideo is provided.
+	// Browsers may block autoplay without user gesture; this silently ignores failures.
+	useEffect(() => {
+		if (!initialVideo) return;
+		const tryAutoplay = async () => {
 			try {
 				const v = videoRef.current;
 				if (!v) return;
-				const newSrc = getQualitySrc(selectedQuality);
-				if (!newSrc) return;
-				// if the src is already the same, nothing to do
-				if ((v.currentSrc || v.src || '').split('?')[0] === newSrc.split('?')[0]) return;
-				const wasPlaying = !v.paused && !v.ended;
-				const currentTime = v.currentTime || 0;
-				v.pause();
-				v.src = newSrc;
-				// try to restore time and play
-				v.load();
-				v.currentTime = Math.max(0, Math.min(currentTime, v.duration || Infinity));
-				if (wasPlaying) {
-					const p = v.play();
-					if (p && p.catch) p.catch(() => {});
+				// ensure src is set
+				if (videoUrl) {
+					try { v.src = videoUrl; } catch { }
 				}
+				// small delay to allow mount/paint
+				await new Promise(r => setTimeout(r, 80));
+				const p = v.play();
+				if (p && typeof p.then === 'function') {
+					await p;
+				}
+				setIsPlaying(true);
 			} catch (err) {
-				// noop
-			}
-		}, [selectedQuality]);
-		const [playbackSpeed, setPlaybackSpeed] = usePref('playbackSpeed', 1);
-
-		// Incognito mode: when true, don't persist watch history or likes (persisted)
-		const [incognitoMode, setIncognitoMode] = usePref('incognitoMode', false);
-		// confirmation state when disabling incognito
-		const [showIncognitoConfirm, setShowIncognitoConfirm] = useState(false);
-
-		// helper to dispatch player-side events so other modules (watchhistory.jsx, likes.jsx)
-		// can listen and decide whether to persist actions based on the `incognito` flag.
-		const dispatchPlayerEvent = (name, detail = {}) => {
-			try {
-				window.dispatchEvent(new CustomEvent(name, { detail }));
-			} catch (e) {
-				// noop - some environments may restrict CustomEvent
+				// Autoplay likely blocked — leave UI for user to start playback.
 			}
 		};
+		// fire but don't block render
+		tryAutoplay();
+	}, [initialVideo, videoUrl]);
+	// Tip Creator modal state
+	const [showTipModal, setShowTipModal] = useState(false);
+	const [tipAmount, setTipAmount] = useState(0);
+	const TIP_PRESETS = [1, 5, 10, 25];
+	const [copied, setCopied] = useState(false);
+	// global toast + haptic helpers for Share modal actions
+	const [toastMessage, setToastMessage] = useState("");
+	const toastTimerRef = useRef(null);
+	const shareContentRef = useRef(null);
+	const qrRef = useRef(null);
 
-		// called when playback starts; notifies listeners about a watch event
-		const handlePlayRecord = useCallback(() => {
-			const info = {
-				videoUrl,
-				videoTitle,
-				creatorName,
-				time: Date.now(),
-				incognito: incognitoMode
-			};
-			dispatchPlayerEvent('player:watch', info);
-			// if not incognito, also set a toast so user knows their watch is recorded
-			if (!incognitoMode) {
-				// do not show a toast when watch history is recorded
+	// Add copy helper used by the Share dialog
+	const copyToClipboard = async (text) => {
+		try {
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				await navigator.clipboard.writeText(text);
+			} else {
+				// fallback for older browsers
+				const ta = document.createElement("textarea");
+				ta.value = text;
+				ta.setAttribute("readonly", "");
+				ta.style.position = "absolute";
+				ta.style.left = "-9999px";
+				document.body.appendChild(ta);
+				ta.select();
+				document.execCommand("copy");
+				document.body.removeChild(ta);
 			}
-		}, [videoUrl, videoTitle, creatorName, incognitoMode]);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 1500);
+			// vibration disabled per user preference
+			setToastMessage('Link copied');
+			if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+			toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+		} catch {
+			// noop on failure
+		}
+	};
 
-		// (incognito pref is now managed via usePref/localStorage)
+	// --- Notes helpers: load/save notes per-video (localStorage-backed) ---
+	const notesStorageKey = (u) => `notes:${u}`;
 
-		// apply playback speed to video element when it changes
-		useEffect(() => {
-			try {
-				if (videoRef.current) videoRef.current.playbackRate = playbackSpeed;
-			} catch {}
-		}, [playbackSpeed]);
+	const loadNotesFor = (u) => {
+		try {
+			const raw = localStorage.getItem(notesStorageKey(u));
+			return raw ? JSON.parse(raw) : [];
+		} catch {
+			return [];
+		}
+	};
 
-		// keep loop property in sync with state
-		useEffect(() => {
-			try { if (videoRef.current) videoRef.current.loop = loopVideo; } catch {}
-		}, [loopVideo]);
+	const saveNotesFor = (u, arr) => {
+		try { localStorage.setItem(notesStorageKey(u), JSON.stringify(arr)); } catch { }
+	};
 
-		// Ensure the player restarts when it ends if loopVideo is enabled.
-		// Some environments or transforms can interfere with the native `loop` attribute,
-		// so we add an explicit 'ended' handler as a robust fallback.
-		useEffect(() => {
-			const v = videoRef.current;
-			if (!v) return;
-			const onEnded = async () => {
-				if (loopVideo) {
+	// --- Bookmarks helpers: load/save bookmarks per-video (localStorage-backed) ---
+	const bookmarksStorageKey = (u) => `bookmarks:${u}`;
+
+	const loadBookmarksFor = (u) => {
+		try {
+			const raw = localStorage.getItem(bookmarksStorageKey(u));
+			return raw ? JSON.parse(raw) : [];
+		} catch {
+			return [];
+		}
+	};
+
+	const saveBookmarksFor = (u, arr) => {
+		try { localStorage.setItem(bookmarksStorageKey(u), JSON.stringify(arr)); } catch { }
+	};
+
+	// Enumerate all bookmarked videos across localStorage (returns [{ url, bookmarks: [...] }])
+	const loadAllBookmarkedVideos = () => {
+		const out = [];
+		try {
+			for (let i = 0; i < localStorage.length; i++) {
+				const key = localStorage.key(i);
+				if (!key) continue;
+				if (key.startsWith('bookmarks:')) {
+					const url = key.slice('bookmarks:'.length);
 					try {
-						v.currentTime = 0;
-						await v.play();
-						setIsPlaying(true);
-					} catch (e) {
-						// ignore play errors (autoplay policies etc.)
-					}
+						const raw = localStorage.getItem(key);
+						const arr = raw ? JSON.parse(raw) : [];
+						if (arr && arr.length) {
+							out.push({ url, bookmarks: arr });
+						}
+					} catch { }
 				}
-			};
-			v.addEventListener('ended', onEnded);
-			return () => v.removeEventListener('ended', onEnded);
-		}, [loopVideo]);
+			}
+		} catch (e) { }
+		return out;
+	};
 
-		// Watch-history integration: record progress from the main mobile player
-		useEffect(() => {
+	// Bookmark modal state
+	const [showBookmarkModal, setShowBookmarkModal] = useState(false);
+	const [bookmarkLabel, setBookmarkLabel] = useState('');
+	const [bookmarkTime, setBookmarkTime] = useState(0);
+
+	// current video's bookmarks (for rendering markers on the progress bar)
+	const [currentVideoBookmarks, setCurrentVideoBookmarks] = useState([]);
+
+	// pending deep link time (when app opened with ?video=...&t=...)
+	const pendingDeepLinkTimeRef = useRef(null);
+
+	// which bookmark's share popover is open (key format: `${url}::${bookmarkId}`)
+	const [sharePopoverFor, setSharePopoverFor] = useState(null);
+
+	// click-away handler for share popovers: close when clicking outside
+	useEffect(() => {
+		function handleDocClick(e) {
+			try {
+				const key = sharePopoverFor;
+				if (!key) return;
+				const target = e.target;
+				// if clicked on anchor with matching data-share-anchor, do nothing
+				if (target && target.closest && target.closest(`[data-share-anchor="${key}"]`)) return;
+				// if clicked inside the popover, ignore
+				if (target && target.closest && target.closest(`[data-share-key="${key}"]`)) return;
+				setSharePopoverFor(null);
+			} catch { }
+		}
+		document.addEventListener('click', handleDocClick);
+		return () => document.removeEventListener('click', handleDocClick);
+	}, [sharePopoverFor]);
+
+	const makeShareLink = (url, time) => {
+		try {
+			const loc = window.location ? `${window.location.origin}${window.location.pathname}` : '';
+			return `${loc}?video=${encodeURIComponent(url)}&t=${Math.max(0, Math.floor(time || 0))}`;
+		} catch { return url; }
+	};
+
+	// Quick centered bookmark modal (triggered from quick-action card)
+	const [showQuickBookmarkModal, setShowQuickBookmarkModal] = useState(false);
+
+	// Transient pulse animation for bookmark feedback (fills and fades)
+	const [quickBookmarkPulse, setQuickBookmarkPulse] = useState({ show: false, x: 0, y: 0 });
+	const [quickBookmarkPulseActive, setQuickBookmarkPulseActive] = useState(false);
+	const quickBookmarkPulseTimerRef = useRef(null);
+	const quickBookmarkPulseActiveTimerRef = useRef(null);
+
+
+
+
+	const openBookmarkModalAtCurrent = () => {
+		try {
+			const v = videoRef.current;
+			const t = v ? Math.floor(v.currentTime || 0) : Math.floor(progress * duration || 0);
+			setBookmarkTime(t);
+			setBookmarkLabel('');
+			setShowBookmarkModal(true);
+		} catch { }
+	};
+
+	const saveBookmark = () => {
+		try {
+			const b = { id: Date.now(), time: bookmarkTime, label: (bookmarkLabel || '').trim() };
+			const list = loadBookmarksFor(videoUrl);
+			const next = [b, ...list];
+			saveBookmarksFor(videoUrl, next);
+			// refresh in-memory list for the current video
+			try { setCurrentVideoBookmarks(next); } catch { }
+			setShowBookmarkModal(false);
+			setBookmarkLabel('');
+			setToastMessage('Bookmark saved');
+			if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+			toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
+		} catch { }
+	};
+
+	// Save bookmark from the quick-centered modal and show transient filled-pulse
+	const saveQuickBookmark = () => {
+		try {
+			const b = { id: Date.now(), time: bookmarkTime, label: (bookmarkLabel || '').trim() };
+			const list = loadBookmarksFor(videoUrl);
+			const next = [b, ...list];
+			saveBookmarksFor(videoUrl, next);
+			// refresh in-memory list for the current video
+			try { setCurrentVideoBookmarks(next); } catch { }
+			setShowQuickBookmarkModal(false);
+			setBookmarkLabel('');
+			setToastMessage('Moment Bookmarked');
+			if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+			toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
+
+			// Ensure segment bookmarks are enabled so backend syncing can occur
+			try { localStorage.setItem('vx:pref:segmentBookmarksEnabled', JSON.stringify(true)); } catch { }
+			// Persist to backend as a segment (start==end when saving a single moment)
+			try {
+				const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
+				const token = localStorage.getItem('regaarder_token');
+				fetch(`${BACKEND}/bookmarks/segments`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+					body: JSON.stringify({ videoUrl, label: (bookmarkLabel || '').trim(), startTime: Math.floor(bookmarkTime || 0), endTime: Math.floor(bookmarkTime || 0) })
+				}).catch(() => { });
+			} catch { }
+
+			// Trigger pulse animation near the quick-card position
+			try {
+				setQuickBookmarkPulse({ show: true, x: quickCardPos.x, y: quickCardPos.y });
+				// confetti removed — replaced by a pulse and toast
+				// start active phase (animate) shortly after render
+				if (quickBookmarkPulseActiveTimerRef.current) clearTimeout(quickBookmarkPulseActiveTimerRef.current);
+				quickBookmarkPulseActiveTimerRef.current = setTimeout(() => setQuickBookmarkPulseActive(true), 30);
+				// hide pulse after animation
+				if (quickBookmarkPulseTimerRef.current) clearTimeout(quickBookmarkPulseTimerRef.current);
+				quickBookmarkPulseTimerRef.current = setTimeout(() => {
+					setQuickBookmarkPulse({ show: false, x: 0, y: 0 });
+					setQuickBookmarkPulseActive(false);
+					quickBookmarkPulseTimerRef.current = null;
+				}, 900);
+			} catch { }
+		} catch { }
+	};
+
+
+
+	// Parse deep-link query on mount (e.g., ?video=<url>&t=<seconds>)
+	useEffect(() => {
+		try {
+			const sp = new URLSearchParams(window.location.search || '');
+			const v = sp.get('video');
+			const t = sp.get('t');
+			if (v) {
+				try { setVideoUrl(decodeURIComponent(v)); } catch { setVideoUrl(v); }
+				if (t != null) {
+					const n = parseInt(t, 10);
+					if (!Number.isNaN(n)) pendingDeepLinkTimeRef.current = n;
+				}
+			}
+		} catch { }
+	}, []);
+
+	// When videoUrl changes, also handle any pending deep-link seek/play
+	useEffect(() => {
+		try {
+			if (!videoUrl) {
+				setCurrentVideoBookmarks([]);
+				return;
+			}
+			const list = loadBookmarksFor(videoUrl) || [];
+			setCurrentVideoBookmarks(list);
+			if (pendingDeepLinkTimeRef.current != null) {
+				const time = pendingDeepLinkTimeRef.current;
+				pendingDeepLinkTimeRef.current = null;
+				setTimeout(() => {
+					try {
+						const v = videoRef.current;
+						if (v) {
+							try { v.src = videoUrl; } catch { }
+							try { v.currentTime = Math.max(0, time); } catch { }
+							try { const p = v.play(); if (p && p.catch) p.catch(() => { }); setIsPlaying(true); } catch { }
+							try { setControlsVisible(true); showCenterTemporarily(2000); } catch { }
+						}
+					} catch { }
+				}, 180);
+			}
+		} catch { }
+	}, [videoUrl]);
+
+	// Helper: keep quick card visible for a short moment after an action
+	const scheduleHideQuickCard = (delay = 1800) => {
+		if (quickCardTimerRef.current) { clearTimeout(quickCardTimerRef.current); quickCardTimerRef.current = null; }
+		quickCardTimerRef.current = setTimeout(() => {
+			setShowQuickCard(false);
+			quickCardTimerRef.current = null;
+		}, delay);
+	};
+
+	// Quick-action handlers for the floating long-press card
+	const onQuickLike = (e) => {
+		e?.stopPropagation?.();
+		if (!auth.user) { auth.openAuthModal(); return; }
+		setLiked((s) => {
+			const next = !s;
+			// if we're liking, ensure dislike is cleared and synced to backend
+			if (next) {
+				setDisliked(false);
+				try {
+					const token = localStorage.getItem('regaarder_token');
+					if (token) {
+						const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
+						fetch(`${BACKEND}/dislikes`, {
+							method: 'DELETE',
+							headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+							body: JSON.stringify({ videoId: videoUrl || videoTitle || null })
+						}).catch(() => { });
+					}
+				} catch (e) { }
+			}
+			// persist like/unlike to backend
+			try {
+				const token = localStorage.getItem('regaarder_token');
+				if (token) {
+					const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
+					fetch(`${BACKEND}/likes`, {
+						method: next ? 'POST' : 'DELETE',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+						body: JSON.stringify({ videoId: videoUrl || videoTitle || null })
+					}).catch(() => { });
+				}
+			} catch (e) { }
+			// persist like (or unlike) for real-time Liked Videos updates when not incognito
+			try {
+				if (!incognitoMode) {
+					import('./likedvideos').then((m) => {
+						if (m && typeof m.recordLike === 'function') {
+							m.recordLike({
+								videoId: videoUrl || videoTitle || null,
+								url: videoUrl || null,
+								title: videoTitle || null,
+								creatorName,
+								imageUrl: (() => {
+									// Try to resolve a thumbnail from discover items or dynamic home list
+									try {
+										const candidates = (discoverItems && Array.isArray(discoverItems) ? discoverItems : (discoverItemsData || []));
+										if (Array.isArray(candidates) && candidates.length) {
+											const found = candidates.find(v => (v.url && String(v.url) === String(videoUrl)) || (v.videoUrl && String(v.videoUrl) === String(videoUrl)) || (v.title && String(v.title) === String(videoTitle)));
+											if (found) return found.thumbnail || found.imageUrl || null;
+										}
+									} catch { }
+									// dynamic import as a fallback
+									try {
+										// avoid blocking: return null and allow likedvideos to fetch /videos
+										/* no-op */
+									} catch { }
+									return null;
+								})(),
+								liked: next,
+								timestamp: new Date().toISOString()
+							});
+						}
+					});
+				}
+			} catch { }
+			return next;
+		});
+		if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+		setToastMessage(getTranslation('Liked', selectedLanguage));
+		toastTimerRef.current = setTimeout(() => setToastMessage(''), 1200);
+		// keep card visible briefly so user can see feedback
+		scheduleHideQuickCard(1800);
+	};
+
+	const onQuickDislike = (e) => {
+		e?.stopPropagation?.();
+		if (!auth.user) { auth.openAuthModal(); return; }
+		setDisliked((s) => {
+			const next = !s;
+			// if we're disliking, ensure like is cleared
+			if (next) setLiked(false);
+
+			// Persist dislike to backend
+			try {
+				const token = localStorage.getItem('regaarder_token');
+				if (token) {
+					const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
+					fetch(`${BACKEND}/dislikes`, {
+						method: next ? 'POST' : 'DELETE',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+						body: JSON.stringify({ videoId: videoUrl || videoTitle || null })
+					}).catch(() => { });
+				}
+			} catch (e) { }
+
+			// when user dislikes, remove from liked list (if not incognito)
+			try {
+				if (!incognitoMode && next) {
+					import('./likedvideos').then((m) => {
+						if (m && typeof m.recordLike === 'function') {
+							m.recordLike({
+								videoId: videoUrl || videoTitle || null,
+								url: videoUrl || null,
+								title: videoTitle || null,
+								creatorName,
+								liked: false,
+								timestamp: new Date().toISOString()
+							});
+						}
+					});
+				}
+			} catch { }
+			return next;
+		});
+		if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+		setToastMessage(getTranslation('Video Disliked', selectedLanguage));
+		toastTimerRef.current = setTimeout(() => setToastMessage(''), 1200);
+		// keep card visible briefly so user can see feedback
+		scheduleHideQuickCard(1800);
+	};
+
+	const onQuickBookmark = (e) => {
+		e?.stopPropagation?.();
+		try {
+			const v = videoRef.current;
+			const t = v ? Math.floor(v.currentTime || 0) : Math.floor(progress * duration || 0);
+			setBookmarkTime(t);
+			setBookmarkLabel('');
+			// show the quick-centered bookmark modal
+			setShowQuickBookmarkModal(true);
+			// keep quick card visible briefly while modal animates in
+			scheduleHideQuickCard(2200);
+		} catch { }
+	};
+
+	const formatTime = (secs) => {
+		const s = Math.max(0, Math.floor(secs || 0));
+		return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+	};
+
+	// Perform share with feedback
+	const performShare = async (u) => {
+		if (!u) return;
+		try {
+			if (navigator.share) {
+				await navigator.share({ title: 'Watch video', url: u });
+				setToastMessage(getTranslation('Shared', selectedLanguage));
+			} else {
+				await copyToClipboard(u);
+				setToastMessage(getTranslation('Link copied', selectedLanguage));
+				// vibration disabled per user preference
+			}
+		} catch (err) {
+			// fallback: copy and notify
+			try { await copyToClipboard(u); } catch { }
+			setToastMessage(getTranslation('Link copied', selectedLanguage));
+		}
+		if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+		toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+	};
+
+	// Perform watch-together action: provide haptic feedback and navigate
+	const performWatchTogether = (e) => {
+		try { e?.stopPropagation?.(); } catch { }
+		try { if (navigator.vibrate) navigator.vibrate(12); } catch { }
+		// small delay to allow vibration to trigger on some devices
+		setTimeout(() => {
+			try { window.location.href = './watchtogether.jsx'; } catch { }
+		}, 50);
+	};
+
+	// Share dialog helpers: QR preview, download, and social share actions
+	const [showQrPreview, setShowQrPreview] = useState(false);
+	const [qrImageSrc, setQrImageSrc] = useState("");
+
+	const openQrFor = async (u) => {
+		if (!u) return;
+		try {
+			// Prefer a globally available QR generator (injected via CDN or provided by the host app).
+			if (typeof window !== 'undefined' && window.QRCode && typeof window.QRCode.toDataURL === 'function') {
+				const dataUrl = await window.QRCode.toDataURL(u, { width: 360 });
+				setQrImageSrc(dataUrl);
+			} else if (typeof window !== 'undefined' && typeof window.kjua === 'function') {
+				// kjua returns an element (canvas or svg). Convert to data URL.
+				const el = window.kjua({ text: u, fill: '#000', back: '#fff', size: 360 });
+				if (el && el.tagName === 'CANVAS') {
+					setQrImageSrc(el.toDataURL('image/png'));
+				} else if (el) {
+					const svg = new XMLSerializer().serializeToString(el);
+					const svg64 = btoa(unescape(encodeURIComponent(svg)));
+					setQrImageSrc('data:image/svg+xml;base64,' + svg64);
+				} else {
+					throw new Error('kjua returned no element');
+				}
+			} else {
+				// No local generator available — use the public QR API as a safe runtime fallback
+				const src = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${encodeURIComponent(u)}`;
+				setQrImageSrc(src);
+			}
+			setShowQrPreview(true);
+			setTimeout(() => {
+				try {
+					if (qrRef.current) qrRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					else if (shareContentRef.current) shareContentRef.current.scrollTop = shareContentRef.current.scrollHeight;
+					// vibration disabled per user preference
+				} catch { }
+			}, 90);
+		} catch (err) {
+			// final fallback to server-generated QR
+			const src = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${encodeURIComponent(u)}`;
+			setQrImageSrc(src);
+			setShowQrPreview(true);
+			setTimeout(() => {
+				try { if (qrRef.current) qrRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { }
+			}, 90);
+		}
+	};
+
+	const downloadQr = () => {
+		if (!qrImageSrc) return;
+		const a = document.createElement('a');
+		a.href = qrImageSrc;
+		a.download = 'video-qr.png';
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+	};
+
+	// handleDownloadVideo removed here to avoid duplicate declarations;
+	// a single implementation lives later in the file (uses UI state and fallbacks).
+
+	const shareToFacebook = (u) => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}`, '_blank', 'noopener');
+	const shareToTwitter = (u, text = 'Watch this video') => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}`, '_blank', 'noopener');
+	const shareToEmail = (u) => { window.location.href = `mailto:?subject=${encodeURIComponent('Watch video')}&body=${encodeURIComponent(u)}`; };
+	const shareToInstagram = (u) => { copyToClipboard(u); alert('Link copied — open Instagram and paste it into a new post or story.'); };
+
+	// Bookmarked state for the current video (backend-persisted per user)
+	const [bookmarked, setBookmarked] = useState(false);
+	const BACKEND_URL = typeof window !== 'undefined'
+		? (window.__BACKEND_URL__ || `${window.location.protocol}//${window.location.hostname}:4000`)
+		: 'http://localhost:4000';
+	// Refresh bookmark state when video changes
+	useEffect(() => {
+		try {
+			if (!videoUrl) { setBookmarked(false); return; }
+			const token = localStorage.getItem('regaarder_token');
+			fetch(`${BACKEND_URL}/bookmarks`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+				.then(r => r.json()).then(data => {
+					if (data && data.success) {
+						const isBookmarked = Array.isArray(data.videos) && data.videos.some(v => String(v.videoUrl) === String(videoUrl));
+						setBookmarked(!!isBookmarked);
+					}
+				}).catch(() => { });
+		} catch { }
+	}, [videoUrl]);
+
+	// NEW: captions modal state & settings
+	const [showCaptions, setShowCaptions] = useState(false);
+	const [captionsEnabled, setCaptionsEnabled] = usePref('captionsEnabled', false);
+	const [captionLanguage, setCaptionLanguage] = usePref('captionLanguage', "English");
+	const [captionFontSize, setCaptionFontSize] = usePref('captionFontSize', 16); // px
+	const [captionPosition, setCaptionPosition] = usePref('captionPosition', "Bottom");
+	const [captionTextColor, setCaptionTextColor] = usePref('captionTextColor', "#FFFFFF");
+	const [captionBgOpacity, setCaptionBgOpacity] = usePref('captionBgOpacity', "100% Black");
+	// NEW: editable preview text for captions preview
+	const [captionPreviewText, setCaptionPreviewText] = useState(
+		getTranslation("Example subtitle text", (typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English'))
+	);
+
+	// One-time handle hint visibility (shown once per dialog using localStorage)
+	const [optionsHandleHintVisible, setOptionsHandleHintVisible] = useState(false);
+	const [captionsHandleHintVisible, setCaptionsHandleHintVisible] = useState(false);
+	const [shareHandleHintVisible, setShareHandleHintVisible] = useState(false);
+	const [tipHandleHintVisible, setTipHandleHintVisible] = useState(false);
+	const [reportHandleHintVisible, setReportHandleHintVisible] = useState(false);
+	const [notesHandleHintVisible, setNotesHandleHintVisible] = useState(false);
+	// One-time quick-options hint (shown once after user watches >2s)
+	const [quickOptionsHintVisible, setQuickOptionsHintVisible] = useState(false);
+
+	// Suggestion card state (appears after full video end)
+	const [showSuggestionCard, setShowSuggestionCard] = useState(false);
+	const [suggestionText, setSuggestionText] = useState("I’d like a video about …");
+	// Controls a brief exit animation so the card can animate out before unmounting
+	const [suggestionExiting, setSuggestionExiting] = useState(false);
+
+	// Progressive expansion + goal-gradient progress
+	const [suggestionFocused, setSuggestionFocused] = useState(false);
+	const SUGGESTION_GOAL = 120; // characters used to compute the progress fill
+	const suggestionExpanded = suggestionFocused || ((suggestionText || '').length > 0);
+	const suggestionProgress = Math.min(((suggestionText || '').length) / SUGGESTION_GOAL, 1);
+	const suggestionTextareaHeight = suggestionExpanded ? 140 : 36; // px
+
+	const closeSuggestionCard = (delay = 360) => {
+		setSuggestionExiting(true);
+		setTimeout(() => {
+			setSuggestionExiting(false);
+			setShowSuggestionCard(false);
+		}, delay);
+	};
+	const [suggestionSending, setSuggestionSending] = useState(false);
+
+	const sendSuggestionToCreator = async () => {
+		if (!auth.user) { auth.openAuthModal(); return; }
+		try {
+			setSuggestionSending(true);
+			const payload = {
+				requestId: null,
+				text: (suggestionText || '').trim(),
+				videoTitle: videoTitle || null,
+				videoUrl: videoUrl || null,
+				targetCreatorHandle: creatorName || null
+			};
+			let sent = false;
+			try {
+				const token = localStorage.getItem('regaarder_token');
+				if (token && payload.text) {
+					const res = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/suggestion`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+						body: JSON.stringify(payload)
+					});
+					const data = await res.json().catch(() => ({}));
+					sent = res.ok && data && data.success;
+				}
+			} catch { }
+			// Fallback: local storage if backend fails
+			if (!sent) {
+				try {
+					const key = 'creatorSuggestions';
+					const raw = localStorage.getItem(key);
+					const arr = raw ? JSON.parse(raw) : [];
+					arr.unshift({ id: Date.now(), ...payload, timestamp: new Date().toISOString() });
+					localStorage.setItem(key, JSON.stringify(arr.slice(0, 200)));
+				} catch { }
+			}
+			setSuggestionSending(false);
+			try { closeSuggestionCard(360); } catch { setShowSuggestionCard(false); }
+			try { setToastMessage('Suggestion sent — thanks!'); } catch { }
+			return true;
+		} catch (err) {
+			setSuggestionSending(false);
+			try { setToastMessage('Failed to send suggestion'); } catch { }
+			return false;
+		}
+	};
+
+
+	// demonstrating swipe-down (previous) then swipe-left (discover).
+	const [gestureHintVisible, setGestureHintVisible] = useState(false);
+	const gestureStateRef = useRef({ startX: 0, startY: 0 });
+	const [gestureStep, setGestureStep] = useState(0); // 0=down,1=up,2=left
+	const prevGestureHintVisibleRef = useRef(false);
+
+	useEffect(() => {
+		try {
+			if (!localStorage.getItem('vx:hint:gesture')) {
+				// show the gesture hint (we'll mark it persisted once the user interacts)
+				setGestureHintVisible(true);
+				setGestureStep(0);
+			}
+		} catch { }
+	}, []);
+
+	useEffect(() => {
+		if (!showMenu) return;
+		try {
+			const key = 'handleHintShownOptions';
+			if (!localStorage.getItem(key)) {
+				setOptionsHandleHintVisible(true);
+				setTimeout(() => setOptionsHandleHintVisible(false), 3400);
+				localStorage.setItem(key, '1');
+			}
+		} catch { }
+	}, [showMenu]);
+
+	useEffect(() => {
+		if (!showCaptions) return;
+		try {
+			const key = 'handleHintShownCaptions';
+			if (!localStorage.getItem(key)) {
+				setCaptionsHandleHintVisible(true);
+				setTimeout(() => setCaptionsHandleHintVisible(false), 3400);
+				localStorage.setItem(key, '1');
+			}
+		} catch { }
+	}, [showCaptions]);
+
+	useEffect(() => {
+		if (!showShareModal) return;
+		try {
+			const key = 'handleHintShownShare';
+			if (!localStorage.getItem(key)) {
+				setShareHandleHintVisible(true);
+				setTimeout(() => setShareHandleHintVisible(false), 3400);
+				localStorage.setItem(key, '1');
+			}
+		} catch { }
+	}, [showShareModal]);
+
+	useEffect(() => {
+		if (!showTipModal) return;
+		try {
+			const key = 'handleHintShownTip';
+			if (!localStorage.getItem(key)) {
+				setTipHandleHintVisible(true);
+				setTimeout(() => setTipHandleHintVisible(false), 3400);
+				localStorage.setItem(key, '1');
+			}
+		} catch { }
+	}, [showTipModal]);
+
+	useEffect(() => {
+		if (!showReportModal) return;
+		try {
+			const key = 'handleHintShownReport';
+			if (!localStorage.getItem(key)) {
+				setReportHandleHintVisible(true);
+				setTimeout(() => setReportHandleHintVisible(false), 3400);
+				localStorage.setItem(key, '1');
+			}
+		} catch { }
+	}, [showReportModal]);
+
+	const [showCommentsModal, setShowCommentsModal] = useState(false);
+	const [showNotesModal, setShowNotesModal] = useState(false);
+
+	useEffect(() => {
+		if (!showNotesModal) return;
+		try {
+			const key = 'handleHintShownNotes';
+			if (!localStorage.getItem(key)) {
+				setNotesHandleHintVisible(true);
+				setTimeout(() => setNotesHandleHintVisible(false), 3400);
+				localStorage.setItem(key, '1');
+			}
+		} catch { }
+	}, [showNotesModal]);
+
+	// Show a one-time quick-options hint immediately after the gesture onboarding finishes.
+	useEffect(() => {
+		try {
+			const key = 'handleHintShownQuickOptions';
+			if (localStorage.getItem(key)) return; // already shown
+			// track previous visibility so we only fire when the gesture hint transitions from visible -> hidden
+			const prevRef = { current: null };
+			// use a small ref outside render to track previous value
+			let prev = null;
+			try { prev = prevGestureHintVisibleRef.current; } catch { }
+			// if gesture was visible and now it's hidden, show the quick-options hint
+			if (prev === true && !gestureHintVisible) {
+				// show the hint and keep it visible until the user performs the long-press
+				setQuickOptionsHintVisible(true);
+			}
+			// update tracking ref
+			try { prevGestureHintVisibleRef.current = gestureHintVisible; } catch { }
+		} catch { }
+	}, [gestureHintVisible]);
+
+
+
+	// NEW: progress bar color state & presets (persisted)
+	// UPDATED: Default color slightly dimmer to keep focus on the video
+	const [progressColor, setProgressColor] = usePref('progressColor', "#2563eb");
+	// Loop + playback controls (persisted)
+	const [loopVideo, setLoopVideo] = usePref('loopVideo', false);
+	const colorPresets = ["#4ade80", "#eab308", "#ef4444", "#3b82f6", "#10b981", "#a78bfa", "#fb7185", "#fb923c", "#06b6d4", "#84cc16", "#8b5cf6", "#f472b6", "#ffffff"];
+
+	// Persist progressColor to backend preference
+	useEffect(() => {
+		const savePref = async () => {
+			try {
+				const token = localStorage.getItem('regaarder_token');
+				if (!token) return;
+				const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
+				await fetch(`${BACKEND}/users/preferences`, {
+					method: 'PATCH',
+					headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+					body: JSON.stringify({ preferences: { progressColor } })
+				});
+			} catch (e) { }
+		};
+		const t = setTimeout(savePref, 2000); // debounce 2s
+		return () => clearTimeout(t);
+	}, [progressColor]);
+
+	// derive accent & contrast for UI elements from the progressColor
+	const hexToRgba = (hex, a = 1) => {
+		let h = hex.replace("#", "").trim();
+		if (h.length === 3) h = h.split("").map(c => c + c).join("");
+		const r = parseInt(h.substr(0, 2), 16);
+		const g = parseInt(h.substr(2, 2), 16);
+		const b = parseInt(h.substr(4, 2), 16);
+		return `rgba(${r}, ${g}, ${b}, ${a})`;
+	};
+	const getContrastColor = (hex) => {
+		let h = hex.replace("#", "").trim();
+		if (h.length === 3) h = h.split("").map(c => c + c).join("");
+		const r = parseInt(h.substr(0, 2), 16) / 255;
+		const g = parseInt(h.substr(2, 2), 16) / 255;
+		const b = parseInt(h.substr(4, 2), 16) / 255;
+		const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+		return lum > 0.6 ? "#000" : "#fff";
+	};
+	const accentColor = progressColor;
+	// Bookmark accent (gold/mustard) used specifically for the Bookmark modal
+	const bookmarkAccent = '#d4a017';
+	// slightly reduce border alpha so accents feel dimmer
+	const accentBorder = hexToRgba(progressColor, 0.06);
+	const accentText = getContrastColor(progressColor);
+
+	// New UI states for modal controls (persisted preferences)
+	const [darkMode, setDarkMode] = usePref('darkMode', true);
+	const [selectedQuality, setSelectedQuality] = usePref('selectedQuality', "480p");
+
+	// map of quality -> source URL (can be extended/overridden)
+	const qualitySources = useRef({});
+
+	const getQualitySrc = (quality) => {
+		// priority: explicit mapping in qualitySources, otherwise try to derive from videoUrl
+		if (qualitySources.current && qualitySources.current[quality]) return qualitySources.current[quality];
+		const base = videoUrl && videoUrl.trim() ? videoUrl.trim() : "";
+		try {
+			// try replace resolution token like 480p/720p in filename
+			if (/\b\d{3,4}p\b/.test(base)) {
+				return base.replace(/\b\d{3,4}p\b/, quality);
+			}
+			// fallback: append query param so server (if aware) may serve variant
+			const url = new URL(base, window.location.origin);
+			url.searchParams.set('quality', quality);
+			return url.toString();
+		} catch (e) {
+			// last resort: return base unchanged
+			return base;
+		}
+	};
+
+	// When selectedQuality changes, attempt to swap the video src while preserving time/play state
+	useEffect(() => {
+		try {
 			const v = videoRef.current;
 			if (!v) return;
-			if (incognitoMode) return;
-			let mounted = true;
-			const recordRef = { current: null };
-			// dynamic import so missing module doesn't crash the bundle
-			import('./watchhistory').then((m) => { if (mounted) recordRef.current = m.recordWatchProgress; }).catch(() => {});
+			const newSrc = getQualitySrc(selectedQuality);
+			if (!newSrc) return;
+			// if the src is already the same, nothing to do
+			if ((v.currentSrc || v.src || '').split('?')[0] === newSrc.split('?')[0]) return;
+			const wasPlaying = !v.paused && !v.ended;
+			const currentTime = v.currentTime || 0;
+			v.pause();
+			v.src = newSrc;
+			// try to restore time and play
+			v.load();
+			v.currentTime = Math.max(0, Math.min(currentTime, v.duration || Infinity));
+			if (wasPlaying) {
+				const p = v.play();
+				if (p && p.catch) p.catch(() => { });
+			}
+		} catch (err) {
+			// noop
+		}
+	}, [selectedQuality]);
+	const [playbackSpeed, setPlaybackSpeed] = usePref('playbackSpeed', 1);
 
-			const saveProgress = (isComplete = false) => {
+	// Incognito mode: when true, don't persist watch history or likes (persisted)
+	const [incognitoMode, setIncognitoMode] = usePref('incognitoMode', false);
+	// confirmation state when disabling incognito
+	const [showIncognitoConfirm, setShowIncognitoConfirm] = useState(false);
+
+	// helper to dispatch player-side events so other modules (watchhistory.jsx, likes.jsx)
+	// can listen and decide whether to persist actions based on the `incognito` flag.
+	const dispatchPlayerEvent = (name, detail = {}) => {
+		try {
+			window.dispatchEvent(new CustomEvent(name, { detail }));
+		} catch (e) {
+			// noop - some environments may restrict CustomEvent
+		}
+	};
+
+	// called when playback starts; notifies listeners about a watch event
+	const handlePlayRecord = useCallback(() => {
+		const info = {
+			videoUrl,
+			videoTitle,
+			creatorName,
+			time: Date.now(),
+			incognito: incognitoMode
+		};
+		dispatchPlayerEvent('player:watch', info);
+		// if not incognito, also set a toast so user knows their watch is recorded
+		if (!incognitoMode) {
+			// do not show a toast when watch history is recorded
+		}
+	}, [videoUrl, videoTitle, creatorName, incognitoMode]);
+
+	// (incognito pref is now managed via usePref/localStorage)
+
+	// apply playback speed to video element when it changes
+	useEffect(() => {
+		try {
+			if (videoRef.current) videoRef.current.playbackRate = playbackSpeed;
+		} catch { }
+	}, [playbackSpeed]);
+
+	// keep loop property in sync with state
+	useEffect(() => {
+		try { if (videoRef.current) videoRef.current.loop = loopVideo; } catch { }
+	}, [loopVideo]);
+
+	// Ensure the player restarts when it ends if loopVideo is enabled.
+	// Some environments or transforms can interfere with the native `loop` attribute,
+	// so we add an explicit 'ended' handler as a robust fallback.
+	useEffect(() => {
+		const v = videoRef.current;
+		if (!v) return;
+		const onEnded = async () => {
+			if (loopVideo) {
 				try {
-					const fn = recordRef.current;
-					if (typeof fn !== 'function') return;
-					fn({
-						videoId: videoUrl || videoTitle || null,
-						userId: null,
-						lastWatchedTime: Math.floor(v.currentTime || 0),
-						duration: Math.floor(v.duration || 0),
-						timestamp: new Date().toISOString(),
-						isComplete: Boolean(isComplete)
-					});
-				} catch (e) {}
-			};
-
-			const onPause = () => saveProgress(false);
-			const onEnded = () => saveProgress(true);
-
-			v.addEventListener('pause', onPause);
-			v.addEventListener('ended', onEnded);
-
-			const interval = setInterval(() => { try { if (!v.paused && !v.ended) saveProgress(false); } catch {} }, 15000);
-
-			const onPageHide = () => saveProgress(v.ended || false);
-			window.addEventListener('pagehide', onPageHide);
-			const onVis = () => { if (document.visibilityState === 'hidden') onPageHide(); };
-			document.addEventListener('visibilitychange', onVis);
-
-			return () => {
-				mounted = false;
-				try { v.removeEventListener('pause', onPause); v.removeEventListener('ended', onEnded); } catch {}
-				try { window.removeEventListener('pagehide', onPageHide); document.removeEventListener('visibilitychange', onVis); } catch {}
-				clearInterval(interval);
-			};
-		}, [videoUrl, videoTitle, incognitoMode]);
-		const [doubleTap, setDoubleTap] = usePref('doubleTap', true);
-
-		// New: show Watch Together button after a delay (3s)
-		const [showWatchTogether, setShowWatchTogether] = useState(false);
-		// transient fade state when hiding the inline Watch Together button
-		const [watchFading, setWatchFading] = useState(false);
-		// NEW: floating mode states for the Watch Together floating action
-		const [isFloatingMode, setIsFloatingMode] = useState(false); // when true, inline button hides and floating button appears
-		const [floatVisible, setFloatVisible] = useState(false); // whether floating button is visible (true after floating starts)
-		const [collapsed, setCollapsed] = useState(false); // collapsed -> show chevron
-		const [collapsedSide, setCollapsedSide] = useState("left"); // where the chevron sits when collapsed
-		const [floatPos, setFloatPos] = useState({ x: 20, y: 220 }); // default fixed position (px)
-		const dragRef = useRef({ dragging: false, startX: 0, startY: 0, origX: 0, origY: 0, nextX: 0, nextY: 0 });
-		const floatMovedRef = useRef(false); // true when floating button moved (to suppress click->navigate)
-
-        // Miniplayer state: when true, the player shrinks to a small draggable overlay
-        const [isMiniplayer, setIsMiniplayer] = useState(false);
-        const [miniPos, setMiniPos] = useState({ right: 12, bottom: 84 });
-        const miniDragRef = useRef({ dragging: false, startX: 0, startY: 0, startRight: 12, startBottom: 84 });
-
-		// Helper to compute mini player dimensions based on current aspect/window
-		const computeMiniDims = () => {
-			const vw = (typeof window !== 'undefined') ? window.innerWidth : 800;
-			const miniW = Math.min(320, Math.max(140, Math.round(vw * 0.32)));
-			const miniH = Math.max(56, Math.round(miniW / Math.max(0.5, naturalAspect || (16/9))));
-			return { miniW, miniH };
+					v.currentTime = 0;
+					await v.play();
+					setIsPlaying(true);
+				} catch (e) {
+					// ignore play errors (autoplay policies etc.)
+				}
+			}
 		};
-		const floatBtnRef = useRef(null);
-		const rafRef = useRef(null);
-		useEffect(() => {
-			const t = setTimeout(() => {
-				// Switch to floating Watch Together icon after delay
-				setIsFloatingMode(true);
-				setFloatVisible(true);
-				setShowWatchTogether(false);
-			}, 3000);
-			return () => clearTimeout(t);
-		}, []);
+		v.addEventListener('ended', onEnded);
+		return () => v.removeEventListener('ended', onEnded);
+	}, [loopVideo]);
 
-		// When inline button appears, after 7s fade it out (skip when floating mode is active)
-		useEffect(() => {
-			if (!showWatchTogether || isFloatingMode) return;
-			const t = setTimeout(() => {
-				// start fade animation
-				setWatchFading(true);
-				// after animation completes, actually hide it
-				const FADE_MS = 260;
-				const t2 = setTimeout(() => {
-					setShowWatchTogether(false);
-					setWatchFading(false);
-					// ensure no floating button appears
-					setIsFloatingMode(false);
-					setFloatVisible(false);
-				}, FADE_MS);
-				// cleanup inner timeout if needed
-				return () => clearTimeout(t2);
-			}, 7000); // 7s after appearing
-			return () => clearTimeout(t);
-		}, [showWatchTogether]);
+	// Watch-history integration: record progress from the main mobile player
+	useEffect(() => {
+		const v = videoRef.current;
+		if (!v) return;
+		if (incognitoMode) return;
+		let mounted = true;
+		const recordRef = { current: null };
+		// dynamic import so missing module doesn't crash the bundle
+		import('./watchhistory').then((m) => { if (mounted) recordRef.current = m.recordWatchProgress; }).catch(() => { });
 
-		// Drag handlers for floating button
-		const onFloatPointerDown = (e) => {
-			e.preventDefault();
-			const p = dragRef.current;
-			floatMovedRef.current = false;
-			p.dragging = true;
-			// cancel any pending RAF
-			if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
-			const pointX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-			const pointY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			p.startX = pointX;
-			p.startY = pointY;
-			p.origX = floatPos.x;
-			p.origY = floatPos.y;
-			p.nextX = floatPos.x;
-			p.nextY = floatPos.y;
-			// ensure immediate response: remove transition while dragging
-			try { if (floatBtnRef.current) floatBtnRef.current.style.transition = 'none'; } catch {}
-			// capture pointer for consistent moves
-			if (e.target.setPointerCapture) try { e.target.setPointerCapture(e.pointerId); } catch {}
-		};
-
-		const onFloatPointerMove = (e) => {
-			const p = dragRef.current;
-			if (!p.dragging) return;
-			const pointX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-			const pointY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			if (typeof pointX !== "number" || typeof pointY !== "number") return;
-			// mark as moved if the pointer travels more than a small threshold
-			if (Math.abs(pointX - p.startX) > 3 || Math.abs(pointY - p.startY) > 3) floatMovedRef.current = true;
-			const nx = p.origX + (pointX - p.startX);
-			const ny = p.origY + (pointY - p.startY);
-			// clamp to viewport with small margins
-			const m = 6;
-			const BUTTON_SIZE = 56; // match visual size of the floating button
-			const clampX = Math.max(m, Math.min(window.innerWidth - BUTTON_SIZE - m, nx));
-			const clampY = Math.max(m, Math.min(window.innerHeight - BUTTON_SIZE - m, ny));
-			// store next values and schedule RAF to update DOM directly (bypass React state)
-			p.nextX = clampX;
-			p.nextY = clampY;
-			if (!rafRef.current) {
-				rafRef.current = requestAnimationFrame(() => {
-					if (floatBtnRef.current) {
-						floatBtnRef.current.style.left = `${p.nextX}px`;
-						floatBtnRef.current.style.top = `${p.nextY}px`;
-					}
-					rafRef.current = null;
+		const saveProgress = (isComplete = false) => {
+			try {
+				const fn = recordRef.current;
+				if (typeof fn !== 'function') return;
+				fn({
+					videoId: videoUrl || videoTitle || null,
+					userId: null,
+					lastWatchedTime: Math.floor(v.currentTime || 0),
+					duration: Math.floor(v.duration || 0),
+					timestamp: new Date().toISOString(),
+					isComplete: Boolean(isComplete)
 				});
-			}
-
-			// If user swipes beyond a dismiss distance while dragging, dismiss completely
-			const dx = pointX - p.startX;
-			const dy = pointY - p.startY;
-			const DISMISS_DIST = 80; // px
-			if (Math.abs(dx) >= DISMISS_DIST || Math.abs(dy) >= DISMISS_DIST) {
-				p.dragging = false;
-				try { e.target?.releasePointerCapture?.(e.pointerId); } catch {}
-				setFloatVisible(false);
-				setIsFloatingMode(false); // Dismiss completely
-				// cancel any pending RAF
-				if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
-			}
+			} catch (e) { }
 		};
 
-		const onFloatPointerUp = (e) => {
-			const p = dragRef.current;
-			if (!p.dragging) return;
-			p.dragging = false;
-			// release pointer capture
-			if (e.target.releasePointerCapture) try { e.target.releasePointerCapture(e.pointerId); } catch {}
-			
-			// Commit final position to state so it persists
-			setFloatPos({ x: p.nextX, y: p.nextY });
+		const onPause = () => saveProgress(false);
+		const onEnded = () => saveProgress(true);
 
-			// restore transition so the button snaps smoothly to final position
-			try { if (floatBtnRef.current) floatBtnRef.current.style.transition = 'transform 220ms ease, left 220ms ease, top 220ms ease'; } catch {}
+		v.addEventListener('pause', onPause);
+		v.addEventListener('ended', onEnded);
+
+		const interval = setInterval(() => { try { if (!v.paused && !v.ended) saveProgress(false); } catch { } }, 15000);
+
+		const onPageHide = () => saveProgress(v.ended || false);
+		window.addEventListener('pagehide', onPageHide);
+		const onVis = () => { if (document.visibilityState === 'hidden') onPageHide(); };
+		document.addEventListener('visibilitychange', onVis);
+
+		return () => {
+			mounted = false;
+			try { v.removeEventListener('pause', onPause); v.removeEventListener('ended', onEnded); } catch { }
+			try { window.removeEventListener('pagehide', onPageHide); document.removeEventListener('visibilitychange', onVis); } catch { }
+			clearInterval(interval);
+		};
+	}, [videoUrl, videoTitle, incognitoMode]);
+	const [doubleTap, setDoubleTap] = usePref('doubleTap', true);
+
+	// New: show Watch Together button after a delay (3s)
+	const [showWatchTogether, setShowWatchTogether] = useState(false);
+	// transient fade state when hiding the inline Watch Together button
+	const [watchFading, setWatchFading] = useState(false);
+	// NEW: floating mode states for the Watch Together floating action
+	const [isFloatingMode, setIsFloatingMode] = useState(false); // when true, inline button hides and floating button appears
+	const [floatVisible, setFloatVisible] = useState(false); // whether floating button is visible (true after floating starts)
+	const [collapsed, setCollapsed] = useState(false); // collapsed -> show chevron
+	const [collapsedSide, setCollapsedSide] = useState("left"); // where the chevron sits when collapsed
+	const [floatPos, setFloatPos] = useState({ x: 20, y: 220 }); // default fixed position (px)
+	const dragRef = useRef({ dragging: false, startX: 0, startY: 0, origX: 0, origY: 0, nextX: 0, nextY: 0 });
+	const floatMovedRef = useRef(false); // true when floating button moved (to suppress click->navigate)
+
+	// Miniplayer state: when true, the player shrinks to a small draggable overlay
+	const [isMiniplayer, setIsMiniplayer] = useState(false);
+	const [miniPos, setMiniPos] = useState({ right: 12, bottom: 84 });
+	const miniDragRef = useRef({ dragging: false, startX: 0, startY: 0, startRight: 12, startBottom: 84 });
+
+	// Helper to compute mini player dimensions based on current aspect/window
+	const computeMiniDims = () => {
+		const vw = (typeof window !== 'undefined') ? window.innerWidth : 800;
+		const miniW = Math.min(320, Math.max(140, Math.round(vw * 0.32)));
+		const miniH = Math.max(56, Math.round(miniW / Math.max(0.5, naturalAspect || (16 / 9))));
+		return { miniW, miniH };
+	};
+	const floatBtnRef = useRef(null);
+	const rafRef = useRef(null);
+	useEffect(() => {
+		const t = setTimeout(() => {
+			// Switch to floating Watch Together icon after delay
+			setIsFloatingMode(true);
+			setFloatVisible(true);
+			setShowWatchTogether(false);
+		}, 3000);
+		return () => clearTimeout(t);
+	}, []);
+
+	// When inline button appears, after 7s fade it out (skip when floating mode is active)
+	useEffect(() => {
+		if (!showWatchTogether || isFloatingMode) return;
+		const t = setTimeout(() => {
+			// start fade animation
+			setWatchFading(true);
+			// after animation completes, actually hide it
+			const FADE_MS = 260;
+			const t2 = setTimeout(() => {
+				setShowWatchTogether(false);
+				setWatchFading(false);
+				// ensure no floating button appears
+				setIsFloatingMode(false);
+				setFloatVisible(false);
+			}, FADE_MS);
+			// cleanup inner timeout if needed
+			return () => clearTimeout(t2);
+		}, 7000); // 7s after appearing
+		return () => clearTimeout(t);
+	}, [showWatchTogether]);
+
+	// Drag handlers for floating button
+	const onFloatPointerDown = (e) => {
+		e.preventDefault();
+		const p = dragRef.current;
+		floatMovedRef.current = false;
+		p.dragging = true;
+		// cancel any pending RAF
+		if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+		const pointX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+		const pointY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		p.startX = pointX;
+		p.startY = pointY;
+		p.origX = floatPos.x;
+		p.origY = floatPos.y;
+		p.nextX = floatPos.x;
+		p.nextY = floatPos.y;
+		// ensure immediate response: remove transition while dragging
+		try { if (floatBtnRef.current) floatBtnRef.current.style.transition = 'none'; } catch { }
+		// capture pointer for consistent moves
+		if (e.target.setPointerCapture) try { e.target.setPointerCapture(e.pointerId); } catch { }
+	};
+
+	const onFloatPointerMove = (e) => {
+		const p = dragRef.current;
+		if (!p.dragging) return;
+		const pointX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+		const pointY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof pointX !== "number" || typeof pointY !== "number") return;
+		// mark as moved if the pointer travels more than a small threshold
+		if (Math.abs(pointX - p.startX) > 3 || Math.abs(pointY - p.startY) > 3) floatMovedRef.current = true;
+		const nx = p.origX + (pointX - p.startX);
+		const ny = p.origY + (pointY - p.startY);
+		// clamp to viewport with small margins
+		const m = 6;
+		const BUTTON_SIZE = 56; // match visual size of the floating button
+		const clampX = Math.max(m, Math.min(window.innerWidth - BUTTON_SIZE - m, nx));
+		const clampY = Math.max(m, Math.min(window.innerHeight - BUTTON_SIZE - m, ny));
+		// store next values and schedule RAF to update DOM directly (bypass React state)
+		p.nextX = clampX;
+		p.nextY = clampY;
+		if (!rafRef.current) {
+			rafRef.current = requestAnimationFrame(() => {
+				if (floatBtnRef.current) {
+					floatBtnRef.current.style.left = `${p.nextX}px`;
+					floatBtnRef.current.style.top = `${p.nextY}px`;
+				}
+				rafRef.current = null;
+			});
+		}
+
+		// If user swipes beyond a dismiss distance while dragging, dismiss completely
+		const dx = pointX - p.startX;
+		const dy = pointY - p.startY;
+		const DISMISS_DIST = 80; // px
+		if (Math.abs(dx) >= DISMISS_DIST || Math.abs(dy) >= DISMISS_DIST) {
+			p.dragging = false;
+			try { e.target?.releasePointerCapture?.(e.pointerId); } catch { }
+			setFloatVisible(false);
+			setIsFloatingMode(false); // Dismiss completely
 			// cancel any pending RAF
 			if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
-		};
+		}
+	};
 
-		// Miniplayer drag handlers (for the small floating player)
-		const onMiniPointerDown = (e) => {
-			e.preventDefault();
-			const p = miniDragRef.current;
-			p.dragging = true;
-			const pointX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-			const pointY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			p.startX = pointX;
-			p.startY = pointY;
-			p.startRight = miniPos.right;
-			p.startBottom = miniPos.bottom;
-			if (e.target.setPointerCapture) try { e.target.setPointerCapture(e.pointerId); } catch {}
-			window.addEventListener('pointermove', onMiniPointerMove);
-			window.addEventListener('pointerup', onMiniPointerUp);
-		};
+	const onFloatPointerUp = (e) => {
+		const p = dragRef.current;
+		if (!p.dragging) return;
+		p.dragging = false;
+		// release pointer capture
+		if (e.target.releasePointerCapture) try { e.target.releasePointerCapture(e.pointerId); } catch { }
 
-		const onMiniPointerMove = (e) => {
-			const p = miniDragRef.current;
-			if (!p.dragging) return;
-			const pointX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-			const pointY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			if (typeof pointX !== 'number' || typeof pointY !== 'number') return;
-			const dx = pointX - p.startX;
-			const dy = pointY - p.startY;
-			// compute new right/bottom based on start values and pointer delta
-			const newRight = Math.max(8, Math.min(window.innerWidth - 80, Math.round(p.startRight - dx)));
-			const newBottom = Math.max(8, Math.min(window.innerHeight - 56, Math.round(p.startBottom - dy)));
-			setMiniPos({ right: newRight, bottom: newBottom });
-		};
+		// Commit final position to state so it persists
+		setFloatPos({ x: p.nextX, y: p.nextY });
 
-		const onMiniPointerUp = (e) => {
-			const p = miniDragRef.current;
-			if (!p.dragging) return;
-			p.dragging = false;
-			window.removeEventListener('pointermove', onMiniPointerMove);
-			window.removeEventListener('pointerup', onMiniPointerUp);
-			try { e.target?.releasePointerCapture?.(e.pointerId); } catch {}
-		};
+		// restore transition so the button snaps smoothly to final position
+		try { if (floatBtnRef.current) floatBtnRef.current.style.transition = 'transform 220ms ease, left 220ms ease, top 220ms ease'; } catch { }
+		// cancel any pending RAF
+		if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+	};
 
- 	// show toast briefly when locking; hide automatically
+	// Miniplayer drag handlers (for the small floating player)
+	const onMiniPointerDown = (e) => {
+		e.preventDefault();
+		const p = miniDragRef.current;
+		p.dragging = true;
+		const pointX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+		const pointY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		p.startX = pointX;
+		p.startY = pointY;
+		p.startRight = miniPos.right;
+		p.startBottom = miniPos.bottom;
+		if (e.target.setPointerCapture) try { e.target.setPointerCapture(e.pointerId); } catch { }
+		window.addEventListener('pointermove', onMiniPointerMove);
+		window.addEventListener('pointerup', onMiniPointerUp);
+	};
+
+	const onMiniPointerMove = (e) => {
+		const p = miniDragRef.current;
+		if (!p.dragging) return;
+		const pointX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+		const pointY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof pointX !== 'number' || typeof pointY !== 'number') return;
+		const dx = pointX - p.startX;
+		const dy = pointY - p.startY;
+		// compute new right/bottom based on start values and pointer delta
+		const newRight = Math.max(8, Math.min(window.innerWidth - 80, Math.round(p.startRight - dx)));
+		const newBottom = Math.max(8, Math.min(window.innerHeight - 56, Math.round(p.startBottom - dy)));
+		setMiniPos({ right: newRight, bottom: newBottom });
+	};
+
+	const onMiniPointerUp = (e) => {
+		const p = miniDragRef.current;
+		if (!p.dragging) return;
+		p.dragging = false;
+		window.removeEventListener('pointermove', onMiniPointerMove);
+		window.removeEventListener('pointerup', onMiniPointerUp);
+		try { e.target?.releasePointerCapture?.(e.pointerId); } catch { }
+	};
+
+	// show toast briefly when locking; hide automatically
 	React.useEffect(() => {
 		let tToast = null;
 		let tVisual = null;
 		if (locked) {
-				setShowLockToast(true);
-				setShowLockVisual(true);
-				// pulse the lock button briefly to draw attention
-				setPulsating(true);
-				if (pulseTimerRef.current) { clearTimeout(pulseTimerRef.current); pulseTimerRef.current = null; }
-				pulseTimerRef.current = setTimeout(() => {
-					setPulsating(false);
-					pulseTimerRef.current = null;
-				}, 1400);
+			setShowLockToast(true);
+			setShowLockVisual(true);
+			// pulse the lock button briefly to draw attention
+			setPulsating(true);
+			if (pulseTimerRef.current) { clearTimeout(pulseTimerRef.current); pulseTimerRef.current = null; }
+			pulseTimerRef.current = setTimeout(() => {
+				setPulsating(false);
+				pulseTimerRef.current = null;
+			}, 1400);
 			// hide toast after 1200ms
 			tToast = setTimeout(() => setShowLockToast(false), 1200);
 			// hide visual a bit after toast (e.g., 150ms later)
@@ -2601,12 +2601,12 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				await v.play();
 				setIsPlaying(true);
 				// reveal center overlay briefly when playback starts
-				try { showCenterTemporarily(); } catch {}
+				try { showCenterTemporarily(); } catch { }
 			} else {
 				v.pause();
 				setIsPlaying(false);
 				// reveal center overlay briefly when playback pauses
-				try { showCenterTemporarily(); } catch {}
+				try { showCenterTemporarily(); } catch { }
 			}
 		} catch {
 			// autoplay blocked or other error
@@ -2620,7 +2620,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 		try {
 			await navigator.clipboard.writeText(videoUrl || '');
 			setCopiedLink(true);
-			try { if (navigator.vibrate) navigator.vibrate(10); } catch {}
+			try { if (navigator.vibrate) navigator.vibrate(10); } catch { }
 			if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
 			copyTimerRef.current = setTimeout(() => setCopiedLink(false), 1600);
 		} catch (e) {
@@ -2637,7 +2637,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				setCopiedLink(true);
 				if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
 				copyTimerRef.current = setTimeout(() => setCopiedLink(false), 1600);
-			} catch {}
+			} catch { }
 		}
 	};
 
@@ -2777,8 +2777,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 		const onBeginFS = () => { setOrientation("landscape"); setForceLandscapeCss(false); };
 		const onEndFS = () => { setOrientation(naturalAspect < 1 ? "portrait" : "landscape"); setForceLandscapeCss(false); };
 		if (v && v.addEventListener) {
-			try { v.addEventListener("webkitbeginfullscreen", onBeginFS); } catch {}
-			try { v.addEventListener("webkitendfullscreen", onEndFS); } catch {}
+			try { v.addEventListener("webkitbeginfullscreen", onBeginFS); } catch { }
+			try { v.addEventListener("webkitendfullscreen", onEndFS); } catch { }
 		}
 
 		// If the device rotates to landscape later, disable CSS fallback
@@ -2793,8 +2793,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			document.removeEventListener("webkitfullscreenchange", onFullChange);
 			window.removeEventListener("orientationchange", orientCheck);
 			if (v && v.removeEventListener) {
-				try { v.removeEventListener("webkitbeginfullscreen", onBeginFS); } catch {}
-				try { v.removeEventListener("webkitendfullscreen", onEndFS); } catch {}
+				try { v.removeEventListener("webkitbeginfullscreen", onBeginFS); } catch { }
+				try { v.removeEventListener("webkitendfullscreen", onEndFS); } catch { }
 			}
 		};
 	}, [naturalAspect]);
@@ -2802,7 +2802,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	// When user starts interacting with the progress bar, show preview but DO NOT pause the main video
 	const handleProgressPointerDown = (e) => {
 		// reveal center overlay while interacting with the progress bar
-		try { showCenterTemporarily(); } catch {}
+		try { showCenterTemporarily(); } catch { }
 		draggingRef.current = true;
 		setProgressDragging(true);
 		const clientX = e.clientX || (e.touches && e.touches[0]?.clientX);
@@ -2817,588 +2817,328 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 		if (clientX) updateProgressFromPointer(clientX);
 	};
 
-		// --- Auto-hide / show-on-tap logic ---
-		// Auto-hide behavior for the center play/pause overlay only.
-		// The progress bar and other controls remain visible when `controlsVisible` is true.
-		const showCenterTemporarily = (visibleFor = 2500) => {
+	// --- Auto-hide / show-on-tap logic ---
+	// Auto-hide behavior for the center play/pause overlay only.
+	// The progress bar and other controls remain visible when `controlsVisible` is true.
+	const showCenterTemporarily = (visibleFor = 2500) => {
+		setControlsVisible(true);
+		setCenterVisible(true);
+		if (centerHideTimerRef.current) {
+			clearTimeout(centerHideTimerRef.current);
+			centerHideTimerRef.current = null;
+		}
+		centerHideTimerRef.current = setTimeout(() => {
+			setCenterVisible(false);
+			centerHideTimerRef.current = null;
+		}, visibleFor);
+	};
+
+	// deprecated name kept for compatibility (calls new implementation)
+	const showControlsTemporarily = (visibleFor = 7000) => showCenterTemporarily(visibleFor);
+
+	// Ensure center overlay briefly appears when playback state changes
+	useEffect(() => {
+		try { showCenterTemporarily(1200); } catch { }
+	}, [isPlaying]);
+
+	// initial mount: ensure controls visible; do not auto-hide
+	useEffect(() => {
+		setControlsVisible(true);
+	}, []);
+
+	// when lock toggles, keep controls visible (do not auto-hide)
+	useEffect(() => {
+		setControlsVisible(true);
+	}, [locked]);
+
+	// Keep UI visible while any modal is open; do not auto-hide when closed
+	useEffect(() => {
+		if (showMenu || showCaptions || showShareModal || showCommentsModal) {
 			setControlsVisible(true);
-			setCenterVisible(true);
-			if (centerHideTimerRef.current) {
-				clearTimeout(centerHideTimerRef.current);
-				centerHideTimerRef.current = null;
+		}
+	}, [showMenu, showCaptions, showShareModal, showCommentsModal]);
+
+	// NEW: tap handler (single tap shows controls; double tap likes center or seeks sides)
+	const handleVideoTap = (e) => {
+		e.stopPropagation();
+		if (locked) {
+			// brief visual hint: brighten the lock so user sees where to tap to unlock
+			try {
+				setBrightLock(true);
+				if (brightLockTimerRef.current) clearTimeout(brightLockTimerRef.current);
+				brightLockTimerRef.current = setTimeout(() => { setBrightLock(false); brightLockTimerRef.current = null; }, 1100);
+			} catch { }
+			// show short error toast guiding the user
+			try {
+				setShowLockedError(true);
+				if (lockedErrorTimerRef.current) clearTimeout(lockedErrorTimerRef.current);
+				lockedErrorTimerRef.current = setTimeout(() => setShowLockedError(false), 1600);
+			} catch { }
+			return;
+		}
+		// reveal the center overlay briefly on any tap
+		try { showCenterTemporarily(); } catch { }
+
+		// get position info for center/side detection
+		const rect = e.currentTarget.getBoundingClientRect();
+		const x = e.clientX - rect.left;
+		const centerX = rect.width / 2;
+		const centerZone = rect.width * 0.3; // center 60% area
+
+		if (tapTimerRef.current) {
+			// double tap: cancel pending single-tap action
+			clearTimeout(tapTimerRef.current);
+			tapTimerRef.current = null;
+
+			if (doubleTap) {
+				if (Math.abs(x - centerX) < centerZone) {
+					setLiked(true);
+				} else if (x < centerX) {
+					seekBy(-10);
+				} else {
+					seekBy(10);
+				}
 			}
-			centerHideTimerRef.current = setTimeout(() => {
-				setCenterVisible(false);
-				centerHideTimerRef.current = null;
-			}, visibleFor);
-		};
-
-		// deprecated name kept for compatibility (calls new implementation)
-		const showControlsTemporarily = (visibleFor = 7000) => showCenterTemporarily(visibleFor);
-
-		// Ensure center overlay briefly appears when playback state changes
-		useEffect(() => {
-			try { showCenterTemporarily(1200); } catch {}
-		}, [isPlaying]);
-
-		// initial mount: ensure controls visible; do not auto-hide
-		useEffect(() => {
-			setControlsVisible(true);
-		}, []);
-
-		// when lock toggles, keep controls visible (do not auto-hide)
-		useEffect(() => {
-			setControlsVisible(true);
-		}, [locked]);
-
-		// Keep UI visible while any modal is open; do not auto-hide when closed
-		useEffect(() => {
-			if (showMenu || showCaptions || showShareModal || showCommentsModal) {
-				setControlsVisible(true);
-			}
-		}, [showMenu, showCaptions, showShareModal, showCommentsModal]);
-
-		// NEW: tap handler (single tap shows controls; double tap likes center or seeks sides)
-		const handleVideoTap = (e) => {
-			e.stopPropagation();
-			if (locked) {
-				// brief visual hint: brighten the lock so user sees where to tap to unlock
+		} else {
+			// single tap -> after debounce decide action: center toggles play, sides show controls
+			tapTimerRef.current = setTimeout(() => {
 				try {
-					setBrightLock(true);
-					if (brightLockTimerRef.current) clearTimeout(brightLockTimerRef.current);
-					brightLockTimerRef.current = setTimeout(() => { setBrightLock(false); brightLockTimerRef.current = null; }, 1100);
-				} catch {}
-				// show short error toast guiding the user
-				try {
-					setShowLockedError(true);
-					if (lockedErrorTimerRef.current) clearTimeout(lockedErrorTimerRef.current);
-					lockedErrorTimerRef.current = setTimeout(() => setShowLockedError(false), 1600);
-				} catch {}
-				return;
-			}
-			// reveal the center overlay briefly on any tap
-			try { showCenterTemporarily(); } catch {}
-
-			// get position info for center/side detection
-			const rect = e.currentTarget.getBoundingClientRect();
-			const x = e.clientX - rect.left;
-			const centerX = rect.width / 2;
-			const centerZone = rect.width * 0.3; // center 60% area
-
-			if (tapTimerRef.current) {
-				// double tap: cancel pending single-tap action
-				clearTimeout(tapTimerRef.current);
-				tapTimerRef.current = null;
-
-				if (doubleTap) {
 					if (Math.abs(x - centerX) < centerZone) {
-						setLiked(true);
-					} else if (x < centerX) {
-						seekBy(-10);
+						// center tap toggles playback
+						togglePlay();
 					} else {
-						seekBy(10);
+						// non-center single tap shows controls and center overlay briefly
+						showCenterTemporarily();
 					}
-				}
-			} else {
-				// single tap -> after debounce decide action: center toggles play, sides show controls
-				tapTimerRef.current = setTimeout(() => {
-					try {
-						if (Math.abs(x - centerX) < centerZone) {
-							// center tap toggles playback
-							togglePlay();
-						} else {
-							// non-center single tap shows controls and center overlay briefly
-							showCenterTemporarily();
-						}
-					} catch {}
-					tapTimerRef.current = null;
-				}, 250);
+				} catch { }
+				tapTimerRef.current = null;
+			}, 250);
+		}
+	};
+
+	// --- ADDED: swipe-to-reveal carbon-copy panel (starts from middle area) ---
+	const [isSwiping, setIsSwiping] = useState(false);
+	const swipeStartRef = useRef({ x: 0, y: 0 });
+	const prevSwipeTriggeredRef = useRef(false);
+	const nextSwipeTriggeredRef = useRef(false);
+	// long-press detection for bookmarking a moment
+	const longPressTimerRef = useRef(null);
+	const longPressTriggeredRef = useRef(false);
+	const longPressStartRef = useRef({ x: 0, y: 0 });
+
+	// Quick action card state shown on long-press (small translucent floating card)
+	const [showQuickCard, setShowQuickCard] = useState(false);
+	const [quickCardPos, setQuickCardPos] = useState({ x: 0, y: 0 });
+	const quickCardTimerRef = useRef(null);
+	const quickCardRef = useRef(null);
+
+	// Hide quick card when clicking/tapping outside of it
+	useEffect(() => {
+		const onGlobalPointerDown = (e) => {
+			try {
+				if (!showQuickCard) return;
+				if (e.target && e.target.closest && e.target.closest('.quick-action-card')) return;
+				setShowQuickCard(false);
+				if (quickCardTimerRef.current) { clearTimeout(quickCardTimerRef.current); quickCardTimerRef.current = null; }
+			} catch { }
+		};
+		window.addEventListener('pointerdown', onGlobalPointerDown, { passive: true });
+		return () => window.removeEventListener('pointerdown', onGlobalPointerDown);
+	}, [showQuickCard]);
+	const [swipeTranslate, setSwipeTranslate] = useState(0); // negative px while dragging left
+	const [showCarbonCopy, setShowCarbonCopy] = useState(false);
+	const panelWidthRef = useRef(Math.min(480, (typeof window !== "undefined" ? Math.round(window.innerWidth * 0.92) : 360)));
+
+	useEffect(() => {
+		const onResize = () => {
+			if (typeof window !== "undefined") {
+				panelWidthRef.current = Math.min(480, Math.round(window.innerWidth * 0.92));
 			}
 		};
+		window.addEventListener("resize", onResize);
+		return () => window.removeEventListener("resize", onResize);
+	}, []);
 
-		// --- ADDED: swipe-to-reveal carbon-copy panel (starts from middle area) ---
-		const [isSwiping, setIsSwiping] = useState(false);
-		const swipeStartRef = useRef({ x: 0, y: 0 });
-		const prevSwipeTriggeredRef = useRef(false);
-		const nextSwipeTriggeredRef = useRef(false);
-		// long-press detection for bookmarking a moment
-		const longPressTimerRef = useRef(null);
-		const longPressTriggeredRef = useRef(false);
-		const longPressStartRef = useRef({ x: 0, y: 0 });
+	const resetSwipe = () => {
+		setIsSwiping(false);
+		setSwipeTranslate(0);
+		prevSwipeTriggeredRef.current = false;
+		nextSwipeTriggeredRef.current = false;
+		try { /* noop */ } catch { }
+	};
 
-		// Quick action card state shown on long-press (small translucent floating card)
-		const [showQuickCard, setShowQuickCard] = useState(false);
-		const [quickCardPos, setQuickCardPos] = useState({ x: 0, y: 0 });
-		const quickCardTimerRef = useRef(null);
-		const quickCardRef = useRef(null);
+	// main center area pointer handlers (start only when pointerdown begins in the middle of the screen)
+	const onCenterPointerDown = (e) => {
+		// reveal center overlay when user touches the center area
+		try { showCenterTemporarily(); } catch { }
+		// prefer pointer events; also accept touch/mouse
+		const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof clientX !== "number" || typeof clientY !== "number") return;
 
-		// Hide quick card when clicking/tapping outside of it
-		useEffect(() => {
-			const onGlobalPointerDown = (e) => {
+		const w = window.innerWidth;
+		// only allow gestures that start near the center horizontally (30%..70%)
+		if (clientX < w * 0.3 || clientX > w * 0.7) return;
+
+		swipeStartRef.current = { x: clientX, y: clientY };
+		// record tutorial start pos for gesture detection
+		gestureStateRef.current = { startX: clientX, startY: clientY };
+		setIsSwiping(true);
+		setSwipeTranslate(0);
+
+		// Start long-press timer to open Bookmark modal if user holds in place
+		try {
+			longPressTriggeredRef.current = false;
+			longPressStartRef.current = { x: clientX, y: clientY };
+			if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; }
+			longPressTimerRef.current = setTimeout(() => {
+				longPressTriggeredRef.current = true;
+				// cancel swipe state so gestures don't conflict
+				setIsSwiping(false);
+				setSwipeTranslate(0);
+				// show a small quick-action translucent card (Like / Dislike / Bookmark)
 				try {
-					if (!showQuickCard) return;
-					if (e.target && e.target.closest && e.target.closest('.quick-action-card')) return;
-					setShowQuickCard(false);
+					// hide the quick-options onboarding hint (user attempted the long-press)
+					try { setQuickOptionsHintVisible(false); localStorage.setItem('handleHintShownQuickOptions', '1'); } catch { }
+					setQuickCardPos({ x: clientX, y: clientY });
+					setShowQuickCard(true);
+					try { if (navigator.vibrate) navigator.vibrate(10); } catch { }
 					if (quickCardTimerRef.current) { clearTimeout(quickCardTimerRef.current); quickCardTimerRef.current = null; }
-				} catch {}
-			};
-			window.addEventListener('pointerdown', onGlobalPointerDown, { passive: true });
-			return () => window.removeEventListener('pointerdown', onGlobalPointerDown);
-		}, [showQuickCard]);
-		const [swipeTranslate, setSwipeTranslate] = useState(0); // negative px while dragging left
-		const [showCarbonCopy, setShowCarbonCopy] = useState(false);
-		const panelWidthRef = useRef(Math.min(480, (typeof window !== "undefined" ? Math.round(window.innerWidth * 0.92) : 360)));
+					quickCardTimerRef.current = setTimeout(() => {
+						setShowQuickCard(false);
+						quickCardTimerRef.current = null;
+					}, 3000);
+				} catch (err) { }
+			}, 550);
+		} catch (err) { }
 
-		useEffect(() => {
-			const onResize = () => {
-				if (typeof window !== "undefined") {
-					panelWidthRef.current = Math.min(480, Math.round(window.innerWidth * 0.92));
+		// mark the gesture hint as shown once the user actually interacts
+		try {
+			if (gestureHintVisible && !localStorage.getItem('vx:hint:gesture')) {
+				try { localStorage.setItem('vx:hint:gesture', '1'); } catch { }
+			}
+		} catch { }
+		try { e.target?.setPointerCapture?.(e.pointerId); } catch { }
+	};
+
+	const onCenterPointerMove = (e) => {
+		// If not swiping and not tracking long-press, ignore
+		if (!isSwiping && !longPressTimerRef.current) return;
+		const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof clientX !== "number" || typeof clientY !== "number") return;
+
+		// If the user moves significantly, cancel a pending long-press
+		try {
+			if (longPressTimerRef.current) {
+				const dxLP = clientX - (longPressStartRef.current.x || 0);
+				const dyLP = clientY - (longPressStartRef.current.y || 0);
+				const moveDist = Math.hypot(dxLP, dyLP);
+				if (moveDist > 12) {
+					clearTimeout(longPressTimerRef.current);
+					longPressTimerRef.current = null;
 				}
-			};
-			window.addEventListener("resize", onResize);
-			return () => window.removeEventListener("resize", onResize);
-		}, []);
+			}
+		} catch (err) { }
+		const dx = clientX - swipeStartRef.current.x;
+		const dy = clientY - swipeStartRef.current.y;
 
-		const resetSwipe = () => {
-			setIsSwiping(false);
-			setSwipeTranslate(0);
-			prevSwipeTriggeredRef.current = false;
-			nextSwipeTriggeredRef.current = false;
-			try { /* noop */ } catch {}
-		};
-
-		// main center area pointer handlers (start only when pointerdown begins in the middle of the screen)
-		const onCenterPointerDown = (e) => {
-			// reveal center overlay when user touches the center area
-			try { showCenterTemporarily(); } catch {}
-			// prefer pointer events; also accept touch/mouse
-			const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			if (typeof clientX !== "number" || typeof clientY !== "number") return;
-
-			const w = window.innerWidth;
-			// only allow gestures that start near the center horizontally (30%..70%)
-			if (clientX < w * 0.3 || clientX > w * 0.7) return;
-
-			swipeStartRef.current = { x: clientX, y: clientY };
-			// record tutorial start pos for gesture detection
-			gestureStateRef.current = { startX: clientX, startY: clientY };
-			setIsSwiping(true);
-			setSwipeTranslate(0);
-
-			// Start long-press timer to open Bookmark modal if user holds in place
-			try {
-				longPressTriggeredRef.current = false;
-				longPressStartRef.current = { x: clientX, y: clientY };
-				if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; }
-				longPressTimerRef.current = setTimeout(() => {
-					longPressTriggeredRef.current = true;
-					// cancel swipe state so gestures don't conflict
-					setIsSwiping(false);
-					setSwipeTranslate(0);
-					// show a small quick-action translucent card (Like / Dislike / Bookmark)
+		// If gesture hint is active, detect the sequence: swipe down then swipe left
+		try {
+			if (gestureHintVisible) {
+				const g = gestureStateRef.current;
+				// Stage 0: expect swipe DOWN to load previous video
+				if (gestureStep === 0 && (clientY - g.startY) > 80 && Math.abs(clientX - g.startX) < 140) {
+					// trigger previous video (same as existing behavior)
 					try {
-						// hide the quick-options onboarding hint (user attempted the long-press)
-						try { setQuickOptionsHintVisible(false); localStorage.setItem('handleHintShownQuickOptions','1'); } catch {}
-						setQuickCardPos({ x: clientX, y: clientY });
-						setShowQuickCard(true);
-						try { if (navigator.vibrate) navigator.vibrate(10); } catch {}
-						if (quickCardTimerRef.current) { clearTimeout(quickCardTimerRef.current); quickCardTimerRef.current = null; }
-						quickCardTimerRef.current = setTimeout(() => {
-							setShowQuickCard(false);
-							quickCardTimerRef.current = null;
-						}, 3000);
-					} catch (err) {}
-				}, 550);
-			} catch (err) {}
-
-			// mark the gesture hint as shown once the user actually interacts
-			try {
-				if (gestureHintVisible && !localStorage.getItem('vx:hint:gesture')) {
-					try { localStorage.setItem('vx:hint:gesture', '1'); } catch {}
-				}
-			} catch {}
-			try { e.target?.setPointerCapture?.(e.pointerId); } catch {}
-		};
-
-		const onCenterPointerMove = (e) => {
-			// If not swiping and not tracking long-press, ignore
-			if (!isSwiping && !longPressTimerRef.current) return;
-			const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			if (typeof clientX !== "number" || typeof clientY !== "number") return;
-
-			// If the user moves significantly, cancel a pending long-press
-			try {
-				if (longPressTimerRef.current) {
-					const dxLP = clientX - (longPressStartRef.current.x || 0);
-					const dyLP = clientY - (longPressStartRef.current.y || 0);
-					const moveDist = Math.hypot(dxLP, dyLP);
-					if (moveDist > 12) {
-						clearTimeout(longPressTimerRef.current);
-						longPressTimerRef.current = null;
-					}
-				}
-			} catch (err) {}
-			const dx = clientX - swipeStartRef.current.x;
-			const dy = clientY - swipeStartRef.current.y;
-
-			// If gesture hint is active, detect the sequence: swipe down then swipe left
-			try {
-				if (gestureHintVisible) {
-					const g = gestureStateRef.current;
-					// Stage 0: expect swipe DOWN to load previous video
-					if (gestureStep === 0 && (clientY - g.startY) > 80 && Math.abs(clientX - g.startX) < 140) {
-						// trigger previous video (same as existing behavior)
-						try {
-							const src = currentSourceRef.current || [];
-							const idx = currentIndex;
-							const prevIdx = (typeof idx === 'number' ? idx - 1 : -1);
-							if (prevIdx >= 0 && src[prevIdx]) {
-								const p = src[prevIdx];
-								setVideoTitle(p.title || 'Video');
-								setCreatorName(p.creator || '');
-								setVideoUrl(p.url);
-								setControlsVisible(true);
-								showCenterTemporarily(1600);
-								setToastMessage('Previous video');
-								if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-								toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-								setCurrentIndex(prevIdx);
-								setTimeout(async () => {
-									try {
-										const v = videoRef.current;
-										if (v) {
-											if (p.url) v.src = p.url;
-											v.currentTime = 0;
-											const pr = v.play();
-											if (pr && pr.catch) pr.catch(() => {});
-											setIsPlaying(true);
-										}
-									} catch (err) {}
-								}, 120);
-							} else {
-								setToastMessage('No previous video');
-								if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-								toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-							}
-						} catch (err) {}
-						// advance tutorial to next step (swipe UP next)
-						setGestureStep(1);
-						return;
-					}
-					// Stage 1: expect swipe UP to load next video
-					if (gestureStep === 1 && (clientY - g.startY) < -80 && Math.abs(clientX - g.startX) < 140) {
-						try {
-							const next = {
-								id: 'next-placeholder-1',
-								url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-								title: 'Flowers for your grave',
-								creator: 'Richard Castle',
-								duration: 10,
-								thumbnail: ''
-							};
-							setVideoTitle(next.title);
-							setCreatorName(next.creator);
-							setVideoUrl(next.url);
+						const src = currentSourceRef.current || [];
+						const idx = currentIndex;
+						const prevIdx = (typeof idx === 'number' ? idx - 1 : -1);
+						if (prevIdx >= 0 && src[prevIdx]) {
+							const p = src[prevIdx];
+							setVideoTitle(p.title || 'Video');
+							setCreatorName(p.creator || '');
+							setVideoUrl(p.url);
 							setControlsVisible(true);
 							showCenterTemporarily(1600);
-							setToastMessage('Next video');
-
+							setToastMessage('Previous video');
+							if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+							toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+							setCurrentIndex(prevIdx);
 							setTimeout(async () => {
 								try {
 									const v = videoRef.current;
 									if (v) {
-										v.src = next.url;
+										if (p.url) v.src = p.url;
 										v.currentTime = 0;
-										const p = v.play();
-										if (p && p.catch) p.catch(() => {});
+										const pr = v.play();
+										if (pr && pr.catch) pr.catch(() => { });
 										setIsPlaying(true);
 									}
-								} catch (err) {}
+								} catch (err) { }
 							}, 120);
-						} catch (err) {}
-						// advance to next tutorial step (swipe LEFT)
-						setGestureStep(2);
-						return;
-					}
-					// Stage 2: expect swipe LEFT to open Discover
-					if (gestureStep === 2 && (clientX - g.startX) < -80 && Math.abs(clientY - g.startY) < 160) {
-						try { setShowCarbonCopy(true); } catch {}
-						try { localStorage.setItem('vx:hint:gesture', '1'); } catch {}
-						setGestureHintVisible(false);
-						setGestureStep(3);
-						setToastMessage('Discover opened');
-						if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-						toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
-						return;
-					}
-				}
-			} catch (err) {}
-
-			// Detect upward swipe (next video) when vertical movement is large
-			if (dy < -80 && Math.abs(dx) < 140 && !nextSwipeTriggeredRef.current) {
-				nextSwipeTriggeredRef.current = true;
-				const src = currentSourceRef.current || [];
-				let idx = currentIndex;
-				let nextIdx = (typeof idx === 'number' ? idx + 1 : 0);
-
-				if (nextIdx < src.length && src[nextIdx]) {
-					let next = src[nextIdx];
-					// If it's a string ID, try to resolve it (legacy fallback), otherwise use object directly
-					if (typeof next === 'string') {
-						if (discoverItemsData) {
-							const found = discoverItemsData.find(v => String(v.id) === String(next) || String(v.url) === String(next) || String(v.src) === String(next));
-							if (found) next = found;
-							else if (next.includes('/') || next.startsWith('http')) next = { url: next, title: 'Video', creator: '' };
-						} else if (next.includes('/') || next.startsWith('http')) {
-							next = { url: next, title: 'Video', creator: '' };
+						} else {
+							setToastMessage('No previous video');
+							if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+							toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
 						}
-					}
-					
-					if (next && (next.url || next.src || next.videoUrl)) {
-						setVideoTitle(next.title || 'Video');
-						setCreatorName(next.creator || '');
-						setVideoUrl(next.url || next.src || next.videoUrl);
+					} catch (err) { }
+					// advance tutorial to next step (swipe UP next)
+					setGestureStep(1);
+					return;
+				}
+				// Stage 1: expect swipe UP to load next video
+				if (gestureStep === 1 && (clientY - g.startY) < -80 && Math.abs(clientX - g.startX) < 140) {
+					try {
+						const next = {
+							id: 'next-placeholder-1',
+							url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+							title: 'Flowers for your grave',
+							creator: 'Richard Castle',
+							duration: 10,
+							thumbnail: ''
+						};
+						setVideoTitle(next.title);
+						setCreatorName(next.creator);
+						setVideoUrl(next.url);
 						setControlsVisible(true);
 						showCenterTemporarily(1600);
 						setToastMessage('Next video');
-						if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-						toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-						setCurrentIndex(nextIdx);
-						setTimeout(async () => {
-							try {
-								const v = videoRef.current;
-								if (v) {
-									const u = next.url || next.src || next.videoUrl;
-									if (u) v.src = u;
-									v.currentTime = 0;
-									const p = v.play();
-									if (p && p.catch) p.catch(() => {});
-									setIsPlaying(true);
-								}
-							} catch (err) {}
-						}, 120);
-					} else {
-						setToastMessage('No next video');
-						if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-						toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-					}
-				} else {
-					setToastMessage('No next video');
-					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-				}
-				resetSwipe();
-				return;
-			}
-
-			// Detect downward swipe (previous video) when vertical movement is large
-			if (dy > 80 && Math.abs(dx) < 140 && !prevSwipeTriggeredRef.current) {
-				prevSwipeTriggeredRef.current = true;
-				const src = currentSourceRef.current || [];
-				let idx = currentIndex;
-				let prevIdx = (typeof idx === 'number' ? idx - 1 : -1);
-
-				if (prevIdx >= 0 && src[prevIdx]) {
-					let prev = src[prevIdx];
-					if (typeof prev === 'string') {
-						if (discoverItemsData) {
-							const found = discoverItemsData.find(v => String(v.id) === String(prev) || String(v.url) === String(prev) || String(v.src) === String(prev));
-							if (found) prev = found;
-							else if (prev.includes('/') || prev.startsWith('http')) prev = { url: prev, title: 'Video', creator: '' };
-						} else if (prev.includes('/') || prev.startsWith('http')) {
-							prev = { url: prev, title: 'Video', creator: '' };
-						}
-					}
-
-					if (prev && (prev.url || prev.src || prev.videoUrl)) {
-						setVideoTitle(prev.title || 'Video');
-						setCreatorName(prev.creator || '');
-						setVideoUrl(prev.url || prev.src || prev.videoUrl);
-						setControlsVisible(true);
-						showCenterTemporarily(1600);
-						setToastMessage('Previous video');
-						if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-						toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-						setCurrentIndex(prevIdx);
-						setTimeout(async () => {
-							try {
-								const v = videoRef.current;
-								if (v) {
-									const u = prev.url || prev.src || prev.videoUrl;
-									if (u) v.src = u;
-									v.currentTime = 0;
-									const p = v.play();
-									if (p && p.catch) p.catch(() => {});
-									setIsPlaying(true);
-								}
-							} catch (err) {}
-						}, 120);
-					} else {
-						setToastMessage('No previous video');
-						if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-						toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-					}
-				} else {
-					setToastMessage('No previous video');
-					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-				}
-				resetSwipe();
-				return;
-			}
-
-			// if user moves vertically a lot, cancel swipe (allow scroll)
-			if (Math.abs(dy) > 140 && Math.abs(dx) < 60) {
-				resetSwipe();
-				return;
-			}
-
-			// Only care about left swipes (dx negative). Limit to panel width.
-			const maxLeft = -panelWidthRef.current;
-			const translate = Math.max(maxLeft, Math.min(0, dx));
-			setSwipeTranslate(translate);
-		};
-
-		const onCenterPointerUp = (e) => {
-			// If a long-press timer was running, clear it
-			if (longPressTimerRef.current) {
-				clearTimeout(longPressTimerRef.current);
-				longPressTimerRef.current = null;
-			}
-
-			// If a long-press was triggered, swallow the up event to avoid tap/swipe actions
-			if (longPressTriggeredRef.current) {
-				longPressTriggeredRef.current = false;
-				try { e.target?.releasePointerCapture?.(e.pointerId); } catch {}
-				setIsSwiping(false);
-				setSwipeTranslate(0);
-				return;
-			}
-
-			if (!isSwiping) return;
-			// detect vertical swipe down to show previous video
-			try {
-				const clientY = e.clientY ?? (e.changedTouches && e.changedTouches[0]?.clientY) ?? (e.touches && e.touches[0]?.clientY) ?? 0;
-				const clientX = e.clientX ?? (e.changedTouches && e.changedTouches[0]?.clientX) ?? (e.touches && e.touches[0]?.clientX) ?? 0;
-				const dy = clientY - (swipeStartRef.current.y || 0);
-				const dx = clientX - (swipeStartRef.current.x || 0);
-				// if user swiped down far enough (and not a large horizontal move), treat as "previous video"
-				if (dy > 80 && Math.abs(dx) < 140) {
-					// load a previous/video placeholder
-					const prev = {
-						id: 'prev-placeholder-1',
-						url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-						title: 'Big Buck Bunny (Preview)',
-						creator: 'Blender Foundation',
-						duration: 596,
-						thumbnail: ''
-					};
-					try {
-						setVideoTitle(prev.title);
-						setCreatorName(prev.creator);
-						setVideoUrl(prev.url);
-						// ensure controls reveal and feedback
-						setControlsVisible(true);
-						showCenterTemporarily(1600);
-						setToastMessage('Previous video');
 
 						setTimeout(async () => {
 							try {
 								const v = videoRef.current;
 								if (v) {
-									v.src = prev.url;
+									v.src = next.url;
 									v.currentTime = 0;
 									const p = v.play();
-									if (p && p.catch) p.catch(() => {});
+									if (p && p.catch) p.catch(() => { });
 									setIsPlaying(true);
 								}
-							} catch (err) { /* ignore autoplay errors */ }
+							} catch (err) { }
 						}, 120);
-					} catch (err) {}
-					// snap panel closed and stop swiping
-					setSwipeTranslate(0);
-					setShowCarbonCopy(false);
-					setIsSwiping(false);
-					try { e.target?.releasePointerCapture?.(e.pointerId); } catch {}
+					} catch (err) { }
+					// advance to next tutorial step (swipe LEFT)
+					setGestureStep(2);
 					return;
 				}
-			} catch (err) {}
-			const thresholdPx = Math.max(100, panelWidthRef.current * 0.25); // require ~25% or at least 100px
-			// if dragged left beyond threshold -> open panel
-			if (swipeTranslate <= -thresholdPx) {
-				setShowCarbonCopy(true);
-				setSwipeTranslate(-panelWidthRef.current);
-			} else {
-				// otherwise snap back closed
-				setSwipeTranslate(0);
-			}
-			setIsSwiping(false);
-			try { e.target?.releasePointerCapture?.(e.pointerId); } catch {}
-		};
-
-		// ---- ADD: panel-side pointer handlers (allow dragging the panel to the right to close) ----
-		const panelPointerStartRef = useRef({ x: 0, y: 0 });
-		const onPanelPointerDown = (e) => {
-			const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-			const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-			if (typeof clientX !== "number") return;
-			panelPointerStartRef.current = { x: clientX, y: clientY };
-			// start swiping from the open position
-			setIsSwiping(true);
-			setSwipeTranslate(-panelWidthRef.current);
-			try { e.target?.setPointerCapture?.(e.pointerId); } catch {}
-		};
-		const onPanelPointerMove = (e) => {
-			if (!isSwiping) return;
-			const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-			if (typeof clientX !== "number") return;
-			const dx = clientX - panelPointerStartRef.current.x; // positive when dragging right -> close
-			const w = panelWidthRef.current;
-			let translate = -w + Math.max(0, dx); // -w .. 0
-			translate = Math.min(0, Math.max(-w, translate));
-			setSwipeTranslate(translate);
-		};
-		const onPanelPointerUp = (e) => {
-			if (!isSwiping) return;
-			const w = panelWidthRef.current;
-			const closeThreshold = Math.max(100, w * 0.25);
-			// if panel was dragged right enough -> close
-			if (swipeTranslate > -w + closeThreshold) {
-				// close
-				setShowCarbonCopy(false);
-				setSwipeTranslate(0);
-			} else {
-				// snap back open
-				setShowCarbonCopy(true);
-				setSwipeTranslate(-w);
-			}
-			setIsSwiping(false);
-			try { e.target?.releasePointerCapture?.(e.pointerId); } catch {}
-		};
-
-		// When the right-side discover panel is open or being swiped, ensure the
-		// underlying video element does not intercept pointer events. This lets
-		// the panel's buttons/tabs remain interactive while the video keeps
-		// playing in the background.
-		useEffect(() => {
-			try {
-				const v = videoRef.current;
-				if (!v) return;
-				if (showCarbonCopy || isSwiping) {
-					v.style.pointerEvents = 'none';
-				} else {
-					v.style.pointerEvents = '';
+				// Stage 2: expect swipe LEFT to open Discover
+				if (gestureStep === 2 && (clientX - g.startX) < -80 && Math.abs(clientY - g.startY) < 160) {
+					try { setShowCarbonCopy(true); } catch { }
+					try { localStorage.setItem('vx:hint:gesture', '1'); } catch { }
+					setGestureHintVisible(false);
+					setGestureStep(3);
+					setToastMessage('Discover opened');
+					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
+					return;
 				}
-			} catch (e) {}
-		}, [showCarbonCopy, isSwiping]);
+			}
+		} catch (err) { }
 
-		// --- Video Ended / Autoplay Handler ---
-		const handleVideoEnded = () => {
-			setIsPlaying(false);
-			if (loopVideo) return; // loop logic handled by useEffect
-
+		// Detect upward swipe (next video) when vertical movement is large
+		if (dy < -80 && Math.abs(dx) < 140 && !nextSwipeTriggeredRef.current) {
+			nextSwipeTriggeredRef.current = true;
 			const src = currentSourceRef.current || [];
 			let idx = currentIndex;
 			let nextIdx = (typeof idx === 'number' ? idx + 1 : 0);
@@ -3415,14 +3155,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						next = { url: next, title: 'Video', creator: '' };
 					}
 				}
-				
+
 				if (next && (next.url || next.src || next.videoUrl)) {
 					setVideoTitle(next.title || 'Video');
 					setCreatorName(next.creator || '');
 					setVideoUrl(next.url || next.src || next.videoUrl);
 					setControlsVisible(true);
 					showCenterTemporarily(1600);
-					setToastMessage('Playing next video');
+					setToastMessage('Next video');
 					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
 					setCurrentIndex(nextIdx);
@@ -3434,50 +3174,310 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								if (u) v.src = u;
 								v.currentTime = 0;
 								const p = v.play();
-								if (p && p.catch) p.catch(() => {});
+								if (p && p.catch) p.catch(() => { });
 								setIsPlaying(true);
 							}
-						} catch (err) {}
+						} catch (err) { }
 					}, 120);
 				} else {
-					setShowSuggestionCard(true);
+					setToastMessage('No next video');
+					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
 				}
+			} else {
+				setToastMessage('No next video');
+				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+			}
+			resetSwipe();
+			return;
+		}
+
+		// Detect downward swipe (previous video) when vertical movement is large
+		if (dy > 80 && Math.abs(dx) < 140 && !prevSwipeTriggeredRef.current) {
+			prevSwipeTriggeredRef.current = true;
+			const src = currentSourceRef.current || [];
+			let idx = currentIndex;
+			let prevIdx = (typeof idx === 'number' ? idx - 1 : -1);
+
+			if (prevIdx >= 0 && src[prevIdx]) {
+				let prev = src[prevIdx];
+				if (typeof prev === 'string') {
+					if (discoverItemsData) {
+						const found = discoverItemsData.find(v => String(v.id) === String(prev) || String(v.url) === String(prev) || String(v.src) === String(prev));
+						if (found) prev = found;
+						else if (prev.includes('/') || prev.startsWith('http')) prev = { url: prev, title: 'Video', creator: '' };
+					} else if (prev.includes('/') || prev.startsWith('http')) {
+						prev = { url: prev, title: 'Video', creator: '' };
+					}
+				}
+
+				if (prev && (prev.url || prev.src || prev.videoUrl)) {
+					setVideoTitle(prev.title || 'Video');
+					setCreatorName(prev.creator || '');
+					setVideoUrl(prev.url || prev.src || prev.videoUrl);
+					setControlsVisible(true);
+					showCenterTemporarily(1600);
+					setToastMessage('Previous video');
+					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+					setCurrentIndex(prevIdx);
+					setTimeout(async () => {
+						try {
+							const v = videoRef.current;
+							if (v) {
+								const u = prev.url || prev.src || prev.videoUrl;
+								if (u) v.src = u;
+								v.currentTime = 0;
+								const p = v.play();
+								if (p && p.catch) p.catch(() => { });
+								setIsPlaying(true);
+							}
+						} catch (err) { }
+					}, 120);
+				} else {
+					setToastMessage('No previous video');
+					if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+					toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+				}
+			} else {
+				setToastMessage('No previous video');
+				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+			}
+			resetSwipe();
+			return;
+		}
+
+		// if user moves vertically a lot, cancel swipe (allow scroll)
+		if (Math.abs(dy) > 140 && Math.abs(dx) < 60) {
+			resetSwipe();
+			return;
+		}
+
+		// Only care about left swipes (dx negative). Limit to panel width.
+		const maxLeft = -panelWidthRef.current;
+		const translate = Math.max(maxLeft, Math.min(0, dx));
+		setSwipeTranslate(translate);
+	};
+
+	const onCenterPointerUp = (e) => {
+		// If a long-press timer was running, clear it
+		if (longPressTimerRef.current) {
+			clearTimeout(longPressTimerRef.current);
+			longPressTimerRef.current = null;
+		}
+
+		// If a long-press was triggered, swallow the up event to avoid tap/swipe actions
+		if (longPressTriggeredRef.current) {
+			longPressTriggeredRef.current = false;
+			try { e.target?.releasePointerCapture?.(e.pointerId); } catch { }
+			setIsSwiping(false);
+			setSwipeTranslate(0);
+			return;
+		}
+
+		if (!isSwiping) return;
+		// detect vertical swipe down to show previous video
+		try {
+			const clientY = e.clientY ?? (e.changedTouches && e.changedTouches[0]?.clientY) ?? (e.touches && e.touches[0]?.clientY) ?? 0;
+			const clientX = e.clientX ?? (e.changedTouches && e.changedTouches[0]?.clientX) ?? (e.touches && e.touches[0]?.clientX) ?? 0;
+			const dy = clientY - (swipeStartRef.current.y || 0);
+			const dx = clientX - (swipeStartRef.current.x || 0);
+			// if user swiped down far enough (and not a large horizontal move), treat as "previous video"
+			if (dy > 80 && Math.abs(dx) < 140) {
+				// load a previous/video placeholder
+				const prev = {
+					id: 'prev-placeholder-1',
+					url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+					title: 'Big Buck Bunny (Preview)',
+					creator: 'Blender Foundation',
+					duration: 596,
+					thumbnail: ''
+				};
+				try {
+					setVideoTitle(prev.title);
+					setCreatorName(prev.creator);
+					setVideoUrl(prev.url);
+					// ensure controls reveal and feedback
+					setControlsVisible(true);
+					showCenterTemporarily(1600);
+					setToastMessage('Previous video');
+
+					setTimeout(async () => {
+						try {
+							const v = videoRef.current;
+							if (v) {
+								v.src = prev.url;
+								v.currentTime = 0;
+								const p = v.play();
+								if (p && p.catch) p.catch(() => { });
+								setIsPlaying(true);
+							}
+						} catch (err) { /* ignore autoplay errors */ }
+					}, 120);
+				} catch (err) { }
+				// snap panel closed and stop swiping
+				setSwipeTranslate(0);
+				setShowCarbonCopy(false);
+				setIsSwiping(false);
+				try { e.target?.releasePointerCapture?.(e.pointerId); } catch { }
+				return;
+			}
+		} catch (err) { }
+		const thresholdPx = Math.max(100, panelWidthRef.current * 0.25); // require ~25% or at least 100px
+		// if dragged left beyond threshold -> open panel
+		if (swipeTranslate <= -thresholdPx) {
+			setShowCarbonCopy(true);
+			setSwipeTranslate(-panelWidthRef.current);
+		} else {
+			// otherwise snap back closed
+			setSwipeTranslate(0);
+		}
+		setIsSwiping(false);
+		try { e.target?.releasePointerCapture?.(e.pointerId); } catch { }
+	};
+
+	// ---- ADD: panel-side pointer handlers (allow dragging the panel to the right to close) ----
+	const panelPointerStartRef = useRef({ x: 0, y: 0 });
+	const onPanelPointerDown = (e) => {
+		const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof clientX !== "number") return;
+		panelPointerStartRef.current = { x: clientX, y: clientY };
+		// start swiping from the open position
+		setIsSwiping(true);
+		setSwipeTranslate(-panelWidthRef.current);
+		try { e.target?.setPointerCapture?.(e.pointerId); } catch { }
+	};
+	const onPanelPointerMove = (e) => {
+		if (!isSwiping) return;
+		const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+		if (typeof clientX !== "number") return;
+		const dx = clientX - panelPointerStartRef.current.x; // positive when dragging right -> close
+		const w = panelWidthRef.current;
+		let translate = -w + Math.max(0, dx); // -w .. 0
+		translate = Math.min(0, Math.max(-w, translate));
+		setSwipeTranslate(translate);
+	};
+	const onPanelPointerUp = (e) => {
+		if (!isSwiping) return;
+		const w = panelWidthRef.current;
+		const closeThreshold = Math.max(100, w * 0.25);
+		// if panel was dragged right enough -> close
+		if (swipeTranslate > -w + closeThreshold) {
+			// close
+			setShowCarbonCopy(false);
+			setSwipeTranslate(0);
+		} else {
+			// snap back open
+			setShowCarbonCopy(true);
+			setSwipeTranslate(-w);
+		}
+		setIsSwiping(false);
+		try { e.target?.releasePointerCapture?.(e.pointerId); } catch { }
+	};
+
+	// When the right-side discover panel is open or being swiped, ensure the
+	// underlying video element does not intercept pointer events. This lets
+	// the panel's buttons/tabs remain interactive while the video keeps
+	// playing in the background.
+	useEffect(() => {
+		try {
+			const v = videoRef.current;
+			if (!v) return;
+			if (showCarbonCopy || isSwiping) {
+				v.style.pointerEvents = 'none';
+			} else {
+				v.style.pointerEvents = '';
+			}
+		} catch (e) { }
+	}, [showCarbonCopy, isSwiping]);
+
+	// --- Video Ended / Autoplay Handler ---
+	const handleVideoEnded = () => {
+		setIsPlaying(false);
+		if (loopVideo) return; // loop logic handled by useEffect
+
+		const src = currentSourceRef.current || [];
+		let idx = currentIndex;
+		let nextIdx = (typeof idx === 'number' ? idx + 1 : 0);
+
+		if (nextIdx < src.length && src[nextIdx]) {
+			let next = src[nextIdx];
+			// If it's a string ID, try to resolve it (legacy fallback), otherwise use object directly
+			if (typeof next === 'string') {
+				if (discoverItemsData) {
+					const found = discoverItemsData.find(v => String(v.id) === String(next) || String(v.url) === String(next) || String(v.src) === String(next));
+					if (found) next = found;
+					else if (next.includes('/') || next.startsWith('http')) next = { url: next, title: 'Video', creator: '' };
+				} else if (next.includes('/') || next.startsWith('http')) {
+					next = { url: next, title: 'Video', creator: '' };
+				}
+			}
+
+			if (next && (next.url || next.src || next.videoUrl)) {
+				setVideoTitle(next.title || 'Video');
+				setCreatorName(next.creator || '');
+				setVideoUrl(next.url || next.src || next.videoUrl);
+				setControlsVisible(true);
+				showCenterTemporarily(1600);
+				setToastMessage('Playing next video');
+				if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+				toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+				setCurrentIndex(nextIdx);
+				setTimeout(async () => {
+					try {
+						const v = videoRef.current;
+						if (v) {
+							const u = next.url || next.src || next.videoUrl;
+							if (u) v.src = u;
+							v.currentTime = 0;
+							const p = v.play();
+							if (p && p.catch) p.catch(() => { });
+							setIsPlaying(true);
+						}
+					} catch (err) { }
+				}, 120);
 			} else {
 				setShowSuggestionCard(true);
 			}
-		};
+		} else {
+			setShowSuggestionCard(true);
+		}
+	};
 
-		// --- Render ---
-		return (
-				<div
-				className="bg-black h-screen w-full overflow-hidden flex flex-col px-4"
-				style={{
-					boxSizing: "border-box",
-					paddingTop: "env(safe-area-inset-top, 16px)",
-					paddingBottom: "env(safe-area-inset-bottom, 20px)"
-				}}
-				onClick={(e) => {
-					// If the user taps outside the video container (and not on a button), hide controls.
-					try {
-						// ignore clicks on interactive controls (buttons)
-						if (e.target && e.target.closest && e.target.closest('button')) return;
-						const insideVideo = e.target && e.target.closest && e.target.closest('.video-center');
-						if (!insideVideo) {
-							setControlsVisible(false);
-						}
-					} catch {}
-				}}
-			>
-				{/* Inline styles for modal button feedback and ensuring modal buttons remain interactive */}
-				<style>{`
+	// --- Render ---
+	return (
+		<div
+			className="bg-black h-screen w-full overflow-hidden flex flex-col px-4"
+			style={{
+				boxSizing: "border-box",
+				paddingTop: "env(safe-area-inset-top, 16px)",
+				paddingBottom: "env(safe-area-inset-bottom, 20px)"
+			}}
+			onClick={(e) => {
+				// If the user taps outside the video container (and not on a button), hide controls.
+				try {
+					// ignore clicks on interactive controls (buttons)
+					if (e.target && e.target.closest && e.target.closest('button')) return;
+					const insideVideo = e.target && e.target.closest && e.target.closest('.video-center');
+					if (!insideVideo) {
+						setControlsVisible(false);
+					}
+				} catch { }
+			}}
+		>
+			{/* Inline styles for modal button feedback and ensuring modal buttons remain interactive */}
+			<style>{`
 					.modal-dialog button{ transition: transform .12s ease, filter .12s ease, box-shadow .12s ease, opacity .12s; cursor: pointer; }
 					.modal-dialog button:active, .modal-dialog button[data-pressed="true"]{ transform: translateY(1px) scale(0.985); filter: brightness(0.94); opacity: 0.98; }
 					.modal-dialog button{ pointer-events: auto !important; }
 					/* slightly reduce active effect for toggles/switch inner elements */
 					.modal-dialog button .w-5{ transition: transform .12s ease; }
 				`}</style>
-				{/* Gesture hint CSS (keyframes) */}
-				<style>{`
+			{/* Gesture hint CSS (keyframes) */}
+			<style>{`
 					/* single move animation (moves downward). Rotating the wrapper will change visual direction */
 					@keyframes vx-gesture-move { 0% { transform: translateY(-4px) translateX(0) scale(0.98); opacity: .95 } 40% { transform: translateY(40px) translateX(0) scale(1); opacity: .98 } 70% { transform: translateY(40px) translateX(0) scale(1); opacity: .98 } 100% { transform: translateY(40px) translateX(0) scale(1); opacity: .0 } }
 					@keyframes vx-pulse { 0% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.04); opacity: 0.9 } 100% { transform: scale(1); opacity: 1 } }
@@ -3486,128 +3486,128 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					@keyframes wt-pulse { 0% { transform: scale(1); opacity: 0.9 } 50% { transform: scale(1.6); opacity: 0.0 } 100% { transform: scale(1); opacity: 0.0 } }
 				`}</style>
 
-				{gestureHintVisible && (
-					<div aria-hidden style={{ position: 'fixed', left: 0, right: 0, bottom: '30%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, pointerEvents: 'none' }}>
-						<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-							<div className="bg-black rounded-xl px-4 py-3 min-w-[220px] sm:min-w-[280px] max-w-[420px] flex flex-col items-center justify-center gap-1.5" style={{
-								boxShadow: '0 8px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02)',
-								border: '1px solid rgba(255,255,255,0.04)'
-							}}>
-								<div style={{ color: '#FFFFFF', opacity: 0.95, fontSize: 14, fontWeight: 700, textAlign: 'center', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.12px' }}>{gestureStep === 0 ? 'Try this gesture' : gestureStep === 1 ? ' Nice ! one more ' : 'Almost there'}</div>
-								<div style={gestureStep === 1 ? { color: '#FFFFFF', opacity: 0.92, fontSize: 14, textAlign: 'center', animation: 'vx-pulse 900ms ease-in-out infinite', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.12px', lineHeight: '1.2' } : { color: 'rgba(255,255,255,0.88)', fontSize: 13, textAlign: 'center', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.08px', lineHeight: '1.25' }}>
-									{gestureStep === 0 && (<><span>Swipe down</span><MoveRight /><span>previous video</span></>)}
-									{gestureStep === 1 && (<><span>Swipe up</span><MoveRight /><span>next video</span></>)}
-									{gestureStep === 2 && (<><span>Swipe left</span><MoveRight /><span>open Discover</span></>)}
-								</div>
-							</div>
-							<div className="w-20 sm:w-24 h-20 sm:h-24 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
-								{/* animated mover inside a rotated wrapper so rotation isn't overridden by animation */}
-								{gestureStep === 0 && (
-									<div style={{ transform: 'rotate(0deg)' }}>
-										<svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'vx-gesture-move 1200ms ease-in-out infinite' }}>
-											<rect x="6.5" y="11" width="11" height="6.5" rx="3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.5"/>
-											<path d="M12 5v6" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round"/>
-											<path d="M9.5 7.5v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" strokeLinecap="round"/>
-											<path d="M8 9v3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.3" strokeLinecap="round"/>
-											<path d="M12 17v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round"/>
-											<path d="M10.7 19.3l1.3 1.3l1.3-1.3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-										</svg>
-									</div>
-								)}
-								{gestureStep === 1 && (
-									<div style={{ transform: 'rotate(180deg)' }}>
-										<svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'vx-gesture-move 1200ms ease-in-out infinite' }}>
-											<rect x="6.5" y="11" width="11" height="6.5" rx="3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.5"/>
-											<path d="M12 5v6" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round"/>
-											<path d="M9.5 7.5v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" strokeLinecap="round"/>
-											<path d="M8 9v3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.3" strokeLinecap="round"/>
-											<path d="M12 17v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round"/>
-											<path d="M10.7 19.3l1.3 1.3l1.3-1.3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-										</svg>
-									</div>
-								)}
-								{gestureStep === 2 && (
-									<div style={{ transform: 'rotate(90deg)' }}>
-										<svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'vx-gesture-move 1200ms ease-in-out infinite' }}>
-											<rect x="6.5" y="11" width="11" height="6.5" rx="3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.5"/>
-											<path d="M12 5v6" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round"/>
-											<path d="M9.5 7.5v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" strokeLinecap="round"/>
-											<path d="M8 9v3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.3" strokeLinecap="round"/>
-											<path d="M12 17v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round"/>
-											<path d="M10.7 19.3l1.3 1.3l1.3-1.3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-										</svg>
-									</div>
-								)}
+			{gestureHintVisible && (
+				<div aria-hidden style={{ position: 'fixed', left: 0, right: 0, bottom: '30%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, pointerEvents: 'none' }}>
+					<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+						<div className="bg-black rounded-xl px-4 py-3 min-w-[220px] sm:min-w-[280px] max-w-[420px] flex flex-col items-center justify-center gap-1.5" style={{
+							boxShadow: '0 8px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02)',
+							border: '1px solid rgba(255,255,255,0.04)'
+						}}>
+							<div style={{ color: '#FFFFFF', opacity: 0.95, fontSize: 14, fontWeight: 700, textAlign: 'center', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.12px' }}>{gestureStep === 0 ? 'Try this gesture' : gestureStep === 1 ? ' Nice ! one more ' : 'Almost there'}</div>
+							<div style={gestureStep === 1 ? { color: '#FFFFFF', opacity: 0.92, fontSize: 14, textAlign: 'center', animation: 'vx-pulse 900ms ease-in-out infinite', fontWeight: 700, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.12px', lineHeight: '1.2' } : { color: 'rgba(255,255,255,0.88)', fontSize: 13, textAlign: 'center', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.08px', lineHeight: '1.25' }}>
+								{gestureStep === 0 && (<><span>Swipe down</span><MoveRight /><span>previous video</span></>)}
+								{gestureStep === 1 && (<><span>Swipe up</span><MoveRight /><span>next video</span></>)}
+								{gestureStep === 2 && (<><span>Swipe left</span><MoveRight /><span>open Discover</span></>)}
 							</div>
 						</div>
-					</div>
-				)}
-					{/* Quick Options onboarding hint (long-press) */}
-					{quickOptionsHintVisible && (
-						<div aria-hidden style={{ position: 'fixed', left: 0, right: 0, bottom: '30%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, pointerEvents: 'none' }}>
-							<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-								<div style={{
-									background: '#000000',
-									borderRadius: 12,
-									padding: '12px 16px',
-									minWidth: 280,
-									maxWidth: 420,
-									display: 'flex',
-									flexDirection: 'column',
-									alignItems: 'center',
-									justifyContent: 'center',
-									gap: 6,
-									boxShadow: '0 8px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02)',
-									border: '1px solid rgba(255,255,255,0.04)'
-								}}>
-									<div style={{ color: '#FFFFFF', opacity: 0.95, fontSize: 14, fontWeight: 700, textAlign: 'center', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.12px', whiteSpace: 'pre-line' }}>
-										Hold to open quick actions
-									</div>
-									<div style={{ color: 'rgba(255,255,255,0.88)', fontSize: 13, textAlign: 'center', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.08px', lineHeight: '1.25', whiteSpace: 'pre-line' }}>
-										Press and hold under the video to open quick actions
-									</div>
-								</div>
-								{/* small rounded visual hint (match gesture hint sizing) */}
-								<div className="w-20 sm:w-24 h-20 sm:h-24 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
-									<svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.96 }}>
-										<path d="M12 2v6" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-										<circle cx="12" cy="14" r="4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" fill="rgba(255,255,255,0.02)" />
-										<path d="M12 18v2" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+						<div className="w-20 sm:w-24 h-20 sm:h-24 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
+							{/* animated mover inside a rotated wrapper so rotation isn't overridden by animation */}
+							{gestureStep === 0 && (
+								<div style={{ transform: 'rotate(0deg)' }}>
+									<svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'vx-gesture-move 1200ms ease-in-out infinite' }}>
+										<rect x="6.5" y="11" width="11" height="6.5" rx="3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.5" />
+										<path d="M12 5v6" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" />
+										<path d="M9.5 7.5v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" strokeLinecap="round" />
+										<path d="M8 9v3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.3" strokeLinecap="round" />
+										<path d="M12 17v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" />
+										<path d="M10.7 19.3l1.3 1.3l1.3-1.3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
 									</svg>
 								</div>
+							)}
+							{gestureStep === 1 && (
+								<div style={{ transform: 'rotate(180deg)' }}>
+									<svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'vx-gesture-move 1200ms ease-in-out infinite' }}>
+										<rect x="6.5" y="11" width="11" height="6.5" rx="3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.5" />
+										<path d="M12 5v6" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" />
+										<path d="M9.5 7.5v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" strokeLinecap="round" />
+										<path d="M8 9v3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.3" strokeLinecap="round" />
+										<path d="M12 17v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" />
+										<path d="M10.7 19.3l1.3 1.3l1.3-1.3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+									</svg>
+								</div>
+							)}
+							{gestureStep === 2 && (
+								<div style={{ transform: 'rotate(90deg)' }}>
+									<svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'vx-gesture-move 1200ms ease-in-out infinite' }}>
+										<rect x="6.5" y="11" width="11" height="6.5" rx="3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.5" />
+										<path d="M12 5v6" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" />
+										<path d="M9.5 7.5v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" strokeLinecap="round" />
+										<path d="M8 9v3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.3" strokeLinecap="round" />
+										<path d="M12 17v4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" />
+										<path d="M10.7 19.3l1.3 1.3l1.3-1.3" stroke="rgba(255,255,255,0.96)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+									</svg>
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
+			)}
+			{/* Quick Options onboarding hint (long-press) */}
+			{quickOptionsHintVisible && (
+				<div aria-hidden style={{ position: 'fixed', left: 0, right: 0, bottom: '30%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, pointerEvents: 'none' }}>
+					<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+						<div style={{
+							background: '#000000',
+							borderRadius: 12,
+							padding: '12px 16px',
+							minWidth: 280,
+							maxWidth: 420,
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							justifyContent: 'center',
+							gap: 6,
+							boxShadow: '0 8px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02)',
+							border: '1px solid rgba(255,255,255,0.04)'
+						}}>
+							<div style={{ color: '#FFFFFF', opacity: 0.95, fontSize: 14, fontWeight: 700, textAlign: 'center', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.12px', whiteSpace: 'pre-line' }}>
+								Hold to open quick actions
+							</div>
+							<div style={{ color: 'rgba(255,255,255,0.88)', fontSize: 13, textAlign: 'center', fontWeight: 600, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial', letterSpacing: '0.08px', lineHeight: '1.25', whiteSpace: 'pre-line' }}>
+								Press and hold under the video to open quick actions
 							</div>
 						</div>
-					)}
-					{/* 1. Top Icon Row */}
-				<div
-					// backdrop overlay for top controls (auto-hideable)
-					className="w-full flex items-center justify-between"
-					style={{
-						paddingTop: 8,
-						paddingBottom: 8,
-						position: "relative",
-						zIndex: 500,
-						transition: "opacity 220ms ease, backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease",
-						opacity: controlsVisible || locked ? 1 : 0,
-						pointerEvents: controlsVisible || locked ? "auto" : "none",
-						// Make the frosted background full-bleed (compensate for outer `px-4`)
-						// Use a width calc + left offset so it reliably reaches both edges.
-						width: "calc(100% + 32px)",
-						left: -16,
-						paddingLeft: 16,
-						paddingRight: 16,
-						// Frosted glass / muted background to keep focus on video
-						background: darkMode
-							? "linear-gradient(180deg, rgba(0,0,0,0.36), rgba(0,0,0,0.28))"
-							: "linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.6))",
-						border: darkMode ? "1px solid rgba(255,255,255,0.02)" : "1px solid rgba(0,0,0,0.06)",
-						// slightly stronger bottom divider to match the progress bar hairline
-						borderBottom: darkMode ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.12)",
-						boxShadow: darkMode ? "inset 0 1px 0 rgba(255,255,255,0.01), 0 6px 16px rgba(0,0,0,0.48)" : "inset 0 1px 0 rgba(255,255,255,0.6), 0 6px 18px rgba(0,0,0,0.06)",
-						backdropFilter: "blur(2px)",
-						WebkitBackdropFilter: "blur(2px)"
-					}}
-				>
+						{/* small rounded visual hint (match gesture hint sizing) */}
+						<div className="w-20 sm:w-24 h-20 sm:h-24 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
+							<svg width="44" height="44" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.96 }}>
+								<path d="M12 2v6" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+								<circle cx="12" cy="14" r="4" stroke="rgba(255,255,255,0.96)" strokeWidth="1.4" fill="rgba(255,255,255,0.02)" />
+								<path d="M12 18v2" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+							</svg>
+						</div>
+					</div>
+				</div>
+			)}
+			{/* 1. Top Icon Row */}
+			<div
+				// backdrop overlay for top controls (auto-hideable)
+				className="w-full flex items-center justify-between"
+				style={{
+					paddingTop: 8,
+					paddingBottom: 8,
+					position: "relative",
+					zIndex: 500,
+					transition: "opacity 220ms ease, backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease",
+					opacity: controlsVisible || locked ? 1 : 0,
+					pointerEvents: controlsVisible || locked ? "auto" : "none",
+					// Make the frosted background full-bleed (compensate for outer `px-4`)
+					// Use a width calc + left offset so it reliably reaches both edges.
+					width: "calc(100% + 32px)",
+					left: -16,
+					paddingLeft: 16,
+					paddingRight: 16,
+					// Frosted glass / muted background to keep focus on video
+					background: darkMode
+						? "linear-gradient(180deg, rgba(0,0,0,0.36), rgba(0,0,0,0.28))"
+						: "linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.6))",
+					border: darkMode ? "1px solid rgba(255,255,255,0.02)" : "1px solid rgba(0,0,0,0.06)",
+					// slightly stronger bottom divider to match the progress bar hairline
+					borderBottom: darkMode ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.12)",
+					boxShadow: darkMode ? "inset 0 1px 0 rgba(255,255,255,0.01), 0 6px 16px rgba(0,0,0,0.48)" : "inset 0 1px 0 rgba(255,255,255,0.6), 0 6px 18px rgba(0,0,0,0.06)",
+					backdropFilter: "blur(2px)",
+					WebkitBackdropFilter: "blur(2px)"
+				}}
+			>
 				{/* Soft vignette to keep focus on the video */}
 				<div
 					aria-hidden="true"
@@ -3621,23 +3621,123 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						transition: 'opacity 420ms ease'
 					}}
 				/>
-					<button
-						className="p-1.5 rounded-full hover:bg-white/10"
-						style={{ color: darkMode ? "#fff" : "#111" }}
-						onClick={async (e) => {
-							try { e.stopPropagation(); } catch {}
-							try {
-								const v = videoRef.current;
-								const time = v ? (v.currentTime || 0) : 0;
-								const isPlayingNow = v ? (!v.paused && !v.ended) : false;
+				<button
+					className="p-1.5 rounded-full hover:bg-white/10"
+					style={{ color: darkMode ? "#fff" : "#111" }}
+					onClick={async (e) => {
+						try { e.stopPropagation(); } catch { }
+						try {
+							const v = videoRef.current;
+							const time = v ? (v.currentTime || 0) : 0;
+							const isPlayingNow = v ? (!v.paused && !v.ended) : false;
 
-								// Build mini player payload compatible with home.jsx
-								// Use local player state as the source of truth (avoid referencing `videoInfo` here)
+							// Build mini player payload compatible with home.jsx
+							// Use local player state as the source of truth (avoid referencing `videoInfo` here)
+							const info = null;
+							const videoSrc = (v && (v.currentSrc || v.src)) || videoUrl || '';
+							const videoThumb = '';
+							const videoId = searchParams.get('id') || 'custom';
+
+							const stored = {
+								video: {
+									...(info || {}),
+									id: videoId,
+									title: videoTitle || (info && info.title) || null,
+									src: videoSrc,
+									url: videoSrc,
+									videoUrl: videoSrc,
+									thumbnail: videoThumb,
+									imageUrl: videoThumb,
+									author: creatorName || (info && info.author) || null,
+									creator: creatorName || (info && info.creator) || null,
+									channel: creatorName || (info && info.channel) || null
+								},
+								time: Math.floor(time || 0),
+								paused: !isPlayingNow,
+								title: videoTitle || null,
+								creatorName: creatorName || null,
+								progressColor: progressColor || null,
+								playbackSpeed: playbackSpeed || 1,
+								duration: v ? Math.floor(v.duration || 0) : 0
+							};
+							console.log('ChevronDown: storing miniPlayerData ->', stored);
+							try { localStorage.setItem('miniPlayerData', JSON.stringify(stored)); } catch (e) { }
+							try { if (typeof eventBus !== 'undefined' && eventBus.emit) { eventBus.emit('miniPlayerRequest', stored); eventBus.emit('switchToHome', stored); eventBus.emit('switchToHomeOnly', stored); } } catch (e) { }
+
+							// Navigate to home with state
+							try {
+								navigate('/home', { state: { miniPlayerData: stored } });
+							} catch (err) {
+								console.error('ChevronDown navigation failed', err);
+								// Fallback: try window location
+								try { window.location.href = '/home'; } catch (e) { }
+							}
+						} catch (err) {
+							console.error('ChevronDown error', err);
+						}
+					}}
+				>
+					<ChevronDown />
+				</button>
+				{/* Lock button: rendered inline with other top icons so spacing matches. */}
+
+				<div className="flex items-center space-x-4" style={{ transition: 'opacity 220ms ease', pointerEvents: 'auto' }}>
+					{/* Lock slot (keeps same spacing whether visible or not) */}
+					<div className="w-9 flex items-center justify-center" style={{ pointerEvents: 'auto' }}>
+						{locked ? (
+							<button
+								onClick={handleLockPress}
+								aria-pressed={locked}
+								aria-label={locked ? "Unlock controls" : "Lock controls"}
+								className={`w-9 h-9 p-1.5 flex items-center justify-center rounded-xl transition-shadow focus:outline-none ${pulsating ? 'animate-pulse' : ''}`}
+								style={{
+									color: brightLock ? accentColor : (locked ? "#9CA3AF" : (darkMode ? "#fff" : "#111")),
+									background: locked ? "#1e2736" : "transparent",
+									zIndex: 400,
+									position: "relative",
+									opacity: brightLock ? 1 : (locked ? 0.28 : 1)
+								}}
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock">
+									<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+									<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+								</svg>
+							</button>
+						) : (
+							/* spacer to keep spacing consistent when not locked */
+							<div className="w-9 h-9" />
+						)}
+					</div>
+					{/* Captions button */}
+					<button
+						className={`p-1.5 rounded-full hover:bg-white/10`}
+						aria-haspopup="dialog"
+						aria-expanded={showCaptions}
+						onClick={() => setShowCaptions(true)}
+						style={{ opacity: locked ? 0.28 : 1, pointerEvents: locked ? 'none' : 'auto', color: darkMode ? (locked ? "#9CA3AF" : "#fff") : (locked ? "#9CA3AF" : "#111") }}
+					>
+						<Captions />
+					</button>
+
+					{/* Picture-in-Picture button */}
+					<button
+						className={`p-1.5 rounded-full hover:bg-white/10`}
+						aria-pressed={isMiniplayer}
+						onClick={(e) => {
+							e.stopPropagation();
+							// Get current video state
+							const v = videoRef.current;
+							const currentTime = v ? v.currentTime : 0;
+							const isPaused = v ? v.paused : true;
+
+							// Store mini player data in localStorage before navigating
+							try {
+								// Ensure video object has all critical fields: id, title, src/url/videoUrl, thumbnail/imageUrl
 								const info = null;
 								const videoSrc = (v && (v.currentSrc || v.src)) || videoUrl || '';
 								const videoThumb = '';
 								const videoId = searchParams.get('id') || 'custom';
-								
+
 								const stored = {
 									video: {
 										...(info || {}),
@@ -3652,285 +3752,185 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										creator: creatorName || (info && info.creator) || null,
 										channel: creatorName || (info && info.channel) || null
 									},
-									time: Math.floor(time || 0),
-									paused: !isPlayingNow,
+									time: Math.floor(currentTime || 0),
+									paused: isPaused,
 									title: videoTitle || null,
 									creatorName: creatorName || null,
-									progressColor: progressColor || null,
-									playbackSpeed: playbackSpeed || 1,
 									duration: v ? Math.floor(v.duration || 0) : 0
 								};
-								console.log('ChevronDown: storing miniPlayerData ->', stored);
-								try { localStorage.setItem('miniPlayerData', JSON.stringify(stored)); } catch (e) {}
-								try { if (typeof eventBus !== 'undefined' && eventBus.emit) { eventBus.emit('miniPlayerRequest', stored); eventBus.emit('switchToHome', stored); eventBus.emit('switchToHomeOnly', stored); } } catch (e) {}
+								console.log('Storing miniPlayerData ->', stored);
+								// synchronous write to localStorage so it survives refresh
+								try { localStorage.setItem('miniPlayerData', JSON.stringify(stored)); } catch (e) { console.warn('localStorage set failed', e); }
+								// emit event bus for in-app listeners
+								try { if (typeof eventBus !== 'undefined' && eventBus.emit) eventBus.emit('miniPlayerRequest', stored); } catch (e) { }
 
-								// Navigate to home with state
-								try {
-									navigate('/home', { state: { miniPlayerData: stored } });
-								} catch (err) {
-									console.error('ChevronDown navigation failed', err);
-									// Fallback: try window location
-									try { window.location.href = '/home'; } catch (e) {}
-								}
+								// build URL fallback with minimal params
+								const params = new URLSearchParams();
+								params.set('mini', '1');
+								if (stored.video && stored.video.id) params.set('id', stored.video.id);
+								if (typeof stored.time === 'number') params.set('t', String(Math.floor(stored.time)));
+								const url = `/home?${params.toString()}`;
+								// navigate with router state as an extra reliable channel
+								navigate(url, { state: { miniPlayerData: stored } });
 							} catch (err) {
-								console.error('ChevronDown error', err);
+								console.error('Failed to store mini player data / navigate', err);
+								// best-effort navigate anyway
+								try { navigate('/home'); } catch (e) { }
 							}
 						}}
+						style={{ opacity: locked ? 0.28 : 1, pointerEvents: locked ? 'none' : 'auto', color: darkMode ? (locked ? "#9CA3AF" : "#fff") : (locked ? "#9CA3AF" : "#111") }}
 					>
-						<ChevronDown />
+						<PictureInPicture2 />
 					</button>
-					{/* Lock button: rendered inline with other top icons so spacing matches. */}
 
-					<div className="flex items-center space-x-4" style={{ transition: 'opacity 220ms ease', pointerEvents: 'auto' }}>
-						{/* Lock slot (keeps same spacing whether visible or not) */}
-						<div className="w-9 flex items-center justify-center" style={{ pointerEvents: 'auto' }}>
-							{locked ? (
-								<button
-									onClick={handleLockPress}
-									aria-pressed={locked}
-									aria-label={locked ? "Unlock controls" : "Lock controls"}
-									className={`w-9 h-9 p-1.5 flex items-center justify-center rounded-xl transition-shadow focus:outline-none ${pulsating ? 'animate-pulse' : ''}`}
-									style={{
-										color: brightLock ? accentColor : (locked ? "#9CA3AF" : (darkMode ? "#fff" : "#111")),
-										background: locked ? "#1e2736" : "transparent",
-										zIndex: 400,
-										position: "relative",
-										opacity: brightLock ? 1 : (locked ? 0.28 : 1)
-									}}
-								>
-									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock">
-										<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-										<path d="M7 11V7a5 5 0 0 1 10 0v4" />
-									</svg>
-								</button>
-							) : (
-								/* spacer to keep spacing consistent when not locked */
-								<div className="w-9 h-9" />
-							)}
-						</div>
-						{/* Captions button */}
-						<button
-							className={`p-1.5 rounded-full hover:bg-white/10`}
-							aria-haspopup="dialog"
-							aria-expanded={showCaptions}
-							onClick={() => setShowCaptions(true)}
-							style={{ opacity: locked ? 0.28 : 1, pointerEvents: locked ? 'none' : 'auto', color: darkMode ? (locked ? "#9CA3AF" : "#fff") : (locked ? "#9CA3AF" : "#111") }}
-						>
-							<Captions />
-						</button>
+					{/* Options button */}
+					<button
+						className={`p-1.5 rounded-full hover:bg-white/10`}
+						aria-haspopup="dialog"
+						aria-expanded={showMenu}
+						onClick={() => setShowMenu(true)}
+						style={{ opacity: locked ? 0.28 : 1, pointerEvents: locked ? 'none' : 'auto', color: darkMode ? (locked ? "#9CA3AF" : "#fff") : (locked ? "#9CA3AF" : "#111") }}
+					>
+						<Ellipsis />
+					</button>
+				</div>
+			</div>
 
-						{/* Picture-in-Picture button */}
-						<button
-							className={`p-1.5 rounded-full hover:bg-white/10`}
-							aria-pressed={isMiniplayer}
-							onClick={(e) => { 
-								e.stopPropagation(); 
-								// Get current video state
-								const v = videoRef.current;
-								const currentTime = v ? v.currentTime : 0;
-								const isPaused = v ? v.paused : true;
-								
-								// Store mini player data in localStorage before navigating
-								try {
-									// Ensure video object has all critical fields: id, title, src/url/videoUrl, thumbnail/imageUrl
-									const info = null;
-									const videoSrc = (v && (v.currentSrc || v.src)) || videoUrl || '';
-									const videoThumb = '';
-									const videoId = searchParams.get('id') || 'custom';
-									
-									const stored = {
-										video: {
-											...(info || {}),
-											id: videoId,
-											title: videoTitle || (info && info.title) || null,
-											src: videoSrc,
-											url: videoSrc,
-											videoUrl: videoSrc,
-											thumbnail: videoThumb,
-											imageUrl: videoThumb,
-											author: creatorName || (info && info.author) || null,
-											creator: creatorName || (info && info.creator) || null,
-											channel: creatorName || (info && info.channel) || null
-										},
-										time: Math.floor(currentTime || 0),
-										paused: isPaused,
-										title: videoTitle || null,
-										creatorName: creatorName || null,
-										duration: v ? Math.floor(v.duration || 0) : 0
-									};
-									console.log('Storing miniPlayerData ->', stored);
-									// synchronous write to localStorage so it survives refresh
-									try { localStorage.setItem('miniPlayerData', JSON.stringify(stored)); } catch (e) { console.warn('localStorage set failed', e); }
-									// emit event bus for in-app listeners
-									try { if (typeof eventBus !== 'undefined' && eventBus.emit) eventBus.emit('miniPlayerRequest', stored); } catch (e) {}
 
-									// build URL fallback with minimal params
-									const params = new URLSearchParams();
-									params.set('mini', '1');
-									if (stored.video && stored.video.id) params.set('id', stored.video.id);
-									if (typeof stored.time === 'number') params.set('t', String(Math.floor(stored.time)));
-									const url = `/home?${params.toString()}`;
-									// navigate with router state as an extra reliable channel
-									navigate(url, { state: { miniPlayerData: stored } });
-								} catch (err) {
-									console.error('Failed to store mini player data / navigate', err);
-									// best-effort navigate anyway
-									try { navigate('/home'); } catch (e) {}
-								}
-							}}
-							style={{ opacity: locked ? 0.28 : 1, pointerEvents: locked ? 'none' : 'auto', color: darkMode ? (locked ? "#9CA3AF" : "#fff") : (locked ? "#9CA3AF" : "#111") }}
-						>
-							<PictureInPicture2 />
-						</button>
 
-						{/* Options button */}
-						<button
-							className={`p-1.5 rounded-full hover:bg-white/10`}
-							aria-haspopup="dialog"
-							aria-expanded={showMenu}
-							onClick={() => setShowMenu(true)}
-							style={{ opacity: locked ? 0.28 : 1, pointerEvents: locked ? 'none' : 'auto', color: darkMode ? (locked ? "#9CA3AF" : "#fff") : (locked ? "#9CA3AF" : "#111") }}
-						>
-							<Ellipsis />
-						</button>
-					</div>
- 				</div>
-
-					
-
-				{/* 2. Title & Metadata Section */}
-				{/* Always keep this block in the DOM to preserve layout.
+			{/* 2. Title & Metadata Section */}
+			{/* Always keep this block in the DOM to preserve layout.
 				    Use visibility+opacity so it hides visually but still reserves space,
 				    preventing the video container from shifting when controls hide. */}
-				<div
-					className="w-full mt-8 mb-4"
-					style={{
-						visibility: controlsVisible ? "visible" : "hidden",
-						opacity: controlsVisible ? 1 : 0,
-						transition: "opacity 220ms ease, backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease",
-						// keep pointer events off when hidden
-						pointerEvents: controlsVisible ? "auto" : "none"
-					}}
-				>
-					{/* Title Row with Chevron Right */}
-					<div className="flex items-start justify-between">
-						<h1 className="text-white text-lg font-normal leading-snug tracking-wide max-w-[90%]">
-							{videoTitle}
-						</h1>
-						<button className="pt-1 text-gray-300">
-							<ChevronRight />
-						</button>
-					</div>
-
-					{/* Author & Badge Row */}
-					<div className="flex items-center mt-3 space-x-3">
-						<span className="text-gray-400 text-sm underline decoration-gray-500 underline-offset-2">
-							{creatorName}
-						</span>
-						<span
-							className="bg-[#1e2736] text-xs px-2.5 py-1 rounded-[6px] font-medium tracking-wide"
-							style={{ color: accentColor }}
-						>
-							Requested
-						</span>
-					</div>
-
-						{/* Watch Together Button (appears after 3s) */}
-						<div className="mt-4">
-						{(!isFloatingMode && (showWatchTogether || watchFading)) && (
-							<button
-								className="flex items-center text-white pl-3 pr-4 py-1.5 rounded-full text-sm font-medium"
-								onClick={(e) => performWatchTogether(e)}
-								style={{
-									background: '#6b5bd1', // desaturated purple
-									transition: 'opacity 260ms ease, transform 260ms ease',
-									opacity: showWatchTogether ? 1 : 0,
-									transform: showWatchTogether ? 'translateY(0)' : 'translateY(6px)',
-									pointerEvents: showWatchTogether ? 'auto' : 'none',
-									boxShadow: '0 8px 24px rgba(0,0,0,0.28)'
-								}}
-								>
-								<Users />
-								<span className="ml-2">Watch Together</span>
-								<div className="w-2 h-2 bg-white rounded-full ml-2"></div>
-							</button>
-						)}
-
-						{/* Floating watch-together button (appears after timeout) */}
-						{isFloatingMode && (
-							<>
-								{/* collapsed chevron (when user swiped it away) */}
-								{collapsed && (
-									<button
-										aria-label="Show Watch Together"
-										className="fixed flex items-center justify-center w-12 h-12 rounded-full text-white shadow-lg"
-										style={{
-											left: collapsedSide === "left" ? 8 : "auto",
-											right: collapsedSide === "right" ? 8 : "auto",
-											top: Math.max(80, floatPos.y),
-											transition: "transform 220ms ease, opacity 220ms",
-											// place under comments/modal overlay — keep lower than modals (use small zIndex)
-											zIndex: showCommentsModal ? 30 : 20,
-											background: '#6b5bd1',
-											boxShadow: '0 10px 26px rgba(0,0,0,0.28)'
-										}}
-												onClick={(e) => performWatchTogether(e)}
-									>
-										{/* small chevron icon to restore */}
-										<ChevronRight />
-									</button>
-								)}
-
-								{/* draggable floating circle */}
-								{floatVisible && !collapsed && (
-									<button
-										ref={floatBtnRef}
-										aria-label="Watch Together (floating)"
-										className="fixed flex items-center justify-center rounded-full text-white shadow-xl backdrop-blur-md"
-										style={{
-											width: 56,
-											height: 56,
-											background: "linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95))",
-											border: "1px solid rgba(255,255,255,0.1)",
-											left: floatPos.x,
-											top: floatPos.y,
-											transition: dragRef.current.dragging ? "none" : "transform 220ms ease, left 220ms ease, top 220ms ease",
-											// render beneath modals when open (ensure lower than modal z-indexes)
-											zIndex: showCommentsModal ? 30 : 20,
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "center",
-											boxShadow: "0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)"
-										}}
-										onPointerDown={onFloatPointerDown}
-										onPointerMove={onFloatPointerMove}
-										onPointerUp={onFloatPointerUp}
-										onPointerCancel={onFloatPointerUp}
-										onClick={(e) => {
-											e.stopPropagation();
-											// if the user dragged the button, suppress navigation
-											if (floatMovedRef.current) { floatMovedRef.current = false; return; }
-											performWatchTogether(e);
-										}}
-									>
-										<Users size={22} strokeWidth={2} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }} />
-									</button>
-								)}
-							</>
-						)}
-					</div>
+			<div
+				className="w-full mt-8 mb-4"
+				style={{
+					visibility: controlsVisible ? "visible" : "hidden",
+					opacity: controlsVisible ? 1 : 0,
+					transition: "opacity 220ms ease, backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease",
+					// keep pointer events off when hidden
+					pointerEvents: controlsVisible ? "auto" : "none"
+				}}
+			>
+				{/* Title Row with Chevron Right */}
+				<div className="flex items-start justify-between">
+					<h1 className="text-white text-lg font-normal leading-snug tracking-wide max-w-[90%]">
+						{videoTitle}
+					</h1>
+					<button className="pt-1 text-gray-300">
+						<ChevronRight />
+					</button>
 				</div>
 
-				{/* 3. Center Video Area (Play Button) */}
- 			{/* UPDATED: use handleVideoTap for tap handling and enable center swipe gestures */}
-	 		<div
-	 			className="flex-1 flex items-center justify-center relative video-center"
-	 			style={{ minHeight: 1, touchAction: "none" }} // capture both vertical & horizontal gestures for custom handling
- 				onClick={handleVideoTap}
- 				onPointerDown={onCenterPointerDown}
- 				onPointerMove={onCenterPointerMove}
- 				onPointerUp={onCenterPointerUp}
- 			>
+				{/* Author & Badge Row */}
+				<div className="flex items-center mt-3 space-x-3">
+					<span className="text-gray-400 text-sm underline decoration-gray-500 underline-offset-2">
+						{creatorName}
+					</span>
+					<span
+						className="bg-[#1e2736] text-xs px-2.5 py-1 rounded-[6px] font-medium tracking-wide"
+						style={{ color: accentColor }}
+					>
+						Requested
+					</span>
+				</div>
+
+				{/* Watch Together Button (appears after 3s) */}
+				<div className="mt-4">
+					{(!isFloatingMode && (showWatchTogether || watchFading)) && (
+						<button
+							className="flex items-center text-white pl-3 pr-4 py-1.5 rounded-full text-sm font-medium"
+							onClick={(e) => performWatchTogether(e)}
+							style={{
+								background: '#6b5bd1', // desaturated purple
+								transition: 'opacity 260ms ease, transform 260ms ease',
+								opacity: showWatchTogether ? 1 : 0,
+								transform: showWatchTogether ? 'translateY(0)' : 'translateY(6px)',
+								pointerEvents: showWatchTogether ? 'auto' : 'none',
+								boxShadow: '0 8px 24px rgba(0,0,0,0.28)'
+							}}
+						>
+							<Users />
+							<span className="ml-2">Watch Together</span>
+							<div className="w-2 h-2 bg-white rounded-full ml-2"></div>
+						</button>
+					)}
+
+					{/* Floating watch-together button (appears after timeout) */}
+					{isFloatingMode && (
+						<>
+							{/* collapsed chevron (when user swiped it away) */}
+							{collapsed && (
+								<button
+									aria-label="Show Watch Together"
+									className="fixed flex items-center justify-center w-12 h-12 rounded-full text-white shadow-lg"
+									style={{
+										left: collapsedSide === "left" ? 8 : "auto",
+										right: collapsedSide === "right" ? 8 : "auto",
+										top: Math.max(80, floatPos.y),
+										transition: "transform 220ms ease, opacity 220ms",
+										// place under comments/modal overlay — keep lower than modals (use small zIndex)
+										zIndex: showCommentsModal ? 30 : 20,
+										background: '#6b5bd1',
+										boxShadow: '0 10px 26px rgba(0,0,0,0.28)'
+									}}
+									onClick={(e) => performWatchTogether(e)}
+								>
+									{/* small chevron icon to restore */}
+									<ChevronRight />
+								</button>
+							)}
+
+							{/* draggable floating circle */}
+							{floatVisible && !collapsed && (
+								<button
+									ref={floatBtnRef}
+									aria-label="Watch Together (floating)"
+									className="fixed flex items-center justify-center rounded-full text-white shadow-xl backdrop-blur-md"
+									style={{
+										width: 56,
+										height: 56,
+										background: "linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95))",
+										border: "1px solid rgba(255,255,255,0.1)",
+										left: floatPos.x,
+										top: floatPos.y,
+										transition: dragRef.current.dragging ? "none" : "transform 220ms ease, left 220ms ease, top 220ms ease",
+										// render beneath modals when open (ensure lower than modal z-indexes)
+										zIndex: showCommentsModal ? 30 : 20,
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										boxShadow: "0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)"
+									}}
+									onPointerDown={onFloatPointerDown}
+									onPointerMove={onFloatPointerMove}
+									onPointerUp={onFloatPointerUp}
+									onPointerCancel={onFloatPointerUp}
+									onClick={(e) => {
+										e.stopPropagation();
+										// if the user dragged the button, suppress navigation
+										if (floatMovedRef.current) { floatMovedRef.current = false; return; }
+										performWatchTogether(e);
+									}}
+								>
+									<Users size={22} strokeWidth={2} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }} />
+								</button>
+							)}
+						</>
+					)}
+				</div>
+			</div>
+
+			{/* 3. Center Video Area (Play Button) */}
+			{/* UPDATED: use handleVideoTap for tap handling and enable center swipe gestures */}
+			<div
+				className="flex-1 flex items-center justify-center relative video-center"
+				style={{ minHeight: 1, touchAction: "none" }} // capture both vertical & horizontal gestures for custom handling
+				onClick={handleVideoTap}
+				onPointerDown={onCenterPointerDown}
+				onPointerMove={onCenterPointerMove}
+				onPointerUp={onCenterPointerUp}
+			>
 				{/* Ambient gradients sampled from video dominant color (non-interactive) */}
 				<div
 					aria-hidden="true"
@@ -3960,22 +3960,22 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						transition: 'background 420ms linear, opacity 420ms linear'
 					}}
 				/>
- 				{/* --- actual video element behind the controls (updated) --- */}
- 				<div
- 					// center wrapper slightly higher so video sits closer to the "Watch Together" button
- 					style={{
- 						position: "absolute",
- 						left: "50%",
- 						top: "30%",               // nudged upward from 50% to 30%
- 						transform: "translate(-50%, -50%)",
- 						width: "100vw",            // full viewport width
- 						zIndex: 10,
- 						display: "flex",
- 						alignItems: "center",
- 						justifyContent: "center",
- 						background: "transparent"
- 					}}
- 				>
+				{/* --- actual video element behind the controls (updated) --- */}
+				<div
+					// center wrapper slightly higher so video sits closer to the "Watch Together" button
+					style={{
+						position: "absolute",
+						left: "50%",
+						top: "30%",               // nudged upward from 50% to 30%
+						transform: "translate(-50%, -50%)",
+						width: "100vw",            // full viewport width
+						zIndex: 10,
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						background: "transparent"
+					}}
+				>
 					<div
 						ref={containerRef}
 						aria-hidden={false}
@@ -3988,7 +3988,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							transform: forceLandscapeCss ? "rotate(90deg)" : undefined,
 							...(isMiniplayer ? (() => {
 								const miniW = Math.min(320, Math.max(140, Math.round((typeof window !== 'undefined' ? window.innerWidth : 800) * 0.32)));
-								const miniH = Math.max(56, Math.round(miniW / Math.max(0.5, naturalAspect || (16/9))));
+								const miniH = Math.max(56, Math.round(miniW / Math.max(0.5, naturalAspect || (16 / 9))));
 								return {
 									position: 'fixed',
 									width: miniW,
@@ -4017,13 +4017,13 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								try {
 									const v = e.target;
 									setDuration(v.duration || 0);
-									setNaturalAspect((v.videoWidth && v.videoHeight) ? (v.videoWidth / v.videoHeight) : (16/9));
+									setNaturalAspect((v.videoWidth && v.videoHeight) ? (v.videoWidth / v.videoHeight) : (16 / 9));
 									// attempt auto-play if not playing
-									if (v.paused) { const p = v.play(); if (p && p.catch) p.catch(()=>{}); }
-								} catch (err) {}
+									if (v.paused) { const p = v.play(); if (p && p.catch) p.catch(() => { }); }
+								} catch (err) { }
 							}}
 							onTimeUpdate={(e) => {
-								try { if (!draggingRef.current) setProgress(e.target.currentTime / (e.target.duration || 1)); } catch (err) {}
+								try { if (!draggingRef.current) setProgress(e.target.currentTime / (e.target.duration || 1)); } catch (err) { }
 							}}
 							onEnded={handleVideoEnded}
 							onPause={() => setIsPlaying(false)}
@@ -4067,43 +4067,43 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						</button>
 					)}
 
-				{/* When playing, show pause button in same central position for quick pause */}
-				{controlsVisible && centerVisible && isPlaying && !isMiniplayer && (
-					<button
-						className="transform active:scale-95 transition-transform"
-						aria-label="Pause"
-						onClick={(e) => {
-							e.stopPropagation();
-							togglePlay();
-						}}
-						style={{
-							position: "absolute",
-							left: "50%",
-							top: "50%",
-							transform: "translate(-50%, -50%)",
-							// make overlay ring subtler so video remains focus
-							border: "1px solid rgba(255,255,255,0.08)",
-							zIndex: 20,
-							outline: "none",
-							filter: "none",
-							width: 88,
-							height: 88,
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							borderRadius: 44,
-							background: "rgba(0,0,0,0.32)",
-							boxShadow: "0 6px 14px rgba(0,0,0,0.36)",
-							pointerEvents: centerVisible ? "auto" : "none",
-							opacity: centerVisible ? 1 : 0,
-							transition: 'opacity 360ms ease'
-						}}
-					>
-						<PauseIcon width={56} height={56} />
-					</button>
-				)}
- 					
- 				</div>
+					{/* When playing, show pause button in same central position for quick pause */}
+					{controlsVisible && centerVisible && isPlaying && !isMiniplayer && (
+						<button
+							className="transform active:scale-95 transition-transform"
+							aria-label="Pause"
+							onClick={(e) => {
+								e.stopPropagation();
+								togglePlay();
+							}}
+							style={{
+								position: "absolute",
+								left: "50%",
+								top: "50%",
+								transform: "translate(-50%, -50%)",
+								// make overlay ring subtler so video remains focus
+								border: "1px solid rgba(255,255,255,0.08)",
+								zIndex: 20,
+								outline: "none",
+								filter: "none",
+								width: 88,
+								height: 88,
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								borderRadius: 44,
+								background: "rgba(0,0,0,0.32)",
+								boxShadow: "0 6px 14px rgba(0,0,0,0.36)",
+								pointerEvents: centerVisible ? "auto" : "none",
+								opacity: centerVisible ? 1 : 0,
+								transition: 'opacity 360ms ease'
+							}}
+						>
+							<PauseIcon width={56} height={56} />
+						</button>
+					)}
+
+				</div>
 
 				{/* Suggestion Card (inline) shown after a video ends — renders under the video container */}
 				{showSuggestionCard && (
@@ -4123,11 +4123,11 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							<div className="modal-dialog bg-white p-4 w-full" onClick={(e) => e.stopPropagation()} style={{ boxShadow: '0 24px 54px rgba(2,6,23,0.28)', border: '1px solid rgba(0,0,0,0.06)', maxWidth: '640px', width: 'calc(100% - 40px)', paddingLeft: 12, paddingRight: 12, borderRadius: 12, height: '42vh', position: 'relative', display: 'flex', flexDirection: 'column', animation: (suggestionExiting ? 'vx-suggest-out 300ms cubic-bezier(.4,0,.2,1) forwards' : 'vx-suggest-in 420ms cubic-bezier(.2,.9,.3,1)') }}>
 								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 12, paddingLeft: 16, paddingRight: 16 }}>
 									<h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>{`Suggest an idea to ${creatorName}`}</h3>
-									
+
 								</div>
-						<div style={{ marginTop: 10, color: '#374151', fontSize: 13, paddingLeft: 16, paddingRight: 16 }}>{`Tell ${creatorName} what videos you want next`}</div>
-							<div style={{ marginTop: 8, fontSize: 13, color: '#6b7280', paddingLeft: 16, paddingRight: 16 }}>Based on: <strong style={{ color: '#111' }}>{videoTitle || 'Current video'}</strong></div>
-							<div style={{ marginTop: 12, paddingLeft: 16, paddingRight: 16, flex: 1, display: 'flex', flexDirection: 'column' }}>
+								<div style={{ marginTop: 10, color: '#374151', fontSize: 13, paddingLeft: 16, paddingRight: 16 }}>{`Tell ${creatorName} what videos you want next`}</div>
+								<div style={{ marginTop: 8, fontSize: 13, color: '#6b7280', paddingLeft: 16, paddingRight: 16 }}>Based on: <strong style={{ color: '#111' }}>{videoTitle || 'Current video'}</strong></div>
+								<div style={{ marginTop: 12, paddingLeft: 16, paddingRight: 16, flex: 1, display: 'flex', flexDirection: 'column' }}>
 									<div style={{ height: 6, background: '#eef2f6', borderRadius: 6, overflow: 'hidden', marginBottom: 8 }} aria-hidden>
 										<div style={{ height: '100%', width: `${Math.round(suggestionProgress * 100)}%`, background: '#f97316', transition: 'width 260ms cubic-bezier(.2,.9,.3,1)' }} />
 									</div>
@@ -4138,8 +4138,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 											onFocus={() => setSuggestionFocused(true)}
 											onBlur={() => setSuggestionFocused(false)}
 											autoFocus
-								aria-label={`Suggest an idea to ${creatorName}`}
-								placeholder="I’d like a video about..."
+											aria-label={`Suggest an idea to ${creatorName}`}
+											placeholder="I’d like a video about..."
 											style={{ width: '100%', height: '100%', padding: 12, borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', fontSize: 14, resize: 'none', boxSizing: 'border-box', transition: 'height 260ms cubic-bezier(.2,.9,.3,1)' }}
 										/>
 									</div>
@@ -4308,8 +4308,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								);
 							})}
 						</div>
- 						
- 						{/* Thumb Container (centered on the track; now interactive) */}
+
+						{/* Thumb Container (centered on the track; now interactive) */}
 						<div
 							className="absolute z-20 flex items-center justify-center"
 							style={{
@@ -4328,7 +4328,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								// prevent the click from bubbling to parent video tap handler
 								e.stopPropagation?.();
 								// ensure capture where supported for consistent dragging
-								try { e.target?.setPointerCapture?.(e.pointerId); } catch {}
+								try { e.target?.setPointerCapture?.(e.pointerId); } catch { }
 								handleProgressPointerDown(e);
 							}}
 						>
@@ -4365,8 +4365,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								}}
 							/>
 						</div>
- 					</div>
- 				</div>
+					</div>
+				</div>
 
 				{/* preview canvas (frame-by-frame) */}
 				<canvas
@@ -4406,7 +4406,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								const v = videoRef.current;
 								const cur = v ? Math.floor(v.currentTime || (progress * duration || 0)) : Math.floor(progress * duration || 0);
 								const total = Math.floor(duration || 0);
-								const fmt = (s) => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+								const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 								return `${fmt(cur)} / ${fmt(total || 0)}`;
 							})()}
 						</span>
@@ -4474,21 +4474,21 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					>
 						{/* Grab handle for resizing */}
 						<div className="w-full h-10 flex items-center justify-center" onPointerDown={onOptionsHandlePointerDown} onTouchStart={onOptionsHandlePointerDown} aria-label="Resize sheet" tabIndex={0} style={{ cursor: "ns-resize" }}>
-								<div
-									role="separator"
-									aria-orientation="horizontal"
-									className="w-12 h-1 bg-gray-300 rounded-full touch-none"
-									onPointerDown={onOptionsHandlePointerDown}
-									onTouchStart={onOptionsHandlePointerDown}
-									style={{ cursor: "ns-resize" }}
-								/>
-							</div>
+							<div
+								role="separator"
+								aria-orientation="horizontal"
+								className="w-12 h-1 bg-gray-300 rounded-full touch-none"
+								onPointerDown={onOptionsHandlePointerDown}
+								onTouchStart={onOptionsHandlePointerDown}
+								style={{ cursor: "ns-resize" }}
+							/>
+						</div>
 
-							{optionsHandleHintVisible && (
-								<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation('Drag to resize', selectedLanguage)}</div>
-							)}
+						{optionsHandleHintVisible && (
+							<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation('Drag to resize', selectedLanguage)}</div>
+						)}
 
-							<h2 className="text-gray-900 text-lg font-semibold mb-3 px-2 text-center">{getTranslation('More Options', selectedLanguage)}</h2>
+						<h2 className="text-gray-900 text-lg font-semibold mb-3 px-2 text-center">{getTranslation('More Options', selectedLanguage)}</h2>
 
 						<div className="space-y-2 overflow-auto" style={{ maxHeight: `calc(${optionsHeight}px - 64px)`, paddingRight: 6, paddingBottom: 64 }}>
 							{/* Bookmark row (persists per user across devices) */}
@@ -4517,7 +4517,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										}
 										if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 										toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
-									} catch {}
+									} catch { }
 								}}
 								aria-pressed={bookmarked}
 								style={{
@@ -4527,7 +4527,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									border: 'none',
 									WebkitTapHighlightColor: 'transparent'
 								}}
-								onPointerDown={(e) => { try { e.currentTarget.style.outline='none'; } catch {} }}
+								onPointerDown={(e) => { try { e.currentTarget.style.outline = 'none'; } catch { } }}
 							>
 								<div className="w-10 h-10 flex items-center justify-center text-gray-900">
 									{bookmarked ? <BookmarkFilled /> : <Bookmark />}
@@ -4571,7 +4571,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									if (!incognitoMode) {
 										const next = true;
 										setIncognitoMode(next);
-										try { localStorage.setItem('watchIncognito', '1'); } catch {}
+										try { localStorage.setItem('watchIncognito', '1'); } catch { }
 										dispatchPlayerEvent('player:incognitoChanged', { incognito: true });
 										setToastMessage(getTranslation('Incognito ON — actions won\'t be saved', selectedLanguage));
 										if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -4605,7 +4605,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										<button className="px-3 py-2 rounded-lg bg-transparent text-gray-900 border border-gray-300" onClick={() => setShowIncognitoConfirm(false)}>{getTranslation('Cancel', selectedLanguage)}</button>
 										<button className="px-3 py-2 rounded-lg text-white" style={{ background: '#111' }} onClick={() => {
 											setIncognitoMode(false);
-											try { localStorage.setItem('watchIncognito', '0'); } catch {}
+											try { localStorage.setItem('watchIncognito', '0'); } catch { }
 											dispatchPlayerEvent('player:incognitoChanged', { incognito: false });
 											setToastMessage(getTranslation('Incognito OFF', selectedLanguage));
 											if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -4622,7 +4622,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								onClick={() => {
 									setLoopVideo((s) => {
 										const next = !s;
-										try { if (videoRef.current) videoRef.current.loop = next; } catch {}
+										try { if (videoRef.current) videoRef.current.loop = next; } catch { }
 										// vibration disabled per user preference
 										setToastMessage(next ? getTranslation('Loop enabled', selectedLanguage) : getTranslation('Loop disabled', selectedLanguage));
 										if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -4660,34 +4660,34 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 							{/* Dark Mode unified container (still a toggle, not a button click) */}
 							<div
-							  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors justify-between"
+								className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors justify-between"
 							>
-							  <div className="flex items-center gap-3">
-							    <div className="w-10 h-10 flex items-center justify-center">
-							      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-							        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="#111" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-							      </svg>
-							    </div>
-							    <div>
-							      <div className="text-gray-900 leading-tight">{getTranslation("Dark Mode", selectedLanguage)}</div>
-							      <div className="text-gray-500 text-xs">{getTranslation("Improve visibility", selectedLanguage)}</div>
-							    </div>
-							  </div>
-															<button
-																aria-pressed={darkMode}
-																onClick={() => setDarkMode(s => !s)}
-																className="bg-transparent border-0"
-																style={{ marginLeft: 'auto' }}
-															>
-																<span className="text-xs px-2 py-0.5 rounded-full" style={darkMode ? { background: '#10b981', color: '#fff' } : { background: '#e5e7eb', color: '#374151' }}>
-																	{darkMode ? getTranslation("On", selectedLanguage) : getTranslation("Off", selectedLanguage)}
-																</span>
-															</button>
+								<div className="flex items-center gap-3">
+									<div className="w-10 h-10 flex items-center justify-center">
+										<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+											<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="#111" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+										</svg>
+									</div>
+									<div>
+										<div className="text-gray-900 leading-tight">{getTranslation("Dark Mode", selectedLanguage)}</div>
+										<div className="text-gray-500 text-xs">{getTranslation("Improve visibility", selectedLanguage)}</div>
+									</div>
+								</div>
+								<button
+									aria-pressed={darkMode}
+									onClick={() => setDarkMode(s => !s)}
+									className="bg-transparent border-0"
+									style={{ marginLeft: 'auto' }}
+								>
+									<span className="text-xs px-2 py-0.5 rounded-full" style={darkMode ? { background: '#10b981', color: '#fff' } : { background: '#e5e7eb', color: '#374151' }}>
+										{darkMode ? getTranslation("On", selectedLanguage) : getTranslation("Off", selectedLanguage)}
+									</span>
+								</button>
 							</div>
 
 							<div className="border-t border-gray-200 mt-1" />
 
-							
+
 							{/* Video Quality section */}
 							<div className="px-2 pt-2">
 								<div className="text-gray-500 text-sm mb-3">{getTranslation("Video Quality", selectedLanguage)}</div>
@@ -4792,7 +4792,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 												onBlur={(e) => {
 													let v = Number(e.target.value);
 													if (!Number.isFinite(v)) v = 1;
-													v = Math.max(0.25, Math.min(2, Math.round(v*100)/100));
+													v = Math.max(0.25, Math.min(2, Math.round(v * 100) / 100));
 													setPlaybackSpeed(v);
 												}}
 												style={{ width: 72, padding: '6px 8px', borderRadius: 8, background: '#fff', color: '#111', border: '1px solid #e5e7eb' }}
@@ -4915,7 +4915,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				</div>
 			)}
 
-            
+
 
 			{/* floating incognito badge removed: control now lives under More (Options) */}
 
@@ -4925,23 +4925,23 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center"
 					onClick={() => setShowCaptions(false)}
 				>
-				<div
-					className="modal-dialog w-full max-w-md rounded-2xl p-4 shadow-xl backdrop-blur-sm flex flex-col mx-4"
-					onClick={(e) => e.stopPropagation()}
-					role="dialog"
-					aria-modal="true"
-					aria-label={getTranslation("Subtitle Settings", selectedLanguage)}
-					style={{
-						background: "#fff",
-						border: "1px solid #e5e7eb",
-						position: "relative",
-						height: captionsHeight,
-						maxHeight: captionsMaxRef.current,
-						overflow: "hidden",
-						marginBottom: 12
-					}}
-				>
-	 					{/* Grab handle for captions sheet */}
+					<div
+						className="modal-dialog w-full max-w-md rounded-2xl p-4 shadow-xl backdrop-blur-sm flex flex-col mx-4"
+						onClick={(e) => e.stopPropagation()}
+						role="dialog"
+						aria-modal="true"
+						aria-label={getTranslation("Subtitle Settings", selectedLanguage)}
+						style={{
+							background: "#fff",
+							border: "1px solid #e5e7eb",
+							position: "relative",
+							height: captionsHeight,
+							maxHeight: captionsMaxRef.current,
+							overflow: "hidden",
+							marginBottom: 12
+						}}
+					>
+						{/* Grab handle for captions sheet */}
 						<div className="w-full h-10 flex items-center justify-center" onPointerDown={onCaptionsHandlePointerDown} onTouchStart={onCaptionsHandlePointerDown} aria-label="Resize sheet" tabIndex={0} style={{ cursor: "ns-resize" }}>
 							<div
 								role="separator"
@@ -4960,21 +4960,21 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						{/* no explicit close button here — the sheet closes on backdrop click */}
 
 						<div className="overflow-auto" style={{ maxHeight: `calc(${captionsHeight}px - 72px)`, paddingRight: 6 }}>
- 							{/* Enable Subtitles */}
- 							<div className="flex items-center justify-between px-2 py-3 bg-gray-100 rounded-xl mb-3">
- 								<div>
- 									<div className="text-gray-900">{getTranslation("Enable Subtitles", selectedLanguage)}</div>
- 								</div>
- 								<button
- 									onClick={() => setCaptionsEnabled((s) => !s)}
- 									aria-pressed={captionsEnabled}
- 									className={`w-12 h-6 rounded-full p-0.5 ${captionsEnabled ? "bg-[#3b82f6]" : "bg-gray-300"}`}
- 								>
- 									<div className={`w-5 h-5 bg-white rounded-full transform transition ${captionsEnabled ? "translate-x-6" : "translate-x-0"}`} />
- 								</button>
- 							</div>
+							{/* Enable Subtitles */}
+							<div className="flex items-center justify-between px-2 py-3 bg-gray-100 rounded-xl mb-3">
+								<div>
+									<div className="text-gray-900">{getTranslation("Enable Subtitles", selectedLanguage)}</div>
+								</div>
+								<button
+									onClick={() => setCaptionsEnabled((s) => !s)}
+									aria-pressed={captionsEnabled}
+									className={`w-12 h-6 rounded-full p-0.5 ${captionsEnabled ? "bg-[#3b82f6]" : "bg-gray-300"}`}
+								>
+									<div className={`w-5 h-5 bg-white rounded-full transform transition ${captionsEnabled ? "translate-x-6" : "translate-x-0"}`} />
+								</button>
+							</div>
 
- 							{/* Language */} 
+							{/* Language */}
 							<div className="px-2 mb-3">
 								<div className="text-gray-700 text-sm mb-2">{getTranslation("Language", selectedLanguage)}</div>
 								<select
@@ -4986,7 +4986,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									<option value="Spanish">{getTranslation("Spanish", selectedLanguage)}</option>
 									<option value="French">{getTranslation("French", selectedLanguage)}</option>
 									<option value="German">{getTranslation("German", selectedLanguage)}</option>
-																		
+
 									<option value="Portuguese">{getTranslation("Portuguese", selectedLanguage)}</option>
 
 								</select>
@@ -5024,14 +5024,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 							{/* Text Color swatches */}
 							<div className="px-2 mb-3">
-																																<div className="text-gray-700 text-sm mb-2">{getTranslation("Text Color", selectedLanguage)}</div>
+								<div className="text-gray-700 text-sm mb-2">{getTranslation("Text Color", selectedLanguage)}</div>
 								<div className="flex items-center gap-3">
 									{["#FFFFFF", "#FDE047", "#34D399", "#06B6D4", "#F472B6"].map((c) => (
 										<button
 											key={c}
 											onClick={() => setCaptionTextColor(c)}
 											className={`w-8 h-8 rounded-full border ${captionTextColor === c ? "ring-2 ring-gray-900" : "ring-0"}`}
-											style={{ background: c }} 
+											style={{ background: c }}
 											aria-label={`Set caption color ${c}`}
 										/>
 									))}
@@ -5041,7 +5041,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							{/* Background Opacity */}
 							<div className="px-2 mb-4">
 								<div className="text-gray-700 text-sm mb-2">{getTranslation("Background Opacity", selectedLanguage)}</div>
-																																<select
+								<select
 									value={captionBgOpacity}
 									onChange={(e) => setCaptionBgOpacity(e.target.value)}
 									className="w-full bg-gray-100 text-gray-900 rounded-xl px-3 py-2 border-0 outline-none"
@@ -5061,9 +5061,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									className="w-full rounded-md px-3 py-2"
 									style={{
 										background: captionBgOpacity.includes("100") ? "rgba(0,0,0,1)" :
-												 captionBgOpacity.includes("80") ? "rgba(0,0,0,0.8)" :
-												 captionBgOpacity.includes("60") ? "rgba(0,0,0,0.6)" :
-												 captionBgOpacity.includes("40") ? "rgba(0,0,0,0.4)" : "transparent"
+											captionBgOpacity.includes("80") ? "rgba(0,0,0,0.8)" :
+												captionBgOpacity.includes("60") ? "rgba(0,0,0,0.6)" :
+													captionBgOpacity.includes("40") ? "rgba(0,0,0,0.4)" : "transparent"
 									}}
 								>
 									<div
@@ -5193,14 +5193,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									<div ref={qrRef} className="flex flex-col items-center mb-4 mt-2">
 										<img src={qrImageSrc} alt="QR code" className="w-40 h-40 bg-white p-1 rounded-md" />
 										<div className="flex items-center gap-2 mt-3">
-											<button onClick={() => { try { navigator.clipboard?.writeText(qrImageSrc); /* vibration disabled per user preference */ setToastMessage(getTranslation('QR URL copied', selectedLanguage)); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(()=>setToastMessage(''),1600);} catch{} }} className="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-900">{getTranslation('Copy QR URL', selectedLanguage)}</button>
+											<button onClick={() => { try { navigator.clipboard?.writeText(qrImageSrc); /* vibration disabled per user preference */ setToastMessage(getTranslation('QR URL copied', selectedLanguage)); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); } catch { } }} className="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-900">{getTranslation('Copy QR URL', selectedLanguage)}</button>
 											<button onClick={downloadQr} className="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-900">{getTranslation('Download QR', selectedLanguage)}</button>
 											<button onClick={() => setShowQrPreview(false)} className="px-3 py-1 bg-gray-200 rounded-md text-sm text-gray-900">{getTranslation('Close', selectedLanguage)}</button>
 										</div>
 									</div>
 								)}
 
-                                
+
 
 								<button
 									className="w-full flex items-center gap-3 px-4 py-3 bg-gray-100 rounded-xl"
@@ -5239,13 +5239,13 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							<div className="flex items-center justify-between mb-4">
 								<SocialButton bg="#e6f0ff" label="Facebook" onClick={() => shareToFacebook(videoUrl)}>
 									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" role="img">
-										<path d="M22 12a10 10 0 1 0-11.5 9.86v-6.99H8.9v-2.87h1.6V9.41c0-1.57.93-2.45 2.36-2.45.68 0 1.39.12 1.39.12v1.53h-.78c-.77 0-1.01.48-1.01.98v1.17h1.72l-.28 2.87h-1.44v6.99A10 10 0 0 0 22 12z" fill="#1877F2"/>
+										<path d="M22 12a10 10 0 1 0-11.5 9.86v-6.99H8.9v-2.87h1.6V9.41c0-1.57.93-2.45 2.36-2.45.68 0 1.39.12 1.39.12v1.53h-.78c-.77 0-1.01.48-1.01.98v1.17h1.72l-.28 2.87h-1.44v6.99A10 10 0 0 0 22 12z" fill="#1877F2" />
 									</svg>
 								</SocialButton>
 
 								<SocialButton bg="#e6f9ff" label="Twitter" onClick={() => shareToTwitter(videoUrl)}>
 									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" role="img">
-										<path d="M23 3a10.9 10.9 0 0 1-3.14 1.53A4.48 4.48 0 0 0 22.43 1s-2 1-3 1a4.48 4.48 0 0 0-7.86 3v1A12.94 12.94 0 0 1 3 2s-4 9 5 13a13 13 0 0 1-7 2c9 5 20 0 20-11.5A4.5 4.5 0 0 0 23 3z" fill="#1DA1F2"/>
+										<path d="M23 3a10.9 10.9 0 0 1-3.14 1.53A4.48 4.48 0 0 0 22.43 1s-2 1-3 1a4.48 4.48 0 0 0-7.86 3v1A12.94 12.94 0 0 1 3 2s-4 9 5 13a13 13 0 0 1-7 2c9 5 20 0 20-11.5A4.5 4.5 0 0 0 23 3z" fill="#1DA1F2" />
 									</svg>
 								</SocialButton>
 
@@ -5294,7 +5294,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 							{/* Toast message for copy/share actions */}
 							{toastMessage && (
-								<div 
+								<div
 									style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 20, zIndex: 520 }}
 									onTouchStart={(e) => {
 										e.currentTarget.dataset.dragStartX = e.touches[0].clientX;
@@ -5359,64 +5359,64 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						)}
 						{/* Header */}
 						<div className="flex items-start gap-3 mb-3">
-								<div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: accentColor, color: accentText }}>
+							<div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: accentColor, color: accentText }}>
 								<div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold" style={{ color: accentText }}>$</div>
 							</div>
 							<div>
 
-					{/* Bookmark This Moment modal */}
-					{showBookmarkModal && (
-						<div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center" onClick={() => setShowBookmarkModal(false)} style={{ zIndex: 720 }}>
-							<div
-								className="w-full max-w-md rounded-t-2xl p-4 shadow-xl flex flex-col mx-4"
-								onClick={(e) => e.stopPropagation()}
-								role="dialog"
-								aria-modal="true"
-								aria-label="Bookmark This Moment"
-								style={{ background: '#fbfbfd', border: '1px solid rgba(0,0,0,0.04)', position: 'relative', maxHeight: window.innerHeight * 0.52, overflow: 'hidden' }}
-							>
-								{/* Header */}
-								<div className="flex items-start gap-3 mb-3">
-									<div className="w-11 h-11 rounded-xl flex items-center justify-center border" style={{ background: '#fbfbfd', borderColor: 'rgba(0,0,0,0.04)' }}>
-										<div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ color: bookmarkAccent, fontWeight: 700 }}>
-											<Bookmark />
+								{/* Bookmark This Moment modal */}
+								{showBookmarkModal && (
+									<div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center" onClick={() => setShowBookmarkModal(false)} style={{ zIndex: 720 }}>
+										<div
+											className="w-full max-w-md rounded-t-2xl p-4 shadow-xl flex flex-col mx-4"
+											onClick={(e) => e.stopPropagation()}
+											role="dialog"
+											aria-modal="true"
+											aria-label="Bookmark This Moment"
+											style={{ background: '#fbfbfd', border: '1px solid rgba(0,0,0,0.04)', position: 'relative', maxHeight: window.innerHeight * 0.52, overflow: 'hidden' }}
+										>
+											{/* Header */}
+											<div className="flex items-start gap-3 mb-3">
+												<div className="w-11 h-11 rounded-xl flex items-center justify-center border" style={{ background: '#fbfbfd', borderColor: 'rgba(0,0,0,0.04)' }}>
+													<div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ color: bookmarkAccent, fontWeight: 700 }}>
+														<Bookmark />
+													</div>
+												</div>
+												<div style={{ flex: 1 }}>
+													<div className="text-black text-xl font-semibold">{getTranslation('Bookmark This Moment', selectedLanguage)}</div>
+													<div className="text-black text-sm">{getTranslation('Save this timestamp at', selectedLanguage)} <strong>{formatTime(bookmarkTime)}</strong> {getTranslation('for quick access later', selectedLanguage)}</div>
+												</div>
+												<button onClick={() => setShowBookmarkModal(false)} className="absolute right-4 top-3 text-gray-600 p-1 rounded-full hover:bg-gray-100">✕</button>
+											</div>
+
+											{/* Input */}
+											<div className="mb-3">
+												<div className="text-black font-semibold mb-2">{getTranslation('Label (optional)', selectedLanguage)}</div>
+												<input
+													name="bookmarkLabel"
+													value={bookmarkLabel}
+													onChange={(e) => setBookmarkLabel(e.target.value)}
+													placeholder={getTranslation('Best scene, Important moment...', selectedLanguage)}
+													className="w-full px-3 py-2 rounded-xl"
+													style={{ background: '#ffffff', border: '1px solid #e6e6e6', color: '#111' }}
+												/>
+											</div>
+
+											{/* Actions */}
+											<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+												<button
+													className="px-4 py-3 rounded-lg w-full flex items-center justify-center"
+													style={{ background: bookmarkAccent, color: '#fff', fontWeight: 700 }}
+													onClick={saveBookmark}
+												>
+													<span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8 }}><Bookmark /></span>
+													{getTranslation('Save Bookmark', selectedLanguage)}
+												</button>
+												<button className="px-4 py-3 rounded-lg w-full" style={{ background: 'transparent', color: '#111', border: '1px solid #e6e6e6' }} onClick={() => setShowBookmarkModal(false)}>{getTranslation('Cancel', selectedLanguage)}</button>
+											</div>
 										</div>
 									</div>
-									<div style={{ flex: 1 }}>
-										<div className="text-black text-xl font-semibold">{getTranslation('Bookmark This Moment', selectedLanguage)}</div>
-										<div className="text-black text-sm">{getTranslation('Save this timestamp at', selectedLanguage)} <strong>{formatTime(bookmarkTime)}</strong> {getTranslation('for quick access later', selectedLanguage)}</div>
-									</div>
-									<button onClick={() => setShowBookmarkModal(false)} className="absolute right-4 top-3 text-gray-600 p-1 rounded-full hover:bg-gray-100">✕</button>
-								</div>
-
-								{/* Input */}
-								<div className="mb-3">
-									<div className="text-black font-semibold mb-2">{getTranslation('Label (optional)', selectedLanguage)}</div>
-									<input
-										name="bookmarkLabel"
-										value={bookmarkLabel}
-										onChange={(e) => setBookmarkLabel(e.target.value)}
-										placeholder={getTranslation('Best scene, Important moment...', selectedLanguage)}
-										className="w-full px-3 py-2 rounded-xl"
-										style={{ background: '#ffffff', border: '1px solid #e6e6e6', color: '#111' }}
-									/>
-								</div>
-
-								{/* Actions */}
-								<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-									<button
-										className="px-4 py-3 rounded-lg w-full flex items-center justify-center"
-										style={{ background: bookmarkAccent, color: '#fff', fontWeight: 700 }}
-										onClick={saveBookmark}
-									>
-										<span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8 }}><Bookmark /></span>
-										{getTranslation('Save Bookmark', selectedLanguage)}
-									</button>
-									<button className="px-4 py-3 rounded-lg w-full" style={{ background: 'transparent', color: '#111', border: '1px solid #e6e6e6' }} onClick={() => setShowBookmarkModal(false)}>{getTranslation('Cancel', selectedLanguage)}</button>
-								</div>
-							</div>
-						</div>
-					)}
+								)}
 								<div className="text-gray-300 text-sm">{getTranslation('Show your appreciation for', selectedLanguage)} @{creatorName}'s {getTranslation('amazing content', selectedLanguage)}</div>
 							</div>
 						</div>
@@ -5443,7 +5443,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							</div>
 						</div>
 						{/* Tip benefits */}
-							<div style={{ background: hexToRgba(accentColor, 0.12), padding: 12, borderRadius: 8, marginBottom: 12 }}>
+						<div style={{ background: hexToRgba(accentColor, 0.12), padding: 12, borderRadius: 8, marginBottom: 12 }}>
 							<div className="text-white text-sm font-medium mb-2">{getTranslation('Your tip helps:', selectedLanguage)}</div>
 							<ul className="list-inside list-disc text-gray-200 text-sm" style={{ marginLeft: 16 }}>
 								<li>{getTranslation('Support the creator directly', selectedLanguage)}</li>
@@ -5452,7 +5452,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							</ul>
 						</div>
 						{/* Footer actions */}
-							<div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 							<button
 								className="px-4 py-3 rounded-lg"
 								style={{ background: accentColor, color: accentText, fontWeight: 700 }}
@@ -5466,145 +5466,145 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								}}
 							>
 								{`$ ${getTranslation('Send', selectedLanguage)} ${Number(tipAmount || 0).toFixed(2)}`}
-								</button>
+							</button>
 							<button className="px-4 py-3 rounded-lg bg-transparent text-white border border-white/10" onClick={() => setShowTipModal(false)}>{getTranslation('Cancel', selectedLanguage)}</button>
 						</div>
 					</div>
-					</div>
-				)}
+				</div>
+			)}
 
-				{/* Quick-action floating card (shown on long-press) */}
-				{showQuickCard && (
-					<div
-						ref={quickCardRef}
-						className="pointer-events-auto quick-action-card"
-						onPointerDown={(e) => e.stopPropagation()}
-						style={{
-							position: 'fixed',
-							left: quickCardPos.x,
-							top: quickCardPos.y,
-							transform: 'translate(-50%, -120%)',
-							zIndex: 950,
-							minWidth: 280,
-							padding: 10,
-							borderRadius: 12,
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							gap: 12,
-							boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-							backdropFilter: 'blur(2px)',
-							WebkitBackdropFilter: 'blur(2px)',
-							background: darkMode ? 'rgba(8,10,12,0.72)' : 'rgba(255,255,255,0.92)',
+			{/* Quick-action floating card (shown on long-press) */}
+			{showQuickCard && (
+				<div
+					ref={quickCardRef}
+					className="pointer-events-auto quick-action-card"
+					onPointerDown={(e) => e.stopPropagation()}
+					style={{
+						position: 'fixed',
+						left: quickCardPos.x,
+						top: quickCardPos.y,
+						transform: 'translate(-50%, -120%)',
+						zIndex: 950,
+						minWidth: 280,
+						padding: 10,
+						borderRadius: 12,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						gap: 12,
+						boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+						backdropFilter: 'blur(2px)',
+						WebkitBackdropFilter: 'blur(2px)',
+						background: darkMode ? 'rgba(8,10,12,0.72)' : 'rgba(255,255,255,0.92)',
+					}}
+				>
+					<button onClick={onQuickLike} aria-label="Like" className="p-1 rounded-lg" style={{ background: 'transparent', border: 'none', color: liked ? accentColor : (darkMode ? '#fff' : '#111') }}>
+						<Heart filled={liked} />
+					</button>
+					<button onClick={onQuickDislike} aria-label="Dislike" className="p-1 rounded-lg" style={{ background: 'transparent', border: disliked ? '1px solid #ef4444' : 'none', borderRadius: 8, padding: 6, color: disliked ? '#ef4444' : (darkMode ? '#fff' : '#111') }}>
+						<HeartOff />
+					</button>
+					<button onClick={onQuickBookmark} aria-label="Bookmark" className="p-1 rounded-lg" style={{ background: 'transparent', border: 'none', color: bookmarkAccent }}>
+						<Bookmark />
+					</button>
+					{/* Lock toggle moved into quick actions when not locked */}
+					<button
+						onClick={(e) => {
+							e.stopPropagation();
+							// if not currently locked, this will lock the screen — show toaster
+							if (!locked) {
+								if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+								setToastMessage('Your screen is locked');
+								toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
+							}
+							try { handleLockPress(); } catch { }
+							setShowQuickCard(false);
+							if (quickCardTimerRef.current) { clearTimeout(quickCardTimerRef.current); quickCardTimerRef.current = null; }
 						}}
+						aria-label={locked ? "Unlock controls" : "Lock controls"}
+						className="p-1 rounded-lg"
+						style={{ background: 'transparent', border: 'none', color: locked ? accentColor : (darkMode ? '#fff' : '#111') }}
 					>
-						<button onClick={onQuickLike} aria-label="Like" className="p-1 rounded-lg" style={{ background: 'transparent', border: 'none', color: liked ? accentColor : (darkMode ? '#fff' : '#111') }}>
-							<Heart filled={liked} />
-						</button>
-						<button onClick={onQuickDislike} aria-label="Dislike" className="p-1 rounded-lg" style={{ background: 'transparent', border: disliked ? '1px solid #ef4444' : 'none', borderRadius: 8, padding: 6, color: disliked ? '#ef4444' : (darkMode ? '#fff' : '#111') }}>
-							<HeartOff />
-						</button>
-						<button onClick={onQuickBookmark} aria-label="Bookmark" className="p-1 rounded-lg" style={{ background: 'transparent', border: 'none', color: bookmarkAccent }}>
-							<Bookmark />
-						</button>
-						{/* Lock toggle moved into quick actions when not locked */}
-						<button
-							onClick={(e) => {
-								e.stopPropagation();
-								// if not currently locked, this will lock the screen — show toaster
-								if (!locked) {
-									if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-									setToastMessage('Your screen is locked');
-									toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-								}
-								try { handleLockPress(); } catch {}
-								setShowQuickCard(false);
-								if (quickCardTimerRef.current) { clearTimeout(quickCardTimerRef.current); quickCardTimerRef.current = null; }
-							}}
-							aria-label={locked ? "Unlock controls" : "Lock controls"}
-							className="p-1 rounded-lg"
-							style={{ background: 'transparent', border: 'none', color: locked ? accentColor : (darkMode ? '#fff' : '#111') }}
-						>
-							{/* Show Lock when already locked, otherwise LockOpen for activating */}
-							{locked ? <Lock /> : <LockOpen />}
-						</button>
-					</div>
-				)}
+						{/* Show Lock when already locked, otherwise LockOpen for activating */}
+						{locked ? <Lock /> : <LockOpen />}
+					</button>
+				</div>
+			)}
 
-				{/* Quick-centered Bookmark modal (small centered popup triggered from quick-action) */}
-				{showQuickBookmarkModal && (
-					<div className="fixed inset-0 bg-black/30 flex items-center justify-center" onClick={() => setShowQuickBookmarkModal(false)} style={{ zIndex: 2200 }}>
-						<div className="bg-white rounded-xl p-4 shadow-2xl w-[90%] max-w-sm" onClick={(e) => e.stopPropagation()} style={{ color: '#111' }}>
-							<div className="flex items-start gap-3 mb-3">
-									<div className="w-11 h-11 rounded-xl flex items-center justify-center border" style={{ background: '#fbfbfd', borderColor: 'rgba(0,0,0,0.04)' }}>
-										<div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ color: bookmarkAccent, fontWeight: 700 }}>
-											<Bookmark />
-										</div>
-									</div>
-								<div style={{ flex: 1 }}>
-									<div className="text-black text-lg font-semibold">Bookmark This Moment</div>
-									<div className="text-sm text-gray-600">Save this timestamp at <strong>{formatTime(bookmarkTime)}</strong></div>
+			{/* Quick-centered Bookmark modal (small centered popup triggered from quick-action) */}
+			{showQuickBookmarkModal && (
+				<div className="fixed inset-0 bg-black/30 flex items-center justify-center" onClick={() => setShowQuickBookmarkModal(false)} style={{ zIndex: 2200 }}>
+					<div className="bg-white rounded-xl p-4 shadow-2xl w-[90%] max-w-sm" onClick={(e) => e.stopPropagation()} style={{ color: '#111' }}>
+						<div className="flex items-start gap-3 mb-3">
+							<div className="w-11 h-11 rounded-xl flex items-center justify-center border" style={{ background: '#fbfbfd', borderColor: 'rgba(0,0,0,0.04)' }}>
+								<div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ color: bookmarkAccent, fontWeight: 700 }}>
+									<Bookmark />
 								</div>
 							</div>
-							<div className="mb-3">
-								<input name="bookmarkLabel_quick" value={bookmarkLabel} onChange={(e) => setBookmarkLabel(e.target.value)} placeholder="Label (optional)" className="w-full px-3 py-2 rounded-md border" />
-							</div>
-							<div className="flex gap-3">
-								<button className="flex-1 px-4 py-2 rounded-md" style={{ background: bookmarkAccent, color: '#fff', fontWeight: 700 }} onClick={saveQuickBookmark}>Save</button>
-								<button className="flex-1 px-4 py-2 rounded-md" style={{ background: '#f3f4f6' }} onClick={() => setShowQuickBookmarkModal(false)}>Cancel</button>
+							<div style={{ flex: 1 }}>
+								<div className="text-black text-lg font-semibold">Bookmark This Moment</div>
+								<div className="text-sm text-gray-600">Save this timestamp at <strong>{formatTime(bookmarkTime)}</strong></div>
 							</div>
 						</div>
-					</div>
-				)}
-
-				{/* Transient filled bookmark pulse (appears near quick-card, fills and fades) */}
-				{quickBookmarkPulse.show && (
-					<div style={{ position: 'fixed', left: quickBookmarkPulse.x, top: quickBookmarkPulse.y, transform: 'translate(-50%, -120%)', zIndex: 2250 }} aria-hidden>
-						<div style={{ transition: 'transform 900ms ease, opacity 900ms ease', transform: quickBookmarkPulseActive ? 'translate(-50%, -120%) scale(1.6)' : 'translate(-50%, -120%) scale(1)', opacity: quickBookmarkPulseActive ? 0 : 1 }}>
-							<div className="w-12 h-12 rounded-lg flex items-center justify-center bg-transparent">
-								<BookmarkFilled />
-							</div>
+						<div className="mb-3">
+							<input name="bookmarkLabel_quick" value={bookmarkLabel} onChange={(e) => setBookmarkLabel(e.target.value)} placeholder="Label (optional)" className="w-full px-3 py-2 rounded-md border" />
+						</div>
+						<div className="flex gap-3">
+							<button className="flex-1 px-4 py-2 rounded-md" style={{ background: bookmarkAccent, color: '#fff', fontWeight: 700 }} onClick={saveQuickBookmark}>Save</button>
+							<button className="flex-1 px-4 py-2 rounded-md" style={{ background: '#f3f4f6' }} onClick={() => setShowQuickBookmarkModal(false)}>Cancel</button>
 						</div>
 					</div>
-				)}
+				</div>
+			)}
 
-				{/* Global toast (shows messages from handlers like quick-actions) */}
-				{toastMessage && (
-					<div 
-						role="status" 
-						aria-live="polite" 
-						style={{ 
-							position: 'fixed', 
-							left: '50%', 
-							transform: 'translateX(-50%)', 
-							top: '18%', 
-							zIndex: 4000, 
-							pointerEvents: 'auto',
-							willChange: 'transform, opacity', 
-							animation: 'toastSlideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1)' 
-						}}
-						onTouchStart={(e) => {
-							e.currentTarget.dataset.dragStartX = e.touches[0].clientX;
-						}}
-						onTouchMove={(e) => {
-							const startX = parseFloat(e.currentTarget.dataset.dragStartX || '0');
-							const diff = e.touches[0].clientX - startX;
-							e.currentTarget.style.transform = `translateX(calc(-50% + ${diff}px))`;
-						}}
-						onTouchEnd={(e) => {
-							const startX = parseFloat(e.currentTarget.dataset.dragStartX || '0');
-							const endX = e.changedTouches[0].clientX;
-							const diff = endX - startX;
-							if (Math.abs(diff) > 80) {
-								setToastMessage('');
-							} else {
-								e.currentTarget.style.transform = 'translateX(-50%)';
-							}
-							e.currentTarget.dataset.dragStartX = '0';
-						}}
-					>
-						<div className="bg-black/80 text-white text-sm px-4 py-2 rounded-md cursor-grab select-none" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.36)' }}>{toastMessage}</div>
-						<style>{`
+			{/* Transient filled bookmark pulse (appears near quick-card, fills and fades) */}
+			{quickBookmarkPulse.show && (
+				<div style={{ position: 'fixed', left: quickBookmarkPulse.x, top: quickBookmarkPulse.y, transform: 'translate(-50%, -120%)', zIndex: 2250 }} aria-hidden>
+					<div style={{ transition: 'transform 900ms ease, opacity 900ms ease', transform: quickBookmarkPulseActive ? 'translate(-50%, -120%) scale(1.6)' : 'translate(-50%, -120%) scale(1)', opacity: quickBookmarkPulseActive ? 0 : 1 }}>
+						<div className="w-12 h-12 rounded-lg flex items-center justify-center bg-transparent">
+							<BookmarkFilled />
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Global toast (shows messages from handlers like quick-actions) */}
+			{toastMessage && (
+				<div
+					role="status"
+					aria-live="polite"
+					style={{
+						position: 'fixed',
+						left: '50%',
+						transform: 'translateX(-50%)',
+						top: '18%',
+						zIndex: 4000,
+						pointerEvents: 'auto',
+						willChange: 'transform, opacity',
+						animation: 'toastSlideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+					}}
+					onTouchStart={(e) => {
+						e.currentTarget.dataset.dragStartX = e.touches[0].clientX;
+					}}
+					onTouchMove={(e) => {
+						const startX = parseFloat(e.currentTarget.dataset.dragStartX || '0');
+						const diff = e.touches[0].clientX - startX;
+						e.currentTarget.style.transform = `translateX(calc(-50% + ${diff}px))`;
+					}}
+					onTouchEnd={(e) => {
+						const startX = parseFloat(e.currentTarget.dataset.dragStartX || '0');
+						const endX = e.changedTouches[0].clientX;
+						const diff = endX - startX;
+						if (Math.abs(diff) > 80) {
+							setToastMessage('');
+						} else {
+							e.currentTarget.style.transform = 'translateX(-50%)';
+						}
+						e.currentTarget.dataset.dragStartX = '0';
+					}}
+				>
+					<div className="bg-black/80 text-white text-sm px-4 py-2 rounded-md cursor-grab select-none" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.36)' }}>{toastMessage}</div>
+					<style>{`
 							@keyframes toastSlideDown {
 								from {
 									opacity: 0;
@@ -5616,10 +5616,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								}
 							}
 						`}</style>
-					</div>
-				)}
+				</div>
+			)}
 
-				{/* Report An Issue modal (top-level, activated from Options -> Report an issue) */}
+			{/* Report An Issue modal (top-level, activated from Options -> Report an issue) */}
 			{showReportModal && (
 				<div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center" onClick={() => setShowReportModal(false)} style={{ zIndex: 700 }}>
 					<div
@@ -5716,7 +5716,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 											const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
 											const v = videoRef.current;
 											const secs = v ? Math.floor(v.currentTime || 0) : Math.floor(progress * duration || 0);
-											
+
 											fetch(`${BACKEND}/reports`, {
 												method: 'POST',
 												headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
@@ -5728,8 +5728,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 													category: reportCategory,
 													description: reportText
 												})
-											}).catch(() => {});
-										} catch (e) {}
+											}).catch(() => { });
+										} catch (e) { }
 
 										setToastMessage(getTranslation('Report submitted', selectedLanguage));
 										setShowReportModal(false);
@@ -5788,7 +5788,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								<div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
 									{/* emoji quick picks */}
 									<div style={{ display: 'flex', gap: 6 }}>
-										{['📌','😀','❤️','🔥'].map((emo) => (
+										{['📌', '😀', '❤️', '🔥'].map((emo) => (
 											<button key={emo} onClick={() => setNoteText((s) => s + emo)} className="px-2 py-1 rounded bg-gray-100 text-gray-900">{emo}</button>
 										))}
 									</div>
@@ -5828,17 +5828,17 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 												<div>
 													<div className="text-gray-900" style={{ whiteSpace: 'pre-wrap' }}>{note.text}</div>
 													{note.time != null && (
-													<button className="text-sm text-gray-500 mt-2 hover:underline" onClick={() => {
-														try { if (videoRef.current) { videoRef.current.currentTime = note.time; setControlsVisible(true); } } catch {}
-													}}>{formatTime(note.time)}</button>
+														<button className="text-sm text-gray-500 mt-2 hover:underline" onClick={() => {
+															try { if (videoRef.current) { videoRef.current.currentTime = note.time; setControlsVisible(true); } } catch { }
+														}}>{formatTime(note.time)}</button>
 													)}
 												</div>
 												<div>
 													<button className="text-sm text-gray-400 ml-3 hover:text-red-500" onClick={() => {
-													const next = notes.filter(n => n.id !== note.id);
-													setNotes(next);
-													saveNotesFor(videoUrl, next);
-												}}>{getTranslation('Delete', selectedLanguage)}</button>
+														const next = notes.filter(n => n.id !== note.id);
+														setNotes(next);
+														saveNotesFor(videoUrl, next);
+													}}>{getTranslation('Delete', selectedLanguage)}</button>
 												</div>
 											</div>
 										))}
@@ -5880,7 +5880,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							zIndex: 999
 						}}
 					/>
-						)}
+				)}
 
 				{/* Miniplayer restore / docking button removed per UX request */}
 
@@ -5934,7 +5934,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								const srcForChips = (typeof discoverItems !== 'undefined' && discoverItems && discoverItems.length) ? discoverItems : (discoverItemsData && discoverItemsData.length ? discoverItemsData : null);
 								const base = ["All Videos", "Bookmarks"];
 								if (!srcForChips) {
-									const items = [...base, "Similar Themes","Challenges","DIY & Crafts","Science & Tech"];
+									const items = [...base, "Similar Themes", "Challenges", "DIY & Crafts", "Science & Tech"];
 									const q = (discoverQuery || '').trim().toLowerCase();
 									const filtered = q ? items.filter(t => t.toLowerCase().includes(q)) : items;
 									return filtered.map((t) => (
@@ -5968,7 +5968,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							const source = (typeof discoverItems !== 'undefined' && discoverItems && discoverItems.length) ? discoverItems : (discoverItemsData && discoverItemsData.length ? discoverItemsData : placeholders);
 							const tagSet = new Set();
 							(source || []).forEach(it => (it.tags || []).forEach(t => tagSet.add(t)));
-							const chips = ['All Videos','Bookmarks', ...Array.from(tagSet).slice(0,6)];
+							const chips = ['All Videos', 'Bookmarks', ...Array.from(tagSet).slice(0, 6)];
 							const q = (discoverQuery || '').trim().toLowerCase();
 							// Special-case: show saved bookmarks across videos
 							if (selectedChip === 'Bookmarks') {
@@ -5986,8 +5986,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										const title = b.label || meta.title || svc.url;
 										const creator = meta.creator || '';
 										const dur = meta.duration || 0;
-											const bkKey = `${svc.url}::${b.id}`;
-											return (
+										const bkKey = `${svc.url}::${b.id}`;
+										return (
 											<div key={bkKey} role="button" tabIndex={0} onClick={() => {
 												try {
 													setShowCarbonCopy(false);
@@ -5997,14 +5997,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 															const v = videoRef.current;
 															if (v) {
 																if (svc.url) v.src = svc.url;
-																try { v.currentTime = Math.max(0, Math.floor(b.time || 0)); } catch {}
-																try { const p = v.play(); if (p && p.catch) p.catch(() => {}); setIsPlaying(true); } catch {}
-																try { setControlsVisible(true); showCenterTemporarily(2000); } catch {}
+																try { v.currentTime = Math.max(0, Math.floor(b.time || 0)); } catch { }
+																try { const p = v.play(); if (p && p.catch) p.catch(() => { }); setIsPlaying(true); } catch { }
+																try { setControlsVisible(true); showCenterTemporarily(2000); } catch { }
 															}
-														} catch {}
+														} catch { }
 													}, 180);
-													try { setToastMessage('Playing from bookmarked moment'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400); } catch {}
-												} catch {}
+													try { setToastMessage('Playing from bookmarked moment'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400); } catch { }
+												} catch { }
 											}} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#fff', padding: 10, borderRadius: 12, border: '1px solid rgba(0,0,0,0.04)', cursor: 'pointer', position: 'relative' }}>
 												<div className="w-28 h-16 rounded-md relative overflow-hidden" style={{ background: `url(${thumb}) center/cover no-repeat` }}>
 													<div className="absolute right-2 bottom-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">{formatTime(b.time || 0)}</div>
@@ -6012,12 +6012,12 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 												<div style={{ flex: 1 }}>
 													<div style={{ fontWeight: 700 }}>{title}</div>
 													<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
-														<div style={{ fontSize: 12, color: '#6b7280' }}>{creator}{dur ? <span style={{ background: '#e6f2ff', color: '#2563eb', padding: '2px 6px', borderRadius: 8, marginLeft: 8, fontSize: 11 }}>{(() => { const s = dur || 0; return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}` })()}</span> : null}</div>
+														<div style={{ fontSize: 12, color: '#6b7280' }}>{creator}{dur ? <span style={{ background: '#e6f2ff', color: '#2563eb', padding: '2px 6px', borderRadius: 8, marginLeft: 8, fontSize: 11 }}>{(() => { const s = dur || 0; return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` })()}</span> : null}</div>
 														<div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
 															<button aria-label="Share bookmarked moment" data-share-anchor={bkKey} onClick={(e) => {
 																e.stopPropagation?.();
 																// toggle popover for this bookmark
-																try { setSharePopoverFor((s) => s === bkKey ? null : bkKey); } catch {}
+																try { setSharePopoverFor((s) => s === bkKey ? null : bkKey); } catch { }
 															}} className="p-1.5 rounded-full hover:bg-gray-100" style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
 																<ShareIcon />
 															</button>
@@ -6026,7 +6026,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 												</div>
 												{/* Share popover (anchored to card) */}
 												{sharePopoverFor === bkKey && (
-													<div role="dialog" aria-label="Share bookmark" data-share-key={bkKey} className="min-w-[220px] sm:min-w-[260px] bg-white rounded-xl p-4 shadow-2xl" style={{ position: 'absolute', right: 12, top: 56, zIndex: 1100, border: '1px solid rgba(0,0,0,0.06)' }} onClick={(e)=>e.stopPropagation()}>
+													<div role="dialog" aria-label="Share bookmark" data-share-key={bkKey} className="min-w-[220px] sm:min-w-[260px] bg-white rounded-xl p-4 shadow-2xl" style={{ position: 'absolute', right: 12, top: 56, zIndex: 1100, border: '1px solid rgba(0,0,0,0.06)' }} onClick={(e) => e.stopPropagation()}>
 														<div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Share bookmarked moment</div>
 														<div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>This link opens the video at the saved time.</div>
 														<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -6038,14 +6038,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 																	setSharePopoverFor(null);
 																	if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 																	toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-																} catch {}
+																} catch { }
 															}} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fafafa', cursor: 'pointer', textAlign: 'left' }}>Copy link</button>
-															<button onClick={() => { try { const link = makeShareLink(svc.url, b.time); try { window.location.href = `whatsapp://send?text=${encodeURIComponent(link)}`; } catch {} setTimeout(()=> window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null);} catch{} }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Send to WhatsApp</button>
-															<button onClick={() => { try { const link = makeShareLink(svc.url, b.time); try { window.location.href = `twitter://post?message=${encodeURIComponent(link)}`; } catch {} setTimeout(()=> window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null);} catch{} }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Twitter</button>
-															<button onClick={() => { try { const link = makeShareLink(svc.url, b.time); try { window.location.href = `fb-messenger://share?link=${encodeURIComponent(link)}`; } catch {} setTimeout(()=> window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null);} catch{} }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Facebook</button>
-															<button onClick={() => { try { const link = makeShareLink(svc.url, b.time); try { window.location.href = `instagram://share?text=${encodeURIComponent(link)}`; } catch {} setTimeout(()=> { copyToClipboard(link); setToastMessage('Link copied — share via Instagram'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); }, 600); setSharePopoverFor(null);} catch{} }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Instagram</button>
+															<button onClick={() => { try { const link = makeShareLink(svc.url, b.time); try { window.location.href = `whatsapp://send?text=${encodeURIComponent(link)}`; } catch { } setTimeout(() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Send to WhatsApp</button>
+															<button onClick={() => { try { const link = makeShareLink(svc.url, b.time); try { window.location.href = `twitter://post?message=${encodeURIComponent(link)}`; } catch { } setTimeout(() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Twitter</button>
+															<button onClick={() => { try { const link = makeShareLink(svc.url, b.time); try { window.location.href = `fb-messenger://share?link=${encodeURIComponent(link)}`; } catch { } setTimeout(() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Facebook</button>
+															<button onClick={() => { try { const link = makeShareLink(svc.url, b.time); try { window.location.href = `instagram://share?text=${encodeURIComponent(link)}`; } catch { } setTimeout(() => { copyToClipboard(link); setToastMessage('Link copied — share via Instagram'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); }, 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Instagram</button>
 															<div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-																<button onClick={() => { try { setShowShareModal(true); setSharePopoverFor(null);} catch{} }} style={{ flex: 1, padding: '8px 10px', borderRadius: 8, background: accentColor, color: accentText, border: 'none', cursor: 'pointer' }}>More...</button>
+																<button onClick={() => { try { setShowShareModal(true); setSharePopoverFor(null); } catch { } }} style={{ flex: 1, padding: '8px 10px', borderRadius: 8, background: accentColor, color: accentText, border: 'none', cursor: 'pointer' }}>More...</button>
 																<button onClick={() => setSharePopoverFor(null)} style={{ padding: '8px 10px', borderRadius: 8, background: '#f3f4f6', border: 'none', cursor: 'pointer' }}>Close</button>
 															</div>
 														</div>
@@ -6056,40 +6056,40 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									});
 								});
 							}
-							const filteredByChip = selectedChip && selectedChip !== 'All Videos' ? source.filter(it => (it.tags || []).some(t => t.toLowerCase().includes(selectedChip.toLowerCase())) ) : source;
+							const filteredByChip = selectedChip && selectedChip !== 'All Videos' ? source.filter(it => (it.tags || []).some(t => t.toLowerCase().includes(selectedChip.toLowerCase()))) : source;
 							const filtered = q ? filteredByChip.filter(it => (it.title || '').toLowerCase().includes(q) || (it.creator || '').toLowerCase().includes(q)) : filteredByChip;
 							return filtered.map((item, idx) => (
-								<div key={item.id} onClick={async () => { 
-										try {
-											try { currentSourceRef.current = filtered || []; setCurrentIndex(idx); } catch {}
-									setVideoTitle(item.title || 'Video');
-											setCreatorName(item.creator || '');
-											// close discover panel
-											try { setShowCarbonCopy(false); } catch {}
-											// set URL and attempt playback
-											if (item.url) setVideoUrl(item.url);
-											// ensure controls/center overlay reveal
-											try { setControlsVisible(true); showCenterTemporarily(2600); } catch {}
-											// brief feedback
-											try { setToastMessage('Now playing'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); } catch {}
-											// try to play immediately (may be blocked by autoplay policies)
-											setTimeout(async () => {
-												try {
-													const v = videoRef.current;
-													if (v) {
-														if (item.url) v.src = item.url;
-														v.currentTime = 0;
-														await v.play();
-														setIsPlaying(true);
-														try { showCenterTemporarily(1600); } catch {}
-													}
-												} catch (e) { /* autoplay may be blocked; ignore */ }
-											}, 120);
-										} catch {}
-									}} 
+								<div key={item.id} onClick={async () => {
+									try {
+										try { currentSourceRef.current = filtered || []; setCurrentIndex(idx); } catch { }
+										setVideoTitle(item.title || 'Video');
+										setCreatorName(item.creator || '');
+										// close discover panel
+										try { setShowCarbonCopy(false); } catch { }
+										// set URL and attempt playback
+										if (item.url) setVideoUrl(item.url);
+										// ensure controls/center overlay reveal
+										try { setControlsVisible(true); showCenterTemporarily(2600); } catch { }
+										// brief feedback
+										try { setToastMessage('Now playing'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); } catch { }
+										// try to play immediately (may be blocked by autoplay policies)
+										setTimeout(async () => {
+											try {
+												const v = videoRef.current;
+												if (v) {
+													if (item.url) v.src = item.url;
+													v.currentTime = 0;
+													await v.play();
+													setIsPlaying(true);
+													try { showCenterTemporarily(1600); } catch { }
+												}
+											} catch (e) { /* autoplay may be blocked; ignore */ }
+										}, 120);
+									} catch { }
+								}}
 									role="button" tabIndex={0} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#fff", padding: 10, borderRadius: 12, border: "1px solid rgba(0,0,0,0.04)", cursor: 'pointer' }}>
 									<div className="w-28 h-16 rounded-md relative overflow-hidden" style={{ background: item.thumbnail ? `url(${item.thumbnail}) center/cover no-repeat` : '#000' }}>
-										<div className="absolute right-2 bottom-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">{(() => { const s = item.duration || 0; return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}` })()}</div>
+										<div className="absolute right-2 bottom-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">{(() => { const s = item.duration || 0; return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` })()}</div>
 									</div>
 									<div style={{ flex: 1 }}>
 										<div style={{ fontWeight: 700 }}>{item.title}</div>
@@ -6099,7 +6099,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 												{/** Share icon for non-bookmark items (anchored similar to bookmark cards) */}
 												<button aria-label="Share video" data-share-anchor={`${item.url}::${item.id}`} onClick={(e) => {
 													e.stopPropagation?.();
-													try { setSharePopoverFor((s) => s === `${item.url}::${item.id}` ? null : `${item.url}::${item.id}`); } catch {}
+													try { setSharePopoverFor((s) => s === `${item.url}::${item.id}` ? null : `${item.url}::${item.id}`); } catch { }
 												}} className="p-1.5 rounded-full hover:bg-gray-100" style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
 													<ShareIcon />
 												</button>
@@ -6108,7 +6108,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									</div>
 									{/** Share popover for this item (non-timestamped) */}
 									{sharePopoverFor === `${item.url}::${item.id}` && (
-										<div role="dialog" aria-label="Share video" data-share-key={`${item.url}::${item.id}`} className="min-w-[220px] sm:min-w-[260px] bg-white rounded-xl p-4 shadow-2xl" style={{ position: 'absolute', right: 12, top: 56, zIndex: 1100, border: '1px solid rgba(0,0,0,0.06)' }} onClick={(e)=>e.stopPropagation()}>
+										<div role="dialog" aria-label="Share video" data-share-key={`${item.url}::${item.id}`} className="min-w-[220px] sm:min-w-[260px] bg-white rounded-xl p-4 shadow-2xl" style={{ position: 'absolute', right: 12, top: 56, zIndex: 1100, border: '1px solid rgba(0,0,0,0.06)' }} onClick={(e) => e.stopPropagation()}>
 											<div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Share video</div>
 											<div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>Share a link to this video.</div>
 											<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -6120,14 +6120,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 														setSharePopoverFor(null);
 														if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 														toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-													} catch {}
+													} catch { }
 												}} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fafafa', cursor: 'pointer', textAlign: 'left' }}>Copy link</button>
-												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `whatsapp://send?text=${encodeURIComponent(link)}`; } catch {} setTimeout(()=> window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null);} catch{} }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Send to WhatsApp</button>
-												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `twitter://post?message=${encodeURIComponent(link)}`; } catch {} setTimeout(()=> window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null);} catch{} }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Twitter</button>
-												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `fb-messenger://share?link=${encodeURIComponent(link)}`; } catch {} setTimeout(()=> window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null);} catch{} }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Facebook</button>
-												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `instagram://share?text=${encodeURIComponent(link)}`; } catch {} setTimeout(()=> { copyToClipboard(link); setToastMessage('Link copied — share via Instagram'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); }, 600); setSharePopoverFor(null);} catch{} }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Instagram</button>
+												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `whatsapp://send?text=${encodeURIComponent(link)}`; } catch { } setTimeout(() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Send to WhatsApp</button>
+												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `twitter://post?message=${encodeURIComponent(link)}`; } catch { } setTimeout(() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Twitter</button>
+												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `fb-messenger://share?link=${encodeURIComponent(link)}`; } catch { } setTimeout(() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Facebook</button>
+												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `instagram://share?text=${encodeURIComponent(link)}`; } catch { } setTimeout(() => { copyToClipboard(link); setToastMessage('Link copied — share via Instagram'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); }, 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Instagram</button>
 												<div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-													<button onClick={() => { try { setShowShareModal(true); setSharePopoverFor(null);} catch{} }} style={{ flex: 1, padding: '8px 10px', borderRadius: 8, background: accentColor, color: accentText, border: 'none', cursor: 'pointer' }}>More...</button>
+													<button onClick={() => { try { setShowShareModal(true); setSharePopoverFor(null); } catch { } }} style={{ flex: 1, padding: '8px 10px', borderRadius: 8, background: accentColor, color: accentText, border: 'none', cursor: 'pointer' }}>More...</button>
 													<button onClick={() => setSharePopoverFor(null)} style={{ padding: '8px 10px', borderRadius: 8, background: '#f3f4f6', border: 'none', cursor: 'pointer' }}>Close</button>
 												</div>
 											</div>
@@ -6142,36 +6142,36 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			</div>
 
 		</div>
-	); 
+	);
 }
 
 // Mock user data
 const MOCK_USER = {
-    id: 1,
-    name: "John Doe",
-    avatarUrl: "https://placehold.co/40x40/CCCCCC/666666?text=JD",
+	id: 1,
+	name: "John Doe",
+	avatarUrl: "https://placehold.co/40x40/CCCCCC/666666?text=JD",
 };
 
 // Comment item component
 const CommentItem = ({ comment, onReply, selectedLanguage }) => {
-    const isUserComment = comment.userId === MOCK_USER.id;
-    const avatarUrl = isUserComment ? MOCK_USER.avatarUrl : 'https://placehold.co/40x40/CCCCCC/666666?text=G';
-    
-    const parts = comment.text.split(' ');
-    const firstWord = parts[0];
-    const isReplyText = firstWord?.startsWith?.('@');
-    const replyTargetName = isReplyText ? firstWord.substring(1) : null;
-    const commentBody = isReplyText ? parts.slice(1).join(' ') : comment.text;
+	const isUserComment = comment.userId === MOCK_USER.id;
+	const avatarUrl = isUserComment ? MOCK_USER.avatarUrl : 'https://placehold.co/40x40/CCCCCC/666666?text=G';
 
-    const handleReplyClick = () => onReply(comment);
+	const parts = comment.text.split(' ');
+	const firstWord = parts[0];
+	const isReplyText = firstWord?.startsWith?.('@');
+	const replyTargetName = isReplyText ? firstWord.substring(1) : null;
+	const commentBody = isReplyText ? parts.slice(1).join(' ') : comment.text;
+
+	const handleReplyClick = () => onReply(comment);
 
 	const [liked, setLiked] = useState(false);
 	const [disliked, setDisliked] = useState(false);
 	const [likesCount, setLikesCount] = useState(typeof comment.likes === 'number' ? comment.likes : 0);
 
 	const abbrev = (n) => {
-		if (n >= 1000000) return `${(n/1000000).toFixed(1).replace(/\.0$/,'')}M`;
-		if (n >= 1000) return `${(n/1000).toFixed(1).replace(/\.0$/,'')}k`;
+		if (n >= 1000000) return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+		if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
 		return String(n);
 	};
 
@@ -6195,27 +6195,27 @@ const CommentItem = ({ comment, onReply, selectedLanguage }) => {
 		});
 	};
 
-    return (
-        <div className={`flex space-x-3 py-3 border-b border-gray-50 last:border-b-0 ${isReplyText ? 'ml-6' : ''}`}>
-            <div className="flex-shrink-0">
-                <img
-                    src={avatarUrl}
-                    alt={comment.userName}
-                    className="w-8 h-8 rounded-full object-cover"
-                />
-            </div>
-            
-            <div className="flex-grow min-w-0">
-                <div className="bg-gray-100 rounded-xl p-3 inline-block max-w-full">
-                    <p className="text-sm font-semibold text-gray-800 break-words">{comment.userName}</p>
-                    <p className="text-sm text-gray-700 break-words">
-                        {isReplyText && (
-                            <span className="text-indigo-600 font-medium mr-1">@{replyTargetName}</span>
-                        )}
-                        {commentBody}
-                    </p>
-                </div>
-                
+	return (
+		<div className={`flex space-x-3 py-3 border-b border-gray-50 last:border-b-0 ${isReplyText ? 'ml-6' : ''}`}>
+			<div className="flex-shrink-0">
+				<img
+					src={avatarUrl}
+					alt={comment.userName}
+					className="w-8 h-8 rounded-full object-cover"
+				/>
+			</div>
+
+			<div className="flex-grow min-w-0">
+				<div className="bg-gray-100 rounded-xl p-3 inline-block max-w-full">
+					<p className="text-sm font-semibold text-gray-800 break-words">{comment.userName}</p>
+					<p className="text-sm text-gray-700 break-words">
+						{isReplyText && (
+							<span className="text-indigo-600 font-medium mr-1">@{replyTargetName}</span>
+						)}
+						{commentBody}
+					</p>
+				</div>
+
 				<div className="flex items-center space-x-3 mt-1 ml-1 text-xs text-gray-500">
 					<span className="font-medium">{getTranslation('Just now', selectedLanguage)}</span>
 
@@ -6255,18 +6255,18 @@ const CommentItem = ({ comment, onReply, selectedLanguage }) => {
 						</button>
 					</div>
 				</div>
-            </div>
-        </div>
-    );
+			</div>
+		</div>
+	);
 };
 
 
 // --- Add/modify ThumbsUp to accept stroke (used by CommentItem) ---
 const ThumbsUp = ({ className = "", stroke = "#6b7280" }) => (
-    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M14 9V5a3 3 0 0 0-3-3L8 7v9" />
-        <path d="M7 21h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-6" />
-    </svg>
+	<svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+		<path d="M14 9V5a3 3 0 0 0-3-3L8 7v9" />
+		<path d="M7 21h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-6" />
+	</svg>
 );
 
 // Heart icons for comment likes (filled + outline)
@@ -6287,13 +6287,13 @@ const HeartOutline = ({ size = 16, stroke = '#ef4444' }) => (
 const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 	const modalRef = useRef(null);
 	const auth = useAuth();
-    const contentRef = useRef(null); 
-    const inputRef = useRef(null); 
-    
-    // initialize height relative to viewport
-    const [currentHeight, setCurrentHeight] = useState(window.innerHeight * 0.9); 
-    const minHeight = window.innerHeight * 0.4; 
-    const maxHeight = window.innerHeight * 0.95; 
+	const contentRef = useRef(null);
+	const inputRef = useRef(null);
+
+	// initialize height relative to viewport
+	const [currentHeight, setCurrentHeight] = useState(window.innerHeight * 0.9);
+	const minHeight = window.innerHeight * 0.4;
+	const maxHeight = window.innerHeight * 0.95;
 
 	const [comments, setComments] = useState([]);
 	const [inputValue, setInputValue] = useState('');
@@ -6319,8 +6319,8 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 		return () => { cancelled = true; };
 	}, [isOpen, requestId]);
 
-    // drag state for grab handle
-    const dragState = useRef({ dragging: false, startY: 0, startHeight: 0 });
+	// drag state for grab handle
+	const dragState = useRef({ dragging: false, startY: 0, startHeight: 0 });
 
 	const [commentsHandleHintVisible, setCommentsHandleHintVisible] = useState(false);
 	useEffect(() => {
@@ -6330,10 +6330,10 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 			setCommentsHandleHintVisible(true);
 			const t = setTimeout(() => setCommentsHandleHintVisible(false), 3400);
 			return () => clearTimeout(t);
-		} catch {}
+		} catch { }
 	}, [isOpen]);
 
-    // Focus input when modal opens
+	// Focus input when modal opens
 	useEffect(() => {
 		if (!isOpen) return;
 		// small timeout so the sheet mount/animation completes before focusing
@@ -6342,23 +6342,23 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 				inputRef.current?.focus?.();
 				// ensure input is visible inside the scrollable area on smaller screens
 				inputRef.current?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
-			} catch {}
+			} catch { }
 		}, 50);
 		return () => clearTimeout(t);
 	}, [isOpen]);
 
-    const handleReply = useCallback((comment) => {
-        setReplyingTo(comment);
-        setInputValue(`@${comment.userName} `);
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, []);
+	const handleReply = useCallback((comment) => {
+		setReplyingTo(comment);
+		setInputValue(`@${comment.userName} `);
+		if (inputRef.current) {
+			inputRef.current.focus();
+		}
+	}, []);
 
-    const handleCancelReply = useCallback(() => {
-        setReplyingTo(null);
-        setInputValue(''); 
-    }, []);
+	const handleCancelReply = useCallback(() => {
+		setReplyingTo(null);
+		setInputValue('');
+	}, []);
 
 	const handleSendComment = async () => {
 		if (!auth.user) { auth.openAuthModal(); return; }
@@ -6400,7 +6400,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 			setInputValue('');
 			setReplyingTo(null);
 			setTimeout(() => {
-				try { contentRef.current?.scrollTo({ top: contentRef.current.scrollHeight, behavior: 'smooth' }); } catch {}
+				try { contentRef.current?.scrollTo({ top: contentRef.current.scrollHeight, behavior: 'smooth' }); } catch { }
 			}, 80);
 		} catch (err) {
 			// show inline error briefly
@@ -6409,52 +6409,52 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 		}
 	};
 
-    // Pointer handlers for the grab handle -> allow vertical drag resizing
-    const onHandlePointerDown = (e) => {
-        e.preventDefault();
-        const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-        dragState.current.dragging = true;
-        dragState.current.startY = clientY;
-        dragState.current.startHeight = currentHeight;
+	// Pointer handlers for the grab handle -> allow vertical drag resizing
+	const onHandlePointerDown = (e) => {
+		e.preventDefault();
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		dragState.current.dragging = true;
+		dragState.current.startY = clientY;
+		dragState.current.startHeight = currentHeight;
 
-        // attach listeners to window for consistent behaviour
-        window.addEventListener("pointermove", onHandlePointerMove);
-        window.addEventListener("pointerup", onHandlePointerUp);
-    };
+		// attach listeners to window for consistent behaviour
+		window.addEventListener("pointermove", onHandlePointerMove);
+		window.addEventListener("pointerup", onHandlePointerUp);
+	};
 
-    const onHandlePointerMove = (e) => {
-        if (!dragState.current.dragging) return;
-        const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-        if (typeof clientY !== "number") return;
-        const dy = dragState.current.startY - clientY; // dragging upward increases height
-        let next = dragState.current.startHeight + dy;
-        next = Math.max(minHeight, Math.min(maxHeight, next));
-        setCurrentHeight(next);
-    };
+	const onHandlePointerMove = (e) => {
+		if (!dragState.current.dragging) return;
+		const clientY = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+		if (typeof clientY !== "number") return;
+		const dy = dragState.current.startY - clientY; // dragging upward increases height
+		let next = dragState.current.startHeight + dy;
+		next = Math.max(minHeight, Math.min(maxHeight, next));
+		setCurrentHeight(next);
+	};
 
-    const onHandlePointerUp = (e) => {
-        if (!dragState.current.dragging) return;
-        dragState.current.dragging = false;
-        // cleanup
-        window.removeEventListener("pointermove", onHandlePointerMove);
-        window.removeEventListener("pointerup", onHandlePointerUp);
+	const onHandlePointerUp = (e) => {
+		if (!dragState.current.dragging) return;
+		dragState.current.dragging = false;
+		// cleanup
+		window.removeEventListener("pointermove", onHandlePointerMove);
+		window.removeEventListener("pointerup", onHandlePointerUp);
 
-        // optional: if user drags the sheet down almost to zero, close it
-        if (currentHeight < minHeight + 20) {
-            onClose();
-        }
-    };
+		// optional: if user drags the sheet down almost to zero, close it
+		if (currentHeight < minHeight + 20) {
+			onClose();
+		}
+	};
 
-    // Clean up listeners if component unmounts while dragging
-    useEffect(() => {
-        return () => {
-            window.removeEventListener("pointermove", onHandlePointerMove);
-            window.removeEventListener("pointerup", onHandlePointerUp);
-        };
-    }, []);
+	// Clean up listeners if component unmounts while dragging
+	useEffect(() => {
+		return () => {
+			window.removeEventListener("pointermove", onHandlePointerMove);
+			window.removeEventListener("pointerup", onHandlePointerUp);
+		};
+	}, []);
 
-    return isOpen ? (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center" onClick={onClose}>
+	return isOpen ? (
+		<div className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center" onClick={onClose}>
 			<div
 				ref={modalRef}
 				className="modal-dialog w-full max-w-md bg-white rounded-t-2xl shadow-xl overflow-hidden flex flex-col"
@@ -6476,51 +6476,51 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 					<div className="absolute top-3 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded">{getTranslation('Drag to resize', selectedLanguage)}</div>
 				)}
 
-                {/* Header: comment icon + single title "Comments" */}
-                <div className="px-4 py-3 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#f3f4f6] flex items-center justify-center">
+				{/* Header: comment icon + single title "Comments" */}
+				<div className="px-4 py-3 border-b border-gray-200">
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<div className="w-8 h-8 rounded-full bg-[#f3f4f6] flex items-center justify-center">
 								<CommentIcon size={16} stroke="#6b7280" />
 							</div>
-                            <h2 className="text-lg font-medium text-gray-800">{getTranslation('Comments', selectedLanguage)}</h2>
-                        </div>
-                    </div>
-                </div>
+							<h2 className="text-lg font-medium text-gray-800">{getTranslation('Comments', selectedLanguage)}</h2>
+						</div>
+					</div>
+				</div>
 
-                {/* Comments list — when empty show large icon & centered messages */}
-                <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-3 flex">
-                    {comments.length === 0 ? (
-                        <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
-                            <CommentIconLarge />
-                            <p className="mt-6 text-lg font-medium text-gray-700">{getTranslation('No comments yet', selectedLanguage)}</p>
-                            <p className="mt-2 text-sm text-gray-500">{getTranslation('Be the first to share your thoughts!', selectedLanguage)}</p>
-                        </div>
-                    ) : (
-                        <div className="w-full">
-                            {comments.map(comment => (
-                                <CommentItem 
-                                    key={comment.id} 
-                                    comment={comment} 
-                                    onReply={handleReply}
-                                    selectedLanguage={selectedLanguage}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
+				{/* Comments list — when empty show large icon & centered messages */}
+				<div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-3 flex">
+					{comments.length === 0 ? (
+						<div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
+							<CommentIconLarge />
+							<p className="mt-6 text-lg font-medium text-gray-700">{getTranslation('No comments yet', selectedLanguage)}</p>
+							<p className="mt-2 text-sm text-gray-500">{getTranslation('Be the first to share your thoughts!', selectedLanguage)}</p>
+						</div>
+					) : (
+						<div className="w-full">
+							{comments.map(comment => (
+								<CommentItem
+									key={comment.id}
+									comment={comment}
+									onReply={handleReply}
+									selectedLanguage={selectedLanguage}
+								/>
+							))}
+						</div>
+					)}
+				</div>
 
-                {/* Input area — sticky to bottom so it always sits at the bottom of the sheet */}
-                <div className="px-4 py-3 border-t border-gray-200 bg-white sticky bottom-0" style={{ zIndex: 30 }}>
-                    {replyingTo && (
-                        <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
-                            <span>{getTranslation('Replying to', selectedLanguage)} @{replyingTo.userName}</span>
-                            <button onClick={handleCancelReply} className="text-indigo-600 hover:underline">
-                                {getTranslation('Cancel', selectedLanguage)}
-                            </button>
-                        </div>
-                    )}
-                    <div className="flex items-center space-x-3">
+				{/* Input area — sticky to bottom so it always sits at the bottom of the sheet */}
+				<div className="px-4 py-3 border-t border-gray-200 bg-white sticky bottom-0" style={{ zIndex: 30 }}>
+					{replyingTo && (
+						<div className="flex items-center justify-between text-sm text-gray-500 mb-2">
+							<span>{getTranslation('Replying to', selectedLanguage)} @{replyingTo.userName}</span>
+							<button onClick={handleCancelReply} className="text-indigo-600 hover:underline">
+								{getTranslation('Cancel', selectedLanguage)}
+							</button>
+						</div>
+					)}
+					<div className="flex items-center space-x-3">
 						<input
 							name="commentText"
 							ref={inputRef}
@@ -6535,18 +6535,18 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 							placeholder={getTranslation('Add a comment... (use @ to mention)', selectedLanguage)}
 							className="flex-1 bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
 						/>
-                        <button 
-                            onClick={handleSendComment} 
-                            className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shadow-md"
-                            aria-label="Send comment"
-                        >
-                            <SendIcon />
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    ) : null;
+						<button
+							onClick={handleSendComment}
+							className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shadow-md"
+							aria-label="Send comment"
+						>
+							<SendIcon />
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	) : null;
 };
 
 // Add small Comment + Send icons used by the modal header / empty state / send button

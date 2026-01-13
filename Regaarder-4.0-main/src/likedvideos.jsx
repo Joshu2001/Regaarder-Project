@@ -35,25 +35,25 @@ export async function recordLike(event) {
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(0, 500))); // keep last 500
     // notify listeners for real-time updates
-    try { window.dispatchEvent(new CustomEvent('likes:updated', { detail: { count: arr.length } })); } catch {}
+    try { window.dispatchEvent(new CustomEvent('likes:updated', { detail: { count: arr.length } })); } catch { }
 
     // Persist to backend
     try {
-        const token = localStorage.getItem('regaarder_token');
-        if (token) {
-            await fetch(`${BACKEND_URL}/likes`, {
-                method: event.liked ? 'POST' : 'DELETE',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ videoId: event.videoId })
-            });
-        }
+      const token = localStorage.getItem('regaarder_token');
+      if (token) {
+        await fetch(`${BACKEND_URL}/likes`, {
+          method: event.liked ? 'POST' : 'DELETE',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ videoId: event.videoId })
+        });
+      }
     } catch (e) { console.warn('Failed to sync like to backend', e); }
-  } catch {}
+  } catch { }
 }
 
 export function clearLikedVideos() {
-  try { localStorage.removeItem(STORAGE_KEY); } catch {}
-  try { window.dispatchEvent(new CustomEvent('likes:updated', { detail: { count: 0 } })); } catch {}
+  try { localStorage.removeItem(STORAGE_KEY); } catch { }
+  try { window.dispatchEvent(new CustomEvent('likes:updated', { detail: { count: 0 } })); } catch { }
 }
 
 function loadLikedVideos() {
@@ -86,10 +86,10 @@ export default function LikedVideos() {
   const setTranslate = (id, val) => setSwipeTranslate((prev) => ({ ...prev, [id]: val }));
 
   const removeLiked = (videoId) => {
-    try { recordLike({ videoId, liked: false }); } catch {}
+    try { recordLike({ videoId, liked: false }); } catch { }
     setItems(loadLikedVideos());
     setSwipeTranslate((prev) => { const n = { ...prev }; delete n[videoId]; return n; });
-    try { window.dispatchEvent(new CustomEvent('likes:updated', { detail: { count: loadLikedVideos().length } })); } catch {}
+    try { window.dispatchEvent(new CustomEvent('likes:updated', { detail: { count: loadLikedVideos().length } })); } catch { }
   };
 
   useEffect(() => {
@@ -143,9 +143,9 @@ export default function LikedVideos() {
     try {
       const payload = { url, title, creatorName: it.creatorName };
       localStorage.setItem('miniPlayerData', JSON.stringify(payload));
-    } catch {}
+    } catch { }
     try {
-      const href = `/videoplayer?src=${encodeURIComponent(url||'')}&title=${encodeURIComponent(title||'')}`;
+      const href = `/videoplayer?src=${encodeURIComponent(url || '')}&title=${encodeURIComponent(title || '')}`;
       window.location.href = href;
     } catch {
       navigate('/videoplayer');
@@ -238,9 +238,9 @@ export default function LikedVideos() {
                   }
                 }}
                 style={{
-                  transform: `translateX(${(swipeTranslate[it.videoId]||0)}px)`,
+                  transform: `translateX(${(swipeTranslate[it.videoId] || 0)}px)`,
                   transition: (dragRef.current[it.videoId]?.dragging ? 'none' : 'transform 220ms ease'),
-                  opacity: (swipeTranslate[it.videoId]||0) < 0 ? 0.98 : 1,
+                  opacity: (swipeTranslate[it.videoId] || 0) < 0 ? 0.98 : 1,
                   touchAction: 'pan-y'
                 }}
               >
@@ -253,10 +253,10 @@ export default function LikedVideos() {
                 <button className="p-2 text-gray-600 hover:text-gray-900" aria-label="Share" onClick={(e) => {
                   e.stopPropagation();
                   const url = it.url || it.videoId;
-                  const link = url ? `${window.location.origin}/videoplayer?src=${encodeURIComponent(url)}&title=${encodeURIComponent(title||'')}` : window.location.href;
+                  const link = url ? `${window.location.origin}/videoplayer?src=${encodeURIComponent(url)}&title=${encodeURIComponent(title || '')}` : window.location.href;
                   const sharePayload = { title, text: title, url: link };
-                  if (navigator.share) { navigator.share(sharePayload).catch(() => {}); }
-                  else { try { navigator.clipboard && navigator.clipboard.writeText(link); alert(t('Share link copied')); } catch {} }
+                  if (navigator.share) { navigator.share(sharePayload).catch(() => { }); }
+                  else { try { navigator.clipboard && navigator.clipboard.writeText(link); alert(t('Share link copied')); } catch { } }
                 }}>
                   <MoreHorizontal className="w-5 h-5" />
                 </button>

@@ -5,7 +5,7 @@ import { Users, X, Search, Folder, Bookmark, Play, Calendar, Video, Clock } from
 import { getTranslation } from './translations';
 
 // Local fallback Search context/provider/hook so this file doesn't depend on `./home` being present.
-const SearchContext = createContext({ search: '', setSearch: () => {} });
+const SearchContext = createContext({ search: '', setSearch: () => { } });
 const DefaultSearchProvider = ({ children }) => {
   const [search, setSearch] = useState('');
   return <SearchContext.Provider value={{ search, setSearch }}>{children}</SearchContext.Provider>;
@@ -47,7 +47,7 @@ const getPlaceholderAvatar = (name) => {
   const initials = (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   const colors = ['f87171', '34d399', 'a78bfa', '60a5fa', 'fbbf24', 'ec4899', 'fb923c', '4ade80'];
   const colorIndex = (name || '').charCodeAt(0) % colors.length;
-  const normalized = initials.padEnd(2, 'U').substring(0,2);
+  const normalized = initials.padEnd(2, 'U').substring(0, 2);
   const A_CODE = 'A'.charCodeAt(0);
 
   // If we have two A-Z characters, build a Twemoji URL for a colored flag PNG
@@ -145,83 +145,81 @@ const VideoSelection = ({ onVideoSelect, videos = [], selectedLanguage = 'Englis
     : videos;
 
   return (
-  <>
-    <StepTitle number={1} title="Select Video" required={true} selectedLanguage={selectedLanguage} />
-    {/* Search Input - synced with home.jsx SearchProvider */}
-    <div className="relative">
-      <input
-        name="videoSearch"
-        type="text"
-        placeholder={getTranslation('Search videos...', selectedLanguage)}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition duration-150"
-      />
-      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-    </div>
+    <>
+      <StepTitle number={1} title="Select Video" required={true} selectedLanguage={selectedLanguage} />
+      {/* Search Input - synced with home.jsx SearchProvider */}
+      <div className="relative">
+        <input
+          name="videoSearch"
+          type="text"
+          placeholder={getTranslation('Search videos...', selectedLanguage)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition duration-150"
+        />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+      </div>
 
-    {/* Tabs */}
-    <div className="flex space-x-3 mt-4">
-      <button className="flex items-center space-x-2 px-4 py-2 bg-violet-50 rounded-xl text-sm font-medium text-gray-700 hover:bg-violet-100 transition duration-150">
-        <Folder className="w-5 h-5 text-gray-600" />
-        <span>{getTranslation('From Folders', selectedLanguage)}</span>
-      </button>
-      <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition duration-150">
-        <Bookmark className="w-5 h-5 text-gray-600" />
-        <span>{getTranslation('Bookmarks', selectedLanguage)}</span>
-      </button>
-    </div>
+      {/* Tabs */}
+      <div className="flex space-x-3 mt-4">
+        <button className="flex items-center space-x-2 px-4 py-2 bg-violet-50 rounded-xl text-sm font-medium text-gray-700 hover:bg-violet-100 transition duration-150">
+          <Folder className="w-5 h-5 text-gray-600" />
+          <span>{getTranslation('From Folders', selectedLanguage)}</span>
+        </button>
+        <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition duration-150">
+          <Bookmark className="w-5 h-5 text-gray-600" />
+          <span>{getTranslation('Bookmarks', selectedLanguage)}</span>
+        </button>
+      </div>
 
-    {/* Video List - SCROLLABLE CONTAINER */}
-    <div className="mt-6 p-4 rounded-xl border border-violet-200 bg-white max-h-64 overflow-y-auto shadow-sm">
-      <div className="space-y-2">
-        {list.map((video) => (
-          <div
-            key={video.id}
-            onClick={() => onVideoSelect && onVideoSelect(video.id)}
-            role="button"
-            tabIndex={0}
-            onKeyPress={(e) => { if (e.key === 'Enter') onVideoSelect && onVideoSelect(video.id); }}
-            className={`cursor-pointer py-3 px-2 rounded-lg transition duration-150 ${
-              video.isCurrent
-                ? 'bg-violet-50' // Highlighted background for current video
-                : 'hover:bg-gray-50'
-            }`}
-          >
-            <div className="flex items-start">
-              <div className="flex-shrink-0 mr-4 mt-1">
-                {video.isCurrent ? (
-                  <Play className="w-5 h-5 text-violet-600" fill="currentColor" />
-                ) : (
-                  <Video className="w-5 h-5 text-gray-500" />
-                )}
-              </div>
-              <div>
-                <p
-                  className={`font-medium ${
-                    video.isCurrent ? 'text-violet-700' : 'text-gray-800'
-                  }`}
-                >
-                  {video.title}
-                </p>
-                <p className="text-sm text-gray-500">
+      {/* Video List - SCROLLABLE CONTAINER */}
+      <div className="mt-6 p-4 rounded-xl border border-violet-200 bg-white max-h-64 overflow-y-auto shadow-sm">
+        <div className="space-y-2">
+          {list.map((video) => (
+            <div
+              key={video.id}
+              onClick={() => onVideoSelect && onVideoSelect(video.id)}
+              role="button"
+              tabIndex={0}
+              onKeyPress={(e) => { if (e.key === 'Enter') onVideoSelect && onVideoSelect(video.id); }}
+              className={`cursor-pointer py-3 px-2 rounded-lg transition duration-150 ${video.isCurrent
+                  ? 'bg-violet-50' // Highlighted background for current video
+                  : 'hover:bg-gray-50'
+                }`}
+            >
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mr-4 mt-1">
                   {video.isCurrent ? (
-                    video.subtitle
+                    <Play className="w-5 h-5 text-violet-600" fill="currentColor" />
                   ) : (
-                    <>
-                      <span className="font-mono">{video.subtitle}</span>
-                      <span className="mx-2 text-xs">•</span>
-                      <span className="font-normal">{video.channel}</span>
-                    </>
+                    <Video className="w-5 h-5 text-gray-500" />
                   )}
-                </p>
+                </div>
+                <div>
+                  <p
+                    className={`font-medium ${video.isCurrent ? 'text-violet-700' : 'text-gray-800'
+                      }`}
+                  >
+                    {video.title}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {video.isCurrent ? (
+                      video.subtitle
+                    ) : (
+                      <>
+                        <span className="font-mono">{video.subtitle}</span>
+                        <span className="mx-2 text-xs">•</span>
+                        <span className="font-normal">{video.channel}</span>
+                      </>
+                    )}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  </>
+    </>
   );
 };
 
@@ -231,87 +229,83 @@ const InviteFriends = ({ selectedFriends, toggleFriend, selectedFriendsCount, fr
   const filteredFriends = friends.filter(friend => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
-    return (friend.name || '').toLowerCase().includes(query) || 
-           (friend.email || '').toLowerCase().includes(query);
+    return (friend.name || '').toLowerCase().includes(query) ||
+      (friend.email || '').toLowerCase().includes(query);
   });
 
   return (
-  <>
-    <StepTitle number={2} title="Invite Friends" badge={selectedFriendsCount} selectedLanguage={selectedLanguage} />
-    {/* Search Input - FOCUS TO GREY */}
-    <div className="relative mb-6">
-      <input
-        name="friendSearch"
-        type="text"
-        placeholder={getTranslation('Search friends...', selectedLanguage)}
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition duration-150"
-      />
-      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-    </div>
+    <>
+      <StepTitle number={2} title="Invite Friends" badge={selectedFriendsCount} selectedLanguage={selectedLanguage} />
+      {/* Search Input - FOCUS TO GREY */}
+      <div className="relative mb-6">
+        <input
+          name="friendSearch"
+          type="text"
+          placeholder={getTranslation('Search friends...', selectedLanguage)}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition duration-150"
+        />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+      </div>
 
-    {/* Friend List */}
-    <div className="space-y-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 max-h-96 overflow-y-auto">
-      {filteredFriends.length === 0 ? (
-        <p className="text-center text-gray-500 py-4">{getTranslation('No friends found', selectedLanguage)}</p>
-      ) : (
-        filteredFriends.map((friend) => {
-        const isSelected = selectedFriends.includes(friend.id);
-        const isOnline = friend.status === 'Online';
-        const avatarUrl = friend.image ? resolveImageUrl(friend.image) : getPlaceholderAvatar(friend.name);
-        return (
-          <div
-            key={friend.id}
-            onClick={() => toggleFriend(friend.id)}
-            className={`flex items-center p-2 rounded-lg cursor-pointer transition duration-150 ${
-              isSelected
-                ? 'bg-violet-50 border border-violet-200'
-                : 'hover:bg-gray-50'
-            }`}
-          >
-            <div className="relative flex-shrink-0">
-              <img
-                src={avatarUrl}
-                alt={friend.name}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = getPlaceholderAvatar(friend.name);
-                }}
-                className="w-10 h-10 rounded-full object-cover"
-              />
+      {/* Friend List */}
+      <div className="space-y-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 max-h-96 overflow-y-auto">
+        {filteredFriends.length === 0 ? (
+          <p className="text-center text-gray-500 py-4">{getTranslation('No friends found', selectedLanguage)}</p>
+        ) : (
+          filteredFriends.map((friend) => {
+            const isSelected = selectedFriends.includes(friend.id);
+            const isOnline = friend.status === 'Online';
+            const avatarUrl = friend.image ? resolveImageUrl(friend.image) : getPlaceholderAvatar(friend.name);
+            return (
               <div
-                className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                  isOnline ? 'bg-green-500' : 'bg-gray-400'
-                }`}
-              />
-            </div>
-            <div className="ml-3">
-              <p className="font-medium text-gray-800">{friend.name}</p>
-              <p
-                className={`text-sm ${
-                  isOnline ? 'text-green-500' : 'text-gray-500'
-                }`}
+                key={friend.id}
+                onClick={() => toggleFriend(friend.id)}
+                className={`flex items-center p-2 rounded-lg cursor-pointer transition duration-150 ${isSelected
+                    ? 'bg-violet-50 border border-violet-200'
+                    : 'hover:bg-gray-50'
+                  }`}
               >
-                {friend.status}
-              </p>
-            </div>
-            {/* The subtle selection ring/border shown in the image is handled by the container styling above */}
-            <div
-              className={`ml-auto w-5 h-5 border-2 rounded-full flex-shrink-0 ${
-                isSelected
-                  ? 'bg-violet-600 border-violet-600'
-                  : 'border-gray-300'
-              }`}
-            >
-              {isSelected && <CheckIcon />}
-            </div>
-          </div>
-        );
-      })
-      )}
-    </div>
-  </>
+                <div className="relative flex-shrink-0">
+                  <img
+                    src={avatarUrl}
+                    alt={friend.name}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = getPlaceholderAvatar(friend.name);
+                    }}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div
+                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isOnline ? 'bg-green-500' : 'bg-gray-400'
+                      }`}
+                  />
+                </div>
+                <div className="ml-3">
+                  <p className="font-medium text-gray-800">{friend.name}</p>
+                  <p
+                    className={`text-sm ${isOnline ? 'text-green-500' : 'text-gray-500'
+                      }`}
+                  >
+                    {friend.status}
+                  </p>
+                </div>
+                {/* The subtle selection ring/border shown in the image is handled by the container styling above */}
+                <div
+                  className={`ml-auto w-5 h-5 border-2 rounded-full flex-shrink-0 ${isSelected
+                      ? 'bg-violet-600 border-violet-600'
+                      : 'border-gray-300'
+                    }`}
+                >
+                  {isSelected && <CheckIcon />}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </>
   );
 };
 
@@ -337,7 +331,7 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode, selectedLanguage = 'Engl
 
   const isNowActive = watchTimeMode === 'now';
   const isScheduleActive = watchTimeMode === 'schedule';
-  
+
   return (
     <>
       <StepTitle number={3} title="When to Watch" selectedLanguage={selectedLanguage} />
@@ -345,11 +339,10 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode, selectedLanguage = 'Engl
         {/* Start Now Button */}
         <button
           onClick={() => setWatchTimeMode('now')}
-          className={`flex-1 flex flex-col items-center justify-center p-6 rounded-xl shadow-lg transition duration-150 transform hover:scale-[1.02] active:scale-[0.98] ${
-            isNowActive
+          className={`flex-1 flex flex-col items-center justify-center p-6 rounded-xl shadow-lg transition duration-150 transform hover:scale-[1.02] active:scale-[0.98] ${isNowActive
               ? 'bg-violet-600 text-white' // Active (Purple)
               : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' // Inactive (White/Grey)
-          }`}
+            }`}
         >
           <Play className={`w-8 h-8 mb-2 ${isNowActive ? 'text-white' : 'text-gray-700'}`} />
           <span className="text-lg font-semibold">{getTranslation('Start Now', selectedLanguage)}</span>
@@ -359,11 +352,10 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode, selectedLanguage = 'Engl
         {/* Schedule Button */}
         <button
           onClick={() => setWatchTimeMode('schedule')}
-          className={`flex-1 flex flex-col items-center justify-center p-6 rounded-xl shadow-lg transition duration-150 transform hover:scale-[1.02] active:scale-[0.98] ${
-            isScheduleActive
+          className={`flex-1 flex flex-col items-center justify-center p-6 rounded-xl shadow-lg transition duration-150 transform hover:scale-[1.02] active:scale-[0.98] ${isScheduleActive
               ? 'bg-violet-600 text-white' // Active (Purple) - Matches image when Schedule is selected
               : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' // Inactive (White/Grey)
-          }`}
+            }`}
         >
           <Calendar className={`w-8 h-8 mb-2 ${isScheduleActive ? 'text-white' : 'text-gray-700'}`} />
           <span className="text-lg font-semibold">{getTranslation('Schedule', selectedLanguage)}</span>
@@ -450,7 +442,7 @@ const WhenToWatch = ({ watchTimeMode, setWatchTimeMode, selectedLanguage = 'Engl
 
 const App = () => {
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     try {
       console.log('WatchTogether App mounted');
@@ -461,7 +453,7 @@ const App = () => {
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [selectedLanguage] = useState(() => localStorage.getItem('regaarder_language') || 'English');
   // NEW STATE: To track if 'now' or 'schedule' is selected
-  const [watchTimeMode, setWatchTimeMode] = useState('now'); 
+  const [watchTimeMode, setWatchTimeMode] = useState('now');
   // Error state for display
   const [errorMessage, setErrorMessage] = useState(null);
   // Friends state
@@ -611,111 +603,109 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-    <SearchProvider>
-    {/* Outer container for full-page white background */}
-    <div className="min-h-screen bg-white font-sans">
-      {/* Inner container for max-width on larger screens (but still full width on mobile) */}
-      <div className="w-full bg-white max-w-4xl mx-auto rounded-none sm:rounded-3xl shadow-none sm:shadow-2xl overflow-hidden min-h-screen sm:min-h-0">
-        {/* Header */}
-          <div className="p-6 border-b border-gray-200 flex justify-between items-start">
-          <div className="flex items-center">
-            <div className="relative">
-              <div className="p-3 bg-violet-100 rounded-full">
-                <Users className="w-6 h-6 text-violet-500" />
+      <SearchProvider>
+        {/* Outer container for full-page white background */}
+        <div className="min-h-screen bg-white font-sans">
+          {/* Inner container for max-width on larger screens (but still full width on mobile) */}
+          <div className="w-full bg-white max-w-4xl mx-auto rounded-none sm:rounded-3xl shadow-none sm:shadow-2xl overflow-hidden min-h-screen sm:min-h-0">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-200 flex justify-between items-start">
+              <div className="flex items-center">
+                <div className="relative">
+                  <div className="p-3 bg-violet-100 rounded-full">
+                    <Users className="w-6 h-6 text-violet-500" />
+                  </div>
+                  <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-violet-500 rounded-full border-2 border-white" />
+                </div>
+                <div className="ml-3">
+                  <h1 className="text-xl font-bold text-gray-800">{getTranslation('Watch Together', selectedLanguage)}</h1>
+                  <p className="text-sm text-gray-500">{getTranslation('Synchronized viewing experience', selectedLanguage)}</p>
+                </div>
               </div>
-              <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-violet-500 rounded-full border-2 border-white" />
+              <button onClick={() => handleExitClick()} className="text-gray-400 hover:text-gray-600 transition duration-150">
+                <X className="w-6 h-6" />
+              </button>
             </div>
-            <div className="ml-3">
-              <h1 className="text-xl font-bold text-gray-800">{getTranslation('Watch Together', selectedLanguage)}</h1>
-              <p className="text-sm text-gray-500">{getTranslation('Synchronized viewing experience', selectedLanguage)}</p>
+
+            {/* Main Content Area */}
+            <div className="p-6 sm:p-8">
+              {errorMessage && (
+                <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700">
+                  <strong>{getTranslation('Error', selectedLanguage)}:</strong> {getTranslation(errorMessage, selectedLanguage)}
+                </div>
+              )}
+              <WatchPartyIcon selectedLanguage={selectedLanguage} />
+
+              {/* Steps Container */}
+              <div className="mt-4 space-y-6">
+                <VideoSelection onVideoSelect={handleVideoSelect} videos={videos} selectedLanguage={selectedLanguage} />
+                <InviteFriends
+                  selectedFriends={selectedFriends}
+                  toggleFriend={toggleFriend}
+                  selectedFriendsCount={selectedFriendsCount}
+                  friends={friends}
+                  searchQuery={friendSearchQuery}
+                  setSearchQuery={setFriendSearchQuery}
+                  selectedLanguage={selectedLanguage}
+                />
+                {/* Pass the mode state and setter to WhenToWatch */}
+                <WhenToWatch
+                  watchTimeMode={watchTimeMode}
+                  setWatchTimeMode={setWatchTimeMode}
+                  selectedLanguage={selectedLanguage}
+                />
+              </div>
+
+              {/* Footer: Create Button */}
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <button
+                  className={`w-full flex items-center justify-center space-x-2 py-3 px-4 text-white font-semibold rounded-xl shadow-lg transition duration-200 transform ${isCreateButtonEnabled
+                      ? 'bg-violet-600 hover:bg-violet-700 active:scale-[0.99] shadow-violet-300/50'
+                      : 'bg-violet-300 cursor-not-allowed shadow-none'
+                    }`}
+                  disabled={!isCreateButtonEnabled}
+                  onClick={() => {
+                    if (isCreateButtonEnabled) {
+                      console.log(`Action: ${actionButtonText} with friends:`, selectedFriends);
+                    }
+                  }}
+                >
+                  <Users className="w-5 h-5" />
+                  {/* Use dynamic button text */}
+                  <span>{actionButtonText}</span>
+                </button>
+                <p
+                  className={`text-center mt-3 text-sm transition-opacity duration-200 ${isCreateButtonEnabled
+                      ? 'opacity-0 h-0'
+                      : 'text-red-500 opacity-100'
+                    }`}
+                >
+                  {getTranslation('Please select at least one friend to continue', selectedLanguage)}
+                </p>
+              </div>
+
+              {/* How it works section */}
+              <div className="mt-6 p-4 bg-violet-50 rounded-xl border border-violet-200">
+                <p className="font-semibold text-gray-800 mb-2">{getTranslation('How it works', selectedLanguage)}</p>
+                <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                  <li className="flex items-start">
+                    <span className="text-violet-600 mr-2">•</span>
+                    <span>{getTranslation('Everyone sees the same video at the same time', selectedLanguage)}</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-violet-600 mr-2">•</span>
+                    <span>{getTranslation('When anyone pauses, plays, or seeks - everyone syncs', selectedLanguage)}</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-violet-600 mr-2">•</span>
+                    <span>{getTranslation('Host has full control over playback', selectedLanguage)}</span>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
-          <button onClick={() => handleExitClick()} className="text-gray-400 hover:text-gray-600 transition duration-150">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="p-6 sm:p-8">
-          {errorMessage && (
-            <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700">
-              <strong>{getTranslation('Error', selectedLanguage)}:</strong> {getTranslation(errorMessage, selectedLanguage)}
-            </div>
-          )}
-          <WatchPartyIcon selectedLanguage={selectedLanguage} />
-
-          {/* Steps Container */}
-          <div className="mt-4 space-y-6">
-            <VideoSelection onVideoSelect={handleVideoSelect} videos={videos} selectedLanguage={selectedLanguage} />
-            <InviteFriends
-              selectedFriends={selectedFriends}
-              toggleFriend={toggleFriend}
-              selectedFriendsCount={selectedFriendsCount}
-              friends={friends}
-              searchQuery={friendSearchQuery}
-              setSearchQuery={setFriendSearchQuery}
-              selectedLanguage={selectedLanguage}
-            />
-            {/* Pass the mode state and setter to WhenToWatch */}
-            <WhenToWatch 
-              watchTimeMode={watchTimeMode} 
-              setWatchTimeMode={setWatchTimeMode} 
-              selectedLanguage={selectedLanguage}
-            />
-          </div>
-
-          {/* Footer: Create Button */}
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <button
-              className={`w-full flex items-center justify-center space-x-2 py-3 px-4 text-white font-semibold rounded-xl shadow-lg transition duration-200 transform ${
-                isCreateButtonEnabled
-                  ? 'bg-violet-600 hover:bg-violet-700 active:scale-[0.99] shadow-violet-300/50'
-                  : 'bg-violet-300 cursor-not-allowed shadow-none'
-              }`}
-              disabled={!isCreateButtonEnabled}
-              onClick={() => {
-                if (isCreateButtonEnabled) {
-                  console.log(`Action: ${actionButtonText} with friends:`, selectedFriends);
-                }
-              }}
-            >
-              <Users className="w-5 h-5" />
-              {/* Use dynamic button text */}
-              <span>{actionButtonText}</span>
-            </button>
-            <p
-              className={`text-center mt-3 text-sm transition-opacity duration-200 ${
-                isCreateButtonEnabled
-                  ? 'opacity-0 h-0'
-                  : 'text-red-500 opacity-100'
-              }`}
-            >
-              {getTranslation('Please select at least one friend to continue', selectedLanguage)}
-            </p>
-          </div>
-
-          {/* How it works section */}
-          <div className="mt-6 p-4 bg-violet-50 rounded-xl border border-violet-200">
-            <p className="font-semibold text-gray-800 mb-2">{getTranslation('How it works', selectedLanguage)}</p>
-            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-              <li className="flex items-start">
-                <span className="text-violet-600 mr-2">•</span>
-                <span>{getTranslation('Everyone sees the same video at the same time', selectedLanguage)}</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-violet-600 mr-2">•</span>
-                <span>{getTranslation('When anyone pauses, plays, or seeks - everyone syncs', selectedLanguage)}</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-violet-600 mr-2">•</span>
-                <span>{getTranslation('Host has full control over playback', selectedLanguage)}</span>
-              </li>
-            </ul>
           </div>
         </div>
-      </div>
-    </div>
-    </SearchProvider>
+      </SearchProvider>
     </ErrorBoundary>
   );
 };

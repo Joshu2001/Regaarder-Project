@@ -16,10 +16,10 @@ const timeAgo = (iso, lang = 'English') => {
     const hours = Math.floor(mins / 60);
     const days = Math.floor(hours / 24);
     const months = Math.floor(days / 30);
-    if (months > 0) return `${months} month${months>1?'s':''} ago`;
-    if (days > 0) return `${days} day${days>1?'s':''} ago`;
-    if (hours > 0) return `${hours} hour${hours>1?'s':''} ago`;
-    return `${mins} minute${mins!==1?'s':''} ago`;
+    if (months > 0) return `${months} month${months > 1 ? 's' : ''} ago`;
+    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    return `${mins} minute${mins !== 1 ? 's' : ''} ago`;
   } catch { return getTranslation('Unknown', lang); }
 };
 
@@ -31,7 +31,7 @@ const Settings = () => {
   });
   const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
 
-  const user = (() => { try { return auth.user || JSON.parse(localStorage.getItem('regaarder_user')||'{}'); } catch { return {}; } })();
+  const user = (() => { try { return auth.user || JSON.parse(localStorage.getItem('regaarder_user') || '{}'); } catch { return {}; } })();
   const token = (() => { try { return localStorage.getItem('regaarder_token'); } catch { return null; } })();
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -70,8 +70,8 @@ const Settings = () => {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 150);
-    } catch (e) {}
+      setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) { } }, 150);
+    } catch (e) { }
   };
 
   // open the delete-data confirmation modal
@@ -111,7 +111,7 @@ const Settings = () => {
           body: JSON.stringify({ currentPassword: deleteConfirmPassword })
         });
         if (!res.ok) {
-          const json = await res.json().catch(()=>({}));
+          const json = await res.json().catch(() => ({}));
           // surface backend validation errors (e.g. wrong password)
           throw new Error(json.error || 'Failed to delete data on server');
         }
@@ -120,12 +120,12 @@ const Settings = () => {
       // clear well-known client-side keys (keep account token/user/language)
       try {
         // clear watch history through its helper
-        try { clearWatchHistory(); } catch (e) {}
+        try { clearWatchHistory(); } catch (e) { }
 
         CLIENT_KEYS_TO_CLEAR.forEach((k) => {
-          try { localStorage.removeItem(k); } catch (e) {}
+          try { localStorage.removeItem(k); } catch (e) { }
         });
-      } catch (e) {}
+      } catch (e) { }
 
       setDeleteSuccess(true);
       setShowDeleteDataModal(false);
@@ -142,7 +142,7 @@ const Settings = () => {
       localStorage.removeItem('regaarder_token');
       if (auth && auth.logout) auth.logout();
       navigate('/home');
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const submitPassword = async () => {
@@ -155,12 +155,12 @@ const Settings = () => {
     try {
       const res = await fetch(`${BACKEND}/me/password`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token? { Authorization: `Bearer ${token}` } : {}) },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ currentPassword, newPassword })
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed');
-      try { localStorage.setItem('regaarder_user', JSON.stringify(json.user)); } catch {}
+      try { localStorage.setItem('regaarder_user', JSON.stringify(json.user)); } catch { }
       if (auth && auth.login) auth.login({ ...json.user, token });
       setShowPasswordModal(false);
       setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
@@ -174,12 +174,12 @@ const Settings = () => {
     try {
       const res = await fetch(`${BACKEND}/me/email`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token? { Authorization: `Bearer ${token}` } : {}) },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ newEmail, currentPassword: emailPassword })
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed');
-      try { localStorage.setItem('regaarder_user', JSON.stringify(json.user)); } catch {}
+      try { localStorage.setItem('regaarder_user', JSON.stringify(json.user)); } catch { }
       if (auth && auth.login) auth.login({ ...json.user, token });
       setShowEmailModal(false);
       setEmailPassword('');
@@ -190,7 +190,7 @@ const Settings = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
       <div className="w-full max-w-xl min-h-screen flex flex-col" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
         <header className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4">
             <ChevronLeft className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900" onClick={() => navigate('/home')} />
             <h1 className="text-xl font-semibold text-gray-800">{getTranslation('Settings', selectedLanguage)}</h1>
           </div>
@@ -296,7 +296,7 @@ const Settings = () => {
                   type={showCurrentPassword ? 'text' : 'password'}
                   placeholder={getTranslation('Current password', selectedLanguage)}
                   value={currentPassword}
-                  onChange={(e)=>setCurrentPassword(e.target.value)}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                   className="w-full pr-10 p-3 bg-gray-100 rounded-lg"
                 />
                 <button type="button" onClick={() => setShowCurrentPassword(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 p-1">
@@ -309,7 +309,7 @@ const Settings = () => {
                   type={showNewPassword ? 'text' : 'password'}
                   placeholder={getTranslation('New password', selectedLanguage)}
                   value={newPassword}
-                  onChange={(e)=>setNewPassword(e.target.value)}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full pr-10 p-3 bg-gray-100 rounded-lg"
                 />
                 <button type="button" onClick={() => setShowNewPassword(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 p-1">
@@ -322,7 +322,7 @@ const Settings = () => {
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder={getTranslation('Confirm new password', selectedLanguage)}
                   value={confirmPassword}
-                  onChange={(e)=>setConfirmPassword(e.target.value)}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full pr-10 p-3 bg-gray-100 rounded-lg"
                 />
                 <button type="button" onClick={() => setShowConfirmPassword(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 p-1">
@@ -330,7 +330,7 @@ const Settings = () => {
                 </button>
               </div>
             </div>
-            <button disabled={busy} onClick={submitPassword} className={`mt-4 w-full py-3 rounded-lg text-black font-semibold ${busy?'opacity-60':''}`} style={{ backgroundColor: 'var(--color-gold)' }}>{busy?getTranslation('Saving...', selectedLanguage):getTranslation('Save', selectedLanguage)}</button>
+            <button disabled={busy} onClick={submitPassword} className={`mt-4 w-full py-3 rounded-lg text-black font-semibold ${busy ? 'opacity-60' : ''}`} style={{ backgroundColor: 'var(--color-gold)' }}>{busy ? getTranslation('Saving...', selectedLanguage) : getTranslation('Save', selectedLanguage)}</button>
           </div>
         </div>
       )}
@@ -344,14 +344,14 @@ const Settings = () => {
               <button onClick={() => setShowEmailModal(false)} className="p-2 text-gray-500"><X className="w-4 h-4" /></button>
             </div>
             <div className="space-y-3">
-              <input type="email" placeholder={getTranslation('New email', selectedLanguage)} value={newEmail} onChange={(e)=>setNewEmail(e.target.value)} className="w-full p-3 bg-gray-100 rounded-lg" />
+              <input type="email" placeholder={getTranslation('New email', selectedLanguage)} value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="w-full p-3 bg-gray-100 rounded-lg" />
 
               <div className="relative">
                 <input
                   type={showEmailPassword ? 'text' : 'password'}
                   placeholder={getTranslation('Current password', selectedLanguage)}
                   value={emailPassword}
-                  onChange={(e)=>setEmailPassword(e.target.value)}
+                  onChange={(e) => setEmailPassword(e.target.value)}
                   className="w-full pr-10 p-3 bg-gray-100 rounded-lg"
                 />
                 <button type="button" onClick={() => setShowEmailPassword(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 p-1">
@@ -359,7 +359,7 @@ const Settings = () => {
                 </button>
               </div>
             </div>
-            <button disabled={busy} onClick={submitEmail} className={`mt-4 w-full py-3 rounded-lg text-black font-semibold ${busy?'opacity-60':''}`} style={{ backgroundColor: 'var(--color-gold)' }}>{busy?getTranslation('Saving...', selectedLanguage):getTranslation('Save', selectedLanguage)}</button>
+            <button disabled={busy} onClick={submitEmail} className={`mt-4 w-full py-3 rounded-lg text-black font-semibold ${busy ? 'opacity-60' : ''}`} style={{ backgroundColor: 'var(--color-gold)' }}>{busy ? getTranslation('Saving...', selectedLanguage) : getTranslation('Save', selectedLanguage)}</button>
           </div>
         </div>
       )}

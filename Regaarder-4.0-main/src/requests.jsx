@@ -1,10 +1,11 @@
 /* eslint-disable no-empty */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext.jsx';
+import { useLocation } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { getTranslation } from './translations.js';
-import { 
-    Home, MoreHorizontal, FileText, Clock, DollarSign, Search, 
+import {
+    Home, MoreHorizontal, FileText, Clock, DollarSign, Search,
     TrendingUp, Heart, MessageSquare, ChevronsUp, Bookmark, Pin, ChevronDown, ChevronUp, Lightbulb,
     X, Send, ThumbsUp, Zap, Pencil, ThumbsDown, Flag, Share2, HeartOff, SlidersHorizontal, Calendar, CheckCircle2,
     User, Check, Sparkles, Trophy, Rocket, Gem, CreditCard, Award
@@ -173,10 +174,10 @@ const mockRequests = [
 // --- Comment Component (Unchanged) ---
 const CommentItem = ({ comment, onReply, onToggleLike, onToggleDislike, onEdit, onDelete, selectedLanguage = 'English' }) => {
     const isUserComment = comment.userId === MOCK_USER.id;
-    const avatarUrl = isUserComment 
-        ? MOCK_USER.avatarUrl 
-        : 'https://placehold.co/40x40/CCCCCC/666666?text=G'; 
-    
+    const avatarUrl = isUserComment
+        ? MOCK_USER.avatarUrl
+        : 'https://placehold.co/40x40/CCCCCC/666666?text=G';
+
     const parts = comment.text.split(' ');
     const firstWord = parts[0];
     const isReplyText = firstWord.startsWith('@');
@@ -208,7 +209,7 @@ const CommentItem = ({ comment, onReply, onToggleLike, onToggleDislike, onEdit, 
             if (window.confirm('Delete this comment?')) {
                 if (typeof onDelete === 'function') onDelete(comment.id);
             }
-        } catch (e) {}
+        } catch (e) { }
     };
 
     const handleTouchStartLong = () => {
@@ -240,13 +241,13 @@ const CommentItem = ({ comment, onReply, onToggleLike, onToggleDislike, onEdit, 
     return (
         <div className={`flex space-x-3 py-3 border-b border-gray-50 last:border-b-0 ${isReplyText ? 'ml-6' : ''}`}>
             <div className="flex-shrink-0">
-                <img 
-                    src={avatarUrl} 
-                    alt={comment.userName} 
-                    className="w-8 h-8 rounded-full object-cover" 
+                <img
+                    src={avatarUrl}
+                    alt={comment.userName}
+                    className="w-8 h-8 rounded-full object-cover"
                 />
             </div>
-            
+
             <div className="flex-grow min-w-0">
                 <div className="bg-gray-100 rounded-xl p-3 inline-block max-w-full">
                     <p className="text-sm font-semibold text-gray-800 break-words">{comment.userName}</p>
@@ -281,7 +282,7 @@ const CommentItem = ({ comment, onReply, onToggleLike, onToggleDislike, onEdit, 
                         <span className="text-xs font-medium">{comment.dislikesCount || 0}</span>
                     </button>
 
-                    <button 
+                    <button
                         onClick={handleReplyClick}
                         className="hover:text-gray-700 transition-colors"
                     >
@@ -298,18 +299,18 @@ const CommentItem = ({ comment, onReply, onToggleLike, onToggleDislike, onEdit, 
 // --- Reusable Component for the Comments Modal (Unchanged) ---
 const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English' }) => {
     const modalRef = useRef(null);
-    const contentRef = useRef(null); 
-    const inputRef = useRef(null); 
+    const contentRef = useRef(null);
+    const inputRef = useRef(null);
     const auth = useAuth();
-    
-    const [currentHeight, setCurrentHeight] = useState(window.innerHeight * 0.9); 
-    const minHeight = window.innerHeight * 0.4; 
-    const maxHeight = window.innerHeight * 0.95; 
+
+    const [currentHeight, setCurrentHeight] = useState(window.innerHeight * 0.9);
+    const minHeight = window.innerHeight * 0.4;
+    const maxHeight = window.innerHeight * 0.95;
 
     const [comments, setComments] = useState([]);
     const [inputValue, setInputValue] = useState('');
-    const [replyingTo, setReplyingTo] = useState(null); 
-    
+    const [replyingTo, setReplyingTo] = useState(null);
+
     const handleReply = useCallback((comment) => {
         setReplyingTo(comment);
         setInputValue(`@${comment.userName} `);
@@ -318,13 +319,13 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
         }
     }, []);
 
-    
 
-    
+
+
 
     const handleCancelReply = useCallback(() => {
         setReplyingTo(null);
-        setInputValue(''); 
+        setInputValue('');
     }, []);
 
     const handleSendComment = () => {
@@ -339,7 +340,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
             userName: (auth.user && auth.user.name) ? auth.user.name : MOCK_USER.name,
             text: commentText,
             timestamp: new Date(),
-            parentId: replyingTo ? replyingTo.id : null, 
+            parentId: replyingTo ? replyingTo.id : null,
             likesCount: 0,
             dislikesCount: 0,
             likedByUser: false,
@@ -439,14 +440,14 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
     const toggleCommentReaction = async (commentId, action) => {
         try {
             const token = localStorage.getItem('regaarder_token');
-            if (!token) return; 
-            
+            if (!token) return;
+
             const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
             await fetch(`${BACKEND}/comments/react`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ commentId, action, requestId })
             });
@@ -461,7 +462,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
             const wasDisliked = !!c.dislikedByUser;
             let likesCount = Number(c.likesCount || 0);
             let dislikesCount = Number(c.dislikesCount || 0);
-            
+
             // Optimistic update: mutual exclusivity (like cancels dislike)
             if (wasLiked) {
                 // undo like
@@ -489,7 +490,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
             const wasDisliked = !!c.dislikedByUser;
             let likesCount = Number(c.likesCount || 0);
             let dislikesCount = Number(c.dislikesCount || 0);
-            
+
             // Optimistic update: mutual exclusivity (dislike cancels like)
             if (wasDisliked) {
                 // undo dislike
@@ -513,16 +514,16 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
         if (contentRef.current) {
             setTimeout(() => {
                 contentRef.current.scrollTop = contentRef.current.scrollHeight;
-            }, 0); 
+            }, 0);
         }
     }, [comments]);
 
 
     // Unified drag-to-dismiss logic for mobile touch
     const handleTouchStart = useCallback((e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         if (!modalRef.current) return;
-        
+
         const startY = e.touches[0].clientY;
         const startHeight = modalRef.current.clientHeight;
 
@@ -537,15 +538,15 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
         const handleTouchEnd = () => {
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleTouchEnd);
-            
-            if (modalRef.current && modalRef.current.clientHeight < minHeight + 50) { 
+
+            if (modalRef.current && modalRef.current.clientHeight < minHeight + 50) {
                 onClose();
             }
         };
 
         window.addEventListener('touchmove', handleTouchMove, { passive: false });
-        window.addEventListener('touchend', handleTouchEnd); 
-    }, [minHeight, maxHeight, onClose]); 
+        window.addEventListener('touchend', handleTouchEnd);
+    }, [minHeight, maxHeight, onClose]);
 
     // Persist comments per-request in localStorage under `comments_request_<id>`
     const getCommentsKey = (id) => `comments_request_${id}`;
@@ -553,7 +554,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
     useEffect(() => {
         if (isOpen) {
             setCurrentHeight(window.innerHeight * 0.9);
-            document.body.style.overflow = 'hidden'; 
+            document.body.style.overflow = 'hidden';
 
             // Load comments for this request from backend (fallback to localStorage)
             (async () => {
@@ -598,7 +599,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
                 if (inputRef.current) {
                     inputRef.current.focus();
                 }
-            }, 300); 
+            }, 300);
         } else {
             document.body.style.overflow = '';
         }
@@ -613,37 +614,37 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
             if (requestId) {
                 localStorage.setItem(getCommentsKey(requestId), JSON.stringify(comments));
             }
-        } catch (e) {}
+        } catch (e) { }
     }, [comments, requestId]);
 
     const isActive = inputValue.trim().length > 0;
-    
-    const sendButtonStyle = isActive 
-        ? { backgroundColor: '#4b5563', color: 'white' } 
-        : { backgroundColor: '#e5e7eb', color: '#9ca3af' }; 
+
+    const sendButtonStyle = isActive
+        ? { backgroundColor: '#4b5563', color: 'white' }
+        : { backgroundColor: '#e5e7eb', color: '#9ca3af' };
 
     const commentCount = comments.length;
 
     return (
-        <div 
+        <div
             className={`fixed inset-0 z-50 transition-all duration-300 ${isOpen ? 'translate-y-0' : 'translate-y-full pointer-events-none'}`}
-            style={{ 
+            style={{
                 transitionProperty: 'transform',
                 transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
                 transitionDuration: isOpen ? '300ms' : '0ms'
             }}
         >
-            <div 
-                className={`absolute inset-0 bg-black transition-opacity duration-300 ${isOpen ? 'opacity-50' : 'opacity-0'}`} 
+            <div
+                className={`absolute inset-0 bg-black transition-opacity duration-300 ${isOpen ? 'opacity-50' : 'opacity-0'}`}
                 onClick={onClose}
             ></div>
-            
-            <div 
+
+            <div
                 ref={modalRef}
                 className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl flex flex-col shadow-2xl transition-transform duration-300 ease-in-out`}
-                style={{ height: isOpen ? currentHeight : 0 }} 
+                style={{ height: isOpen ? currentHeight : 0 }}
             >
-                <div 
+                <div
                     className="flex justify-center py-2 flex-shrink-0"
                     onTouchStart={handleTouchStart}
                 >
@@ -657,8 +658,8 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
                 </header>
 
                 <main ref={contentRef} className="flex-grow overflow-y-auto px-4">
-                    
-                    {commentCount === 0 ? ( 
+
+                    {commentCount === 0 ? (
                         <div className="flex items-center justify-center h-full min-h-[200px]">
                             <div className="text-center p-8">
                                 <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-4" />
@@ -669,9 +670,9 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
                     ) : (
                         <div className="space-y-1 pt-2 pb-4">
                             {comments.map(comment => (
-                                <CommentItem 
-                                    key={comment.id} 
-                                    comment={comment} 
+                                <CommentItem
+                                    key={comment.id}
+                                    comment={comment}
                                     onReply={handleReply}
                                     onToggleLike={onToggleLike}
                                     onToggleDislike={onToggleDislike}
@@ -685,13 +686,13 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
                 </main>
 
                 <footer className="p-4 border-t border-gray-100 flex-shrink-0">
-                    
+
                     {replyingTo && (
                         <div className="flex items-center justify-between p-2 mb-2 bg-gray-100 rounded-lg text-sm text-gray-700">
                             <span className="font-medium">
                                 {getTranslation('Replying to', selectedLanguage)} <span className="text-indigo-600 font-semibold">{replyingTo.userName}</span>
                             </span>
-                            <button 
+                            <button
                                 onClick={handleCancelReply}
                                 className="p-1 rounded-full hover:bg-gray-200 transition-colors"
                                 aria-label="Cancel reply"
@@ -703,7 +704,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
 
                     <div className="flex items-center space-x-2">
                         <input
-                            ref={inputRef} 
+                            ref={inputRef}
                             type="text"
                             placeholder={getTranslation('Add a comment... (use @ to mention)', selectedLanguage)}
                             value={inputValue}
@@ -715,10 +716,10 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
                             }}
                             className="w-full py-3 px-4 bg-gray-100 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 text-gray-700 placeholder-gray-500"
                         />
-                        <button 
+                        <button
                             onClick={handleSendComment}
-                            disabled={!isActive} 
-                            style={sendButtonStyle} 
+                            disabled={!isActive}
+                            style={sendButtonStyle}
                             className={`p-2 rounded-full transition-colors flex-shrink-0 ${isActive ? 'hover:bg-gray-700' : 'cursor-not-allowed'}`}
                         >
                             <Send className="w-5 h-5" />
@@ -734,21 +735,21 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
 // --- Creative Suggestions Modal Component (REVAMPED) ---
 const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English' }) => {
     const modalRef = useRef(null);
-    const contentRef = useRef(null); 
-    const inputRef = useRef(null); 
-    
-    const [currentHeight, setCurrentHeight] = useState(window.innerHeight * 0.9); 
-    const minHeight = window.innerHeight * 0.4; 
-    const maxHeight = window.innerHeight * 0.95; 
+    const contentRef = useRef(null);
+    const inputRef = useRef(null);
+
+    const [currentHeight, setCurrentHeight] = useState(window.innerHeight * 0.9);
+    const minHeight = window.innerHeight * 0.4;
+    const maxHeight = window.innerHeight * 0.95;
 
     const auth = useAuth();
     const [inputValue, setInputValue] = useState('');
-    const [suggestions, setSuggestions] = useState([]); 
+    const [suggestions, setSuggestions] = useState([]);
     const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
 
     const goldColor = 'var(--color-gold)'; // accent color
     const goldLight = 'var(--color-gold-light)'; // accent color light
-    
+
     // Check if first-time user
     useEffect(() => {
         try {
@@ -761,7 +762,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
             // ignore localStorage errors
         }
     }, []);
-    
+
     // Send suggestion handler
     const handleSendSuggestion = async () => {
         if (!auth.user) { return; }
@@ -787,27 +788,27 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                     body: JSON.stringify({ requestId, text })
                 });
             }
-        } catch {}
+        } catch { }
 
         if (inputRef.current) {
             setTimeout(() => inputRef.current.focus(), 50);
         }
     };
-    
+
     useEffect(() => {
         if (contentRef.current) {
             setTimeout(() => {
                 contentRef.current.scrollTop = contentRef.current.scrollHeight;
-            }, 0); 
+            }, 0);
         }
     }, [suggestions]);
 
 
     // --- Drag Handle Logic ---
     const handleTouchStart = useCallback((e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         if (!modalRef.current) return;
-        
+
         const startY = e.touches[0].clientY;
         const startHeight = modalRef.current.clientHeight;
 
@@ -822,20 +823,20 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
         const handleTouchEnd = () => {
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleTouchEnd);
-            
-            if (modalRef.current && modalRef.current.clientHeight < minHeight + 50) { 
+
+            if (modalRef.current && modalRef.current.clientHeight < minHeight + 50) {
                 onClose();
             }
         };
 
         window.addEventListener('touchmove', handleTouchMove, { passive: false });
-        window.addEventListener('touchend', handleTouchEnd); 
-    }, [minHeight, maxHeight, onClose]); 
+        window.addEventListener('touchend', handleTouchEnd);
+    }, [minHeight, maxHeight, onClose]);
 
     useEffect(() => {
         if (isOpen) {
             setCurrentHeight(window.innerHeight * 0.9);
-            document.body.style.overflow = 'hidden'; 
+            document.body.style.overflow = 'hidden';
             setInputValue('');
             // Load persisted suggestions for this request
             (async () => {
@@ -851,7 +852,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                             }
                         }
                     }
-                } catch (e) {}
+                } catch (e) { }
                 setSuggestions([]);
             })();
 
@@ -859,7 +860,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                 if (inputRef.current) {
                     inputRef.current.focus();
                 }
-            }, 300); 
+            }, 300);
         } else {
             document.body.style.overflow = '';
         }
@@ -868,36 +869,36 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
         };
     }, [isOpen, requestId]);
     // --- End Drag Handle Logic ---
-    
+
     const isActive = inputValue.trim().length > 0;
     const suggestionCount = suggestions.length;
 
     return (
-        <div 
+        <div
             className={`fixed inset-0 z-50 transition-all duration-300 ${isOpen ? 'translate-y-0' : 'translate-y-full pointer-events-none'}`}
-            style={{ 
+            style={{
                 transitionProperty: 'transform',
                 transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
                 transitionDuration: isOpen ? '300ms' : '0ms'
             }}
         >
-            <div 
-                className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`} 
+            <div
+                className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
                 onClick={onClose}
             ></div>
-            
-            <div 
+
+            <div
                 ref={modalRef}
                 className={`absolute bottom-0 left-0 right-0 rounded-t-3xl flex flex-col shadow-2xl transition-transform duration-300 ease-in-out`}
-                style={{ 
+                style={{
                     height: isOpen ? currentHeight : 0,
                     background: 'linear-gradient(180deg, #ffffff 0%, #fefdfb 100%)',
                     boxShadow: '0 -8px 32px rgba(0,0,0,0.12), 0 -2px 8px rgba(203,138,0,0.08)',
                     border: '1px solid rgba(203,138,0,0.1)',
                     borderBottom: 'none'
-                }} 
+                }}
             >
-                <div 
+                <div
                     className="flex justify-center py-2 flex-shrink-0"
                     onTouchStart={handleTouchStart}
                 >
@@ -907,7 +908,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                 <header className="px-5 pt-2 pb-4 flex-shrink-0">
                     <div className="flex items-start mb-3">
                         <div className="flex items-center space-x-3">
-                            <div 
+                            <div
                                 className="w-11 h-11 rounded-xl flex items-center justify-center"
                                 style={{
                                     background: `linear-gradient(135deg, ${goldLight} 0%, rgba(255,255,255,0.3) 100%)`,
@@ -930,21 +931,21 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
 
                 <main ref={contentRef} className="flex-grow overflow-y-auto px-5">
                     {isFirstTimeUser && (
-                        <div 
+                        <div
                             className="relative p-4 mb-5 rounded-2xl overflow-hidden"
-                            style={{ 
+                            style={{
                                 background: `linear-gradient(135deg, ${goldLight} 0%, rgba(255,250,240,0.4) 100%)`,
                                 border: `1.5px solid ${goldColor}`,
                                 boxShadow: '0 4px 12px rgba(203,138,0,0.12)'
                             }}
                         >
-                            <div className="absolute top-0 right-0 w-24 h-24 opacity-10" style={{ 
+                            <div className="absolute top-0 right-0 w-24 h-24 opacity-10" style={{
                                 background: `radial-gradient(circle, ${goldColor} 0%, transparent 70%)`
                             }}></div>
                             <div className="relative flex items-start">
-                                <div 
+                                <div
                                     className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 mr-3"
-                                    style={{ 
+                                    style={{
                                         background: `linear-gradient(135deg, ${goldLight} 0%, rgba(255,255,255,0.3) 100%)`,
                                         boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
                                     }}
@@ -966,7 +967,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
 
                     {suggestionCount === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 text-center min-h-[200px]">
-                            <div 
+                            <div
                                 className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4"
                                 style={{
                                     background: `linear-gradient(135deg, ${goldLight} 0%, rgba(255,255,255,0.3) 100%)`,
@@ -981,10 +982,10 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                             </p>
                         </div>
                     ) : (
-                         <div className="space-y-3 pb-4">
-                             {suggestions.map((s, index) => (
-                                <div 
-                                    key={index} 
+                        <div className="space-y-3 pb-4">
+                            {suggestions.map((s, index) => (
+                                <div
+                                    key={index}
                                     className="p-4 rounded-xl border transition-all hover:shadow-md"
                                     style={{
                                         background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)',
@@ -993,7 +994,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                                     }}
                                 >
                                     <div className="flex items-center space-x-2 mb-2">
-                                        <div 
+                                        <div
                                             className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
                                             style={{ background: `linear-gradient(135deg, ${goldColor}, ${goldLight})` }}
                                         >
@@ -1006,14 +1007,14 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                                     </div>
                                     <p className="text-sm text-gray-700 leading-relaxed pl-9">{s.text}</p>
                                 </div>
-                             ))}
-                         </div>
+                            ))}
+                        </div>
                     )}
                 </main>
 
-                <footer 
+                <footer
                     className="p-5 border-t flex-shrink-0"
-                    style={{ 
+                    style={{
                         borderColor: 'rgba(203,138,0,0.1)',
                         background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(254,253,251,0.98) 100%)',
                         backdropFilter: 'blur(8px)'
@@ -1021,7 +1022,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                 >
                     <div className="flex items-center space-x-3">
                         <input
-                            ref={inputRef} 
+                            ref={inputRef}
                             type="text"
                             placeholder={getTranslation('What would make this video amazing?', selectedLanguage)}
                             value={inputValue}
@@ -1037,17 +1038,16 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
                                 boxShadow: isActive ? `0 0 0 3px ${goldLight}` : 'none'
                             }}
                         />
-                        <button 
+                        <button
                             onClick={handleSendSuggestion}
-                            disabled={!isActive} 
-                            className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all shadow-md ${
-                                isActive ? 'hover:scale-105 active:scale-95' : 'cursor-not-allowed opacity-50'
-                            }`}
+                            disabled={!isActive}
+                            className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all shadow-md ${isActive ? 'hover:scale-105 active:scale-95' : 'cursor-not-allowed opacity-50'
+                                }`}
                             style={{
-                                background: isActive 
+                                background: isActive
                                     ? `linear-gradient(135deg, ${goldColor}, ${goldLight})`
                                     : '#e5e7eb',
-                                boxShadow: isActive 
+                                boxShadow: isActive
                                     ? '0 4px 12px rgba(203,138,0,0.3)'
                                     : 'none'
                             }}
@@ -1066,7 +1066,7 @@ const CreativeSuggestionsModal = ({ isOpen, onClose, requestId, selectedLanguage
 const RankProgressBar = ({ currentScore, projectedScore, rank, nextRankNeeded, goldColor, selectedLanguage = 'English' }) => {
     const progress = Math.min(100, ((currentScore % 100) / 100) * 100);
     const projProgress = Math.min(100, ((projectedScore % 100) / 100) * 100);
-    
+
     return (
         <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
@@ -1103,35 +1103,35 @@ const RankProgressBar = ({ currentScore, projectedScore, rank, nextRankNeeded, g
 // --- Boosts Modal Component (Refined aesthetic & fixes) ---
 const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree, selectedLanguage = 'English' }) => {
     const modalRef = useRef(null);
-    const minHeight = window.innerHeight * 0.5; 
-    const maxHeight = window.innerHeight * 0.95; 
+    const minHeight = window.innerHeight * 0.5;
+    const maxHeight = window.innerHeight * 0.95;
 
-    const [currentHeight, setCurrentHeight] = useState(window.innerHeight * 0.9); 
-    const [selectedAmount, setSelectedAmount] = useState(10); 
-    
+    const [currentHeight, setCurrentHeight] = useState(window.innerHeight * 0.9);
+    const [selectedAmount, setSelectedAmount] = useState(10);
+
     // Destructure rank data for the addiction loop
-    const { 
-        rank, 
-        nextRankNeeded, 
-        threatCount, 
-        totalInfluence 
+    const {
+        rank,
+        nextRankNeeded,
+        threatCount,
+        totalInfluence
     } = detailedRank;
-    
+
     // --- Gamification Logic & Tiers ---
     const [currentScore, setCurrentScore] = useState(totalInfluence);
     useEffect(() => { setCurrentScore(totalInfluence); }, [totalInfluence]); // sync on prop change
-    
+
     const TIERS = [
         { threshold: 100, label: getTranslation('Creators See', selectedLanguage), message: getTranslation('Creators See', selectedLanguage), color: 'bg-green-600' },
         { threshold: 250, label: getTranslation('Creators Prioritizing', selectedLanguage), message: getTranslation('Creators Prioritizing', selectedLanguage), color: 'bg-blue-600' },
         { threshold: 450, label: getTranslation('Guaranteed Creation', selectedLanguage), message: getTranslation('Guaranteed Creation', selectedLanguage), color: 'bg-red-600' }
     ];
-    const MAX_SCORE = 550; 
+    const MAX_SCORE = 550;
     // 1 dollar = 2 Influence points during this limited-time offer
-    const influenceMultiplier = 2; 
+    const influenceMultiplier = 2;
 
     // The value gained from the boost, now explicitly framed as 'likes' in the projection message
-    const boostValue = selectedAmount * influenceMultiplier; 
+    const boostValue = selectedAmount * influenceMultiplier;
     const projectedScore = currentScore + boostValue;
 
     // Payment -> likes mapping: 1 USD = 10 likes
@@ -1141,7 +1141,7 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
     // Payment providers state (default to Wise)
     const [selectedProvider, setSelectedProvider] = useState('wise');
     const [processingPayment, setProcessingPayment] = useState(false);
-    
+
     // Determine the highest reached tier after the boost
     // const highestTierReached = TIERS.slice().reverse().find(tier => projectedScore >= tier.threshold);
     const alertBg = customColors['--color-alert-light'];
@@ -1157,8 +1157,8 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
         }
         return <>{getTranslation('Help this video climb and win this week.', selectedLanguage)}</>;
     };
-    
-    const statusText = rank === 1 ? 'Winner' : 'Rising'; 
+
+    const statusText = rank === 1 ? 'Winner' : 'Rising';
 
     // Top contributors for leaderboard display
     const topContributors = [
@@ -1166,7 +1166,7 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
         { name: 'Sarah K.', amount: 25, rank: 2 },
         { name: 'John D.', amount: 15, rank: 3 }
     ];
-    
+
     // Dynamic headline based on rank
     const getHeadline = () => {
         if (rank === 1) return (
@@ -1185,7 +1185,7 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
             </span>
         );
     };
-    
+
     // Dynamic subheadline showing competitive status
     const getSubheadline = () => {
         if (rank === 1 && threatCount > 0) return `${threatCount} ${getTranslation('close behind', selectedLanguage)}`;
@@ -1196,9 +1196,9 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
 
     // --- Drag Handle Logic ---
     const handleTouchStart = useCallback((e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         if (!modalRef.current) return;
-        
+
         const startY = e.touches[0].clientY;
         const startHeight = modalRef.current.clientHeight;
 
@@ -1213,21 +1213,21 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
         const handleTouchEnd = () => {
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleTouchEnd);
-            
-            if (modalRef.current && modalRef.current.clientHeight < minHeight + 50) { 
+
+            if (modalRef.current && modalRef.current.clientHeight < minHeight + 50) {
                 onClose();
             }
         };
 
         window.addEventListener('touchmove', handleTouchMove, { passive: false });
-        window.addEventListener('touchend', handleTouchEnd); 
-    }, [minHeight, maxHeight, onClose]); 
+        window.addEventListener('touchend', handleTouchEnd);
+    }, [minHeight, maxHeight, onClose]);
 
     useEffect(() => {
         if (isOpen) {
             setCurrentHeight(window.innerHeight * 0.9);
-            document.body.style.overflow = 'hidden'; 
-            setSelectedAmount(10); 
+            document.body.style.overflow = 'hidden';
+            setSelectedAmount(10);
         } else {
             document.body.style.overflow = '';
         }
@@ -1260,7 +1260,7 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
                 } else {
                     modalRef.current.focus();
                 }
-            } catch (err) {}
+            } catch (err) { }
         }, 50);
 
         const handleKeyDown = (e) => {
@@ -1289,7 +1289,7 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
         document.addEventListener('keydown', handleKeyDown);
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
-            try { if (prevActiveRef.current && prevActiveRef.current.focus) prevActiveRef.current.focus(); } catch (err) {}
+            try { if (prevActiveRef.current && prevActiveRef.current.focus) prevActiveRef.current.focus(); } catch (err) { }
         };
     }, [isOpen, onClose]);
 
@@ -1305,35 +1305,35 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
                 aria-label="Close boost modal background"
             />
             <div
-                        ref={modalRef}
-                        tabIndex={-1}
-                        className="absolute bottom-0 left-0 right-0 rounded-t-3xl flex flex-col z-50"
-                        style={{
-                            height: isOpen ? currentHeight : 0,
-                            transition: 'height .35s cubic-bezier(.4,0,.2,1)',
-                            background: '#ffffff',
-                            boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-                            border: '1px solid #e5e7eb'
-                        }}
-                        aria-label="Boost influence dialog"
-                    >
-                        <div
-                            className="flex justify-center pt-3 pb-2 flex-shrink-0"
-                            onTouchStart={handleTouchStart}
-                        >
-                            <div
-                                className="w-14 h-1.5 rounded-full bg-gray-300"
-                            />
-                        </div>
-                        <header className="relative px-8 pt-10 pb-8">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-2">{getHeadline()}</h2>
-                            <p className="text-gray-500 text-sm">{getSubheadline()}</p>
-                        </header>
-                        {/* Accessibility: trap focus while modal is open and restore focus on close */}
-                        {isOpen && (() => {
-                            // useEffect can't be used inside JSX; handled below via hook injection
-                            return null;
-                        })()}
+                ref={modalRef}
+                tabIndex={-1}
+                className="absolute bottom-0 left-0 right-0 rounded-t-3xl flex flex-col z-50"
+                style={{
+                    height: isOpen ? currentHeight : 0,
+                    transition: 'height .35s cubic-bezier(.4,0,.2,1)',
+                    background: '#ffffff',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                    border: '1px solid #e5e7eb'
+                }}
+                aria-label="Boost influence dialog"
+            >
+                <div
+                    className="flex justify-center pt-3 pb-2 flex-shrink-0"
+                    onTouchStart={handleTouchStart}
+                >
+                    <div
+                        className="w-14 h-1.5 rounded-full bg-gray-300"
+                    />
+                </div>
+                <header className="relative px-8 pt-10 pb-8">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">{getHeadline()}</h2>
+                    <p className="text-gray-500 text-sm">{getSubheadline()}</p>
+                </header>
+                {/* Accessibility: trap focus while modal is open and restore focus on close */}
+                {isOpen && (() => {
+                    // useEffect can't be used inside JSX; handled below via hook injection
+                    return null;
+                })()}
                 <main className="flex-grow overflow-y-auto px-8 pb-8 space-y-10">
                     {/* Rank - Hero Display */}
                     <div className="text-center py-4">
@@ -1395,11 +1395,11 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
                                     const res = await fetch('/api/pay/create-session', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ 
-                                            provider: selectedProvider, 
-                                            requestId, 
-                                            amount: selectedAmount, 
-                                            boost: boostValue 
+                                        body: JSON.stringify({
+                                            provider: selectedProvider,
+                                            requestId,
+                                            amount: selectedAmount,
+                                            boost: boostValue
                                         })
                                     });
                                     const data = await res.json();
@@ -1460,8 +1460,8 @@ const ClaimConfirmationModal = ({ isOpen, onClose, onConfirm, selectedLanguage =
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 px-6">
-            <div 
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+            <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             />
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative z-10 overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -1471,16 +1471,16 @@ const ClaimConfirmationModal = ({ isOpen, onClose, onConfirm, selectedLanguage =
                         {getTranslation('Claiming this request means you take responsibility for creating the video and must submit a first update within 48 hours.', selectedLanguage)}
                     </p>
                     <div className="flex space-x-3">
-                        <button 
+                        <button
                             onClick={onClose}
                             className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
                         >
                             {getTranslation('Not Yet', selectedLanguage)}
                         </button>
-                        <button 
+                        <button
                             onClick={onConfirm}
                             className="flex-1 py-3 px-4 text-white font-bold rounded-xl transition-colors shadow-lg"
-                            style={{ 
+                            style={{
                                 backgroundColor: goldColor,
                                 boxShadow: '0 4px 12px -2px rgba(var(--color-gold-rgb), 0.35)'
                             }}
@@ -1559,10 +1559,10 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
     const iconColor = variant === 'success' ? 'bg-green-500' : 'bg-gray-400';
 
     return (
-        <div 
+        <div
             className={`fixed top-6 left-4 right-4 z-[70] flex justify-center transition-all duration-500 ease-out ${isVisible && !isDismissing ? 'translate-y-0 opacity-100' : '-translate-y-8 opacity-0 pointer-events-none'}`}
         >
-            <div 
+            <div
                 ref={toastRef}
                 className="bg-white text-gray-900 px-4 py-3 rounded-lg shadow-lg flex items-start max-w-md border border-gray-100 w-full cursor-grab select-none transition-all duration-300"
                 style={{
@@ -1620,19 +1620,19 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
 
 
 // --- Reusable Component for a Single Request Card ---
-    const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onTogglePin, pulseActive = false, onOpenProfile, selectedLanguage = 'English', initialBookmarked = false, onBookmarkChange = null }) => {
+const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onTogglePin, pulseActive = false, onOpenProfile, selectedLanguage = 'English', initialBookmarked = false, onBookmarkChange = null }) => {
     const goldColor = 'var(--color-gold)';
     const lightGreyBg = customColors['--color-neutral-light-bg']; // UPDATED
 
     const [isExpanded, setIsExpanded] = useState(false);
-    
+
     // States for interactivity
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [isBookmarkHover, setIsBookmarkHover] = useState(false);
     const [isBookmarkActive, setIsBookmarkActive] = useState(false);
 
     // initialize bookmark state from parent-provided set
-    useEffect(() => { try { setIsBookmarked(!!initialBookmarked); } catch {} }, [initialBookmarked]);
+    useEffect(() => { try { setIsBookmarked(!!initialBookmarked); } catch { } }, [initialBookmarked]);
     // --- Swipe / gesture state ---
     const [swipeOffset, setSwipeOffset] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
@@ -1665,12 +1665,12 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
     const [reportReason, setReportReason] = useState('spam');
     const [reportOtherText, setReportOtherText] = useState('');
     const [bookmarkToast, setBookmarkToast] = useState({ visible: false, message: '' });
-    const [showBoostsModal, setShowBoostsModal] = useState(false); 
+    const [showBoostsModal, setShowBoostsModal] = useState(false);
     const [likesCount, setLikesCount] = useState(request.likes);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [showSuggestionsModal, setShowSuggestionsModal] = useState(false);
     const auth = useAuth();
-    
+
     // Claim Logic State - initialize from backend data
     const [isClaimed, setIsClaimed] = useState(!!request.claimed);
     const [claimedBy, setClaimedBy] = useState(request.claimedBy || null);
@@ -1681,14 +1681,14 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
     const [showEditModal, setShowEditModal] = useState(false);
     const [editTitle, setEditTitle] = useState(request.title || '');
     const [editDescription, setEditDescription] = useState(request.description || '');
-    
+
     // Sync claimed state when request prop changes
     useEffect(() => {
         setIsClaimed(!!request.claimed);
         setClaimedBy(request.claimedBy || null);
         // keep edit fields in sync if the request prop changes
-        try { setEditTitle(request.title || ''); } catch (e) {}
-        try { setEditDescription(request.description || ''); } catch (e) {}
+        try { setEditTitle(request.title || ''); } catch (e) { }
+        try { setEditDescription(request.description || ''); } catch (e) { }
     }, [request.claimed, request.claimedBy, request.title, request.description]);
 
     // State for Avatar Fallback
@@ -1714,7 +1714,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                     if (typeof data.isDisliked === 'boolean') setIsDisliked(data.isDisliked);
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
     }, [request.id]);
 
 
@@ -1730,7 +1730,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
     };
 
     const lastTapRef = useRef(0);
-    const DOUBLE_TAP_DELAY = 300; 
+    const DOUBLE_TAP_DELAY = 300;
 
     const MAX_LENGTH = 120;
     const _description = (request && typeof request.description === 'string') ? request.description : '';
@@ -1784,7 +1784,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
         };
         doPersist().then(() => {
             if (next) setBookmarkToast({ visible: true, message: 'Saved to bookmarks' });
-            try { if (onBookmarkChange) onBookmarkChange(request.id, next); } catch {}
+            try { if (onBookmarkChange) onBookmarkChange(request.id, next); } catch { }
         }).catch((err) => {
             console.error('Bookmark error:', err);
             // revert optimistic update on failure
@@ -1833,7 +1833,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
             if (absX > START_THRESHOLD && absX > absY * HORIZONTAL_DOMINANCE) {
                 setIsDragging(true);
                 // prevent scrolling once we've decided it's a horizontal swipe
-                try { if (e && e.preventDefault) e.preventDefault(); } catch (err) {}
+                try { if (e && e.preventDefault) e.preventDefault(); } catch (err) { }
                 setSwipeOffset(deltaX);
             } else {
                 // still vertical/undetermined — do not update swipeOffset so scrolling works
@@ -1841,7 +1841,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
             }
         } else {
             // already dragging — update offset and prevent default scrolling
-            try { if (e && e.preventDefault) e.preventDefault(); } catch (err) {}
+            try { if (e && e.preventDefault) e.preventDefault(); } catch (err) { }
             setSwipeOffset(deltaX);
         }
     };
@@ -1920,7 +1920,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                     map[request.id].isLiked = nextLiked;
                     map[request.id].isDisliked = nextLiked && isDisliked ? false : (map[request.id].isDisliked || false);
                     localStorage.setItem(REQUEST_REACTS_KEY, JSON.stringify(map));
-                } catch (e) {}
+                } catch (e) { }
 
                 return newCount;
             });
@@ -1979,18 +1979,18 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                                             // Use a dedicated tail class so we can style a left-edge pointing tail
                                             setLongPressHintStyle({ left: clampedCenter, top: adjustedTop, tailLeft: clampedTail, tailClass: 'hint-tail-left-edge' });
                                         }
-                                    } catch (e) {}
+                                    } catch (e) { }
                                 }, 20);
 
                                 // Hide only after a user gesture (onboarding-style) or long fallback timeout
                                 (function setupHintDismissal() {
                                     let fallbackTimer = null;
                                     const dismissHint = () => {
-                                        try { if (fallbackTimer) clearTimeout(fallbackTimer); } catch (e) {}
-                                        try { document.removeEventListener('pointerdown', dismissHint, true); } catch (e) {}
-                                        try { document.removeEventListener('touchstart', dismissHint, true); } catch (e) {}
-                                        try { window.removeEventListener('keydown', keyHandler, true); } catch (e) {}
-                                        try { localStorage.setItem('heart_longpress_hint_shown', '1'); } catch (e) {}
+                                        try { if (fallbackTimer) clearTimeout(fallbackTimer); } catch (e) { }
+                                        try { document.removeEventListener('pointerdown', dismissHint, true); } catch (e) { }
+                                        try { document.removeEventListener('touchstart', dismissHint, true); } catch (e) { }
+                                        try { window.removeEventListener('keydown', keyHandler, true); } catch (e) { }
+                                        try { localStorage.setItem('heart_longpress_hint_shown', '1'); } catch (e) { }
                                         setShowLongPressHint(false);
                                     };
                                     const keyHandler = (ev) => { if (ev.key === 'Escape') dismissHint(); };
@@ -1999,10 +1999,10 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                                         document.addEventListener('pointerdown', dismissHint, { once: true, capture: true });
                                         document.addEventListener('touchstart', dismissHint, { once: true, capture: true });
                                         window.addEventListener('keydown', keyHandler, { capture: true });
-                                    } catch (e) {}
+                                    } catch (e) { }
 
                                     // Safety fallback: auto-hide after 15s if user doesn't interact
-                                    try { fallbackTimer = setTimeout(dismissHint, 15000); } catch (e) {}
+                                    try { fallbackTimer = setTimeout(dismissHint, 15000); } catch (e) { }
                                 })();
                             } else {
                                 // fallback: place near center-top of viewport if button rect missing
@@ -2011,9 +2011,9 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                                 setShowLongPressHint(true);
                                 setTimeout(() => setShowLongPressHint(false), 3800);
                             }
-                        } catch (e) {}
+                        } catch (e) { }
                     }
-                } catch (err) {}
+                } catch (err) { }
             }
 
             return nextLiked;
@@ -2026,8 +2026,8 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
                 body: JSON.stringify({ requestId: request.id, action })
-            }).catch(() => {});
-        } catch (e) {}
+            }).catch(() => { });
+        } catch (e) { }
     };
 
     const handleOpenComments = () => {
@@ -2047,7 +2047,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
     const handleCloseSuggestions = () => {
         setShowSuggestionsModal(false);
     };
-    
+
     // NEW BOOSTS MODAL HANDLERS
     const handleOpenBoosts = () => {
         if (!auth.user) { auth.openAuthModal(); return; }
@@ -2072,30 +2072,30 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
             auth.openAuthModal();
             return;
         }
-        
+
         try {
             const res = await fetch(`${window.location.protocol}//${window.location.hostname}:4000/claim`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'Authorization': `Bearer ${token}` 
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ requestId: request.id })
             });
-            
+
             if (!res.ok) {
                 const error = await res.json().catch(() => ({ error: 'Claim failed' }));
                 throw new Error(error.error || 'Claim failed');
             }
-            
+
             const body = await res.json();
-            
+
             // Update local state
             setIsClaimed(true);
             setClaimedBy(body.claimedBy);
             setShowClaimModal(false);
             setShowToast(true);
-            
+
             // Dispatch event with full request details for creator dashboard
             const claimData = {
                 requestId: request.id,
@@ -2124,10 +2124,10 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 existingClaims.push(claimData);
                 localStorage.setItem('claimedRequests', JSON.stringify(existingClaims));
             } else {
-                 // if exists, update it
-                 const idx = existingClaims.findIndex(c => c.id === claimData.id);
-                 if (idx !== -1) existingClaims[idx] = claimData;
-                 localStorage.setItem('claimedRequests', JSON.stringify(existingClaims));
+                // if exists, update it
+                const idx = existingClaims.findIndex(c => c.id === claimData.id);
+                if (idx !== -1) existingClaims[idx] = claimData;
+                localStorage.setItem('claimedRequests', JSON.stringify(existingClaims));
             }
 
             window.dispatchEvent(new CustomEvent('request:claimed', {
@@ -2147,21 +2147,21 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
 
 
     const handleDoubleTap = (event) => {
-        if (showCommentsModal || showSuggestionsModal || showBoostsModal) return; 
+        if (showCommentsModal || showSuggestionsModal || showBoostsModal) return;
 
         if (event.type === 'touchend') {
             const currentTime = new Date().getTime();
             const lastTapTime = lastTapRef.current;
-            
+
             if (currentTime - lastTapTime < DOUBLE_TAP_DELAY) {
                 if (!isLiked) {
-                     toggleLike();
-                     // trigger satisfying double-tap effect
-                     if (doubleTapTimeoutRef.current) clearTimeout(doubleTapTimeoutRef.current);
-                     setShowDoubleTapEffect(true);
-                     doubleTapTimeoutRef.current = setTimeout(() => setShowDoubleTapEffect(false), 900);
+                    toggleLike();
+                    // trigger satisfying double-tap effect
+                    if (doubleTapTimeoutRef.current) clearTimeout(doubleTapTimeoutRef.current);
+                    setShowDoubleTapEffect(true);
+                    doubleTapTimeoutRef.current = setTimeout(() => setShowDoubleTapEffect(false), 900);
                 }
-                lastTapRef.current = 0; 
+                lastTapRef.current = 0;
             } else {
                 lastTapRef.current = currentTime;
             }
@@ -2208,7 +2208,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 map[request.id].likesCount = map[request.id].likesCount || likesCount;
                 map[request.id].isLiked = next ? false : (map[request.id].isLiked || false);
                 localStorage.setItem(REQUEST_REACTS_KEY, JSON.stringify(map));
-            } catch (e) {}
+            } catch (e) { }
 
             return next;
         });
@@ -2220,8 +2220,8 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
                 body: JSON.stringify({ requestId: request.id, action })
-            }).catch(() => {});
-        } catch (e) {}
+            }).catch(() => { });
+        } catch (e) { }
         // Keep the popover visible briefly so user sees the filled icon
         if (autoHideTimeoutRef.current) clearTimeout(autoHideTimeoutRef.current);
         autoHideTimeoutRef.current = setTimeout(() => setShowLikeOptions(false), 1400);
@@ -2242,7 +2242,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
             // ask for confirmation before unpinning
             setShowUnpinConfirm(true);
         } else {
-            try { if (typeof onTogglePin === 'function') onTogglePin(); } catch (err) {}
+            try { if (typeof onTogglePin === 'function') onTogglePin(); } catch (err) { }
             setShowLikeOptions(false);
         }
     };
@@ -2253,12 +2253,12 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
         if (isPinned) {
             setShowUnpinConfirm(true);
         } else {
-            try { if (typeof onTogglePin === 'function') onTogglePin(); } catch (err) {}
+            try { if (typeof onTogglePin === 'function') onTogglePin(); } catch (err) { }
         }
     };
 
     const confirmUnpin = () => {
-        try { if (typeof onTogglePin === 'function') onTogglePin(); } catch (err) {}
+        try { if (typeof onTogglePin === 'function') onTogglePin(); } catch (err) { }
         setShowUnpinConfirm(false);
         setShowLikeOptions(false);
     };
@@ -2352,7 +2352,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                     const top = rect.top - 8;
                     setLikeOptionsStyle({ position: 'fixed', left: `${left}px`, top: `${top}px`, transform: 'translate(-50%, -100%)' });
                 }
-            } catch (err) {}
+            } catch (err) { }
             setShowLikeOptions(true);
         }, 520); // ~520ms long press
     };
@@ -2404,25 +2404,25 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
 
     const claimButtonStyle = {
         position: 'absolute',
-        top: '50%', 
-        right: '-12px', 
-        transform: 'translateY(-50%) rotate(-90deg)', 
-        transformOrigin: '50% 50%', 
-        
+        top: '50%',
+        right: '-12px',
+        transform: 'translateY(-50%) rotate(-90deg)',
+        transformOrigin: '50% 50%',
+
         backgroundColor: isClaimed ? '#d1d5db' : lightGreyBg, // Grey if claimed
         color: isClaimed ? '#6b7280' : '#6b7280', // Grey text if claimed
         fontSize: '11px',
         fontWeight: 'bold',
-        padding: '5px 12px', 
-        borderRadius: '6px', 
+        padding: '5px 12px',
+        borderRadius: '6px',
         letterSpacing: '0.5px',
         boxShadow: isClaimed ? '0 2px 6px rgba(107, 114, 128, 0.2)' : 'none', // Light grey shadow if claimed
-        border: 'none', 
+        border: 'none',
         whiteSpace: 'nowrap',
         cursor: isClaimed ? 'default' : 'pointer',
-        height: 'auto', 
-        lineHeight: '1', 
-        zIndex: 10, 
+        height: 'auto',
+        lineHeight: '1',
+        zIndex: 10,
         transition: 'all 0.3s ease', // Smooth transition
     };
 
@@ -2437,7 +2437,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
         color: 'white',
         fontWeight: 'bold',
         padding: '4px 10px',
-        borderRadius: '0 10px 0 10px', 
+        borderRadius: '0 10px 0 10px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
         fontSize: '14px',
         zIndex: 5,
@@ -2454,7 +2454,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
         alignItems: 'center',
         zIndex: 5,
     };
-    
+
     const q = (searchQuery || '').trim();
     const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const highlight = (text) => {
@@ -2485,8 +2485,8 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
         : (isBookmarkActive ? 'var(--color-gold)' : (isBookmarkHover ? 'var(--color-gold-light)' : 'currentColor'));
 
     const bookmarkBoxShadow = (isBookmarkActive || isBookmarkHover)
-            ? '0 8px 22px rgba(2,6,23,0.06)'
-            : '0 6px 18px rgba(2,6,23,0.07)';
+        ? '0 8px 22px rgba(2,6,23,0.06)'
+        : '0 6px 18px rgba(2,6,23,0.07)';
 
     // Compute swipe transform values for smoother animation (moved out of JSX)
     const rotate = swipeOffset / 20; // subtle rotate
@@ -2504,7 +2504,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
             : 'transform 300ms cubic-bezier(.22,.9,.35,1)';
 
     return (
-        <> 
+        <>
             <div id={`request-card-${request.id}`} className="relative mb-6 overflow-visible">
                 {/* Reveal layers for swipe actions (stay behind the surface) */}
                 <div className="absolute inset-0 flex items-center justify-end px-4 z-0 pointer-events-none">
@@ -2531,10 +2531,10 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                     onTouchEnd={(e) => { onTouchEnd(e); handleDoubleTap(e); }}
                     onMouseDown={onMouseDown}
                 >
-                
-                
-                {/* Double-tap like visual effect (center burst) */}
-                <style>{`
+
+
+                    {/* Double-tap like visual effect (center burst) */}
+                    <style>{`
                     @keyframes dt-heart-pop {
                         0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08)); }
                         30% { transform: translate(-50%, -50%) scale(1.6); opacity: 1; }
@@ -2558,366 +2558,367 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                     .dt-star svg { width: 100%; height: 100%; }
                 `}</style>
 
-                {showDoubleTapEffect && (
-                    <div className="dt-overlay">
-                        <div style={{ position: 'relative', width: 0, height: 0 }}>
-                            <div className="dt-burst" aria-hidden>
-                                <span className="dt-star" style={{ transform: 'translate(-20px,-10px)' }}>
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z"/></svg>
-                                </span>
-                                <span className="dt-star" style={{ transform: 'translate(12px,-6px)' }}>
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z"/></svg>
-                                </span>
-                                <span className="dt-star" style={{ transform: 'translate(26px,8px)' }}>
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z"/></svg>
-                                </span>
-                                <span className="dt-star" style={{ transform: 'translate(-26px,6px)' }}>
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z"/></svg>
-                                </span>
-                                <span className="dt-star" style={{ transform: 'translate(0px,26px)' }}>
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z"/></svg>
-                                </span>
+                    {showDoubleTapEffect && (
+                        <div className="dt-overlay">
+                            <div style={{ position: 'relative', width: 0, height: 0 }}>
+                                <div className="dt-burst" aria-hidden>
+                                    <span className="dt-star" style={{ transform: 'translate(-20px,-10px)' }}>
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z" /></svg>
+                                    </span>
+                                    <span className="dt-star" style={{ transform: 'translate(12px,-6px)' }}>
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z" /></svg>
+                                    </span>
+                                    <span className="dt-star" style={{ transform: 'translate(26px,8px)' }}>
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z" /></svg>
+                                    </span>
+                                    <span className="dt-star" style={{ transform: 'translate(-26px,6px)' }}>
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z" /></svg>
+                                    </span>
+                                    <span className="dt-star" style={{ transform: 'translate(0px,26px)' }}>
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.1L18 8l-4 2.9L14 15l-2-1.3L10 15l.9-4.1L8 8l4.1-1.9L12 2z" /></svg>
+                                    </span>
+                                </div>
+                                <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
+                                    <Heart className="dt-heart" />
+                                </div>
                             </div>
-                            <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
-                                <Heart className="dt-heart" />
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {/* Long-press hint bubble anchored to the Heart button (one-time after first like) — rendered in a portal so it sits above transforms */}
-                {showLongPressHint && typeof document !== 'undefined' && createPortal(
-                    <div
-                        className="hint-bubble"
-                        style={{
-                            position: 'fixed',
-                            left: longPressHintStyle.left,
-                            top: longPressHintStyle.top,
-                            transform: 'translate(-50%, -120%)',
-                            zIndex: 9999,
-                            pointerEvents: 'none'
-                        }}
-                    >
-                        <div style={{ position: 'relative', display: 'inline-block' }}>
-                            <div className="hint-inner" role="status" aria-live="polite">
-                                <MessageSquare className="w-5 h-5" style={{ color: '#fff', flexShrink: 0 }} />
-                                <div className="hint-text">Long-press the heart to access more options.</div>
-                            </div>
-                            {/* Tail: position is set dynamically so the tip aligns with the target (can be left-edge or bottom) */}
-                            <div
-                                className={longPressHintStyle && longPressHintStyle.tailClass ? longPressHintStyle.tailClass : 'hint-tail'}
-                                style={
-                                    longPressHintStyle && longPressHintStyle.tailClass && longPressHintStyle.tailClass.indexOf('left-edge') !== -1
-                                        ? { top: '50%', left: '-12px', transform: 'translateY(-50%)' }
-                                        : { left: longPressHintStyle && longPressHintStyle.tailLeft ? `${longPressHintStyle.tailLeft}px` : '50%' }
-                                }
-                            />
-                        </div>
-                    </div>,
-                    document.body
-                )}
-                {/* 1. Nubilous Gradient Background (responsive sizes) */}
-                <div className="absolute top-0 right-0 w-40 sm:w-44 md:w-48 h-40 sm:h-44 md:h-48 rounded-tr-xl overflow-hidden pointer-events-none" style={nubilousBackgroundStyle} aria-hidden="true" />
-                
-                {/* 2. CLAIM Button (Vertical Tab on the side) - only for authenticated users */}
-                {auth.user && (
-                    <button 
-                        onTouchEnd={(e) => e.stopPropagation()} 
-                        onClick={handleClaimClick}
-                        style={claimButtonStyle}
-                        className="focus:outline-none hover:text-gray-900 transition duration-150"
-                        disabled={isClaimed}
-                        title={isClaimed && claimedBy ? `Claimed by ${claimedBy.name}` : 'Claim this request'}
-                        aria-label={isClaimed && claimedBy ? `Claimed by ${claimedBy.name}` : 'Claim this request'}
-                    >
-                        {isClaimed ? '✓ Claimed' : 'CLAIM'}
-                    </button>
-                )}
-                
-                {/* 3. Absolutely Positioned Badges */}
-                <div 
-                    onTouchEnd={(e) => e.stopPropagation()} 
-                    className="absolute top-4 right-4 flex flex-col items-end space-y-1 z-10"
-                >
-                    {request.isTrending && (
-                        <div style={trendingBadgeStyle}>
-                            <TrendingUp className="w-4 h-4 mr-1" style={{ color: goldColor }} />
-                            {getTranslation('Trending', selectedLanguage)}
                         </div>
                     )}
-                    <div style={fundingBadgeStyle}>
-                        ${Number(request.funding || 0).toFixed(2)}
-                    </div>
-                    {/* Pin indicator: only show when the request is pinned (pin is toggled via quick-options) */}
-                    {/* pinned indicator intentionally moved below to sit above the rank badge */}
-                </div>
-
-                {/* RANK Badge (NEW) */}
-                <div className="absolute top-4 left-4 z-10">
-                    <div className="bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full">
-                        RANK #{detailedRank.rank}
-                    </div>
-                </div>
-
-                {/* Pin indicator: positioned above the rank badge, half outside the card */}
-                {isPinned && (
-                    <button
-                        onClick={handleCardPinClick}
-                        aria-label={isPinned ? 'Unpin request' : 'Pin request'}
-                        className="absolute z-20 focus:outline-none"
-                        style={{
-                            top: '2px',
-                            left: '44px',
-                            transform: 'translateY(-50%)',
-                            background: 'transparent',
-                            padding: 4,
-                            border: 'none'
-                        }}
-                    >
-                        <Pin className="w-5 h-5" style={{ fill: 'var(--color-gold)', stroke: '#6b7280' }} />
-                    </button>
-                )}
-
-
-                {/* Top Row: Company Info */}
-                <div className="flex items-start mb-4 relative z-10 pt-10"> 
-                    <div className="flex items-center">
-                        <button 
-                            className="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0 relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all"
-                            style={{ focusRingColor: 'var(--color-gold)' }}
-                            onClick={(e) => { 
-                                e.stopPropagation(); 
-                                if (onOpenProfile && request.creator && request.creator.name && request.creator.name !== 'Anonymous') {
-                                    onOpenProfile(request.creator.name, true, { id: request.creator.id || null,
-                                        avatar: resolveImageUrl(request.imageUrl),
-                                        bio: request.creator.bio || 'Creating engaging content',
-                                        stats: {
-                                            videos: request.creator.videosCount || 0,
-                                            requests: request.creator.requestsCompleted || 0,
-                                            followers: request.creator.followers || request.creator.followerCount || 0,
-                                            following: request.creator.following || 0
-                                        },
-                                        verified: request.creator.verified || false,
-                                        joinedDate: request.creator.joinedYear || new Date().getFullYear()
-                                    });
-                                }
+                    {/* Long-press hint bubble anchored to the Heart button (one-time after first like) — rendered in a portal so it sits above transforms */}
+                    {showLongPressHint && typeof document !== 'undefined' && createPortal(
+                        <div
+                            className="hint-bubble"
+                            style={{
+                                position: 'fixed',
+                                left: longPressHintStyle.left,
+                                top: longPressHintStyle.top,
+                                transform: 'translate(-50%, -120%)',
+                                zIndex: 9999,
+                                pointerEvents: 'none'
                             }}
                         >
-                            
-                            {/* Image with onError for fallback */}
-                            <img 
-                                src={resolveImageUrl(request.imageUrl)} 
-                                alt={`${request.company} profile`} 
-                                className={`w-full h-full object-cover absolute inset-0 z-10 transition-opacity duration-300 ${showFallback ? 'opacity-0' : 'opacity-100'}`} 
-                                onError={handleImageError} 
-                                onLoad={() => setShowFallback(false)} 
-                            />
-                            
-                            {/* Fallback Initial */}
-                            {(() => {
-                                const avatarInitial = (request.creator && request.creator.name && request.creator.name !== 'Anonymous') ? String(request.creator.name).charAt(0).toUpperCase() : 'U';
-                                const colorClasses = ['bg-gray-400','bg-blue-600','bg-indigo-600','bg-green-600','bg-red-600','bg-yellow-500','bg-pink-600'];
-                                const seed = String(request.id || '').split('').reduce((s,ch)=>s+ch.charCodeAt(0),0);
-                                const colorClass = request.companyColor || colorClasses[seed % colorClasses.length];
-                                return (
-                                    <div 
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xl font-bold ${colorClass}`}
-                                        style={{ 
-                                            opacity: showFallback ? 1 : 0, 
-                                            transition: 'opacity 0.3s',
-                                            position: 'absolute',
-                                            inset: 0
-                                        }}
-                                    >
-                                        {avatarInitial}
-                                    </div>
-                                );
-                            })()}
+                            <div style={{ position: 'relative', display: 'inline-block' }}>
+                                <div className="hint-inner" role="status" aria-live="polite">
+                                    <MessageSquare className="w-5 h-5" style={{ color: '#fff', flexShrink: 0 }} />
+                                    <div className="hint-text">Long-press the heart to access more options.</div>
+                                </div>
+                                {/* Tail: position is set dynamically so the tip aligns with the target (can be left-edge or bottom) */}
+                                <div
+                                    className={longPressHintStyle && longPressHintStyle.tailClass ? longPressHintStyle.tailClass : 'hint-tail'}
+                                    style={
+                                        longPressHintStyle && longPressHintStyle.tailClass && longPressHintStyle.tailClass.indexOf('left-edge') !== -1
+                                            ? { top: '50%', left: '-12px', transform: 'translateY(-50%)' }
+                                            : { left: longPressHintStyle && longPressHintStyle.tailLeft ? `${longPressHintStyle.tailLeft}px` : '50%' }
+                                    }
+                                />
+                            </div>
+                        </div>,
+                        document.body
+                    )}
+                    {/* 1. Nubilous Gradient Background (responsive sizes) */}
+                    <div className="absolute top-0 right-0 w-40 sm:w-44 md:w-48 h-40 sm:h-44 md:h-48 rounded-tr-xl overflow-hidden pointer-events-none" style={nubilousBackgroundStyle} aria-hidden="true" />
+
+                    {/* 2. CLAIM Button (Vertical Tab on the side) - only for authenticated users */}
+                    {auth.user && (
+                        <button
+                            onTouchEnd={(e) => e.stopPropagation()}
+                            onClick={handleClaimClick}
+                            style={claimButtonStyle}
+                            className="focus:outline-none hover:text-gray-900 transition duration-150"
+                            disabled={isClaimed}
+                            title={isClaimed && claimedBy ? `Claimed by ${claimedBy.name}` : 'Claim this request'}
+                            aria-label={isClaimed && claimedBy ? `Claimed by ${claimedBy.name}` : 'Claim this request'}
+                        >
+                            {isClaimed ? '✓ Claimed' : 'CLAIM'}
                         </button>
-                        
-                            <div>
-                            <p className="text-xs font-semibold text-gray-800">{(request.creator && request.creator.name) ? (request.creator.name === 'Anonymous' ? 'Anonymous' : request.creator.name) : request.company}</p>
-                            <p className="text-xs text-gray-600">{request.timeAgo}</p>
+                    )}
+
+                    {/* 3. Absolutely Positioned Badges */}
+                    <div
+                        onTouchEnd={(e) => e.stopPropagation()}
+                        className="absolute top-4 right-4 flex flex-col items-end space-y-1 z-10"
+                    >
+                        {request.isTrending && (
+                            <div style={trendingBadgeStyle}>
+                                <TrendingUp className="w-4 h-4 mr-1" style={{ color: goldColor }} />
+                                {getTranslation('Trending', selectedLanguage)}
+                            </div>
+                        )}
+                        <div style={fundingBadgeStyle}>
+                            ${Number(request.funding || 0).toFixed(2)}
+                        </div>
+                        {/* Pin indicator: only show when the request is pinned (pin is toggled via quick-options) */}
+                        {/* pinned indicator intentionally moved below to sit above the rank badge */}
+                    </div>
+
+                    {/* RANK Badge (NEW) */}
+                    <div className="absolute top-4 left-4 z-10">
+                        <div className="bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full">
+                            RANK #{detailedRank.rank}
                         </div>
                     </div>
-                </div>
 
-                {/* Request Title and Description */}
-                <h2 className="text-lg font-extrabold text-gray-900 mb-2 leading-tight">
-                    {highlight(request.title)}
-                </h2>
-                <p className="text-sm text-gray-800 mb-4">
-                    {highlight(displayedDescriptionRaw)}
-                </p>
-
-                {/* "See more" / "See less" and "Sponsored" */}
-                <div className="flex justify-between items-center mb-4">
-                    {needsTruncation && (
-                        <button 
-                            onTouchEnd={(e) => e.stopPropagation()} 
-                            onClick={toggleExpansion}
-                            className="flex items-center text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
-                        >
-                            {isExpanded ? getTranslation('See less', selectedLanguage) : getTranslation('See more...', selectedLanguage)}
-                            {isExpanded ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
-                        </button>
-                    )}
-                    
-                    {request.isSponsored && (
-                        <span className="text-xs text-gray-500 font-medium">Sponsored</span>
-                    )}
-                </div>
-
-                {/* Footer Metrics and Actions */}
-                <div className="border-t border-gray-100 pt-3 flex justify-between items-center">
-                    
-                    {/* Metrics Group (Likes, Comments, Boosts) */}
-                    <div className="flex space-x-4 text-gray-600">
+                    {/* Pin indicator: positioned above the rank badge, half outside the card */}
+                    {isPinned && (
                         <button
-                            ref={heartBtnRef}
-                            onTouchStart={(e) => { setIsHeartActive(true); startHeartPress(e); }}
-                            onTouchEnd={(e) => { endHeartPress(); setIsHeartActive(false); e.stopPropagation(); if (longPressTriggeredRef.current) { longPressTriggeredRef.current = false; return; } }}
-                            onMouseDown={(e) => { setIsHeartActive(true); startHeartPress(e); }}
-                            onMouseUp={(e) => { endHeartPress(); setIsHeartActive(false); }}
-                            onMouseEnter={() => setIsHeartHover(true)}
-                            onMouseLeave={() => { setIsHeartHover(false); setIsHeartActive(false); endHeartPress(); }}
-                            onClick={(e) => { if (longPressTriggeredRef.current) { longPressTriggeredRef.current = false; return; } toggleLike(); }}
-                            className={`flex items-center space-x-1 p-0 transition-colors transform-gpu hover:scale-105 active:scale-95 ${isLiked ? 'text-gray-700' : 'text-gray-500'} focus:outline-none`}
+                            onClick={handleCardPinClick}
+                            aria-label={isPinned ? 'Unpin request' : 'Pin request'}
+                            className="absolute z-20 focus:outline-none"
+                            style={{
+                                top: '2px',
+                                left: '44px',
+                                transform: 'translateY(-50%)',
+                                background: 'transparent',
+                                padding: 4,
+                                border: 'none'
+                            }}
                         >
-                            <Heart
-                                className={`w-5 h-5 transition-colors`}
-                                style={{
-                                    strokeWidth: 2,
-                                    fill: heartFill,
-                                    stroke: heartStroke,
-                                    transition: 'transform .12s ease, fill .12s ease, stroke .12s ease'
+                            <Pin className="w-5 h-5" style={{ fill: 'var(--color-gold)', stroke: '#6b7280' }} />
+                        </button>
+                    )}
+
+
+                    {/* Top Row: Company Info */}
+                    <div className="flex items-start mb-4 relative z-10 pt-10">
+                        <div className="flex items-center">
+                            <button
+                                className="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0 relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all"
+                                style={{ focusRingColor: 'var(--color-gold)' }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onOpenProfile && request.creator && request.creator.name && request.creator.name !== 'Anonymous') {
+                                        onOpenProfile(request.creator.name, true, {
+                                            id: request.creator.id || null,
+                                            avatar: resolveImageUrl(request.imageUrl),
+                                            bio: request.creator.bio || 'Creating engaging content',
+                                            stats: {
+                                                videos: request.creator.videosCount || 0,
+                                                requests: request.creator.requestsCompleted || 0,
+                                                followers: request.creator.followers || request.creator.followerCount || 0,
+                                                following: request.creator.following || 0
+                                            },
+                                            verified: request.creator.verified || false,
+                                            joinedDate: request.creator.joinedYear || new Date().getFullYear()
+                                        });
+                                    }
                                 }}
-                            />
-                            <span className="text-xs font-medium">{likesCount}</span>
-                        </button>
-                        
-                        <button 
-                            onClick={handleOpenComments} 
-                            onTouchEnd={(e) => e.stopPropagation()} 
-                            className="flex items-center space-x-1 p-0 transition-colors text-gray-500 hover:text-gray-700 focus:outline-none"
-                        >
-                            <MessageSquare className="w-5 h-5" />
-                            <span className="text-xs font-medium">{request.comments}</span>
-                        </button>
-                        
-                        {/* Boosts Button - Now opens the Boosts Modal */}
-                        <button 
-                            onClick={handleOpenBoosts}
-                            onTouchEnd={(e) => e.stopPropagation()} 
-                            className="flex items-center space-x-1 p-0 transition-colors text-gray-500 hover:text-gray-700 focus:outline-none"
-                        >
-                            <ChevronsUp className="w-5 h-5" />
-                            <span className="text-xs font-medium">{request.boosts} {getTranslation('Boosts', selectedLanguage)}</span>
-                        </button>
+                            >
+
+                                {/* Image with onError for fallback */}
+                                <img
+                                    src={resolveImageUrl(request.imageUrl)}
+                                    alt={`${request.company} profile`}
+                                    className={`w-full h-full object-cover absolute inset-0 z-10 transition-opacity duration-300 ${showFallback ? 'opacity-0' : 'opacity-100'}`}
+                                    onError={handleImageError}
+                                    onLoad={() => setShowFallback(false)}
+                                />
+
+                                {/* Fallback Initial */}
+                                {(() => {
+                                    const avatarInitial = (request.creator && request.creator.name && request.creator.name !== 'Anonymous') ? String(request.creator.name).charAt(0).toUpperCase() : 'U';
+                                    const colorClasses = ['bg-gray-400', 'bg-blue-600', 'bg-indigo-600', 'bg-green-600', 'bg-red-600', 'bg-yellow-500', 'bg-pink-600'];
+                                    const seed = String(request.id || '').split('').reduce((s, ch) => s + ch.charCodeAt(0), 0);
+                                    const colorClass = request.companyColor || colorClasses[seed % colorClasses.length];
+                                    return (
+                                        <div
+                                            className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xl font-bold ${colorClass}`}
+                                            style={{
+                                                opacity: showFallback ? 1 : 0,
+                                                transition: 'opacity 0.3s',
+                                                position: 'absolute',
+                                                inset: 0
+                                            }}
+                                        >
+                                            {avatarInitial}
+                                        </div>
+                                    );
+                                })()}
+                            </button>
+
+                            <div>
+                                <p className="text-xs font-semibold text-gray-800">{(request.creator && request.creator.name) ? (request.creator.name === 'Anonymous' ? 'Anonymous' : request.creator.name) : request.company}</p>
+                                <p className="text-xs text-gray-600">{request.timeAgo}</p>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Action Icons Group (Edit, Bookmark, Lightbulb) */}
-                    <div className="flex space-x-2" style={{ marginRight: '-28px' }}> 
-                        {/* Edit button: only the request creator can edit and only if not claimed */}
-                        {auth.user && request.createdBy && String(auth.user.id) === String(request.createdBy) && !isClaimed && (
+                    {/* Request Title and Description */}
+                    <h2 className="text-lg font-extrabold text-gray-900 mb-2 leading-tight">
+                        {highlight(request.title)}
+                    </h2>
+                    <p className="text-sm text-gray-800 mb-4">
+                        {highlight(displayedDescriptionRaw)}
+                    </p>
+
+                    {/* "See more" / "See less" and "Sponsored" */}
+                    <div className="flex justify-between items-center mb-4">
+                        {needsTruncation && (
                             <button
-                                onClick={(e) => { e.stopPropagation(); setShowEditModal(true); }}
-                                className="flex items-center justify-center p-2.5 h-9 w-9 rounded-full bg-white hover:bg-gray-100 transition-colors ring-1 ring-gray-200 hover:shadow-md text-gray-600"
-                                title="Edit request"
-                                aria-label="Edit request"
+                                onTouchEnd={(e) => e.stopPropagation()}
+                                onClick={toggleExpansion}
+                                className="flex items-center text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
                             >
-                                <Pencil className="w-5 h-5" />
+                                {isExpanded ? getTranslation('See less', selectedLanguage) : getTranslation('See more...', selectedLanguage)}
+                                {isExpanded ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
                             </button>
                         )}
 
-                        <button 
-                            onTouchEnd={(e) => { e.stopPropagation(); setIsBookmarkActive(false); }}
-                            onTouchStart={() => setIsBookmarkActive(true)}
-                            onMouseEnter={() => setIsBookmarkHover(true)}
-                            onMouseLeave={() => { setIsBookmarkHover(false); setIsBookmarkActive(false); }}
-                            onMouseDown={() => setIsBookmarkActive(true)}
-                            onMouseUp={() => setIsBookmarkActive(false)}
-                            onFocus={() => setIsBookmarkHover(true)}
-                            onBlur={() => { setIsBookmarkHover(false); setIsBookmarkActive(false); }}
-                            onClick={toggleBookmark}
-                            className={`flex items-center justify-center p-2.5 h-9 w-9 rounded-full transition-transform transform-gpu hover:scale-105 active:scale-95 focus:outline-none ring-1 ring-gray-200`}
-                            style={{ boxShadow: bookmarkBoxShadow }}
-                        >
-                            <Bookmark 
-                                className={`w-5 h-5 transition-colors`} 
-                                style={{ 
-                                    strokeWidth: 2,
-                                    fill: bookmarkFill,
-                                    stroke: bookmarkStroke,
-                                    transition: 'transform .12s ease, fill .12s ease, stroke .12s ease'
-                                }}
-                            />
-                        </button>
-                        
-                        {/* Lightbulb Button - Now opens the Suggestions Modal */}
-                        <button 
-                            onClick={handleOpenSuggestions}
-                            onTouchEnd={(e) => e.stopPropagation()}
-                            className="flex items-center justify-center p-2.5 h-9 w-9 rounded-full bg-white hover:bg-gray-100 transition-colors ring-1 ring-gray-200 hover:shadow-md text-gray-500"
-                        >
-                            <Lightbulb className="w-5 h-5" />
-                        </button>
+                        {request.isSponsored && (
+                            <span className="text-xs text-gray-500 font-medium">Sponsored</span>
+                        )}
+                    </div>
 
-                        {/* Edit Modal (per-card) */}
-                        {showEditModal && (
-                            <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
-                                <div className="absolute inset-0 bg-black/40" onClick={() => setShowEditModal(false)} />
-                                <div className="bg-white rounded-2xl shadow-2xl p-6 relative z-10 w-full max-w-lg">
-                                    <h3 className="text-lg font-bold mb-2">Edit request</h3>
-                                    <p className="text-sm text-gray-600 mb-4">Update your request details. Changes are visible to everyone.</p>
+                    {/* Footer Metrics and Actions */}
+                    <div className="border-t border-gray-100 pt-3 flex justify-between items-center">
 
-                                    <div className="space-y-3">
-                                        <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full px-3 py-2 border rounded-md" />
-                                        <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} className="w-full px-3 py-2 border rounded-md" rows={6} />
-                                    </div>
+                        {/* Metrics Group (Likes, Comments, Boosts) */}
+                        <div className="flex space-x-4 text-gray-600">
+                            <button
+                                ref={heartBtnRef}
+                                onTouchStart={(e) => { setIsHeartActive(true); startHeartPress(e); }}
+                                onTouchEnd={(e) => { endHeartPress(); setIsHeartActive(false); e.stopPropagation(); if (longPressTriggeredRef.current) { longPressTriggeredRef.current = false; return; } }}
+                                onMouseDown={(e) => { setIsHeartActive(true); startHeartPress(e); }}
+                                onMouseUp={(e) => { endHeartPress(); setIsHeartActive(false); }}
+                                onMouseEnter={() => setIsHeartHover(true)}
+                                onMouseLeave={() => { setIsHeartHover(false); setIsHeartActive(false); endHeartPress(); }}
+                                onClick={(e) => { if (longPressTriggeredRef.current) { longPressTriggeredRef.current = false; return; } toggleLike(); }}
+                                className={`flex items-center space-x-1 p-0 transition-colors transform-gpu hover:scale-105 active:scale-95 ${isLiked ? 'text-gray-700' : 'text-gray-500'} focus:outline-none`}
+                            >
+                                <Heart
+                                    className={`w-5 h-5 transition-colors`}
+                                    style={{
+                                        strokeWidth: 2,
+                                        fill: heartFill,
+                                        stroke: heartStroke,
+                                        transition: 'transform .12s ease, fill .12s ease, stroke .12s ease'
+                                    }}
+                                />
+                                <span className="text-xs font-medium">{likesCount}</span>
+                            </button>
 
-                                    <div className="flex justify-end space-x-3 mt-4">
-                                        <button onClick={() => setShowEditModal(false)} className="px-4 py-2 rounded-full bg-gray-100">Cancel</button>
-                                        <button
-                                            onClick={async () => {
-                                                // persist to backend
-                                                const token = localStorage.getItem('regaarder_token');
-                                                const BACKEND = `${window.location.protocol}//${window.location.hostname}:4000`;
-                                                try {
-                                                    const res = await fetch(`${BACKEND}/requests/${request.id}`, {
-                                                        method: 'PUT',
-                                                        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-                                                        body: JSON.stringify({ title: editTitle, description: editDescription })
-                                                    });
-                                                    if (!res.ok) {
-                                                        const err = await res.json().catch(()=>({ error: 'Update failed' }));
-                                                        throw new Error(err.error || 'Update failed');
+                            <button
+                                onClick={handleOpenComments}
+                                onTouchEnd={(e) => e.stopPropagation()}
+                                className="flex items-center space-x-1 p-0 transition-colors text-gray-500 hover:text-gray-700 focus:outline-none"
+                            >
+                                <MessageSquare className="w-5 h-5" />
+                                <span className="text-xs font-medium">{request.comments}</span>
+                            </button>
+
+                            {/* Boosts Button - Now opens the Boosts Modal */}
+                            <button
+                                onClick={handleOpenBoosts}
+                                onTouchEnd={(e) => e.stopPropagation()}
+                                className="flex items-center space-x-1 p-0 transition-colors text-gray-500 hover:text-gray-700 focus:outline-none"
+                            >
+                                <ChevronsUp className="w-5 h-5" />
+                                <span className="text-xs font-medium">{request.boosts} {getTranslation('Boosts', selectedLanguage)}</span>
+                            </button>
+                        </div>
+
+                        {/* Action Icons Group (Edit, Bookmark, Lightbulb) */}
+                        <div className="flex space-x-2" style={{ marginRight: '-28px' }}>
+                            {/* Edit button: only the request creator can edit and only if not claimed */}
+                            {auth.user && request.createdBy && String(auth.user.id) === String(request.createdBy) && !isClaimed && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setShowEditModal(true); }}
+                                    className="flex items-center justify-center p-2.5 h-9 w-9 rounded-full bg-white hover:bg-gray-100 transition-colors ring-1 ring-gray-200 hover:shadow-md text-gray-600"
+                                    title="Edit request"
+                                    aria-label="Edit request"
+                                >
+                                    <Pencil className="w-5 h-5" />
+                                </button>
+                            )}
+
+                            <button
+                                onTouchEnd={(e) => { e.stopPropagation(); setIsBookmarkActive(false); }}
+                                onTouchStart={() => setIsBookmarkActive(true)}
+                                onMouseEnter={() => setIsBookmarkHover(true)}
+                                onMouseLeave={() => { setIsBookmarkHover(false); setIsBookmarkActive(false); }}
+                                onMouseDown={() => setIsBookmarkActive(true)}
+                                onMouseUp={() => setIsBookmarkActive(false)}
+                                onFocus={() => setIsBookmarkHover(true)}
+                                onBlur={() => { setIsBookmarkHover(false); setIsBookmarkActive(false); }}
+                                onClick={toggleBookmark}
+                                className={`flex items-center justify-center p-2.5 h-9 w-9 rounded-full transition-transform transform-gpu hover:scale-105 active:scale-95 focus:outline-none ring-1 ring-gray-200`}
+                                style={{ boxShadow: bookmarkBoxShadow }}
+                            >
+                                <Bookmark
+                                    className={`w-5 h-5 transition-colors`}
+                                    style={{
+                                        strokeWidth: 2,
+                                        fill: bookmarkFill,
+                                        stroke: bookmarkStroke,
+                                        transition: 'transform .12s ease, fill .12s ease, stroke .12s ease'
+                                    }}
+                                />
+                            </button>
+
+                            {/* Lightbulb Button - Now opens the Suggestions Modal */}
+                            <button
+                                onClick={handleOpenSuggestions}
+                                onTouchEnd={(e) => e.stopPropagation()}
+                                className="flex items-center justify-center p-2.5 h-9 w-9 rounded-full bg-white hover:bg-gray-100 transition-colors ring-1 ring-gray-200 hover:shadow-md text-gray-500"
+                            >
+                                <Lightbulb className="w-5 h-5" />
+                            </button>
+
+                            {/* Edit Modal (per-card) */}
+                            {showEditModal && (
+                                <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+                                    <div className="absolute inset-0 bg-black/40" onClick={() => setShowEditModal(false)} />
+                                    <div className="bg-white rounded-2xl shadow-2xl p-6 relative z-10 w-full max-w-lg">
+                                        <h3 className="text-lg font-bold mb-2">Edit request</h3>
+                                        <p className="text-sm text-gray-600 mb-4">Update your request details. Changes are visible to everyone.</p>
+
+                                        <div className="space-y-3">
+                                            <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full px-3 py-2 border rounded-md" />
+                                            <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} className="w-full px-3 py-2 border rounded-md" rows={6} />
+                                        </div>
+
+                                        <div className="flex justify-end space-x-3 mt-4">
+                                            <button onClick={() => setShowEditModal(false)} className="px-4 py-2 rounded-full bg-gray-100">Cancel</button>
+                                            <button
+                                                onClick={async () => {
+                                                    // persist to backend
+                                                    const token = localStorage.getItem('regaarder_token');
+                                                    const BACKEND = `${window.location.protocol}//${window.location.hostname}:4000`;
+                                                    try {
+                                                        const res = await fetch(`${BACKEND}/requests/${request.id}`, {
+                                                            method: 'PUT',
+                                                            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                                                            body: JSON.stringify({ title: editTitle, description: editDescription })
+                                                        });
+                                                        if (!res.ok) {
+                                                            const err = await res.json().catch(() => ({ error: 'Update failed' }));
+                                                            throw new Error(err.error || 'Update failed');
+                                                        }
+                                                        const body = await res.json();
+                                                        // broadcast update so other parts of the app refresh
+                                                        try { window.dispatchEvent(new CustomEvent('request:updated', { detail: { request: body.request } })); } catch (e) { }
+                                                        setShowEditModal(false);
+                                                        setActionToast({ visible: true, message: 'Request updated' });
+                                                    } catch (err) {
+                                                        console.error('Update failed', err);
+                                                        setActionToast({ visible: true, message: err.message || 'Update failed' });
                                                     }
-                                                    const body = await res.json();
-                                                    // broadcast update so other parts of the app refresh
-                                                    try { window.dispatchEvent(new CustomEvent('request:updated', { detail: { request: body.request } })); } catch (e) {}
-                                                    setShowEditModal(false);
-                                                    setActionToast({ visible: true, message: 'Request updated' });
-                                                } catch (err) {
-                                                    console.error('Update failed', err);
-                                                    setActionToast({ visible: true, message: err.message || 'Update failed' });
-                                                }
-                                            }}
-                                            className="px-4 py-2 rounded-full" style={{ backgroundColor: 'var(--color-gold)', color: '#fff' }}
-                                        >
-                                            Save
-                                        </button>
+                                                }}
+                                                className="px-4 py-2 rounded-full" style={{ backgroundColor: 'var(--color-gold)', color: '#fff' }}
+                                            >
+                                                Save
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-            </div>
 
             {/* Modals are positioned outside the card but within the App's context */}
-            <CommentsModal 
-                isOpen={showCommentsModal} 
+            <CommentsModal
+                isOpen={showCommentsModal}
                 onClose={handleCloseComments}
                 requestId={request.id}
                 selectedLanguage={selectedLanguage}
@@ -2930,7 +2931,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 selectedLanguage={selectedLanguage}
             />
 
-            <BoostsModal 
+            <BoostsModal
                 isOpen={showBoostsModal}
                 onClose={handleCloseBoosts}
                 requestId={request.id}
@@ -2939,7 +2940,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 selectedLanguage={selectedLanguage}
             />
 
-            <ClaimConfirmationModal 
+            <ClaimConfirmationModal
                 isOpen={showClaimModal}
                 onClose={() => setShowClaimModal(false)}
                 onConfirm={handleConfirmClaim}
@@ -3083,12 +3084,12 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
                 </div>
             )}
 
-            <Toast 
+            <Toast
                 message="You’ve successfully claimed this request. You now have 48 hours to provide an update or draft."
                 isVisible={showToast}
                 onClose={() => setShowToast(false)}
             />
-            
+
         </>
     );
 };
@@ -3097,7 +3098,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
 // --- Profile Dialog Component (matching home.jsx) ---
 const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData = null, selectedLanguage = 'English' }) => {
     const currentYear = new Date().getFullYear();
-    
+
     const data = profileData || {
         avatar: null,
         bio: isCreator ? getTranslation('Creating engaging content for you', selectedLanguage) : getTranslation('Enjoying great content', selectedLanguage),
@@ -3120,8 +3121,8 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
             if (!creatorId || !token) return;
             fetch(`${window.location.protocol}//${window.location.hostname}:4000/following/${creatorId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
-            }).then(res => res.json()).then(d => { if (typeof d.isFollowing !== 'undefined') setIsFollowing(!!d.isFollowing); }).catch(() => {});
-        } catch (e) {}
+            }).then(res => res.json()).then(d => { if (typeof d.isFollowing !== 'undefined') setIsFollowing(!!d.isFollowing); }).catch(() => { });
+        } catch (e) { }
     }, [profileData && profileData.id, auth.user && auth.user.token]);
 
     return (
@@ -3132,7 +3133,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
 
                 <div className="px-6 pb-6 -mt-12">
                     <div className="relative inline-block">
-                        <div 
+                        <div
                             className="w-24 h-24 rounded-full border-4 border-white shadow-lg flex items-center justify-center overflow-hidden"
                             style={{ background: data.avatar ? 'transparent' : 'linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%)' }}
                         >
@@ -3143,7 +3144,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                             )}
                         </div>
                         {isCreator && data.verified && (
-                            <div 
+                            <div
                                 className="absolute bottom-0 right-0 w-7 h-7 rounded-full border-2 border-white flex items-center justify-center shadow-md"
                                 style={{ backgroundColor: 'var(--color-gold)' }}
                             >
@@ -3156,7 +3157,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                         <div className="flex items-center gap-2">
                             <h3 className="text-2xl font-bold text-gray-900">{name}</h3>
                             {isCreator && (
-                                <div 
+                                <div
                                     className="px-2 py-0.5 rounded-full text-xs font-semibold text-white"
                                     style={{ backgroundColor: 'var(--color-gold)' }}
                                 >
@@ -3189,7 +3190,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                     </div>
 
                     <div className="mt-6 space-y-3">
-                        <button 
+                        <button
                             onClick={() => {
                                 const creatorId = (profileData && profileData.id) || null;
                                 const token = (auth.user && auth.user.token) || localStorage.getItem('regaarder_token');
@@ -3199,10 +3200,10 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                                     body: JSON.stringify({ creatorId })
-                                }).then(res => res.json()).then(() => setIsFollowing(!isFollowing)).catch(() => {});
+                                }).then(res => res.json()).then(() => setIsFollowing(!isFollowing)).catch(() => { });
                             }}
                             className="w-full py-3 rounded-xl font-semibold text-white transition-all hover:opacity-90 shadow-md"
-                            style={{ 
+                            style={{
                                 backgroundColor: 'var(--color-gold)',
                                 boxShadow: '0 4px 12px rgba(203, 138, 0, 0.3)'
                             }}
@@ -3213,7 +3214,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                             <button
                                 onClick={() => console.log(`Request video from ${name}`)}
                                 className="w-full py-3 rounded-xl border-2 font-semibold transition-all hover:bg-gray-50"
-                                style={{ 
+                                style={{
                                     borderColor: 'var(--color-gold)',
                                     color: 'var(--color-gold)'
                                 }}
@@ -3235,6 +3236,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
 // --- Main Requests Feed Component ---
 export default function RequestsFeed() {
     const auth = useAuth();
+    const location = useLocation();
     // Language State - Load from localStorage
     const [selectedLanguage, setSelectedLanguage] = useState(() => {
         try {
@@ -3253,7 +3255,7 @@ export default function RequestsFeed() {
             if (['For You', 'Trending', 'Newest', 'Top Funded', 'Completed'].includes(f)) {
                 return f;
             }
-        } catch(e) {}
+        } catch (e) { }
         return 'For You';
     });
     const [activeNav, setActiveNav] = useState('Requests');
@@ -3269,6 +3271,17 @@ export default function RequestsFeed() {
     const [showMonthYearPicker, setShowMonthYearPicker] = useState(false);
     const filterDropdownRef = useRef(null);
 
+    // Sync active filter with URL param when location changes (client-side navigation)
+    useEffect(() => {
+        try {
+            const p = new URLSearchParams(location.search);
+            const f = p.get('filter');
+            if (f && ['For You', 'Trending', 'Newest', 'Top Funded', 'Completed'].includes(f)) {
+                setActiveFilter(f);
+            }
+        } catch (e) { }
+    }, [location.search]);
+
 
     // If arriving with a query param, seed the search box
     useEffect(() => {
@@ -3276,46 +3289,46 @@ export default function RequestsFeed() {
             const params = new URLSearchParams(window.location.search || '');
             const qParam = params.get('q');
             if (qParam) setSearchQuery(qParam);
-        } catch (e) {}
+        } catch (e) { }
     }, []);
-    
+
     // --- Influence and Ranking Calculation Logic ---
     // Influence: 1 Like = 1 Influence, $1 Boost = 2 Influence
-    const influenceMultiplier = 2; 
+    const influenceMultiplier = 2;
     const THREAT_DIFFERENCE = 20; // Competitors within 20 influence points are a threat
 
     const calculateInfluenceAndRank = (requests) => {
         // 1. Calculate the total influence score for each request
         const requestsWithInfluence = requests.map(req => ({
             ...req,
-            totalInfluence: req.likes + (req.boosts * influenceMultiplier), 
+            totalInfluence: req.likes + (req.boosts * influenceMultiplier),
         }));
 
         // 2. Create a sorted copy to determine global ranks
         const sortedByInfluence = [...requestsWithInfluence].sort((a, b) => b.totalInfluence - a.totalInfluence);
-        
+
         // 3. Map IDs to their rank data
         const rankMap = {};
         sortedByInfluence.forEach((req, index) => {
-             const currentRank = index + 1;
-             let nextRankScore = null;
-             if (currentRank > 1) {
-                 nextRankScore = sortedByInfluence[index - 1].totalInfluence; 
-             }
-             const nextRankNeeded = nextRankScore !== null 
-                 ? nextRankScore - req.totalInfluence + 1 
-                 : 0;
-             const threatCount = sortedByInfluence.slice(index + 1).filter(
-                 competitor => req.totalInfluence - competitor.totalInfluence <= THREAT_DIFFERENCE
-             ).length;
+            const currentRank = index + 1;
+            let nextRankScore = null;
+            if (currentRank > 1) {
+                nextRankScore = sortedByInfluence[index - 1].totalInfluence;
+            }
+            const nextRankNeeded = nextRankScore !== null
+                ? nextRankScore - req.totalInfluence + 1
+                : 0;
+            const threatCount = sortedByInfluence.slice(index + 1).filter(
+                competitor => req.totalInfluence - competitor.totalInfluence <= THREAT_DIFFERENCE
+            ).length;
 
-             rankMap[req.id] = {
-                 rank: currentRank,
-                 nextRankNeeded,
-                 nextRankScore,
-                 threatCount,
-                 totalInfluence: req.totalInfluence
-             };
+            rankMap[req.id] = {
+                rank: currentRank,
+                nextRankNeeded,
+                nextRankScore,
+                threatCount,
+                totalInfluence: req.totalInfluence
+            };
         });
 
         // 4. Return the original list order, augmented with rank data
@@ -3329,7 +3342,7 @@ export default function RequestsFeed() {
             };
         });
     };
-    
+
     const [rankedRequests, setRankedRequests] = useState(() => {
         const initial = calculateInfluenceAndRank([]);
         try {
@@ -3342,7 +3355,7 @@ export default function RequestsFeed() {
                 const unpinned = withPins.filter(r => !r.pinned);
                 return [...pinned, ...unpinned];
             }
-        } catch (err) {}
+        } catch (err) { }
         return initial;
     });
 
@@ -3352,13 +3365,13 @@ export default function RequestsFeed() {
         (async () => {
             try {
                 const BACKEND = `${window.location.protocol}//${window.location.hostname}:4000`;
-                
+
                 // Fetch bookmarks to sync request bookmark state
                 const token = localStorage.getItem('regaarder_token');
                 let bookmarkedRequestIds = new Set();
                 try {
-                    const bookmarksRes = await fetch(`${BACKEND}/bookmarks`, { 
-                        headers: token ? { Authorization: `Bearer ${token}` } : {} 
+                    const bookmarksRes = await fetch(`${BACKEND}/bookmarks`, {
+                        headers: token ? { Authorization: `Bearer ${token}` } : {}
                     });
                     const bookmarksData = await bookmarksRes.json();
                     if (bookmarksData && bookmarksData.success && Array.isArray(bookmarksData.requests)) {
@@ -3374,7 +3387,7 @@ export default function RequestsFeed() {
                 } catch (e) {
                     console.warn('Failed to fetch request bookmarks:', e);
                 }
-                
+
                 // Construct URL with feed param based on activeFilter
                 const filterMap = { 'For You': 'recommended', 'Trending': 'trending', 'Newest': 'fresh', 'Top Funded': 'funded', 'Completed': 'completed' };
                 const feedType = filterMap[activeFilter] || 'recommended';
@@ -3388,28 +3401,47 @@ export default function RequestsFeed() {
                 if (cancelled) return;
                 let list = Array.isArray(body.requests) ? body.requests : [];
 
-                // Merge locally submitted requests (from Ideas page) to ensure they appear immediately
-                // even if backend synchronization is slightly delayed or if the user is offline.
-                try {
-                    const localRaw = localStorage.getItem('ideas_requests_v1');
-                    if (localRaw) {
-                        const localReqs = JSON.parse(localRaw);
-                        if (Array.isArray(localReqs)) {
-                            // Deduplicate: Only add local requests that are NOT already in the backend response
-                            const backendIds = new Set(list.map(r => String(r.id)));
-                            const missing = localReqs.filter(r => !backendIds.has(String(r.id)));
-                            
-                            // Prepend missing local requests so they appear at the top (especially for 'Newest')
-                            if (missing.length > 0) {
-                                // Sort missing by date desc just in case
-                                missing.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                                list = [...missing, ...list];
+                const processLocalRequests = (backendList) => {
+                    let finalList = [...backendList];
+                    try {
+                        const localRaw = localStorage.getItem('ideas_requests_v1');
+                        if (localRaw) {
+                            console.log('Found local optimistic requests:', localRaw.length, 'chars');
+                            const localReqs = JSON.parse(localRaw);
+                            console.log('Local requests parsed:', localReqs.length, 'items');
+                            if (Array.isArray(localReqs)) {
+                                const backendIds = new Set(finalList.map(r => String(r.id)));
+                                const missing = localReqs.filter(r => {
+                                    if (!r || !r.id) return false;
+                                    if (backendIds.has(String(r.id))) return false;
+                                    return true;
+                                });
+                                console.log('Merging missing optimistic requests:', missing.length);
+
+                                if (missing.length > 0) {
+                                    const taggedMissing = missing.map(m => ({ 
+                                        ...m, 
+                                        isOptimistic: true,
+                                        likes: m.likes || 0,
+                                        boosts: m.boosts || 0,
+                                        comments: m.comments || 0,
+                                        funding: m.funding || m.amount || 0 
+                                    }));
+                                    taggedMissing.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                                    // Always include missing optimistic items at the top
+                                    console.log('Prepending optimistic requests to finalList:', taggedMissing.map(t=>t.id));
+                                    finalList = [...taggedMissing, ...finalList];
+                                }
                             }
                         }
+                    } catch (e) {
+                        console.warn('Failed to merge local requests:', e);
                     }
-                } catch (e) {
-                    console.warn('Failed to merge local requests:', e);
-                }
+                    return finalList;
+                };
+
+                list = processLocalRequests(list);
 
                 // Normalize each request so the UI has the expected fields
                 let normalized = list.map(r => {
@@ -3457,7 +3489,17 @@ export default function RequestsFeed() {
                             return r;
                         });
                     }
-                } catch (e) {}
+                } catch (e) { }
+
+                // Ensure strict sorting for filtered views even after merging local optimistic requests.
+                // This fixes the issue where a locally merged request (e.g. $15) appears above higher funded ones (e.g. $7888)
+                // simply because it was prepended to the list.
+                if (activeFilter === 'Top Funded') {
+                    normalized.sort((a, b) => (b.funding || 0) - (a.funding || 0));
+                } else if (activeFilter === 'Newest') {
+                    normalized.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                }
+
                 const ranked = calculateInfluenceAndRank(normalized);
                 // Apply pinned map from localStorage if present
                 try {
@@ -3470,14 +3512,38 @@ export default function RequestsFeed() {
                         setRankedRequests([...pinned, ...unpinned]);
                         return;
                     }
-                } catch (e) {}
+                } catch (e) { }
                 setRankedRequests(ranked);
             } catch (e) {
                 // fallback: keep mockRequests if fetch fails
                 try {
-                    const initial = calculateInfluenceAndRank(mockRequests);
+                    let initial = calculateInfluenceAndRank(mockRequests);
+
+                    // Even if backend fails, try to show local optimistic requests on top of mocks
+                    try {
+                        const localRaw = localStorage.getItem('ideas_requests_v1');
+                        if (localRaw) {
+                            const localReqs = JSON.parse(localRaw);
+                            if (Array.isArray(localReqs) && localReqs.length > 0) {
+                                // Normalize local reqs to match mock structure roughly
+                                const normalizedLocal = localReqs.map(r => ({
+                                    ...r,
+                                    likes: 0, boosts: 0, comments: 0, funding: (r.amount || 0),
+                                    isOptimistic: true,
+                                    company: r.company || (r.creator ? r.creator.name : 'Me'),
+                                    companyInitial: 'M',
+                                    companyColor: 'bg-gray-400',
+                                    timeAgo: 'Just now',
+                                    imageUrl: r.imageUrl || '',
+                                }));
+                                // Prepend
+                                initial = calculateInfluenceAndRank([...normalizedLocal, ...mockRequests]);
+                            }
+                        }
+                    } catch (ex) { }
+
                     setRankedRequests(initial);
-                } catch (err) {}
+                } catch (err) { }
             }
         })();
         return () => { cancelled = true; };
@@ -3496,7 +3562,7 @@ export default function RequestsFeed() {
                     const recalculated = calculateInfluenceAndRank(combined);
                     return recalculated;
                 });
-            } catch (e) {}
+            } catch (e) { }
         };
         window.addEventListener('ideas:request_created', handler);
         return () => window.removeEventListener('ideas:request_created', handler);
@@ -3516,7 +3582,7 @@ export default function RequestsFeed() {
                         return r;
                     });
                 });
-            } catch (e) {}
+            } catch (e) { }
         };
         window.addEventListener('request:claimed', handler);
         return () => window.removeEventListener('request:claimed', handler);
@@ -3589,10 +3655,10 @@ export default function RequestsFeed() {
                         const map = raw ? JSON.parse(raw) : {};
                         const merged = { ...map, ...data.reactions };
                         localStorage.setItem('request_reacts_v1', JSON.stringify(merged));
-                    } catch (e) {}
+                    } catch (e) { }
                 }
-            }).catch(() => {});
-        } catch (e) {}
+            }).catch(() => { });
+        } catch (e) { }
     }, [auth.user && auth.user.token]);
 
     const [pinToast, setPinToast] = useState({ visible: false, message: '' });
@@ -3613,7 +3679,7 @@ export default function RequestsFeed() {
                     const ids = new Set((Array.isArray(data.requests) ? data.requests : []).map(b => String(b.requestId)));
                     // console.log('Live-syncing bookmarked request IDs:', Array.from(ids));
                     setBookmarkedReqSet(ids);
-                    
+
                     // Update existing requests with bookmark state
                     setRankedRequests(prev => prev.map(r => ({
                         ...r,
@@ -3641,11 +3707,11 @@ export default function RequestsFeed() {
                     try {
                         const el = document.querySelector(`[data-request-id="${String(target)}"]`);
                         if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    } catch {}
+                    } catch { }
                 }, 600);
                 localStorage.removeItem('requests:navigateTo');
             }
-        } catch {}
+        } catch { }
     }, []);
 
 
@@ -3689,7 +3755,7 @@ export default function RequestsFeed() {
                 const map = {};
                 combined.forEach(r => { if (r.pinned) map[r.id] = r.pinnedAt; });
                 localStorage.setItem('pinned_requests_v1', JSON.stringify(map));
-            } catch (err) {}
+            } catch (err) { }
 
             // after DOM updates, show toast and scroll to top for pinned item
             setTimeout(() => {
@@ -3697,13 +3763,13 @@ export default function RequestsFeed() {
                     try {
                         const el = document.getElementById(`request-card-${requestId}`);
                         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    } catch (err) {}
+                    } catch (err) { }
                     setPinToast({ visible: true, message: 'Pinned' });
                     try {
                         // trigger a brief pulse on the newly pinned card
                         setPulseId(requestId);
                         setTimeout(() => setPulseId(null), 1200);
-                    } catch (err) {}
+                    } catch (err) { }
                 } else {
                     setPinToast({ visible: true, message: 'Unpinned' });
                 }
@@ -3712,7 +3778,7 @@ export default function RequestsFeed() {
             return combined;
         });
     };
-    
+
     // Since mock data is static, this would be re-run on data change.
 
 
@@ -3769,8 +3835,8 @@ export default function RequestsFeed() {
                                                 return;
                                             }
                                             if (tab.name === 'Requests') {
-                                                // Refresh the current page
-                                                window.location.reload();
+                                                // Refresh the current page with For You filter
+                                                window.location.href = '/requests.jsx?filter=For You';
                                                 return;
                                             }
                                             if (tab.name === 'Ideas') {
@@ -3810,16 +3876,16 @@ export default function RequestsFeed() {
     // Click outside to close filter dropdown
     useEffect(() => {
         if (!showFilterDropdown) return;
-        
+
         const handleClickOutside = (e) => {
             if (filterDropdownRef.current && !filterDropdownRef.current.contains(e.target)) {
                 setShowFilterDropdown(false);
             }
         };
-        
+
         document.addEventListener('mousedown', handleClickOutside);
         document.addEventListener('touchstart', handleClickOutside);
-        
+
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('touchstart', handleClickOutside);
@@ -3837,7 +3903,7 @@ export default function RequestsFeed() {
         }
     }, []);
     const dismissSwipeEntrance = () => {
-        try { localStorage.setItem('requests_swipe_entrance_shown', '1'); } catch (e) {}
+        try { localStorage.setItem('requests_swipe_entrance_shown', '1'); } catch (e) { }
         setShowSwipeEntrance(false);
     };
 
@@ -3869,7 +3935,7 @@ export default function RequestsFeed() {
 
     const applyActiveFilter = (list) => {
         let filtered = list;
-        
+
         // Apply category filter
         if (selectedCategory !== 'All') {
             filtered = filtered.filter(r => {
@@ -3877,7 +3943,7 @@ export default function RequestsFeed() {
                 return (r.category || 'General') === selectedCategory;
             });
         }
-        
+
         // Apply specific date filter
         if (selectedDate) {
             filtered = filtered.filter(r => {
@@ -3893,14 +3959,14 @@ export default function RequestsFeed() {
             filtered = filtered.filter(r => {
                 const created = r.createdAt ? new Date(r.createdAt).getTime() : now;
                 const daysDiff = (now - created) / (1000 * 60 * 60 * 24);
-                
+
                 if (selectedDateRange === 'Today') return daysDiff < 1;
                 if (selectedDateRange === 'This Week') return daysDiff < 7;
                 if (selectedDateRange === 'This Month') return daysDiff < 30;
                 return true;
             });
         }
-        
+
         // Apply status filter
         if (selectedStatus !== 'All') {
             if (selectedStatus === 'Completed') {
@@ -3909,21 +3975,33 @@ export default function RequestsFeed() {
                 filtered = filtered.filter(r => !r.isCompleted);
             }
         }
-        
+
         // Apply primary filter (Trending, Newest, etc)
         switch (activeFilter) {
             case 'For You': {
                 // Personalized: show user's own requests first when available
+                return filtered; // FORCE RETURN ALL TO DEBUG VISIBILITY
                 try {
-                    if (auth && auth.user && auth.user.id) {
-                        const me = String(auth.user.id);
-                        return [...filtered].sort((a,b) => {
-                            const aSelf = String(a.createdBy) === me ? -1 : 0;
-                            const bSelf = String(b.createdBy) === me ? -1 : 0;
+                    // Robustly determine current user ID (AuthContext or LocalStorage)
+                    let currentUserId = (auth && auth.user && auth.user.id) ? String(auth.user.id) : null;
+                    if (!currentUserId) {
+                       try {
+                          const raw = localStorage.getItem('regaarder_user');
+                          if (raw) {
+                             const u = JSON.parse(raw);
+                             if (u && u.id) currentUserId = String(u.id);
+                          }
+                       } catch(e) {}
+                    }
+
+                    if (currentUserId) {
+                        return [...filtered].sort((a, b) => {
+                            const aSelf = (String(a.createdBy || (a.creator && a.creator.id)) === currentUserId) ? 1 : 0;
+                            const bSelf = (String(b.createdBy || (b.creator && b.creator.id)) === currentUserId) ? 1 : 0;
                             return bSelf - aSelf; // place user's items first
                         });
                     }
-                } catch (e) {}
+                } catch (e) { console.warn('Sort For You failed', e); }
                 return filtered;
             }
             case 'Trending': return filtered.filter(r => r.isTrending);
@@ -3950,6 +4028,9 @@ export default function RequestsFeed() {
         );
     });
 
+    // Apply active filters (Category, Date, Status, Primary Filter)
+    displayedRequests = applyActiveFilter(displayedRequests);
+
     // Auto-focus the matching request when arriving from a video option
     useEffect(() => {
         try {
@@ -3975,12 +4056,12 @@ export default function RequestsFeed() {
             if (targetId) {
                 const el = document.getElementById(`request-card-${targetId}`);
                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                try { localStorage.removeItem('focus_request_hint'); } catch (e) {}
+                try { localStorage.removeItem('focus_request_hint'); } catch (e) { }
             }
-        } catch (e) {}
+        } catch (e) { }
     }, [rankedRequests, searchQuery]);
 
-const filterButtonStyle = (active) => ({
+    const filterButtonStyle = (active) => ({
         backgroundColor: active ? 'var(--color-neutral-light-bg)' : 'transparent',
         color: active ? 'var(--color-gold)' : '#6b7280',
         borderColor: active ? 'var(--color-gold-light)' : '#e5e7eb',
@@ -4019,8 +4100,8 @@ const filterButtonStyle = (active) => ({
                                 aria-label="Advanced filters"
                                 className="p-1.5 rounded-full text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition relative"
                                 style={{
-                                    backgroundColor: (selectedCategory !== 'All' || selectedDateRange !== 'All Time' || selectedStatus !== 'All' || selectedDate) 
-                                        ? 'var(--color-gold-light)' 
+                                    backgroundColor: (selectedCategory !== 'All' || selectedDateRange !== 'All Time' || selectedStatus !== 'All' || selectedDate)
+                                        ? 'var(--color-gold-light)'
                                         : 'transparent',
                                     color: (selectedCategory !== 'All' || selectedDateRange !== 'All Time' || selectedStatus !== 'All' || selectedDate)
                                         ? 'var(--color-gold)'
@@ -4029,7 +4110,7 @@ const filterButtonStyle = (active) => ({
                             >
                                 <SlidersHorizontal className="w-5 h-5" />
                                 {(selectedCategory !== 'All' || selectedDateRange !== 'All Time' || selectedStatus !== 'All' || selectedDate) && (
-                                    <span 
+                                    <span
                                         className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
                                         style={{ backgroundColor: 'var(--color-gold)' }}
                                     />
@@ -4037,10 +4118,10 @@ const filterButtonStyle = (active) => ({
                             </button>
                         </div>
                     </div>
-                    
+
                     {/* Filter Dropdown */}
                     {showFilterDropdown && (
-                        <div 
+                        <div
                             ref={filterDropdownRef}
                             className="absolute right-4 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-30 overflow-hidden"
                             style={{ maxHeight: '380px' }}
@@ -4051,14 +4132,14 @@ const filterButtonStyle = (active) => ({
                                     <SlidersHorizontal className="w-5 h-5 mr-2" style={{ color: 'var(--color-gold)' }} />
                                     {getTranslation('Filters', selectedLanguage)}
                                 </h3>
-                                <button 
+                                <button
                                     onClick={() => setShowFilterDropdown(false)}
                                     className="text-gray-500 hover:text-gray-900 p-1 rounded-full transition-colors"
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
-                            
+
                             {/* Scrollable Content */}
                             <div className="overflow-y-auto p-4 pt-2" style={{ maxHeight: '280px' }}>
                                 {/* Category Filter */}
@@ -4069,11 +4150,10 @@ const filterButtonStyle = (active) => ({
                                             <button
                                                 key={cat}
                                                 onClick={() => setSelectedCategory(cat)}
-                                                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                                                    selectedCategory === cat 
-                                                        ? 'font-semibold' 
+                                                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${selectedCategory === cat
+                                                        ? 'font-semibold'
                                                         : 'text-gray-600 hover:bg-gray-50'
-                                                }`}
+                                                    }`}
                                                 style={{
                                                     backgroundColor: selectedCategory === cat ? 'var(--color-gold-light)' : 'transparent',
                                                     color: selectedCategory === cat ? 'var(--color-gold)' : '#4b5563'
@@ -4085,7 +4165,7 @@ const filterButtonStyle = (active) => ({
                                         ))}
                                     </div>
                                 </div>
-                                
+
                                 {/* Mini Calendar Date Picker */}
                                 <div className="mb-4">
                                     <label className="text-sm font-semibold text-gray-700 mb-2 block flex items-center justify-between">
@@ -4102,7 +4182,7 @@ const filterButtonStyle = (active) => ({
                                             </button>
                                         )}
                                     </label>
-                                    
+
                                     {/* Mini Calendar */}
                                     <div className="bg-gray-50 rounded-lg p-2">
                                         {(() => {
@@ -4111,10 +4191,10 @@ const filterButtonStyle = (active) => ({
                                             const lastDay = new Date(calendarYear, calendarMonth + 1, 0);
                                             const daysInMonth = lastDay.getDate();
                                             const startingDayOfWeek = firstDay.getDay();
-                                            
+
                                             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                                             const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-                                            
+
                                             const days = [];
                                             for (let i = 0; i < startingDayOfWeek; i++) {
                                                 days.push(null);
@@ -4122,7 +4202,7 @@ const filterButtonStyle = (active) => ({
                                             for (let i = 1; i <= daysInMonth; i++) {
                                                 days.push(i);
                                             }
-                                            
+
                                             const goToPreviousMonth = () => {
                                                 if (calendarMonth === 0) {
                                                     setCalendarMonth(11);
@@ -4131,7 +4211,7 @@ const filterButtonStyle = (active) => ({
                                                     setCalendarMonth(calendarMonth - 1);
                                                 }
                                             };
-                                            
+
                                             const goToNextMonth = () => {
                                                 if (calendarMonth === 11) {
                                                     setCalendarMonth(0);
@@ -4140,7 +4220,7 @@ const filterButtonStyle = (active) => ({
                                                     setCalendarMonth(calendarMonth + 1);
                                                 }
                                             };
-                                            
+
                                             return (
                                                 <>
                                                     <div className="flex items-center justify-between mb-2">
@@ -4165,7 +4245,7 @@ const filterButtonStyle = (active) => ({
                                                             <ChevronDown className="w-4 h-4 transform -rotate-90" />
                                                         </button>
                                                     </div>
-                                                    
+
                                                     {/* Month/Year Picker Dropdown */}
                                                     {showMonthYearPicker && (
                                                         <div className="mb-3 bg-white rounded-lg p-3 shadow-lg border border-gray-200">
@@ -4179,11 +4259,10 @@ const filterButtonStyle = (active) => ({
                                                                                 setCalendarMonth(index);
                                                                                 setShowMonthYearPicker(false);
                                                                             }}
-                                                                            className={`px-2 py-1.5 text-xs rounded transition-all ${
-                                                                                calendarMonth === index 
-                                                                                    ? 'font-bold shadow-sm' 
+                                                                            className={`px-2 py-1.5 text-xs rounded transition-all ${calendarMonth === index
+                                                                                    ? 'font-bold shadow-sm'
                                                                                     : 'hover:bg-gray-100'
-                                                                            }`}
+                                                                                }`}
                                                                             style={{
                                                                                 backgroundColor: calendarMonth === index ? 'var(--color-gold)' : 'transparent',
                                                                                 color: calendarMonth === index ? 'white' : '#374151'
@@ -4194,7 +4273,7 @@ const filterButtonStyle = (active) => ({
                                                                     ))}
                                                                 </div>
                                                             </div>
-                                                            
+
                                                             <div>
                                                                 <label className="text-xs font-semibold text-gray-600 mb-1 block">{getTranslation('Year', selectedLanguage)}</label>
                                                                 <div className="grid grid-cols-3 gap-1 max-h-32 overflow-y-auto">
@@ -4211,11 +4290,10 @@ const filterButtonStyle = (active) => ({
                                                                                     setCalendarYear(year);
                                                                                     setShowMonthYearPicker(false);
                                                                                 }}
-                                                                                className={`px-2 py-1.5 text-xs rounded transition-all ${
-                                                                                    calendarYear === year 
-                                                                                        ? 'font-bold shadow-sm' 
+                                                                                className={`px-2 py-1.5 text-xs rounded transition-all ${calendarYear === year
+                                                                                        ? 'font-bold shadow-sm'
                                                                                         : 'hover:bg-gray-100'
-                                                                                }`}
+                                                                                    }`}
                                                                                 style={{
                                                                                     backgroundColor: calendarYear === year ? 'var(--color-gold)' : 'transparent',
                                                                                     color: calendarYear === year ? 'white' : '#374151'
@@ -4241,11 +4319,11 @@ const filterButtonStyle = (active) => ({
                                                             if (day === null) {
                                                                 return <div key={i} />;
                                                             }
-                                                            
+
                                                             const dayDate = new Date(calendarYear, calendarMonth, day);
                                                             const isSelected = selectedDate && new Date(selectedDate).toDateString() === dayDate.toDateString();
                                                             const isToday = today.toDateString() === dayDate.toDateString();
-                                                            
+
                                                             return (
                                                                 <button
                                                                     key={i}
@@ -4273,7 +4351,7 @@ const filterButtonStyle = (active) => ({
                                         })()}
                                     </div>
                                 </div>
-                                
+
                                 {/* Status Filter */}
                                 <div className="mb-2">
                                     <label className="text-sm font-semibold text-gray-700 mb-2 block">{getTranslation('Status', selectedLanguage)}</label>
@@ -4282,11 +4360,10 @@ const filterButtonStyle = (active) => ({
                                             <button
                                                 key={status}
                                                 onClick={() => setSelectedStatus(status)}
-                                                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                                                    selectedStatus === status 
-                                                        ? 'font-semibold' 
+                                                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${selectedStatus === status
+                                                        ? 'font-semibold'
                                                         : 'text-gray-600 hover:bg-gray-50'
-                                                }`}
+                                                    }`}
                                                 style={{
                                                     backgroundColor: selectedStatus === status ? 'var(--color-gold-light)' : 'transparent',
                                                     color: selectedStatus === status ? 'var(--color-gold)' : '#4b5563'
@@ -4299,7 +4376,7 @@ const filterButtonStyle = (active) => ({
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Fixed Footer with Clear Button */}
                             {(selectedCategory !== 'All' || selectedDate || selectedStatus !== 'All') && (
                                 <div className="p-4 pt-3 border-t border-gray-100 bg-white sticky bottom-0">
@@ -4319,7 +4396,7 @@ const filterButtonStyle = (active) => ({
                             )}
                         </div>
                     )}
-                    
+
                     <div className="mt-2">
                         {searchQuery.trim() ? (
                             <p className="text-xs text-gray-500">
@@ -4332,7 +4409,7 @@ const filterButtonStyle = (active) => ({
                         )}
                     </div>
                 </div>
-                    <div className="flex overflow-x-scroll no-scrollbar px-4 space-x-2 pb-2">
+                <div className="flex overflow-x-scroll no-scrollbar px-4 space-x-2 pb-2">
                     {filters.map(({ name, Icon }) => {
                         const isActive = name === activeFilter;
                         return (
@@ -4372,7 +4449,7 @@ const filterButtonStyle = (active) => ({
                         <div className="bg-white rounded-2xl p-6 text-center shadow-2xl">
                             <div className="flex items-center justify-center mb-4">
                                 <div className="h-14 w-14 rounded-lg bg-gray-100 flex items-center justify-center mr-3 swipe-hand" aria-hidden>
-                                    <div style={{width:20, height:20, borderRadius:4, background:'#111827'}} />
+                                    <div style={{ width: 20, height: 20, borderRadius: 4, background: '#111827' }} />
                                 </div>
                                 <svg className="w-10 h-10 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                                     <path d="M17 12H7" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -4394,7 +4471,8 @@ const filterButtonStyle = (active) => ({
                     </div>
                 </div>
             )}
-                    <main className="px-2 pt-4 max-w-lg mx-auto w-full">
+            <main className="px-2 pt-4 max-w-lg mx-auto w-full">
+                {console.log('Rendering requests feed count:', displayedRequests.length, 'Active filter:', activeFilter)}
                 {displayedRequests.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
                         <Search className="w-10 h-10 text-gray-300 mb-4" />
@@ -4404,8 +4482,8 @@ const filterButtonStyle = (active) => ({
                         </p>
                     </div>
                 ) : (
-                   
-                   
+
+
                     displayedRequests.map(req => (
                         <div key={req.id} data-request-id={req.id}>
                             <RequestCard
