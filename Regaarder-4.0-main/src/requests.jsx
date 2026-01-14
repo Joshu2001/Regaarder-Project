@@ -4403,6 +4403,23 @@ export default function RequestsFeed() {
                     ))
                 )}
             </main>
+            {showNudgeModal && nudgeRequest && (
+                <RequestNudgeModal
+                    nudgeRequest={nudgeRequest}
+                    onClose={() => setShowNudgeModal(false)}
+                    onBoostRequest={() => {
+                        setShowNudgeModal(false);
+                        // Open BoostsModal for this request - similar to other modals
+                        // This would need integration with your BoostsModal
+                    }}
+                    onInviteFriends={() => {
+                        setShowNudgeModal(false);
+                        // Navigate to requests page or show invite UI
+                        window.location.href = '/requests?filter=For You';
+                    }}
+                    selectedLanguage={selectedLanguage}
+                />
+            )}
             <BottomBar /> {/* UPDATED */}
             <Toast
                 message={pinToast.message}

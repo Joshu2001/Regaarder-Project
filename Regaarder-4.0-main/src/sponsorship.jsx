@@ -419,7 +419,7 @@ const Sponsorships = () => {
                 <div className="flex items-center space-x-4 mb-4">
                     <ChevronLeft
                         className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900"
-                        onClick={() => navigate('/more')}
+                        onClick={() => navigate('/home')}
                     />
                 </div>
                 <div className="text-center mb-6 pt-2">
@@ -462,14 +462,15 @@ const Sponsorships = () => {
 
                 {/* Toggle between Full Plans and À La Carte */}
                 <div className="flex justify-center mb-10">
-                    <div className="inline-flex gap-1 p-1 rounded-full bg-gray-100">
+                    <div className="inline-flex gap-1 p-1 rounded-full" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
                         <button 
                             onClick={() => { setShowAlaCarte(false); setVisibleIdx({}); }} 
                             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                                 !showAlaCarte 
-                                    ? 'bg-white text-gray-900 shadow-md' 
+                                    ? 'text-white shadow-md' 
                                     : 'text-gray-600'
                             }`}
+                            style={!showAlaCarte ? { backgroundColor: ACCENT_COLOR } : {}}
                         >
                             Full Plans
                         </button>
@@ -477,9 +478,10 @@ const Sponsorships = () => {
                             onClick={() => { setShowAlaCarte(true); setVisibleIdx({}); }} 
                             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                                 showAlaCarte 
-                                    ? 'bg-white text-gray-900 shadow-md' 
+                                    ? 'text-white shadow-md' 
                                     : 'text-gray-600'
                             }`}
+                            style={showAlaCarte ? { backgroundColor: ACCENT_COLOR } : {}}
                         >
                             À La Carte
                         </button>
@@ -491,8 +493,9 @@ const Sponsorships = () => {
                     {!showAlaCarte ? (
                         <>
                             <div className="text-center mb-8">
-                                <h2 className="text-xl font-semibold text-gray-900">Our Plans</h2>
-                                <p className="text-gray-500 text-sm mt-1">Choose a plan that fits your needs</p>
+                                <div className="h-1 w-16 mx-auto mb-4" style={{ backgroundColor: ACCENT_COLOR }} />
+                                <h2 className="text-2xl font-bold text-gray-900" style={{ color: ACCENT_COLOR }}>Our Plans</h2>
+                                <p className="text-gray-500 text-sm mt-2">Choose a plan that fits your needs</p>
                             </div>
                             {plans.map((p, idx) => (
                                 <div
@@ -508,7 +511,8 @@ const Sponsorships = () => {
                     ) : (
                         <>
                             <div className="text-center mt-2 mb-4">
-                                <h2 className="text-xl font-semibold">{t('Build Your Own Plan')}</h2>
+                                <div className="h-1 w-16 mx-auto mb-3" style={{ backgroundColor: ACCENT_COLOR }} />
+                                <h2 className="text-2xl font-bold" style={{ color: ACCENT_COLOR }}>{t('Build Your Own Plan')}</h2>
                                 <p className="text-sm text-gray-500">{t('Pick only the features you need without committing to a full plan')}</p>
                             </div>
                             {alaCarteItems.map((a, aIdx) => {

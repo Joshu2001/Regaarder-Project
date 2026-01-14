@@ -1503,6 +1503,11 @@ export const translations = {
     'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.': 'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.',
     'Boost for Visibility': 'Boost for Visibility',
     'Invite Friends to Contribute': 'Invite Friends to Contribute',
+    'Waiting on': 'Waiting on',
+    'receives many requests and prioritizes paid or boosted ones': 'receives many requests and prioritizes paid or boosted ones',
+    'Boosting your request signals stronger interest and increases the chance they\'ll respond. You can also invite others to contribute to make your request more compelling.': 'Boosting your request signals stronger interest and increases the chance they\'ll respond. You can also invite others to contribute to make your request more compelling.',
+    'Boost': 'Boost',
+    'Invite Contributors': 'Invite Contributors',
   },
   
   'Chinese Traditional': {
@@ -2713,6 +2718,11 @@ export const translations = {
     'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.': '看起來您的請求還沒有到達創作者。免費請求可能會在新請求到來時被埋沒。提升您的請求會增加知名度和回應速度。邀請他人貢獻也可以使其對創作者更有吸引力。',
     'Boost for Visibility': '提升以增加知名度',
     'Invite Friends to Contribute': '邀請朋友貢獻',
+    'Waiting on': '等待',
+    'receives many requests and prioritizes paid or boosted ones': '收到許多請求，並優先考慮付費或提升的請求',
+    'Boosting your request signals stronger interest and increases the chance they\'ll respond. You can also invite others to contribute to make your request more compelling.': '提升您的請求表示更強烈的興趣，並增加他們回應的機會。您也可以邀請他人貢獻以使您的請求更有吸引力。',
+    'Boost': '提升',
+    'Invite Contributors': '邀請貢獻者',
     
     'Advance Request Status': '推進請求狀態',
     'Progress Update Message (Optional)': '進度更新訊息（可選）',
