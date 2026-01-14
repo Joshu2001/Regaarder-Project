@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Home, FileText, Pencil, MoreHorizontal, Crown, ArrowLeft, ChevronRight, Shield, Lock, Gift, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Home, FileText, Pencil, MoreHorizontal, Crown, ArrowLeft, ChevronRight, ChevronLeft, Shield, Lock, Gift, Star } from 'lucide-react';
 import { getTranslation } from './translations.js';
 
 // Reuse the same accent/color tokens from advertisewithus.jsx
@@ -153,47 +154,67 @@ const PlanCard = ({ title, priceMonthly, oldPriceMonthly, features = [], cta, th
     const periodLabel = billingPeriod === 'monthly' ? '/mo' : '/yr';
 
     return (
-        <div className="rounded-2xl border border-gray-100 p-6 bg-white shadow-sm">
-            <div className="mb-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">{title}</h2>
-                    {badge && (
-                        <div className="text-xs font-semibold px-2 py-1 rounded-full text-white" style={{ backgroundColor: badge.color }}>{badge.label}</div>
-                    )}
+        <div className="rounded-3xl border p-8 bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+            {/* Accent highlight on top */}
+            <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: themeColor }} />
+            
+            {badge && (
+                <div className="absolute top-6 right-6">
+                    <div className="text-xs font-bold px-3 py-1.5 rounded-full text-white" style={{ backgroundColor: themeColor }}>
+                        {badge.label}
+                    </div>
                 </div>
-                <div className="flex items-baseline space-x-2 mt-2">
-                    {oldPriceMonthly && <div className="text-sm text-gray-400 line-through">{formatPrice(oldPriceMonthly, billingPeriod, annualDiscount)}</div>}
-                    <div className="text-3xl font-bold" style={{ color: themeColor }}>{displayPrice(priceMonthly)}</div>
-                    <div className="text-sm text-gray-500">{periodLabel}</div>
+            )}
+
+            <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">{title}</h2>
+                <div className="flex items-baseline space-x-2">
+                    {oldPriceMonthly && (
+                        <div className="text-lg text-gray-400 line-through">
+                            {formatPrice(oldPriceMonthly, billingPeriod, annualDiscount)}
+                        </div>
+                    )}
+                    <div className="text-4xl font-bold" style={{ color: themeColor }}>
+                        {displayPrice(priceMonthly)}
+                    </div>
+                    <div className="text-gray-600 font-medium">{periodLabel}</div>
                 </div>
                 {savingLabel && (
-                    <div className="mt-3 inline-block text-sm text-orange-600 bg-orange-50 px-3 py-1 rounded-full font-medium">{savingLabel}</div>
+                    <div className="mt-3 text-sm font-semibold" style={{ color: themeColor }}>
+                        {savingLabel}
+                    </div>
                 )}
             </div>
 
-            <ul className="space-y-3 text-sm text-gray-700 mb-6">
-                {features.slice(0, 3).map((f, i) => (
-                    <li key={i} className="flex items-start space-x-3"><div className="w-3 h-3 rounded-full mt-1" style={{ backgroundColor: themeColor }}></div><span>{f}</span></li>
+            {/* Features list */}
+            <ul className="space-y-3 mb-8 pb-8 border-b border-gray-200">
+                {features.map((f, i) => (
+                    <li key={i} className="flex items-start space-x-3">
+                        <div className="flex-shrink-0 pt-1">
+                            <svg className="w-5 h-5" style={{ color: themeColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <span className="text-gray-700 leading-relaxed">{f}</span>
+                    </li>
                 ))}
             </ul>
 
-            <div className="border-t border-gray-100 pt-4 text-sm text-gray-700 space-y-3">
-                {features.slice(3).map((f, i) => (
-                    <div key={i} className="flex items-center space-x-3"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: themeColor }}></div><span>{f}</span></div>
-                ))}
-            </div>
-
-            <div className="mt-6">
-                <button onClick={() => onCtaClick && onCtaClick()} className="w-full py-3 rounded-xl text-white font-semibold" style={{ backgroundColor: themeColor }}>
-                    {cta} <ChevronRight className="w-4 h-4 inline-block ml-2" />
-                </button>
-            </div>
+            {/* CTA Button */}
+            <button 
+                onClick={() => onCtaClick && onCtaClick()} 
+                className="w-full py-3 px-4 rounded-xl text-white font-semibold transition-all duration-200 hover:opacity-90 active:scale-95"
+                style={{ backgroundColor: themeColor }}
+            >
+                {cta}
+            </button>
         </div>
     );
 };
 
 
 const Sponsorships = () => {
+    const navigate = useNavigate();
     // refs for scroll reveal
     const containerRef = useRef(null);
     const cardRefs = useRef([]);
@@ -395,62 +416,96 @@ const Sponsorships = () => {
         <div className="min-h-screen bg-white text-gray-900">
             <div className="max-w-md mx-auto px-4 pt-6 pb-24" ref={containerRef}>
                 {/* header */}
-                <div className="text-center mb-8 pt-4">
-                    <div className="inline-flex items-center justify-center p-4 rounded-full mb-4" style={{ backgroundColor: ICON_BACKGROUND }}>
-                        <Crown className="w-8 h-8" style={{ color: ACCENT_COLOR }} />
-                    </div>
-                    <h1 className="text-2xl font-bold mb-2">{t('Upgrade to Premium')}</h1>
-                    <p className="text-gray-500">{t('Choose the perfect plan for your needs')}</p>
+                <div className="flex items-center space-x-4 mb-4">
+                    <ChevronLeft
+                        className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900"
+                        onClick={() => navigate('/more')}
+                    />
                 </div>
-
-                <div className="flex justify-center mb-10">
-                    <div className="bg-gray-100 p-1.5 rounded-2xl inline-flex relative">
-                        <button 
-                            onClick={() => { setShowAlaCarte(false); setVisibleIdx({}); }} 
-                            className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200`}
-                            style={!showAlaCarte ? { backgroundColor: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', color: '#111827' } : { color: '#6B7280' }}
-                        >
-                            {t('Full Plans')}
-                        </button>
-                        <button 
-                            onClick={() => { setShowAlaCarte(true); setVisibleIdx({}); }} 
-                            className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200`}
-                            style={showAlaCarte ? { backgroundColor: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', color: '#111827' } : { color: '#6B7280' }}
-                        >
-                            {t('À La Carte')}
-                        </button>
+                <div className="text-center mb-6 pt-2">
+                    <div className="inline-flex items-center justify-center p-3 rounded-full mb-3" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
+                        <Crown className="w-6 h-6" style={{ color: ACCENT_COLOR }} />
                     </div>
-                </div>
-
-                <div className="flex flex-col items-center mb-10">
-                    <div className="flex -space-x-3 mb-3">
-                        <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 shadow-sm" />
-                        <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-300 shadow-sm" />
-                        <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 shadow-sm" />
-                        <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-300 shadow-sm" />
-                    </div>
-                    <div className="text-sm text-gray-600">
-                        <span className="font-bold text-gray-900">12,847</span> creators upgraded this month
-                    </div>
+                    <h1 className="text-2xl font-bold mb-1">Upgrade Your Premium Experience</h1>
+                    <p className="text-gray-500 text-sm">Choose the perfect plan for your needs</p>
                 </div>
 
                 {/* Billing toggle (Monthly / Annual) */}
-                <div className="flex items-center justify-center mb-8">
+                <div className="flex justify-center mb-8">
                     <div 
-                        className="flex items-center bg-gray-50 border border-gray-200 rounded-full p-1 pr-2 cursor-pointer hover:border-gray-300 transition-colors" 
+                        className="inline-flex items-center gap-1 p-1 rounded-full"
+                        style={{ backgroundColor: '#F3F4F6' }}
                         onClick={() => { setBillingPeriod(prev => prev === 'monthly' ? 'annual' : 'monthly'); setVisibleIdx({}); }}
                     >
-                        <div className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${billingPeriod === 'monthly' ? 'bg-white shadow-sm text-gray-900 ring-1 ring-black/5' : 'text-gray-500'}`}>{t('Monthly')}</div>
-                        <div className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${billingPeriod === 'annual' ? 'bg-white shadow-sm text-gray-900 ring-1 ring-black/5' : 'text-gray-500'}`}>{t('Annual')}</div>
+                        <button 
+                            className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${
+                                billingPeriod === 'monthly' 
+                                    ? 'text-white' 
+                                    : 'text-gray-600'
+                            }`}
+                            style={billingPeriod === 'monthly' ? { backgroundColor: ACCENT_COLOR } : {}}
+                        >
+                            Monthly
+                        </button>
+                        <button 
+                            className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${
+                                billingPeriod === 'annual' 
+                                    ? 'text-white' 
+                                    : 'text-gray-600'
+                            }`}
+                            style={billingPeriod === 'annual' ? { backgroundColor: ACCENT_COLOR } : {}}
+                        >
+                            Yearly
+                        </button>
                     </div>
-                    <div className="ml-3 text-xs font-bold text-white px-3 py-1.5 rounded-full shadow-sm" style={{ backgroundColor: ACCENT_COLOR }}>
-                        SAVE {Math.round(ANNUAL_DISCOUNT*100)}%
+                </div>
+
+                {/* Toggle between Full Plans and À La Carte */}
+                <div className="flex justify-center mb-10">
+                    <div className="inline-flex gap-1 p-1 rounded-full bg-gray-100">
+                        <button 
+                            onClick={() => { setShowAlaCarte(false); setVisibleIdx({}); }} 
+                            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                                !showAlaCarte 
+                                    ? 'bg-white text-gray-900 shadow-md' 
+                                    : 'text-gray-600'
+                            }`}
+                        >
+                            Full Plans
+                        </button>
+                        <button 
+                            onClick={() => { setShowAlaCarte(true); setVisibleIdx({}); }} 
+                            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                                showAlaCarte 
+                                    ? 'bg-white text-gray-900 shadow-md' 
+                                    : 'text-gray-600'
+                            }`}
+                        >
+                            À La Carte
+                        </button>
                     </div>
                 </div>
 
                 {/* Plan cards — revealed on-scroll */}
                 <div className="space-y-6">
-                    {showAlaCarte ? (
+                    {!showAlaCarte ? (
+                        <>
+                            <div className="text-center mb-8">
+                                <h2 className="text-xl font-semibold text-gray-900">Our Plans</h2>
+                                <p className="text-gray-500 text-sm mt-1">Choose a plan that fits your needs</p>
+                            </div>
+                            {plans.map((p, idx) => (
+                                <div
+                                    key={p.title}
+                                    ref={el => cardRefs.current[idx] = el}
+                                    data-idx={idx}
+                                    className={`transform transition duration-700 ease-out ${visibleIdx[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+                                >
+                                    <PlanCard {...p} badge={p.badge} billingPeriod={billingPeriod} annualDiscount={ANNUAL_DISCOUNT} onCtaClick={() => handleSelectPlan(p)} />
+                                </div>
+                            ))}
+                        </>
+                    ) : (
                         <>
                             <div className="text-center mt-2 mb-4">
                                 <h2 className="text-xl font-semibold">{t('Build Your Own Plan')}</h2>
@@ -469,13 +524,13 @@ const Sponsorships = () => {
                                             tabIndex={0}
                                             onKeyDown={(e) => { if (e.key === 'Enter') toggleAlaCarteSelection(a.title); }}
                                             className="rounded-2xl border p-6 bg-white"
-                                            style={{ borderColor: isSelected ? 'var(--color-accent)' : undefined, borderWidth: isSelected ? 2 : 1, cursor: 'pointer' }}
+                                            style={{ borderColor: isSelected ? ACCENT_COLOR : '#E5E7EB', borderWidth: isSelected ? 2 : 1, cursor: 'pointer' }}
                                             aria-pressed={isSelected}
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center space-x-4">
-                                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: ICON_BACKGROUND }}>
-                                                        <div className="w-6 h-6 rounded bg-[var(--color-accent-soft)]" />
+                                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
+                                                        <div className="w-6 h-6 rounded" style={{ backgroundColor: ACCENT_COLOR, opacity: 0.3 }} />
                                                     </div>
                                                     <div>
                                                         <div className="font-semibold text-lg">{a.title}</div>
@@ -483,10 +538,10 @@ const Sponsorships = () => {
                                                     </div>
                                                 </div>
                                                 <div className="text-right flex flex-col items-end">
-                                                    <div className="text-2xl font-bold text-[var(--color-accent)]">{displayPrice}</div>
+                                                    <div className="text-2xl font-bold" style={{ color: ACCENT_COLOR }}>{displayPrice}</div>
                                                     <div className="text-xs text-gray-500">{periodLabel}</div>
                                                     <div className="mt-2">
-                                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white`} style={isSelected ? { backgroundColor: 'var(--color-accent)' } : { border: '1px solid #E5E7EB', backgroundColor: '#fff', color: '#6B7280' }}>{isSelected ? '✓' : ''}</div>
+                                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white`} style={isSelected ? { backgroundColor: ACCENT_COLOR } : { border: `2px solid ${ACCENT_COLOR}`, backgroundColor: '#fff' }}>{isSelected ? '✓' : ''}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -501,110 +556,27 @@ const Sponsorships = () => {
                             })}
 
                             {selectedAlaCarte.length > 0 && (
-                            <div className="mt-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm">
+                            <div className="mt-6 p-6 rounded-3xl bg-white border-2 shadow-lg" style={{ borderColor: ACCENT_COLOR }}>
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <div className="text-sm text-gray-600">{selectedAlaCarte.length} selected</div>
-                                        <div className="text-lg font-semibold">Total: {formatPrice(selectedAlaCarte.reduce((sum, t) => {
+                                        <div className="text-2xl font-bold" style={{ color: ACCENT_COLOR }}>Total: {formatPrice(selectedAlaCarte.reduce((sum, t) => {
                                             const item = alaCarteItems.find(it => it.title === t);
                                             return sum + (item ? item.priceMonthly : 0);
                                         }, 0), billingPeriod, ANNUAL_DISCOUNT)}</div>
                                     </div>
                                     <div>
-                                        <button onClick={() => setShowAddModal(true)} className="bg-[var(--color-accent)] text-white px-4 py-2 rounded-xl">Add selected</button>
+                                        <button onClick={() => setShowAddModal(true)} className="text-white px-6 py-2 rounded-xl font-semibold transition-all hover:opacity-90 active:scale-95" style={{ backgroundColor: ACCENT_COLOR }}>Add selected</button>
                                     </div>
                                 </div>
                             </div>
                             )}
                         </>
-                    ) : (
-                        <>
-                            {plans.map((p, idx) => (
-                                <div
-                                    key={p.title}
-                                    ref={el => cardRefs.current[idx] = el}
-                                    data-idx={idx}
-                                    className={`transform transition duration-700 ease-out ${visibleIdx[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-                                >
-                                    <PlanCard {...p} badge={p.badge} billingPeriod={billingPeriod} annualDiscount={ANNUAL_DISCOUNT} onCtaClick={() => handleSelectPlan(p)} />
-                                </div>
-                            ))}
-                            {/* Additional sections (Brand, features, testimonial) */}
-                            {sections.map((s, sIdx) => {
-                                const idx = plans.length + sIdx;
-                                if (s.type === 'brand') {
-                                    return (
-                                        <div
-                                            key="brand"
-                                            ref={el => cardRefs.current[idx] = el}
-                                            data-idx={idx}
-                                            className={`transform transition duration-700 ease-out ${visibleIdx[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-                                        >
-                                            <PlanCard title={s.title} priceMonthly={s.priceMonthly} oldPriceMonthly={s.oldPriceMonthly} features={s.features} cta={s.cta} themeColor={s.themeColor} savingLabel={s.savingLabel} billingPeriod={billingPeriod} annualDiscount={ANNUAL_DISCOUNT} onCtaClick={() => handleSelectPlan(s)} />
-                                        </div>
-                                    );
-                                }
-                                if (s.type === 'featuresRow') {
-                                    return (
-                                        <div key="features" ref={el => cardRefs.current[idx] = el} data-idx={idx} className={`transform transition duration-700 ease-out ${visibleIdx[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-                                            <div className="mt-6 p-4 rounded-2xl bg-white shadow-sm border border-gray-100">
-                                                <div className="grid grid-cols-3 gap-4 text-center">
-                                                    <div>
-                                                        <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-2" style={{ backgroundColor: ICON_BACKGROUND }}>
-                                                            <Shield className="w-6 h-6 text-[var(--color-accent)]" />
-                                                        </div>
-                                                        <div className="font-medium">Secure</div>
-                                                        <div className="text-xs text-gray-500">256-bit SSL</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-2" style={{ backgroundColor: ICON_BACKGROUND }}>
-                                                            <Lock className="w-6 h-6 text-[var(--color-accent)]" />
-                                                        </div>
-                                                        <div className="font-medium">Flexible</div>
-                                                        <div className="text-xs text-gray-500">Cancel anytime</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-2" style={{ backgroundColor: ICON_BACKGROUND }}>
-                                                            <Gift className="w-6 h-6 text-[var(--color-accent)]" />
-                                                        </div>
-                                                        <div className="font-medium">Guaranteed</div>
-                                                        <div className="text-xs text-gray-500">30-day refund</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                }
-                                if (s.type === 'testimonial') {
-                                    return (
-                                        <div key="testimonial" ref={el => cardRefs.current[idx] = el} data-idx={idx} className={`transform transition duration-700 ease-out ${visibleIdx[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-                                            <div className="mt-6 p-4 rounded-2xl bg-white shadow-sm border border-gray-100">
-                                                <div className="flex items-start space-x-4">
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center mb-2">
-                                                            {Array.from({length:5}).map((_,i) => (<Star key={i} className="w-4 h-4 text-[var(--color-accent)] mr-1" />))}
-                                                        </div>
-                                                        <blockquote className="text-gray-700 italic">"Regaarder Premium transformed my workflow. The unlimited requests and priority queue help me deliver amazing content to my audience faster than ever."</blockquote>
-                                                        <div className="flex items-center mt-4">
-                                                            <div className="w-10 h-10 rounded-full bg-gray-100 mr-3 flex items-center justify-center">KT</div>
-                                                            <div>
-                                                                <div className="font-semibold">Krypton T</div>
-                                                                <div className="text-xs text-gray-500">History Content Creator</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                }
-                                return null;
-                            })}
-                        </>
                     )}
                 </div>
 
             </div>
+
             {/* Add-selected Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
