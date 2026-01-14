@@ -7,6 +7,7 @@ import { getTranslation } from './translations.js';
 import BoostsModal from './BoostsModal.jsx';
 import DailyLimitModal from './DailyLimitModal.jsx';
 import RequestValueLimitModal from './RequestValueLimitModal.jsx';
+import RequestNudgeModal from './RequestNudgeModal.jsx';
 import {
     Home, MoreHorizontal, FileText, Clock, DollarSign, Search,
     TrendingUp, Heart, MessageSquare, ChevronsUp, Bookmark, Pin, ChevronDown, ChevronUp, Lightbulb,
@@ -2676,6 +2677,28 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                 selectedLanguage={selectedLanguage}
             />
 
+            {/* Request Nudge Modal - 36+ hours with no interaction */}
+            {showNudgeModal && nudgeRequest && (
+                <RequestNudgeModal
+                    onClose={() => {
+                        setShowNudgeModal(false);
+                        setNudgeRequest(null);
+                    }}
+                    onBoostRequest={() => {
+                        setShowNudgeModal(false);
+                        setNudgeRequest(null);
+                        setShowBoostsModal(true);
+                    }}
+                    onInviteFriends={() => {
+                        setShowNudgeModal(false);
+                        setNudgeRequest(null);
+                        // Could open invite modal or navigate to share page
+                        // For now just close the nudge modal
+                    }}
+                    selectedLanguage={selectedLanguage}
+                />
+            )}
+
             <Toast
                 message={swipeToast.message}
                 isVisible={swipeToast.visible}
@@ -2998,6 +3021,8 @@ export default function RequestsFeed() {
     const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
     const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
     const [showMonthYearPicker, setShowMonthYearPicker] = useState(false);
+    const [showNudgeModal, setShowNudgeModal] = useState(false);
+    const [nudgeRequest, setNudgeRequest] = useState(null); // Store the request that needs nudging
     const filterDropdownRef = useRef(null);
 
     // Sync active filter with URL param when location changes (client-side navigation)
@@ -3482,6 +3507,61 @@ export default function RequestsFeed() {
             }).catch(() => { });
         } catch (e) { }
     }, [auth.user && auth.user.token]);
+
+    // Check for requests that need nudging (36+ hours old with no interaction)
+    useEffect(() => {
+        const checkForNudgeableRequests = () => {
+            if (!rankedRequests || rankedRequests.length === 0) return;
+            
+            const now = new Date();
+            const thirtyHoursAgo = new Date(now.getTime() - 36 * 60 * 60 * 1000);
+            
+            // Find first request that:
+            // 1. Is free (amount === 0 or no amount)
+            // 2. Was created 36+ hours ago
+            // 3. Has no interaction (no likes, boosts, comments, saves, or views)
+            // 4. Is created by current user
+            const token = localStorage.getItem('regaarder_token');
+            let currentUserId = null;
+            try {
+                const userRaw = localStorage.getItem('regaarder_user');
+                if (userRaw) {
+                    const user = JSON.parse(userRaw);
+                    currentUserId = user.id;
+                }
+            } catch (e) { }
+            
+            for (const req of rankedRequests) {
+                const isFree = !req.amount || req.amount === 0;
+                const createdAt = new Date(req.createdAt || req.timestamp);
+                const isOldEnough = createdAt <= thirtyHoursAgo;
+                const hasNoInteraction = (req.likes || 0) === 0 && 
+                                        (req.boosts || 0) === 0 && 
+                                        (req.comments || 0) === 0 &&
+                                        (req.bookmarks || 0) === 0 &&
+                                        (req.views || 0) === 0;
+                const isCreatedByUser = currentUserId && String(req.createdBy) === String(currentUserId);
+                
+                // Check if we've already shown the nudge for this request
+                try {
+                    const nudgeSeen = localStorage.getItem(`nudge_shown_${req.id}`);
+                    if (nudgeSeen) continue; // Skip if already shown
+                } catch (e) { }
+                
+                if (isFree && isOldEnough && hasNoInteraction && isCreatedByUser) {
+                    setNudgeRequest(req);
+                    setShowNudgeModal(true);
+                    // Mark this request as having been nudged
+                    try {
+                        localStorage.setItem(`nudge_shown_${req.id}`, 'true');
+                    } catch (e) { }
+                    break; // Only show one nudge at a time
+                }
+            }
+        };
+        
+        checkForNudgeableRequests();
+    }, [rankedRequests]);
 
     const [pinToast, setPinToast] = useState({ visible: false, message: '' });
 

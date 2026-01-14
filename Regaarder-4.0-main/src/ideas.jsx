@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 // import { useAuth } from './AuthContext.jsx'; // unused
 import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations.js';
+import FreeRequestSubmittedModal from './FreeRequestSubmittedModal.jsx';
 import {
   Home,
   Pencil,
@@ -2670,6 +2671,7 @@ const App = () => {
   const [chooseCreatorFocused, setChooseCreatorFocused] = useState(false);
   const [creatorSelectionType, setCreatorSelectionType] = useState(null); // 'specific' | 'any' | 'expert' | null
   const [showCreatorModal, setShowCreatorModal] = useState(false); // For the ideas page creator selection modal
+  const [showFreeRequestSubmittedModal, setShowFreeRequestSubmittedModal] = useState(false); // For free request submission confirmation
 
   // When focus mode is toggled on, ensure the chooser is expanded and focus the input.
   useEffect(() => {
@@ -4116,11 +4118,10 @@ const App = () => {
         setTitle('');
         setDescription('');
         setPendingSubmission(null);
+        setPaymentModalOpen(false);
         
-        // Navigate to requests page
-        setTimeout(() => {
-          window.location.href = '/requests?filter=For You';
-        }, 1000);
+        // Show free request submitted modal instead of immediate navigation
+        setShowFreeRequestSubmittedModal(true);
       } else {
         console.error('🔴 Backend save failed:', saveRes.status);
         showToast('Failed to save request. Please try again.');
@@ -6145,6 +6146,26 @@ const App = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Free Request Submitted Modal */}
+      {showFreeRequestSubmittedModal && (
+        <FreeRequestSubmittedModal
+          onClose={() => {
+            setShowFreeRequestSubmittedModal(false);
+            window.location.href = '/requests?filter=For You';
+          }}
+          onBoostRequest={() => {
+            setShowFreeRequestSubmittedModal(false);
+            setShowBoostsModal(true);
+          }}
+          onInviteContributors={() => {
+            setShowFreeRequestSubmittedModal(false);
+            // Navigate to requests page to share/invite contributors
+            window.location.href = '/requests?filter=For You';
+          }}
+          selectedLanguage={selectedLanguage}
+        />
       )}
 
       <MobileNav active={activeNav} onChange={setActiveNav} selectedLanguage={selectedLanguage} />

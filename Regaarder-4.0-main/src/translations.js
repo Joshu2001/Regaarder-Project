@@ -1491,6 +1491,18 @@ export const translations = {
     'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.': 'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.',
     'Upgrade to Select Higher-Value Requests': 'Upgrade to Select Higher-Value Requests',
     'View Requests Under $150': 'View Requests Under $150',
+    
+    // Free Request Submitted
+    'Free Request Submitted': 'Free Request Submitted',
+    'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.': 'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.',
+    'Boost Request': 'Boost Request',
+    'Invite Contributors': 'Invite Contributors',
+
+    // Request Nudge Modal
+    'Your Request Needs a Nudge': 'Your Request Needs a Nudge',
+    'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.': 'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.',
+    'Boost for Visibility': 'Boost for Visibility',
+    'Invite Friends to Contribute': 'Invite Friends to Contribute',
   },
   
   'Chinese Traditional': {
@@ -2689,6 +2701,18 @@ export const translations = {
     'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.': '較高價值的請求需要高級計畫。選擇較低價值的請求或升級您的計畫。',
     'Upgrade to Select Higher-Value Requests': '升級以選擇更高價值的請求',
     'View Requests Under $150': '查看 $150 以下的請求',
+    
+    // Free Request Submitted
+    'Free Request Submitted': '免費請求已提交',
+    'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.': '免費請求可能需要更長時間才能到達創作者，因為付費請求優先。要提高知名度，您可以隨時提升您的請求或邀請他人貢獻。',
+    'Boost Request': '提升請求',
+    'Invite Contributors': '邀請貢獻者',
+
+    // Request Nudge Modal
+    'Your Request Needs a Nudge': '您的請求需要推一把',
+    'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.': '看起來您的請求還沒有到達創作者。免費請求可能會在新請求到來時被埋沒。提升您的請求會增加知名度和回應速度。邀請他人貢獻也可以使其對創作者更有吸引力。',
+    'Boost for Visibility': '提升以增加知名度',
+    'Invite Friends to Contribute': '邀請朋友貢獻',
     
     'Advance Request Status': '推進請求狀態',
     'Progress Update Message (Optional)': '進度更新訊息（可選）',
