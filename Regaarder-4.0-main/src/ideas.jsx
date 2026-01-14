@@ -53,6 +53,8 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
+  Users,
+  AlertCircle,
 } from "lucide-react";
 
 
@@ -2665,6 +2667,7 @@ const App = () => {
   const [creatorSearch, setCreatorSearch] = useState("");
   const [chooseCreatorExpanded, setChooseCreatorExpanded] = useState(false);
   const [chooseCreatorFocused, setChooseCreatorFocused] = useState(false);
+  const [creatorSelectionType, setCreatorSelectionType] = useState(null); // 'specific' | 'any' | 'expert' | null
 
   // When focus mode is toggled on, ensure the chooser is expanded and focus the input.
   useEffect(() => {
@@ -4520,8 +4523,10 @@ const App = () => {
                 <div className="ml-4 flex items-center gap-3">
                   <button
                     onClick={() => {
-                      console.log("[ideas] clearing selectedCreator");
+                      console.log("[ideas] opening creator selection");
                       setSelectedCreator(null);
+                      setChooseCreatorFocused(true);
+                      setChooseCreatorExpanded(true);
                       try {
                         window.localStorage.removeItem(SELECTED_CREATOR_KEY);
                       } catch (e) { }
@@ -5436,7 +5441,7 @@ const App = () => {
                 <div className="flex-1 overflow-y-auto min-h-0 pr-2 -mr-2 py-2">
                   <div className="grid grid-cols-1 gap-6">
                     {/* Preset Buttons */}
-                    <div className="flex gap-3 flex-wrap items-center">
+                    <div className="flex gap-2 flex-wrap items-center justify-between">
                       {PAYMENT_PRESETS.map((p) => (
                         <button
                           key={p}
@@ -5444,7 +5449,7 @@ const App = () => {
                             setPaymentAmount(p);
                             trackEvent("preset_selected", { preset: p });
                           }}
-                          className={`preset-btn px-5 py-3 rounded-2xl font-semibold relative ${paymentAmount === p
+                          className={`preset-btn px-4 py-3 rounded-2xl font-semibold relative flex-1 min-w-0 ${paymentAmount === p
                               ? "bg-primary text-white"
                               : "bg-gray-50 text-gray-700 border border-gray-100"
                             }`}
@@ -5465,9 +5470,9 @@ const App = () => {
                           )}
                         </button>
                       ))}
-                      <div className="ml-auto text-sm text-gray-500 self-center">
-                        {getTranslation('Or set a custom amount', selectedLanguage)}
-                      </div>
+                    </div>
+                    <div className="text-sm text-gray-500 text-center">
+                      {getTranslation('Or set a custom amount', selectedLanguage)}
                     </div>
 
                     {/* Slider + input */}
@@ -5526,230 +5531,295 @@ const App = () => {
 
                       <div className="provider-carousel-wrap">
                         <div className="provider-carousel">
-                          {/* Choose Creator Card (expandable) */}
+                          {/* Creator Selection Card - Redesigned with type selection */}
                           <div
-                            className={`provider-card ${selectedCreator ? "selected" : ""
-                              } ${chooseCreatorExpanded ? "expanded" : ""}`}
+                            className={`provider-card ${creatorSelectionType ? "selected" : ""}`}
                             onClick={() => {
                               setPaymentRole("creator");
-                              setChooseCreatorExpanded(prev => !prev);
                             }}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                setChooseCreatorExpanded((prev) => !prev);
-                              }
-                            }}
                           >
                             <div className="card-info" style={{ width: '100%' }}>
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <div className="card-title">{getTranslation('Choose Creator', selectedLanguage)}</div>
-                                  <div className="card-sub">
-                                    {selectedCreator ? (
-                                      <span className="creator-selected-pill">
-                                        {selectedCreator.name} {getTranslation('selected', selectedLanguage)}
-                                      </span>
-                                    ) : (
-                                      getTranslation('Search by @username', selectedLanguage)
-                                    )}
+                              {/* If no selection type yet, show 3 options */}
+                              {!creatorSelectionType ? (
+                                <div className="space-y-3">
+                                  <div className="text-sm font-semibold text-gray-900 mb-3">
+                                    {getTranslation('Who should fulfill this?', selectedLanguage)}
                                   </div>
-                                </div>
-                                <div className="card-meta">
-                                  <Search size={18} strokeWidth={2.5} />
-                                </div>
-                              </div>
-                              {!chooseCreatorExpanded && (
-                                <div className="card-tip-bar">
-                                  <span>{getTranslation('Tap to search & select', selectedLanguage)}</span>
-                                </div>
-                              )}
-
-                              {/* Expanded content (search + results) */}
-                              <div
-                                className="expanded-body"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <div className="creator-search-row">
-                                  <div className="creator-search-input-wrap" style={{ paddingRight: creatorSearch ? 44 : 0 }}>
-                                    <span className="creator-search-prefix">@</span>
-                                    <input
-                                      ref={chooseCreatorInputRef}
-                                      type="text"
-                                      placeholder={getTranslation('Search creators', selectedLanguage)}
-                                      value={creatorSearch}
-                                      onChange={(e) =>
-                                        setCreatorSearch(
-                                          e.target.value.replace(/^@+/, "")
-                                        )
-                                      }
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Enter") {
-                                          e.preventDefault();
-                                          saveCreatorFromInput(true);
-                                        }
-                                      }}
-                                      className="creator-search-input"
-                                      aria-label="Search creators"
-                                    />
-                                    {creatorSearch && (
-                                      <button
-                                        type="button"
-                                        className="creator-search-clear"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setCreatorSearch("");
-                                          try {
-                                            if (chooseCreatorInputRef.current)
-                                              chooseCreatorInputRef.current.focus();
-                                          } catch (err) { }
-                                        }}
-                                        aria-label="Clear search"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                    )}
-                                  </div>
+                                  
+                                  {/* Option 1: Specific Creator */}
                                   <button
-                                    type="button"
-                                    className="creator-search-save"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      saveCreatorFromInput(true);
+                                    onClick={() => {
+                                      setCreatorSelectionType('specific');
+                                      setChooseCreatorFocused(true);
                                     }}
-                                    aria-label="Save creator"
+                                    className="w-full p-3 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-left transition-all"
                                   >
-                                    {getTranslation('Save', selectedLanguage)}
+                                    <div className="flex items-center gap-2">
+                                      <Target size={18} className="text-blue-600" />
+                                      <div className="font-medium text-gray-900 text-sm">{getTranslation('Specific Creator', selectedLanguage)}</div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1 ml-7">{getTranslation('Search and select your preferred creator', selectedLanguage)}</div>
+                                  </button>
+
+                                  {/* Option 2: Any Creator */}
+                                  <button
+                                    onClick={() => {
+                                      setCreatorSelectionType('any');
+                                      trackEvent("creator_type_selected", { type: "any" });
+                                    }}
+                                    className="w-full p-3 rounded-xl border-2 border-gray-200 hover:border-green-400 hover:bg-green-50 text-left transition-all"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Users size={18} className="text-green-600" />
+                                      <div className="font-medium text-gray-900 text-sm">{getTranslation('Any Creators', selectedLanguage)}</div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1 ml-7">{getTranslation('Open to any creator willing to fulfill it', selectedLanguage)}</div>
+                                  </button>
+
+                                  {/* Option 3: Expert */}
+                                  <button
+                                    onClick={() => {
+                                      setCreatorSelectionType('expert');
+                                      trackEvent("creator_type_selected", { type: "expert" });
+                                    }}
+                                    className="w-full p-3 rounded-xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 text-left transition-all"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Crown size={18} className="text-purple-600" />
+                                      <div className="font-medium text-gray-900 text-sm">{getTranslation('Expert', selectedLanguage)}</div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1 ml-7">{getTranslation('I need specific expertise for this request', selectedLanguage)}</div>
                                   </button>
                                 </div>
-
-                                <div className="choose-creator-list">
-                                  {filteredCreators.length === 0 ? (
-                                    <div className="no-results flex flex-col items-center text-center p-4">
-                                      <div
-                                        className="no-results-illustration mb-3"
-                                        aria-hidden="true"
-                                      >
-                                        <svg
-                                          width="64"
-                                          height="64"
-                                          viewBox="0 0 64 64"
-                                          fill="none"
-                                          xmlns="http://www.w3.org/2000/svg"
+                              ) : creatorSelectionType === 'specific' ? (
+                                /* Specific Creator View */
+                                <div className="space-y-3">
+                                  <button
+                                    onClick={() => setCreatorSelectionType(null)}
+                                    className="text-xs text-blue-600 hover:text-blue-700 font-medium mb-2"
+                                  >
+                                    ← {getTranslation('Change selection', selectedLanguage)}
+                                  </button>
+                                  
+                                  <div className="text-sm font-semibold text-gray-900">
+                                    {getTranslation('Choose Creator', selectedLanguage)}
+                                  </div>
+                                  
+                                  {/* Search Input */}
+                                  <div className="creator-search-row">
+                                    <div className="creator-search-input-wrap" style={{ paddingRight: creatorSearch ? 44 : 0 }}>
+                                      <span className="creator-search-prefix">@</span>
+                                      <input
+                                        ref={chooseCreatorInputRef}
+                                        type="text"
+                                        placeholder={getTranslation('Search creators', selectedLanguage)}
+                                        value={creatorSearch}
+                                        onChange={(e) =>
+                                          setCreatorSearch(
+                                            e.target.value.replace(/^@+/, "")
+                                          )
+                                        }
+                                        onKeyDown={(e) => {
+                                          if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            saveCreatorFromInput(true);
+                                          }
+                                        }}
+                                        className="creator-search-input"
+                                        aria-label="Search creators"
+                                        autoFocus
+                                      />
+                                      {creatorSearch && (
+                                        <button
+                                          type="button"
+                                          className="creator-search-clear"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCreatorSearch("");
+                                            try {
+                                              if (chooseCreatorInputRef.current)
+                                                chooseCreatorInputRef.current.focus();
+                                            } catch (err) { }
+                                          }}
+                                          aria-label="Clear search"
                                         >
-                                          <rect
-                                            x="6"
-                                            y="10"
-                                            width="36"
-                                            height="28"
-                                            rx="6"
-                                            fill="var(--color-cream-bg)"
-                                            stroke="rgba(15,23,42,0.06)"
-                                          />
-                                          <path
-                                            d="M44 44L58 58"
-                                            stroke="rgba(15,23,42,0.12)"
-                                            strokeWidth="3"
-                                            strokeLinecap="round"
-                                          />
-                                          <circle
-                                            cx="50"
-                                            cy="50"
-                                            r="2.5"
-                                            fill="var(--brand-gold)"
-                                          />
-                                        </svg>
-                                      </div>
-                                      <div className="no-results-title text-sm font-normal">
-                                        {getTranslation('No creators found', selectedLanguage)}
-                                      </div>
-                                      <div className="no-results-sub text-xs text-gray-400 mt-1">
-                                        {getTranslation('Try a different username or clear your search.', selectedLanguage)}
-                                      </div>
+                                          <X className="w-4 h-4" />
+                                        </button>
+                                      )}
                                     </div>
-                                  ) : (
-                                    filteredCreators.map((c) => (
-                                      <div
-                                        key={c.id}
-                                        className={`creator-row rounded-md ${selectedCreator &&
-                                            selectedCreator.id === c.id
-                                            ? "selected pulse-anim"
-                                            : ""
-                                          }`}
-                                        onClick={() => {
-                                          setSelectedCreator(c);
-                                          setPaymentRole("creator");
-                                          // Enter focused mode when a creator is picked
-                                          setChooseCreatorFocused(true);
-                                          setChooseCreatorExpanded(true);
-                                          trackEvent("creator_selected", {
-                                            creatorId: c.id,
-                                          });
-                                        }}
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          justifyContent: "space-between",
-                                          cursor: "pointer",
-                                        }}
-                                      >
+                                    <button
+                                      type="button"
+                                      className="creator-search-save"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        saveCreatorFromInput(true);
+                                      }}
+                                      aria-label="Save creator"
+                                    >
+                                      {getTranslation('Save', selectedLanguage)}
+                                    </button>
+                                  </div>
+
+                                  {/* Creator List */}
+                                  <div className="choose-creator-list max-h-64 overflow-y-auto">
+                                    {filteredCreators.length === 0 ? (
+                                      <div className="no-results flex flex-col items-center text-center p-4">
+                                        <div className="no-results-title text-sm font-normal">
+                                          {getTranslation('No creators found', selectedLanguage)}
+                                        </div>
+                                        <div className="no-results-sub text-xs text-gray-400 mt-1">
+                                          {getTranslation('Try a different username or clear your search.', selectedLanguage)}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      filteredCreators.map((c) => (
                                         <div
+                                          key={c.id}
+                                          className={`creator-row rounded-lg p-3 border-2 transition-all ${selectedCreator &&
+                                              selectedCreator.id === c.id
+                                              ? "border-blue-400 bg-blue-50 pulse-anim"
+                                              : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                                            }`}
+                                          onClick={() => {
+                                            setSelectedCreator(c);
+                                            setPaymentRole("creator");
+                                            trackEvent("creator_selected", {
+                                              creatorId: c.id,
+                                            });
+                                          }}
                                           style={{
                                             display: "flex",
                                             alignItems: "center",
-                                            gap: 12,
+                                            justifyContent: "space-between",
+                                            cursor: "pointer",
                                           }}
                                         >
                                           <div
-                                            className="creator-avatar"
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              gap: 12,
+                                              flex: 1,
+                                            }}
+                                          >
+                                            <div
+                                              className="creator-avatar flex-shrink-0"
+                                              role="button"
+                                              style={{ 
+                                                backgroundColor: c.photoURL ? 'transparent' : (c.fallbackColor || '#3b82f6'), 
+                                                color: c.photoURL ? 'inherit' : '#fff',
+                                                width: 48,
+                                                height: 48,
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                overflow: 'hidden'
+                                              }}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setProfileCreator(c);
+                                                setShowCreatorProfile(true);
+                                              }}
+                                            >
+                                              {c.photoURL ? (
+                                                <img
+                                                  src={c.photoURL}
+                                                  alt={c.displayName || c.name}
+                                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                />
+                                              ) : (
+                                                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                                                  {String(c.displayName || c.name).replace("@", "").charAt(0).toUpperCase()}
+                                                </div>
+                                              )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <div className="creator-display font-semibold text-gray-900 truncate text-sm">
+                                                {c.name}
+                                              </div>
+                                              {c.bio && (
+                                                <div className="text-xs text-gray-500 truncate mt-0.5">
+                                                  {c.bio}
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div
+                                            className="flex-shrink-0 text-right ml-2"
                                             role="button"
-                                            style={{ backgroundColor: c.photoURL ? 'transparent' : (c.fallbackColor || '#3b82f6'), color: c.photoURL ? 'inherit' : '#fff' }}
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               setProfileCreator(c);
                                               setShowCreatorProfile(true);
                                             }}
                                           >
-                                            {c.photoURL ? (
-                                              <img
-                                                src={c.photoURL}
-                                                alt={c.displayName || c.name}
-                                                style={{ width: 44, height: 44, objectFit: 'cover', display: 'block', borderRadius: '50%' }}
-                                              />
-                                            ) : (
-                                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                {String(c.displayName || c.name).replace("@", "").charAt(0).toUpperCase()}
-                                              </div>
-                                            )}
-                                          </div>
-                                          <div className="creator-name">
-                                            <div className="creator-display">
-                                              {c.name}
+                                            <div className="text-sm font-bold text-gray-900">
+                                              {c.price ? `$${c.price}` : <span className="text-xs font-normal text-gray-400">{getTranslation('Not set', selectedLanguage)}</span>}
                                             </div>
                                           </div>
                                         </div>
-                                        <div
-                                          className="text-sm font-bold text-gray-900"
-                                          role="button"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setProfileCreator(c);
-                                            setShowCreatorProfile(true);
-                                          }}
-                                        >
-                                          {c.price ? `$${c.price}` : <span className="text-xs font-normal text-gray-400">{getTranslation('Not set', selectedLanguage)}</span>}
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
+                                      ))
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
+                              ) : creatorSelectionType === 'any' ? (
+                                /* Any Creator View */
+                                <div className="space-y-3">
+                                  <button
+                                    onClick={() => setCreatorSelectionType(null)}
+                                    className="text-xs text-blue-600 hover:text-blue-700 font-medium mb-2"
+                                  >
+                                    ← {getTranslation('Change selection', selectedLanguage)}
+                                  </button>
+                                  
+                                  <div className="p-4 rounded-xl bg-green-50 border border-green-200">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Users size={18} className="text-green-600" />
+                                      <div className="text-sm font-semibold text-green-900">{getTranslation('Any Creators', selectedLanguage)}</div>
+                                    </div>
+                                    <div className="text-sm text-green-800">
+                                      {getTranslation('Your request is open to any creator who is interested and able to fulfill it. This increases your chances of getting it done quickly!', selectedLanguage)}
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : creatorSelectionType === 'expert' ? (
+                                /* Expert View */
+                                <div className="space-y-3">
+                                  <button
+                                    onClick={() => setCreatorSelectionType(null)}
+                                    className="text-xs text-blue-600 hover:text-blue-700 font-medium mb-2"
+                                  >
+                                    ← {getTranslation('Change selection', selectedLanguage)}
+                                  </button>
+                                  
+                                  <div className="space-y-3">
+                                    <div className="p-4 rounded-xl bg-purple-50 border border-purple-200">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <Crown size={18} className="text-purple-600" />
+                                        <div className="text-sm font-semibold text-purple-900">{getTranslation('Expert Required', selectedLanguage)}</div>
+                                      </div>
+                                      <div className="text-sm text-purple-800 mb-3">
+                                        {getTranslation("You are looking for someone with specific expertise to fulfill this request.", selectedLanguage)}
+                                      </div>
+                                      <input
+                                        type="text"
+                                        placeholder={getTranslation('e.g., Video Editor, Graphic Designer, Music Producer...', selectedLanguage)}
+                                        className="w-full p-2 rounded-lg border border-purple-200 text-sm placeholder-gray-400"
+                                        aria-label="Expert type"
+                                      />
+                                    </div>
+                                    <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800 flex gap-2">
+                                      <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                                      <span>{getTranslation("If no expert is available, we'll help you connect with the best available creator for this task.", selectedLanguage)}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : null}
                             </div>
                           </div>
-
-
                         </div>
                       </div>
                     </div>
@@ -5758,30 +5828,19 @@ const App = () => {
                 </div>
 
                 {/* CTA */}
-                <div className="flex-shrink-0 pt-4 mt-2 border-t border-gray-100 bg-white">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <button
-                        onClick={() => {
-                          setPaymentModalOpen(false);
-                          setPendingSubmission(null);
-                          trackEvent("payment_cancelled");
-                        }}
-                        className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700"
-                      >
-                        {getTranslation('Cancel', selectedLanguage)}
-                      </button>
-                    </div>
-                    <div className="flex gap-2">
+                <div className="flex-shrink-0 pt-6 mt-4 border-t border-gray-100 bg-white">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-3 w-full">
                       {/* FREE SUBMISSION BUTTON - Mobile */}
                       <button
                         onClick={() => {
                           trackEvent("free_submission_clicked");
                           handleFreeSubmission();
                         }}
-                        className="px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 text-gray-600 font-medium hover:border-green-500 hover:text-green-600"
+                        className="flex-1 px-4 py-4 rounded-xl border-2 border-dashed border-gray-300 text-gray-600 font-medium text-base hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all flex items-center justify-center gap-2"
                       >
-                        Free ✨
+                        <Sparkles size={16} />
+                        Free
                       </button>
                       <button
                         onClick={() => {
@@ -5797,7 +5856,7 @@ const App = () => {
                           });
                           continuePendingSubmission(withRole);
                         }}
-                        className="px-6 py-3 rounded-xl text-white font-semibold"
+                        className="flex-1 px-4 py-4 rounded-xl text-white font-semibold text-base"
                         style={{ backgroundColor: "var(--color-primary)" }}
                       >
                         {getTranslation('Pay', selectedLanguage)}{" "}
@@ -5810,6 +5869,16 @@ const App = () => {
                           })}
                       </button>
                     </div>
+                    <button
+                      onClick={() => {
+                        setPaymentModalOpen(false);
+                        setPendingSubmission(null);
+                        trackEvent("payment_cancelled");
+                      }}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors"
+                    >
+                      {getTranslation('Cancel', selectedLanguage)}
+                    </button>
                   </div>
                 </div>
               </div>
