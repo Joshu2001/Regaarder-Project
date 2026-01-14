@@ -3819,16 +3819,9 @@ const App = () => {
 
     } catch (e) { console.error("Failed to save request before payment", e); }
 
-    // 4. Initiate Payment
-    const payload = {
-      requestId: createdRequest ? createdRequest.id : null, // Pass ID so payment can update it
-      amount: paymentAmount, 
-      currency: 'usd',
-      requestType: pendingSubmission ? pendingSubmission.flow : 'one-time',
-      requestData
-    };
-
-    // Save state to localStorage in case of redirect
+    // 4. Skip Stripe payment - directly save to backend and show success
+    // The request was already saved in step 3, so just show success and redirect
+    
     const requestDataWithId = {
         ...requestData,
         id: createdRequest ? createdRequest.id : null,
@@ -3841,34 +3834,40 @@ const App = () => {
         localStorage.setItem('pending_payment_data', JSON.stringify(requestDataWithId));
     } catch(e) { }
 
-    try {
-      const authHeader = (auth && auth.user && auth.user.token) || localStorage.getItem('regaarder_token');
-      const headers = { 'Content-Type': 'application/json' };
-      if (authHeader) headers['Authorization'] = `Bearer ${authHeader}`;
-
-      const res = await fetch(`${BACKEND}/pay/create-session`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        throw new Error('Payment initialization failed');
-      }
-
-      const data = await res.json();
-
-      // 5. Handle redirect or success
-      if (data.url) {
-        window.location.href = data.url;
-      } else if (data.success) {
-        // Direct success (e.g. mocked or zero-amount)
-        continuePendingSubmission(paymentAmount, requestDataWithId);
-      }
-    } catch (err) {
-      console.error('Payment error', err);
-      showToast('Payment failed. Please try again.');
+    // If request was already saved to backend, show success
+    if (isBackendSynced) {
+        console.log('🟢🟢🟢 Request already synced to backend, showing success');
+        showToast(`Request submitted with $${paymentAmount} funding!`);
+        
+        // Reset form
+        setTitle('');
+        setDescription('');
+        setPendingSubmission(null);
+        setPaymentModalOpen(false);
+        
+        // Navigate to requests page
+        setTimeout(() => {
+          window.location.href = '/requests?filter=Newest';
+        }, 1000);
+        return;
     }
+
+    // If not synced yet, call continuePendingSubmission to save
+    console.log('🟢🟢🟢 Request not synced yet, calling continuePendingSubmission');
+    continuePendingSubmission(paymentAmount, requestDataWithId);
+    
+    showToast(`Request submitted with $${paymentAmount} funding!`);
+    
+    // Reset form
+    setTitle('');
+    setDescription('');
+    setPendingSubmission(null);
+    setPaymentModalOpen(false);
+    
+    // Navigate to requests page
+    setTimeout(() => {
+      window.location.href = '/requests?filter=Newest';
+    }, 1000);
   };
 
   // FREE SUBMISSION - Submit request without payment
@@ -4014,14 +4013,12 @@ const App = () => {
       // Reuse ID if already synced, else generate new
       const finalId = sourceData.id || `req_${Date.now()}`;
       
-      // Robustly get the user, falling back to localStorage if AuthContext is not yet ready (e.g. page reload)
-      let currentUser = (auth && auth.user) ? auth.user : null;
-      if (!currentUser) {
-           try {
-               const rawUser = localStorage.getItem('regaarder_user');
-               if (rawUser) currentUser = JSON.parse(rawUser);
-           } catch (e) { }
-      }
+      // Robustly get the user from localStorage (not auth context which may not exist)
+      let currentUser = null;
+      try {
+          const rawUser = localStorage.getItem('regaarder_user');
+          if (rawUser) currentUser = JSON.parse(rawUser);
+      } catch (e) { }
 
       // CRITICAL FIX: Always create valid creator object - never null
       const creatorObj = currentUser 

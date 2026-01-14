@@ -2063,6 +2063,11 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
     const handleClaimClick = () => {
         if (isClaimed) return;
         if (!auth.user) { auth.openAuthModal(); return; }
+        // Prevent users from claiming their own requests
+        if (request.creator && request.creator.id && auth.user && auth.user.id && request.creator.id === auth.user.id) {
+            setActionToast({ visible: true, message: 'You cannot claim your own request' });
+            return;
+        }
         setShowClaimModal(true);
     };
 
@@ -2619,8 +2624,8 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                     {/* 1. Nubilous Gradient Background (responsive sizes) */}
                     <div className="absolute top-0 right-0 w-40 sm:w-44 md:w-48 h-40 sm:h-44 md:h-48 rounded-tr-xl overflow-hidden pointer-events-none" style={nubilousBackgroundStyle} aria-hidden="true" />
 
-                    {/* 2. CLAIM Button (Vertical Tab on the side) - only for authenticated users */}
-                    {auth.user && (
+                    {/* 2. CLAIM Button (Vertical Tab on the side) - only for authenticated users who are not the creator */}
+                    {auth.user && !(request.creator && request.creator.id && auth.user.id && request.creator.id === auth.user.id) && (
                         <button
                             onTouchEnd={(e) => e.stopPropagation()}
                             onClick={handleClaimClick}
@@ -2882,7 +2887,7 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                             </button>
 
                             {/* Edit Modal (per-card) */}
-                            {showEditModal && (
+                            {showEditModal && createPortal(
                                 <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
                                     <div className="absolute inset-0 bg-black/40" onClick={() => setShowEditModal(false)} />
                                     <div className="bg-white rounded-2xl shadow-2xl p-6 relative z-10 w-full max-w-lg">
@@ -2927,7 +2932,8 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                                             </button>
                                         </div>
                                     </div>
-                                </div>
+                                </div>,
+                                document.body
                             )}
                         </div>
                     </div>
