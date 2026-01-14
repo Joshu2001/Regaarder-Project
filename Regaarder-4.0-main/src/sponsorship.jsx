@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, FileText, Pencil, MoreHorizontal, Crown, ArrowLeft, ChevronRight, ChevronLeft, Shield, Lock, Gift, Star } from 'lucide-react';
+import { Home, FileText, Pencil, MoreHorizontal, Crown, ArrowLeft, ChevronRight, ChevronLeft, Shield, Lock, Gift, Star, CheckCircle2, X, Video, Users, TrendingDown, MonitorPlay, Zap, Eye, RotateCw, Sparkles, Ban, BarChart3, Clock, Target, Unlock, Percent, Share2, Headphones } from 'lucide-react';
 import { getTranslation } from './translations.js';
 
 // Reuse the same accent/color tokens from advertisewithus.jsx
@@ -22,29 +22,34 @@ const formatPrice = (monthly, billingPeriod = 'monthly', discount = 0.17) => {
 // Ala carte items (from provided images)
 const alaCarteItems = [
     {
-        title: '30 Extra Requests',
-        priceMonthly: 5.99,
-        description: 'Add 30 video requests to your monthly quota',
+        title: 'Extra Paid Requests',
+        priceMonthly: 4.99,
+        description: 'Add 5 extra paid requests per day to your quota',
     },
     {
-        title: '100 Extra Requests',
-        priceMonthly: 14.99,
-        description: 'Power user pack - 100 requests per month',
-    },
-    {
-        title: '50GB Extra Storage',
-        priceMonthly: 3.99,
-        description: 'Expand your storage capacity',
-    },
-    {
-        title: 'Priority Support',
-        priceMonthly: 9.99,
-        description: '24/7 priority support with 2hr response time',
-    },
-    {
-        title: 'Unlimited Products',
+        title: 'High-Value Request Access',
         priceMonthly: 7.99,
-        description: 'List unlimited products in marketplace',
+        description: 'Unlock ability to claim requests valued over $150',
+    },
+    {
+        title: 'Priority Request Visibility',
+        priceMonthly: 5.99,
+        description: 'Boost your requests to top of feed (no decay)',
+    },
+    {
+        title: 'Creator Direct Access',
+        priceMonthly: 9.99,
+        description: 'Direct messaging with verified creators',
+    },
+    {
+        title: 'Enhanced Analytics',
+        priceMonthly: 6.99,
+        description: 'Detailed request performance & engagement metrics',
+    },
+    {
+        title: 'Extended Response Window',
+        priceMonthly: 3.99,
+        description: 'Increase creator response time from 48hrs to 72hrs',
     }
 ];
 
@@ -188,16 +193,30 @@ const PlanCard = ({ title, priceMonthly, oldPriceMonthly, features = [], cta, th
 
             {/* Features list */}
             <ul className="space-y-3 mb-8 pb-8 border-b border-gray-200">
-                {features.map((f, i) => (
-                    <li key={i} className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 pt-1">
-                            <svg className="w-5 h-5" style={{ color: themeColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <span className="text-gray-700 leading-relaxed">{f}</span>
-                    </li>
-                ))}
+                {features.map((f, i) => {
+                    // Support both string features and feature objects with icons
+                    const isObject = typeof f === 'object' && f !== null;
+                    const featureText = isObject ? f.text : f;
+                    const Icon = isObject ? f.icon : null;
+                    const isAllowed = isObject ? f.allowed : true;
+                    
+                    return (
+                        <li key={i} className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 pt-1">
+                                {Icon ? (
+                                    <Icon size={20} style={{ color: themeColor }} />
+                                ) : (
+                                    <svg className="w-5 h-5" style={{ color: themeColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                )}
+                            </div>
+                            <span className={`leading-relaxed ${isObject && !isAllowed ? 'text-gray-400' : 'text-gray-700'}`}>
+                                {featureText}
+                            </span>
+                        </li>
+                    );
+                })}
             </ul>
 
             {/* CTA Button */}
@@ -228,6 +247,8 @@ const Sponsorships = () => {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
     const [processingPayment, setProcessingPayment] = useState(false);
     const [language, setLanguage] = useState(localStorage.getItem('regaarder_language') || 'English');
+    const [planType, setPlanType] = useState(null); // 'user' or 'creator' - null means showing modal
+    const [showPlanTypeModal, setShowPlanTypeModal] = useState(true); // Show modal on initial load
     const t = (key) => getTranslation(key, language);
 
     useEffect(() => {
@@ -288,88 +309,83 @@ const Sponsorships = () => {
 
     const plans = [
         {
-            title: 'Starter',
-            priceMonthly: 5.99,
+            type: 'user',
+            title: 'Starter (Free)',
+            priceMonthly: 0,
             features: [
-                '5 video requests per week',
-                '5 marketplace product listings',
-                'All tone & length options',
-                'Private & unlisted requests',
-                'HD video quality (1080p)',
-                'Priority email support',
-                'Request templates',
-                'Video notes & timestamps',
-                'Basic analytics dashboard',
-                '10 folders',
-                '5GB storage',
-                'Remove watermarks'
+                { text: '1 active free request at a time', icon: FileText },
+                { text: 'Max 3 paid requests active at a time', icon: FileText },
+                { text: 'Max $150 total value for paid requests', icon: Gift },
+                { text: 'Targeting specific creators', icon: Users, allowed: false },
+                { text: 'Boosting visibility', icon: TrendingDown, allowed: false },
+                { text: 'Invite contributors (viral growth)', icon: Users, allowed: true },
+                { text: 'Visibility may decay over time', icon: TrendingDown },
+                { text: 'Maximum video quality: 360p', icon: MonitorPlay },
             ],
-            cta: 'Get Starter',
+            cta: 'Start Free',
             themeColor: ACCENT_COLOR,
         },
         {
-            // Pro uses a red accent per provided images
+            type: 'user',
             title: 'Pro',
             priceMonthly: 8.24,
             oldPriceMonthly: 14.99,
             savingLabel: `Save $${(14.99 - 8.24).toFixed(2)}`,
             features: [
-                '15 video requests per week',
-                '20 marketplace product listings',
-                'Everything in Starter, plus:',
-                '4K Ultra HD video quality',
-                'Unlimited private requests',
-                'Advanced file uploads (up to 500MB)',
-                'Priority creator matching',
-                'Video editor access (basic)',
-                'Audio extraction & downloads',
-                'Collaborative folders (3 collaborators)',
-                'Advanced analytics & insights',
-                'Custom request templates',
-                'Disappearing videos (24hr-7 days)',
-                'Product placement in videos',
-                'Brand campaign tools (basic)',
-                '50 folders',
-                '25GB storage',
-                'Priority support (24hr response)'
+                { text: 'Unlimited free requests (with decay)', icon: FileText },
+                { text: 'Up to 5 active paid requests', icon: FileText },
+                { text: 'No hard cap on request value (soft trust checks)', icon: Gift },
+                { text: 'Target specific creators', icon: Users, allowed: true },
+                { text: 'Boosting available', icon: Zap, allowed: true },
+                { text: 'Contributor pooling enabled', icon: Users, allowed: true },
+                { text: 'Priority visibility (slower decay)', icon: Eye, allowed: true },
+                { text: 'Repost faster after no response', icon: RotateCw, allowed: true },
+                { text: 'Priority creator matching', icon: Sparkles, allowed: true },
+                { text: 'No ads', icon: Ban, allowed: true },
+                { text: 'Faster request response and fulfillment', icon: Zap, allowed: true },
             ],
             cta: 'Grab Flash Deal',
-            themeColor: '#EF4444', // red
-            badge: { label: 'FLASH DEAL -45% OFF', color: '#FF7A7A' }
+            themeColor: ACCENT_COLOR,
+            badge: { label: 'FLASH DEAL -45% OFF', color: ACCENT_COLOR }
         },
         {
-            title: 'Creator',
-            priceMonthly: 29.99,
+            type: 'creator',
+            title: 'Starter Creator',
+            priceMonthly: 0,
             features: [
-                'UNLIMITED video requests',
-                'UNLIMITED marketplace products',
-                'Everything in Pro, plus:',
-                'Creator dashboard & monetization',
-                'Full video editor suite (advanced)',
-                'AI-powered smart editor',
-                'Auto-transcription & captions',
-                'Multi-language subtitles',
-                'Verified creator badge',
-                'Sponsored content tools',
-                'Advanced sponsorship deals',
-                'Custom brand campaigns (unlimited)',
-                'Unlimited collaborators',
-                'White-label options',
-                'API access',
-                'Priority marketplace placement',
-                'Featured in creator spotlight',
-                '0% platform fee (first 6 months)',
-                'Reduced platform fee (5% after)',
-                'Unlimited folders',
-                '100GB storage',
-                'Dedicated account manager',
-                'Premium support (2hr response)',
-                'Custom analytics reports',
-                'Advanced audience insights'
+                { text: 'Max 3 paid requests per day', icon: FileText },
+                { text: 'Daily paid value cap: $150–$200', icon: Gift },
+                { text: 'Unlimited free requests (optional)', icon: Star, allowed: true },
+                { text: 'Claim high-value requests (> $150)', icon: Lock, allowed: false },
+                { text: 'Standard visibility in feed', icon: Eye },
+                { text: 'Standard response window', icon: Clock },
+                { text: 'Creator dashboard & monetization', icon: BarChart3, allowed: true },
             ],
-            cta: 'Get Creator',
+            cta: 'Start Creating',
             themeColor: ACCENT_COLOR,
-            badge: { label: 'Best Value', color: '#10B981' }
+            badge: { label: 'Free', color: '#10B981' }
+        },
+        {
+            type: 'creator',
+            title: 'Pro Creator',
+            priceMonthly: 14.99,
+            features: [
+                { text: 'All in Starter Creator', icon: Star, allowed: true },
+                { text: 'Up to 15 paid requests per day', icon: FileText },
+                { text: 'No daily value cap', icon: Gift, allowed: true },
+                { text: 'High-value requests unlocked', icon: Unlock, allowed: true },
+                { text: 'Targeted requests with priority access', icon: Target, allowed: true },
+                { text: 'Boosted requests with priority', icon: Zap, allowed: true },
+                { text: 'Queue management (accept/defer)', icon: RotateCw, allowed: true },
+                { text: 'Higher algorithmic trust weight', icon: TrendingDown, allowed: true },
+                { text: 'Add Merch links & other links in video', icon: Share2, allowed: true },
+                { text: 'Direct access to sponsors', icon: Users, allowed: true },
+                { text: 'Priority support', icon: Headphones, allowed: true },
+                { text: 'Up to 80% revenue share', icon: Percent, allowed: true },
+            ],
+            cta: 'Get Pro Creator',
+            themeColor: ACCENT_COLOR,
+            badge: { label: 'BEST VALUE', color: ACCENT_COLOR }
         }
     ];
 
@@ -497,7 +513,7 @@ const Sponsorships = () => {
                                 <h2 className="text-2xl font-bold text-gray-900" style={{ color: ACCENT_COLOR }}>Our Plans</h2>
                                 <p className="text-gray-500 text-sm mt-2">Choose a plan that fits your needs</p>
                             </div>
-                            {plans.map((p, idx) => (
+                            {plans.filter(p => !planType || p.type === planType).map((p, idx) => (
                                 <div
                                     key={p.title}
                                     ref={el => cardRefs.current[idx] = el}
@@ -581,6 +597,41 @@ const Sponsorships = () => {
 
             </div>
 
+            {/* Plan Type Selection Modal */}
+            {showPlanTypeModal && (
+                <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl p-8">
+                        <div className="text-center">
+                            <h2 className="text-2xl font-bold mb-2" style={{ color: ACCENT_COLOR }}>Choose Your Plan Type</h2>
+                            <p className="text-gray-600 text-sm mb-8">Select whether you're looking for a user or creator plan</p>
+                        </div>
+                        
+                        <div className="space-y-3">
+                            <button 
+                                onClick={() => {
+                                    setPlanType('user');
+                                    setShowPlanTypeModal(false);
+                                }}
+                                className="w-full px-6 py-4 rounded-xl font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+                                style={{ backgroundColor: ACCENT_COLOR }}
+                            >
+                                For Users
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setPlanType('creator');
+                                    setShowPlanTypeModal(false);
+                                }}
+                                className="w-full px-6 py-4 rounded-xl font-semibold transition-all hover:opacity-90 active:scale-95"
+                                style={{ borderColor: ACCENT_COLOR, color: ACCENT_COLOR, borderWidth: '2px' }}
+                            >
+                                For Creators
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Add-selected Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -625,13 +676,13 @@ const Sponsorships = () => {
             )}
             {/* Checkout Modal for Plans */}
             {showCheckoutModal && selectedPlan && (
-                <div className="fixed inset-0 z-60 flex items-center justify-center">
+                <div className="fixed inset-0 z-[999] flex items-center justify-center pb-24">
                     <div className="absolute inset-0 bg-black opacity-40" onClick={() => setShowCheckoutModal(false)} />
-                    <div role="dialog" aria-modal="true" className="relative w-full mx-4 bg-white rounded-2xl shadow-xl p-4" style={{ maxWidth: '40rem', maxHeight: '80vh', overflowY: 'auto' }}>
+                    <div role="dialog" aria-modal="true" className="relative w-full mx-4 bg-white rounded-2xl shadow-xl p-4" style={{ maxWidth: '40rem', maxHeight: 'calc(100vh - 150px)', overflowY: 'auto' }}>
                         <div className="flex items-start justify-between mb-4">
                             <div>
-                                <h3 className="text-lg font-semibold">Checkout — {selectedPlan.title}</h3>
-                                <div className="text-sm text-gray-500">{t('Secure checkout — choose payment method')}</div>
+                                <h3 className="text-lg font-semibold">Checkout, {selectedPlan.title}</h3>
+                                <div className="text-sm text-gray-500">{t('Secure checkout, choose payment method')}</div>
                             </div>
                             <button onClick={() => setShowCheckoutModal(false)} className="text-gray-500">{t('Close')}</button>
                         </div>

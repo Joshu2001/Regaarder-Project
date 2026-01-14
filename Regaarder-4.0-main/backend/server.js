@@ -420,21 +420,42 @@ app.post('/claim', authMiddleware, (req, res) => {
     // Check daily claim limit for paid requests (amount > 0 or funding > 0)
     const requestAmount = Number(request.amount) || Number(request.funding) || 0;
     if (requestAmount > 0) {
-      const REQUEST_VALUE_LIMIT = 150; // Starter plan max request value
-      
-      // Check if request exceeds the value limit for starter creators
-      if (requestAmount > REQUEST_VALUE_LIMIT) {
-        return res.status(400).json({ 
-          error: 'Request value exceeds plan limit',
-          requestValueLimitExceeded: true,
-          valueLimit: REQUEST_VALUE_LIMIT,
-          requestValue: requestAmount
-        });
-      }
-
       const users = readUsers();
       const user = users.find(u => u.id === req.user.id);
       if (!user) return res.status(404).json({ error: 'User not found' });
+
+      // Determine user's creator plan (default to Starter Creator if not set)
+      const creatorPlan = user.creatorPlan || 'starter'; // 'starter' or 'pro'
+      
+      // Plan limits based on creator plan
+      const planLimits = {
+        'starter': {
+          dailyClaimLimit: 3,           // Max 3 paid requests per day
+          dailyEarningsCap: 175,        // Max $175 per day (midpoint of $150-$200)
+          requestValueLimit: 150,       // Cannot claim requests > $150
+          name: 'Starter Creator'
+        },
+        'pro': {
+          dailyClaimLimit: 15,          // Max 15 paid requests per day
+          dailyEarningsCap: null,       // No daily value cap
+          requestValueLimit: null,      // No request value limit
+          name: 'Pro Creator'
+        }
+      };
+
+      const limits = planLimits[creatorPlan] || planLimits['starter'];
+
+      // Check if request exceeds the value limit for their plan
+      if (limits.requestValueLimit && requestAmount > limits.requestValueLimit) {
+        return res.status(400).json({ 
+          error: 'Request value exceeds plan limit',
+          requestValueLimitExceeded: true,
+          valueLimit: limits.requestValueLimit,
+          requestValue: requestAmount,
+          creatorPlan: creatorPlan,
+          planName: limits.name
+        });
+      }
 
       // Get today's date in UTC
       const today = new Date().toISOString().split('T')[0];
@@ -450,41 +471,44 @@ app.post('/claim', authMiddleware, (req, res) => {
         user.lastClaimReset = today;
       }
 
-      const DAILY_CLAIM_LIMIT = 3; // Max 3 paid requests per day
-      const DAILY_EARNINGS_CAP = 150; // Max $150 per day
-
       // Check count limit
-      if (dailyClaimCount >= DAILY_CLAIM_LIMIT) {
+      if (dailyClaimCount >= limits.dailyClaimLimit) {
         return res.status(429).json({ 
           error: 'Daily claim limit reached',
           dailyClaimLimitReached: true,
           limitType: 'count',
-          dailyLimit: DAILY_CLAIM_LIMIT,
+          dailyLimit: limits.dailyClaimLimit,
           dailyClaims: dailyClaimCount,
-          dailyEarningsCap: DAILY_EARNINGS_CAP,
-          dailyEarnings: dailyClaimEarnings
+          dailyEarningsCap: limits.dailyEarningsCap,
+          dailyEarnings: dailyClaimEarnings,
+          creatorPlan: creatorPlan,
+          planName: limits.name
         });
       }
 
-      // Check earnings cap
-      const newTotalEarnings = dailyClaimEarnings + requestAmount;
-      if (newTotalEarnings > DAILY_EARNINGS_CAP) {
-        return res.status(429).json({ 
-          error: 'Daily earnings cap exceeded',
-          dailyClaimLimitReached: true,
-          limitType: 'earnings',
-          dailyLimit: DAILY_CLAIM_LIMIT,
-          dailyClaims: dailyClaimCount,
-          dailyEarningsCap: DAILY_EARNINGS_CAP,
-          dailyEarnings: dailyClaimEarnings,
-          requestAmount: requestAmount,
-          wouldExceedBy: newTotalEarnings - DAILY_EARNINGS_CAP
-        });
+      // Check earnings cap (if applicable for this plan)
+      if (limits.dailyEarningsCap) {
+        const newTotalEarnings = dailyClaimEarnings + requestAmount;
+        if (newTotalEarnings > limits.dailyEarningsCap) {
+          return res.status(429).json({ 
+            error: 'Daily earnings cap exceeded',
+            dailyClaimLimitReached: true,
+            limitType: 'earnings',
+            dailyLimit: limits.dailyClaimLimit,
+            dailyClaims: dailyClaimCount,
+            dailyEarningsCap: limits.dailyEarningsCap,
+            dailyEarnings: dailyClaimEarnings,
+            requestAmount: requestAmount,
+            wouldExceedBy: newTotalEarnings - limits.dailyEarningsCap,
+            creatorPlan: creatorPlan,
+            planName: limits.name
+          });
+        }
       }
 
       // Increment the count and earnings
       user.dailyClaimCount = dailyClaimCount + 1;
-      user.dailyClaimEarnings = newTotalEarnings;
+      user.dailyClaimEarnings = dailyClaimEarnings + requestAmount;
       user.lastClaimReset = today;
       writeUsers(users);
     }
@@ -507,6 +531,109 @@ app.post('/claim', authMiddleware, (req, res) => {
     });
   } catch (err) {
     console.error('claim error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update creator plan (subscription)
+app.post('/creator-plan/upgrade', authMiddleware, (req, res) => {
+  const { plan } = req.body || {};
+  
+  if (!plan || !['starter', 'pro'].includes(plan)) {
+    return res.status(400).json({ error: 'Invalid plan. Must be "starter" or "pro"' });
+  }
+
+  try {
+    const users = readUsers();
+    const user = users.find(u => u.id === req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update creator plan
+    user.creatorPlan = plan;
+    user.creatorPlanUpgradedAt = new Date().toISOString();
+
+    writeUsers(users);
+
+    return res.json({ 
+      success: true, 
+      message: `Successfully upgraded to ${plan} creator plan`,
+      creatorPlan: plan,
+      creatorPlanUpgradedAt: user.creatorPlanUpgradedAt
+    });
+  } catch (err) {
+    console.error('creator-plan upgrade error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get creator plan and limits for current user
+app.get('/creator-plan', authMiddleware, (req, res) => {
+  try {
+    const users = readUsers();
+    const user = users.find(u => u.id === req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Determine user's creator plan (default to Starter Creator if not set)
+    const creatorPlan = user.creatorPlan || 'starter';
+    
+    // Plan limits based on creator plan
+    const planLimits = {
+      'starter': {
+        dailyClaimLimit: 3,
+        dailyEarningsCap: 175,
+        requestValueLimit: 150,
+        name: 'Starter Creator',
+        price: '$0/month'
+      },
+      'pro': {
+        dailyClaimLimit: 15,
+        dailyEarningsCap: null,
+        requestValueLimit: null,
+        name: 'Pro Creator',
+        price: '$14.99/month'
+      }
+    };
+
+    const limits = planLimits[creatorPlan] || planLimits['starter'];
+    
+    // Get today's date in UTC
+    const today = new Date().toISOString().split('T')[0];
+    const lastClaimReset = user.lastClaimReset || null;
+    
+    // Reset count if it's a new day
+    let dailyClaimCount = user.dailyClaimCount || 0;
+    let dailyClaimEarnings = user.dailyClaimEarnings || 0;
+    
+    const isNewDay = lastClaimReset !== today;
+    if (isNewDay) {
+      dailyClaimCount = 0;
+      dailyClaimEarnings = 0;
+    }
+
+    return res.json({
+      creatorPlan: creatorPlan,
+      planName: limits.name,
+      planPrice: limits.price,
+      limits: {
+        dailyClaimLimit: limits.dailyClaimLimit,
+        dailyEarningsCap: limits.dailyEarningsCap,
+        requestValueLimit: limits.requestValueLimit
+      },
+      today: {
+        claimsRemaining: Math.max(0, limits.dailyClaimLimit - dailyClaimCount),
+        dailyClaimCount: dailyClaimCount,
+        dailyEarnings: dailyClaimEarnings,
+        earningsRemaining: limits.dailyEarningsCap ? Math.max(0, limits.dailyEarningsCap - dailyClaimEarnings) : null
+      }
+    });
+  } catch (err) {
+    console.error('creator-plan error', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });
