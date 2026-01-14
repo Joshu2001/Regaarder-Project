@@ -1,5 +1,349 @@
 [
   {
+    "id": "req_1768385356952",
+    "title": "nanana",
+    "description": "jjfjwfwfwejweewurue",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 99,
+    "funding": 99,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T10:09:16.975Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1768384874840",
+    "title": "Priere",
+    "description": "k4jijr2i-j]-i1c-9\nh3]ih23cr]-3ihr v23-r\n h",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 3171,
+    "funding": 3171,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T10:01:14.946Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1768383761650",
+    "title": "mORE ",
+    "description": "sherherherhehe",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 1530,
+    "funding": 1530,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T09:42:41.712Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1768383731267",
+    "title": "Je te haissr",
+    "description": "pjgierjojrt\\jrtojr]j]r",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 133,
+    "funding": 133,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T09:42:11.331Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": null,
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-14T09:43:21.000Z"
+  },
+  {
+    "id": "req_1768383351250",
+    "title": "iropeo",
+    "description": "jlbjqwbtiqt4pb' ptq\nb",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 15,
+    "funding": 15,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T09:35:51.313Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": null,
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-14T09:36:04.691Z"
+  },
+  {
+    "id": "req_1768383277962",
+    "title": "Ma fille",
+    "description": "we;iwnqerib'pr4t",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 1111,
+    "funding": 1111,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T09:34:38.026Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-14T09:34:54.827Z"
+  },
+  {
+    "id": "req_1768383212458",
+    "title": "le Pietere",
+    "description": "kninginwg 3ntrtn0['ntt0uq u[0 burb",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 1565,
+    "funding": 1565,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T09:33:32.519Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-14T09:33:55.976Z"
+  },
+  {
+    "id": "req_1768379624486",
+    "title": "jordonee",
+    "description": "k;dnkngnw\ninwrniwen",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T08:33:44.543Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": null,
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-14T09:32:25.778Z"
+  },
+  {
+    "id": "req_1768379522335",
+    "title": "Lalar",
+    "description": "k;nkpnrgkwnginwfn\nwifnwn",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 25,
+    "funding": 25,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Paul",
+    "companyInitial": "P",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767585399609",
+      "name": "Paul",
+      "email": "paul@regaarder.com"
+    },
+    "createdBy": "user-1767585399609",
+    "createdAt": "2026-01-14T08:32:02.437Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1768379394281",
+    "title": "karrrrino",
+    "description": "'rlgnpiwnp\nwgtger",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Paul",
+    "companyInitial": "P",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767585399609",
+      "name": "Paul",
+      "email": "paul@regaarder.com"
+    },
+    "createdBy": "user-1767585399609",
+    "createdAt": "2026-01-14T08:29:54.361Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_1768379186340",
+    "title": "Les Thrills",
+    "description": "khhihknk'nkgnrgnqgqrngnqrg'irq",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T08:26:26.379Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "standard",
+      "selectedPrivacy": "unlisted"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-14T09:32:31.850Z"
+  },
+  {
     "id": "req_1768361059949",
     "title": "The demure",
     "description": "This is exactly what i warned you about",
@@ -60,7 +404,13 @@
       "selectedTones": [],
       "selectedVideoLength": null,
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-14T09:32:36.552Z"
   },
   {
     "id": "req_1768360434961",
@@ -116,7 +466,13 @@
         "Informative"
       ],
       "selectedVideoLength": "5-10 min"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-14T09:32:55.669Z"
   },
   {
     "id": "req_test_1768321794",
@@ -166,7 +522,13 @@
       "name": "Anonymous"
     },
     "createdBy": "anonymous",
-    "createdAt": "2026-01-13T15:46:10.450Z"
+    "createdAt": "2026-01-13T15:46:10.450Z",
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-14T09:32:59.924Z"
   },
   {
     "id": "req_1766845475803",

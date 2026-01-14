@@ -2664,10 +2664,12 @@ const App = () => {
   const [paymentRole, setPaymentRole] = useState("creator"); // 'creator' or 'expert'
   const PAYMENT_PRESETS = [15, 25, 50, 100];
   const [selectedCreator, setSelectedCreator] = useState(null);
+  const [selectedCreatorImage, setSelectedCreatorImage] = useState(null); // Separate state for creator image
   const [creatorSearch, setCreatorSearch] = useState("");
   const [chooseCreatorExpanded, setChooseCreatorExpanded] = useState(false);
   const [chooseCreatorFocused, setChooseCreatorFocused] = useState(false);
   const [creatorSelectionType, setCreatorSelectionType] = useState(null); // 'specific' | 'any' | 'expert' | null
+  const [showCreatorModal, setShowCreatorModal] = useState(false); // For the ideas page creator selection modal
 
   // When focus mode is toggled on, ensure the chooser is expanded and focus the input.
   useEffect(() => {
@@ -2944,9 +2946,9 @@ const App = () => {
                       // CRITICAL FIX #3: Ensure navigation happens after sync with error handling
                       setTimeout(() => {
                         try {
-                           navigate('/requests?filter=Newest');
+                           navigate('/requests?filter=For You');
                         } catch (e) {
-                           window.location.href = '/requests?filter=Newest';
+                           window.location.href = '/requests?filter=For You';
                         }
                       }, 150);
                    }).catch((err) => {
@@ -2954,9 +2956,9 @@ const App = () => {
                       localStorage.removeItem('pending_payment_data');
                       setTimeout(() => {
                         try {
-                           navigate('/requests?filter=Newest');
+                           navigate('/requests?filter=For You');
                         } catch (e) {
-                           window.location.href = '/requests?filter=Newest';
+                           window.location.href = '/requests?filter=For You';
                         }
                       }, 150);
                    });
@@ -2993,7 +2995,7 @@ const App = () => {
           const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
           return colors[Math.floor(Math.random() * colors.length)];
         };
-        const creators = json.users.filter(u => u.isCreator).map(u => ({ id: u.id || u.email || u.name, name: u.handle || u.tag || (`@${(u.name || '').toLowerCase()}`), displayName: u.name || u.handle || u.tag, photoURL: u.photoURL || u.avatar, price: u.price || u.rate || 0, fallbackColor: getRandomColor() }));
+        const creators = json.users.filter(u => u.isCreator).map(u => ({ id: u.id || u.email || u.name, name: u.handle || u.tag || (`@${(u.name || '').toLowerCase()}`), displayName: u.name || u.handle || u.tag, photoURL: u.photoURL || u.image || u.avatar, price: u.price || u.rate || 0, fallbackColor: getRandomColor() }));
         if (cancelled) return;
         if (creators.length > 0) setCreatorsList(creators);
       } catch (e) {
@@ -3058,6 +3060,31 @@ const App = () => {
       }, 240);
     }
   }, [chooseCreatorExpanded]);
+
+  // Fetch creators when the ideas page modal opens
+  useEffect(() => {
+    let cancelled = false;
+    const loadCreators = async () => {
+      try {
+        const res = await fetch(`${BACKEND}/users`);
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!json || !Array.isArray(json.users)) return;
+        // Prefer users marked as creators; include fallback of others
+        const getRandomColor = () => {
+          const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
+          return colors[Math.floor(Math.random() * colors.length)];
+        };
+        const creators = json.users.filter(u => u.isCreator).map(u => ({ id: u.id || u.email || u.name, name: u.handle || u.tag || (`@${(u.name || '').toLowerCase()}`), displayName: u.name || u.handle || u.tag, photoURL: u.photoURL || u.image || u.avatar, price: u.price || u.rate || 0, fallbackColor: getRandomColor() }));
+        if (cancelled) return;
+        if (creators.length > 0) setCreatorsList(creators);
+      } catch (e) {
+        console.warn('Failed to load creators', e);
+      }
+    };
+    if (showCreatorModal && creatorsList.length === 0) loadCreators();
+    return () => { cancelled = true; };
+  }, [showCreatorModal]);
 
   // Keep expanded state in sync with focus mode so entering focus always expands
   // useEffect(() => {
@@ -3228,6 +3255,119 @@ const App = () => {
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [selectedCreator]);
+
+  // Enrich selectedCreator with image data from backend if it's missing
+  useEffect(() => {
+    if (!selectedCreator || !selectedCreator.id) {
+      return; // No selectedCreator
+    }
+    
+    if (selectedCreator.photoURL || selectedCreator.image || selectedCreator.avatar) {
+      return; // Already has image data
+    }
+
+    // If we don't have image data, fetch all creators and find the match
+    const enrichCreatorData = async () => {
+      try {
+        console.log('[ideas] Enriching selectedCreator with image data...', selectedCreator);
+        const res = await fetch('/users');
+        const json = await res.json();
+        if (!json || !Array.isArray(json.users)) {
+          console.warn('[ideas] No users returned from /users');
+          return;
+        }
+
+        // Find the creator in the list and get their image data
+        // Try multiple matching strategies
+        let creatorData = json.users.find(u => u.id === selectedCreator.id);
+        console.log('[ideas] Match by ID:', creatorData);
+        
+        if (!creatorData) {
+          // Try matching by handle (with or without @)
+          const cleanName = String(selectedCreator.name || '').replace(/^@/, '').toLowerCase();
+          creatorData = json.users.find(u => {
+            const uHandle = String(u.handle || '').replace(/^@/, '').toLowerCase();
+            return uHandle === cleanName;
+          });
+          console.log('[ideas] Match by handle:', creatorData);
+        }
+        
+        if (!creatorData) {
+          // Try matching by displayName
+          creatorData = json.users.find(u => String(u.name || '').toLowerCase() === String(selectedCreator.displayName || '').toLowerCase());
+          console.log('[ideas] Match by displayName:', creatorData);
+        }
+
+        if (creatorData) {
+          const imageUrl = creatorData.photoURL || creatorData.image || creatorData.avatar;
+          console.log('[ideas] Found image URL:', imageUrl);
+          if (imageUrl) {
+            setSelectedCreator(prev => ({
+              ...prev,
+              photoURL: imageUrl
+            }));
+          }
+        } else {
+          console.warn('[ideas] Creator not found in users list');
+        }
+      } catch (e) {
+        console.warn('Failed to enrich creator data with image', e);
+      }
+    };
+
+    enrichCreatorData();
+  }, [selectedCreator?.id]);
+
+  // Fetch selectedCreatorImage whenever selectedCreator changes
+  useEffect(() => {
+    if (!selectedCreator || !selectedCreator.id) {
+      setSelectedCreatorImage(null);
+      return;
+    }
+
+    // If selectedCreator already has image data, use it
+    if (selectedCreator.photoURL || selectedCreator.image || selectedCreator.avatar) {
+      console.log('[ideas] Using image from selectedCreator:', selectedCreator.photoURL || selectedCreator.image || selectedCreator.avatar);
+      setSelectedCreatorImage(selectedCreator.photoURL || selectedCreator.image || selectedCreator.avatar);
+      return;
+    }
+
+    // Otherwise fetch from backend
+    const fetchCreatorImage = async () => {
+      try {
+        console.log('[ideas] selectedCreator missing image, fetching all users...');
+        const res = await fetch('/users');
+        const json = await res.json();
+        
+        if (json && Array.isArray(json.users)) {
+          console.log('[ideas] Got ' + json.users.length + ' users from backend');
+          // Try to find by ID first (most reliable)
+          let creator = json.users.find(u => u.id === selectedCreator.id);
+          console.log('[ideas] Match by ID:', creator ? 'found' : 'not found', creator?.name);
+          
+          if (!creator) {
+            // Try by name
+            creator = json.users.find(u => String(u.name || '').toLowerCase() === String(selectedCreator.displayName || selectedCreator.name || '').toLowerCase());
+            console.log('[ideas] Match by name:', creator ? 'found' : 'not found', creator?.name);
+          }
+          
+          if (creator) {
+            const imgUrl = creator.image || creator.photoURL || creator.avatar;
+            console.log('[ideas] Found creator, image URL:', imgUrl);
+            setSelectedCreatorImage(imgUrl || null);
+          } else {
+            console.warn('[ideas] Creator not found in users list');
+          }
+        } else {
+          console.warn('[ideas] No users returned');
+        }
+      } catch (e) {
+        console.warn('[ideas] Failed to fetch creator image:', e);
+      }
+    };
+
+    fetchCreatorImage();
+  }, [selectedCreator?.id]);
 
   // If we arrived with a selected creator, auto-scroll and focus the description textarea once
   useEffect(() => {
@@ -3850,7 +3990,7 @@ const App = () => {
         
         // Navigate to requests page
         setTimeout(() => {
-          window.location.href = '/requests?filter=Newest';
+          window.location.href = '/requests?filter=For You';
         }, 1000);
         return;
     }
@@ -3869,7 +4009,7 @@ const App = () => {
     
     // Navigate to requests page
     setTimeout(() => {
-      window.location.href = '/requests?filter=Newest';
+      window.location.href = '/requests?filter=For You';
     }, 1000);
   };
 
@@ -3979,7 +4119,7 @@ const App = () => {
         
         // Navigate to requests page
         setTimeout(() => {
-          window.location.href = '/requests?filter=Newest';
+          window.location.href = '/requests?filter=For You';
         }, 1000);
       } else {
         console.error('🔴 Backend save failed:', saveRes.status);
@@ -4484,18 +4624,29 @@ const App = () => {
             Description <span className="sr-only">*</span>
           </label>
           {/* Selected creator banner: appears automatically when arriving with a pre-selected creator */}
-          {selectedCreator && (
-            <div className="mb-3" style={{ zIndex: 70, position: "relative" }}>
+          {selectedCreator && !showCreatorModal && (
+            <div className="mb-3" style={{ zIndex: 10, position: "relative" }}>
+              {console.log('[ideas-display] selectedCreator:', selectedCreator, 'selectedCreatorImage:', selectedCreatorImage, 'creatorsList.length:', creatorsList.length)}
               <div
                 className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm flex items-center justify-between gap-3"
-                style={{ position: "relative", zIndex: 70 }}
+                style={{ position: "relative", zIndex: 10 }}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 flex items-center justify-center rounded-full font-semibold text-sm overflow-hidden">
-                    {selectedCreator.image ? (
-                      <img src={selectedCreator.image} alt={selectedCreator.name || selectedCreator.handle} className="w-full h-full object-cover" />
+                    {selectedCreatorImage ? (
+                      <img src={selectedCreatorImage} alt={selectedCreator.name || selectedCreator.handle} className="w-full h-full object-cover" />
                     ) : (
                       (() => {
+                        // If we still don't have image, try to find it in creatorsList as a fallback
+                        if (!selectedCreatorImage && creatorsList.length > 0) {
+                          const creatorFromList = creatorsList.find(c => c.id === selectedCreator.id);
+                          if (creatorFromList && (creatorFromList.photoURL || creatorFromList.image || creatorFromList.avatar)) {
+                            console.log('[ideas] Found image in creatorsList, updating state');
+                            setSelectedCreatorImage(creatorFromList.photoURL || creatorFromList.image || creatorFromList.avatar);
+                            return <img src={creatorFromList.photoURL || creatorFromList.image || creatorFromList.avatar} alt={selectedCreator.name} className="w-full h-full object-cover" />;
+                          }
+                        }
+                        
                         const seed = String(selectedCreator.id || selectedCreator.name || selectedCreator.handle || "");
                         // Preferred palette: blue, red, brown, yellow (choose hue closest to site's accent)
                         const colors = ["#60A5FA", "#EF4444", "#8B5E3C", "#FBBF24"];
@@ -4523,13 +4674,9 @@ const App = () => {
                 <div className="ml-4 flex items-center gap-3">
                   <button
                     onClick={() => {
-                      console.log("[ideas] opening creator selection");
-                      setSelectedCreator(null);
-                      setChooseCreatorFocused(true);
-                      setChooseCreatorExpanded(true);
-                      try {
-                        window.localStorage.removeItem(SELECTED_CREATOR_KEY);
-                      } catch (e) { }
+                      console.log("[ideas] opening creator selection modal");
+                      setShowCreatorModal(true);
+                      setCreatorSearch("");
                     }}
                     className="text-sm text-gray-500 hover:text-gray-700 bg-gray-50 border border-transparent hover:border-gray-200 px-3 py-1 rounded-lg"
                   >
@@ -5277,8 +5424,8 @@ const App = () => {
                           }
                         }}
                       >
-                        {selectedCreator && selectedCreator.image ? (
-                          <img src={selectedCreator.image} alt={selectedCreator.name || selectedCreator.handle} className="w-full h-full object-cover" />
+                        {selectedCreator && (selectedCreator.photoURL || selectedCreator.image || selectedCreator.avatar) ? (
+                          <img src={selectedCreator.photoURL || selectedCreator.image || selectedCreator.avatar} alt={selectedCreator.name || selectedCreator.handle} className="w-full h-full object-cover" />
                         ) : (
                           (() => {
                             const displayName = (selectedCreator && (selectedCreator.displayName || selectedCreator.name)) || (auth && auth.user && (auth.user.name || auth.user.handle)) || 'Y';
@@ -5882,6 +6029,119 @@ const App = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Creator Selection Modal for Ideas Page */}
+      {showCreatorModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">{getTranslation('Choose Creator', selectedLanguage)}</h2>
+              <button
+                onClick={() => setShowCreatorModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="p-6 border-b border-gray-100">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">@</span>
+                <input
+                  type="text"
+                  placeholder={getTranslation('Search creators', selectedLanguage)}
+                  value={creatorSearch}
+                  onChange={(e) => setCreatorSearch(e.target.value.replace(/^@+/, ""))}
+                  className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-400"
+                  autoFocus
+                />
+                {creatorSearch && (
+                  <button
+                    onClick={() => setCreatorSearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    <X size={16} className="text-gray-400" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Creator List */}
+            <div className="flex-1 overflow-y-auto">
+              {creatorsList.length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-8 text-center">
+                  <Users size={40} className="text-gray-300 mb-3" />
+                  <div className="text-sm font-medium text-gray-900">{getTranslation('No creators found', selectedLanguage)}</div>
+                  <div className="text-xs text-gray-500 mt-1">{getTranslation('Try a different username', selectedLanguage)}</div>
+                </div>
+              ) : filteredCreators.length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-8 text-center">
+                  <Search size={40} className="text-gray-300 mb-3" />
+                  <div className="text-sm font-medium text-gray-900">{getTranslation('No creators found', selectedLanguage)}</div>
+                  <div className="text-xs text-gray-500 mt-1">{getTranslation('Try a different username', selectedLanguage)}</div>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {filteredCreators.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => {
+                        setSelectedCreator(c);
+                        setShowCreatorModal(false);
+                        try {
+                          window.localStorage.setItem(SELECTED_CREATOR_KEY, JSON.stringify(c));
+                        } catch (e) { }
+                      }}
+                      className={`w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left ${selectedCreator?.id === c.id ? 'bg-blue-50' : ''}`}
+                    >
+                      <div
+                        className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold"
+                        style={{
+                          backgroundColor: c.photoURL ? 'transparent' : (c.fallbackColor || '#3b82f6'),
+                        }}
+                      >
+                        {c.photoURL ? (
+                          <img
+                            src={c.photoURL}
+                            alt={c.name}
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        ) : (
+                          String(c.name).replace("@", "").charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900">{c.displayName || c.name}</div>
+                        {c.price ? (
+                          <div className="text-xs text-gray-500">${c.price} per request</div>
+                        ) : (
+                          <div className="text-xs text-gray-400">Not set</div>
+                        )}
+                      </div>
+                      {selectedCreator?.id === c.id && (
+                        <Check size={18} className="text-blue-600 flex-shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-100">
+              <button
+                onClick={() => setShowCreatorModal(false)}
+                className="w-full px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                {getTranslation('Done', selectedLanguage)}
+              </button>
             </div>
           </div>
         </div>

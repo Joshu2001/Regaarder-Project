@@ -416,6 +416,78 @@ app.post('/claim', authMiddleware, (req, res) => {
     if (request.claimed) {
       return res.status(400).json({ error: 'Request already claimed', claimedBy: request.claimedBy });
     }
+
+    // Check daily claim limit for paid requests (amount > 0 or funding > 0)
+    const requestAmount = Number(request.amount) || Number(request.funding) || 0;
+    if (requestAmount > 0) {
+      const REQUEST_VALUE_LIMIT = 150; // Starter plan max request value
+      
+      // Check if request exceeds the value limit for starter creators
+      if (requestAmount > REQUEST_VALUE_LIMIT) {
+        return res.status(400).json({ 
+          error: 'Request value exceeds plan limit',
+          requestValueLimitExceeded: true,
+          valueLimit: REQUEST_VALUE_LIMIT,
+          requestValue: requestAmount
+        });
+      }
+
+      const users = readUsers();
+      const user = users.find(u => u.id === req.user.id);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      // Get today's date in UTC
+      const today = new Date().toISOString().split('T')[0];
+      const lastClaimReset = user.lastClaimReset || null;
+      
+      // Reset count if it's a new day
+      let dailyClaimCount = user.dailyClaimCount || 0;
+      let dailyClaimEarnings = user.dailyClaimEarnings || 0;
+      
+      if (lastClaimReset !== today) {
+        dailyClaimCount = 0;
+        dailyClaimEarnings = 0;
+        user.lastClaimReset = today;
+      }
+
+      const DAILY_CLAIM_LIMIT = 3; // Max 3 paid requests per day
+      const DAILY_EARNINGS_CAP = 150; // Max $150 per day
+
+      // Check count limit
+      if (dailyClaimCount >= DAILY_CLAIM_LIMIT) {
+        return res.status(429).json({ 
+          error: 'Daily claim limit reached',
+          dailyClaimLimitReached: true,
+          limitType: 'count',
+          dailyLimit: DAILY_CLAIM_LIMIT,
+          dailyClaims: dailyClaimCount,
+          dailyEarningsCap: DAILY_EARNINGS_CAP,
+          dailyEarnings: dailyClaimEarnings
+        });
+      }
+
+      // Check earnings cap
+      const newTotalEarnings = dailyClaimEarnings + requestAmount;
+      if (newTotalEarnings > DAILY_EARNINGS_CAP) {
+        return res.status(429).json({ 
+          error: 'Daily earnings cap exceeded',
+          dailyClaimLimitReached: true,
+          limitType: 'earnings',
+          dailyLimit: DAILY_CLAIM_LIMIT,
+          dailyClaims: dailyClaimCount,
+          dailyEarningsCap: DAILY_EARNINGS_CAP,
+          dailyEarnings: dailyClaimEarnings,
+          requestAmount: requestAmount,
+          wouldExceedBy: newTotalEarnings - DAILY_EARNINGS_CAP
+        });
+      }
+
+      // Increment the count and earnings
+      user.dailyClaimCount = dailyClaimCount + 1;
+      user.dailyClaimEarnings = newTotalEarnings;
+      user.lastClaimReset = today;
+      writeUsers(users);
+    }
     
     // Update request with claim info
     request.claimed = true;

@@ -1479,6 +1479,18 @@ export const translations = {
     'Click to upload video': 'Click to upload video',
     'MP4, MOV or WebM · Max 500MB': 'MP4, MOV or WebM · Max 500MB',
     'Untitled': 'Untitled',
+    
+    // Daily Claim Limit
+    'Daily Claim Limit Reached': 'Daily Claim Limit Reached',
+    "You've reached your daily limit for paid requests. This limit helps maintain quality and fair access for all creators.": "You've reached your daily limit for paid requests. This limit helps maintain quality and fair access for all creators.",
+    'Upgrade to Increase Daily Limits': 'Upgrade to Increase Daily Limits',
+    'Claim a Free Request': 'Claim a Free Request',
+    
+    // Request Value Limit
+    'Request Value Limit Reached': 'Request Value Limit Reached',
+    'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.': 'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.',
+    'Upgrade to Select Higher-Value Requests': 'Upgrade to Select Higher-Value Requests',
+    'View Requests Under $150': 'View Requests Under $150',
   },
   
   'Chinese Traditional': {
@@ -2665,6 +2677,19 @@ export const translations = {
     'Click to upload video': '點擊上傳影片',
     'MP4, MOV or WebM · Max 500MB': 'MP4、MOV 或 WebM · 最大 500MB',
     'Untitled': '無標題',
+    
+    // Daily Claim Limit
+    'Daily Claim Limit Reached': '已達到每日索賠限額',
+    "You've reached your daily limit for paid requests. This limit helps maintain quality and fair access for all creators.": '您已達到付費請求的每日限額。此限制有助於維持品質和為所有創作者提供公平的獲取機會。',
+    'Upgrade to Increase Daily Limits': '升級以提高每日限額',
+    'Claim a Free Request': '索賠免費請求',
+    
+    // Request Value Limit
+    'Request Value Limit Reached': '請求值限額已達到',
+    'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.': '較高價值的請求需要高級計畫。選擇較低價值的請求或升級您的計畫。',
+    'Upgrade to Select Higher-Value Requests': '升級以選擇更高價值的請求',
+    'View Requests Under $150': '查看 $150 以下的請求',
+    
     'Advance Request Status': '推進請求狀態',
     'Progress Update Message (Optional)': '進度更新訊息（可選）',
     'will be notified via email and app notification': '將透過電子郵件和應用程式通知收到通知',

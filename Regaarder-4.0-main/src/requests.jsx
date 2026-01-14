@@ -5,6 +5,8 @@ import { useLocation } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { getTranslation } from './translations.js';
 import BoostsModal from './BoostsModal.jsx';
+import DailyLimitModal from './DailyLimitModal.jsx';
+import RequestValueLimitModal from './RequestValueLimitModal.jsx';
 import {
     Home, MoreHorizontal, FileText, Clock, DollarSign, Search,
     TrendingUp, Heart, MessageSquare, ChevronsUp, Bookmark, Pin, ChevronDown, ChevronUp, Lightbulb,
@@ -1321,6 +1323,8 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
     const [reportOtherText, setReportOtherText] = useState('');
     const [bookmarkToast, setBookmarkToast] = useState({ visible: false, message: '' });
     const [showBoostsModal, setShowBoostsModal] = useState(false);
+    const [showDailyLimitModal, setShowDailyLimitModal] = useState(false);
+    const [showRequestValueLimitModal, setShowRequestValueLimitModal] = useState(false);
     const [likesCount, setLikesCount] = useState(request.likes);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [showSuggestionsModal, setShowSuggestionsModal] = useState(false);
@@ -1745,6 +1749,21 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
 
             if (!res.ok) {
                 const error = await res.json().catch(() => ({ error: 'Claim failed' }));
+                
+                // Check if it's a request value limit error
+                if (error.requestValueLimitExceeded) {
+                    setShowClaimModal(false);
+                    setShowRequestValueLimitModal(true);
+                    return;
+                }
+                
+                // Check if it's a daily limit reached error
+                if (res.status === 429 && error.dailyClaimLimitReached) {
+                    setShowClaimModal(false);
+                    setShowDailyLimitModal(true);
+                    return;
+                }
+                
                 throw new Error(error.error || 'Claim failed');
             }
 
@@ -2622,6 +2641,38 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                 isOpen={showClaimModal}
                 onClose={() => setShowClaimModal(false)}
                 onConfirm={handleConfirmClaim}
+                selectedLanguage={selectedLanguage}
+            />
+
+            <DailyLimitModal
+                isOpen={showDailyLimitModal}
+                onClose={() => setShowDailyLimitModal(false)}
+                onUpgrade={() => {
+                    setShowDailyLimitModal(false);
+                    // Navigate to upgrade page or show upgrade modal
+                    window.location.href = '/sponsorship';
+                }}
+                onClaimFree={() => {
+                    setShowDailyLimitModal(false);
+                    // Allow claiming a free request instead
+                    // This would require filtering free requests or modifying the claim flow
+                }}
+                selectedLanguage={selectedLanguage}
+            />
+
+            <RequestValueLimitModal
+                isOpen={showRequestValueLimitModal}
+                onClose={() => setShowRequestValueLimitModal(false)}
+                onUpgrade={() => {
+                    setShowRequestValueLimitModal(false);
+                    // Navigate to upgrade page or show upgrade modal
+                    window.location.href = '/sponsorship';
+                }}
+                onViewLowerValue={() => {
+                    setShowRequestValueLimitModal(false);
+                    // Could filter to show requests under $150
+                    // For now just close the modal
+                }}
                 selectedLanguage={selectedLanguage}
             />
 
