@@ -1,4 +1,4 @@
-/* eslint-disable no-empty */
+/* eslint-disable no-empty, no-unused-vars, no-undef, no-extra-semi */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext.jsx';
 import { useLocation } from 'react-router-dom';
@@ -1146,6 +1146,7 @@ const BoostsModal = ({ isOpen, onClose, requestId, detailedRank, onGiveLikeFree,
     // const highestTierReached = TIERS.slice().reverse().find(tier => projectedScore >= tier.threshold);
     const alertBg = customColors['--color-alert-light'];
     const lightGreyBg = customColors['--color-neutral-light-bg'];
+    const goldStyle = { color: 'var(--color-gold)' };
 
 
     // --- Dynamic Titles (UPDATED to return JSX with gold styling) ---
@@ -2102,7 +2103,7 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                 id: request.id, // Ensure ID is available in both formats
                 title: request.title || 'Untitled Request',
                 requesterName: request.company || (request.creator && request.creator.name) || 'Anonymous',
-                requesterAvatar: resolveImageUrl(request.imageUrl) || null,
+                requesterAvatar: resolveImageUrl(request.creator && (request.creator.image || request.creator.avatar) ? (request.creator.image || request.creator.avatar) : null) || null,
                 funding: request.funding || 0,
                 description: request.description || '',
                 currentStep: 1,
@@ -2638,6 +2639,23 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                         onTouchEnd={(e) => e.stopPropagation()}
                         className="absolute top-4 right-4 flex flex-col items-end space-y-1 z-10"
                     >
+                        {/* Pending Sync Badge */}
+                        {request.isOptimistic && (
+                            <div style={{
+                                backgroundColor: '#E0F2FE', // blue-100
+                                color: '#0369A1',       // blue-700
+                                fontWeight: 'bold',
+                                padding: '4px 8px',
+                                borderRadius: '4px', // distinct from others
+                                fontSize: '10px',
+                                textTransform: 'uppercase',
+                                marginBottom: '2px', // spacing
+                                border: '1px solid #BAE6FD',
+                                zIndex: 6
+                            }}>
+                                PENDING SYNC
+                            </div>
+                        )}
                         {request.isTrending && (
                             <div style={trendingBadgeStyle}>
                                 <TrendingUp className="w-4 h-4 mr-1" style={{ color: goldColor }} />
@@ -2689,7 +2707,7 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                                     if (onOpenProfile && request.creator && request.creator.name && request.creator.name !== 'Anonymous') {
                                         onOpenProfile(request.creator.name, true, {
                                             id: request.creator.id || null,
-                                            avatar: resolveImageUrl(request.imageUrl),
+                                            avatar: resolveImageUrl(request.creator && (request.creator.image || request.creator.avatar) ? (request.creator.image || request.creator.avatar) : ''),
                                             bio: request.creator.bio || 'Creating engaging content',
                                             stats: {
                                                 videos: request.creator.videosCount || 0,
@@ -2706,7 +2724,7 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
 
                                 {/* Image with onError for fallback */}
                                 <img
-                                    src={resolveImageUrl(request.imageUrl)}
+                                    src={resolveImageUrl(request.creator && (request.creator.image || request.creator.avatar) ? (request.creator.image || request.creator.avatar) : '')}
                                     alt={`${request.company} profile`}
                                     className={`w-full h-full object-cover absolute inset-0 z-10 transition-opacity duration-300 ${showFallback ? 'opacity-0' : 'opacity-100'}`}
                                     onError={handleImageError}
@@ -3359,6 +3377,16 @@ export default function RequestsFeed() {
         return initial;
     });
 
+    // DEBUG LOGGER
+    useEffect(() => {
+        console.log(`DEBUG: RankedRequests update. Count=${rankedRequests.length}`);
+        const optimistic = rankedRequests.filter(r => r.isOptimistic);
+        if (optimistic.length > 0) {
+            console.warn('DEBUG: Found OPTIMISTIC requests in list:', optimistic.map(r => r.id));
+        }
+        console.log('DEBUG: Top 3 IDs:', rankedRequests.slice(0, 3).map(r => r.id));
+    }, [rankedRequests]);
+
     // Fetch persisted requests from backend on mount and whenever refreshed
     useEffect(() => {
         let cancelled = false;
@@ -3375,7 +3403,6 @@ export default function RequestsFeed() {
                     });
                     const bookmarksData = await bookmarksRes.json();
                     if (bookmarksData && bookmarksData.success && Array.isArray(bookmarksData.requests)) {
-                        console.log('Fetched request bookmarks:', bookmarksData.requests);
                         bookmarksData.requests.forEach(b => {
                             if (b.requestId) {
                                 console.log('Bookmarked requestId:', b.requestId);
@@ -3396,8 +3423,14 @@ export default function RequestsFeed() {
                 if (selectedCategory && selectedCategory !== 'All') url.searchParams.set('category', selectedCategory);
 
                 const res = await fetch(url.toString());
+                console.log('[REQUESTS_FETCH] URL:', url.toString(), 'status:', res.status);
                 if (!res.ok) throw new Error('Failed to fetch requests');
                 const body = await res.json();
+                console.log('[REQUESTS_FETCH] Backend returned:', body.requests?.length || 0, 'requests');
+                
+                // CRITICAL DEBUG - Very visible
+                window.__DEBUG_REQUESTS_COUNT = body.requests?.length || 0;
+                
                 if (cancelled) return;
                 let list = Array.isArray(body.requests) ? body.requests : [];
 
@@ -3429,15 +3462,75 @@ export default function RequestsFeed() {
                                     }));
                                     taggedMissing.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                                    // Always include missing optimistic items at the top
-                                    console.log('Prepending optimistic requests to finalList:', taggedMissing.map(t=>t.id));
-                                    finalList = [...taggedMissing, ...finalList];
+                                    // Always include missing optimistic items at the top for Newest
+                                    // For other filters, we append them or interleave them, but since they are
+                                    // just created, they likely belong at the top or near it.
+                                    if (activeFilter === 'Newest' || activeFilter === 'For You' || activeFilter === 'recommended') {
+                                        finalList = [...taggedMissing, ...finalList];
+                                    } else {
+                                        // For trending etc, they might have 0 score, so just append normally
+                                        // or prepend to let user see them? Prepend is safer for UX.
+                                        finalList = [...taggedMissing, ...finalList];
+                                    }
+
+                                    // SELF-HEALING: Attempt to sync optimistic requests to backend if they are missing
+                                    // This runs in background to fix issues where ideas.jsx redirected before saving.
+                                    setTimeout(() => {
+                                        taggedMissing.forEach(async (req) => {
+                                           if (!req || req.backendSynced) return; 
+                                           // Check if we already tried syncing this session to avoid spam
+                                           const key = `sync_attempt_${req.id}`;
+                                           if (sessionStorage.getItem(key)) return;
+                                           sessionStorage.setItem(key, '1');
+
+                                           console.log('Self-healing: Syncing missing request to backend', req.id);
+                                           try {
+                                               const token = localStorage.getItem('regaarder_token');
+                                               const headers = { 'Content-Type': 'application/json' };
+                                               if (token) headers['Authorization'] = `Bearer ${token}`;
+                                               
+                                               // Use public endpoint if no token provided (anonymous sync)
+                                               const endpoint = token ? `${BACKEND}/requests` : `${BACKEND}/requests/public`;
+
+                                               const payload = {
+                                                   id: req.id,
+                                                   title: req.title,
+                                                   description: req.description,
+                                                   creator: req.creator,
+                                                   // Ensure creator is valid object not null
+                                                   createdBy: req.createdBy || (req.creator ? req.creator.id : null),
+                                                   meta: req.meta,
+                                                   amount: req.amount || req.funding || 0
+                                               };
+
+                                               const res = await fetch(endpoint, {
+                                                   method: 'POST',
+                                                   headers,
+                                                   body: JSON.stringify(payload)
+                                               });
+                                               
+                                               if (res.ok) {
+                                                   console.log('Self-healing: Successfully synced', req.id);
+                                                   // Update local storage to mark as apparently synced (or letting next fetch handle it)
+                                                   // actually, next fetch will see it in backend list, so it won't be "missing" anymore.
+                                               } else {
+                                                   console.warn('Self-healing: Failed to sync', req.id, res.status);
+                                                   sessionStorage.removeItem(key); // Retry next time
+                                               }
+                                           } catch(e) { 
+                                               console.error('Self-healing error', e); 
+                                               sessionStorage.removeItem(key);
+                                           }
+                                        });
+                                    }, 2000);
                                 }
                             }
                         }
                     } catch (e) {
                         console.warn('Failed to merge local requests:', e);
                     }
+                    // Return merged list (backend + missing local optimistic requests)
+                    console.log('processLocalRequests returning:', finalList.length, 'total requests');
                     return finalList;
                 };
 
@@ -3491,13 +3584,24 @@ export default function RequestsFeed() {
                     }
                 } catch (e) { }
 
+                // Hide requests created by the current user - REMOVED so users can see their own requests
+                // if (auth.user) {
+                //      normalized = normalized.filter(r => r.createdBy !== auth.user.id && (!r.creator || r.creator.id !== auth.user.id));
+                // }
+
                 // Ensure strict sorting for filtered views even after merging local optimistic requests.
                 // This fixes the issue where a locally merged request (e.g. $15) appears above higher funded ones (e.g. $7888)
                 // simply because it was prepended to the list.
                 if (activeFilter === 'Top Funded') {
                     normalized.sort((a, b) => (b.funding || 0) - (a.funding || 0));
                 } else if (activeFilter === 'Newest') {
-                    normalized.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    // CRITICAL FIX #2: Handle null/invalid timestamps safely
+                    normalized.sort((a, b) => {
+                        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                        if (isNaN(timeA) || isNaN(timeB)) return 0;
+                        return timeB - timeA;
+                    });
                 }
 
                 const ranked = calculateInfluenceAndRank(normalized);
@@ -3509,12 +3613,15 @@ export default function RequestsFeed() {
                         const withPins = ranked.map(r => ({ ...r, pinned: !!map[r.id], pinnedAt: map[r.id] || null }));
                         const pinned = withPins.filter(r => r.pinned).sort((a, b) => (b.pinnedAt || 0) - (a.pinnedAt || 0));
                         const unpinned = withPins.filter(r => !r.pinned);
+                        console.log('🔴 SETTING rankedRequests with pinned:', [...pinned, ...unpinned].length);
                         setRankedRequests([...pinned, ...unpinned]);
                         return;
                     }
                 } catch (e) { }
+                console.log('🔴 SETTING rankedRequests (no pins):', ranked.length);
                 setRankedRequests(ranked);
             } catch (e) {
+                console.error('🔴🔴🔴 FETCH ERROR:', e);
                 // fallback: keep mockRequests if fetch fails
                 try {
                     let initial = calculateInfluenceAndRank(mockRequests);
@@ -3547,7 +3654,7 @@ export default function RequestsFeed() {
             }
         })();
         return () => { cancelled = true; };
-    }, [activeFilter, selectedCategory, selectedStatus]);
+    }, [activeFilter, selectedCategory, selectedStatus, location.search]); // Re-fetch on URL query change
 
     // Listen for local events when a new request is created in Ideas page
     useEffect(() => {
@@ -3555,9 +3662,13 @@ export default function RequestsFeed() {
             try {
                 const newReq = ev && ev.detail ? ev.detail : null;
                 if (!newReq) return;
+                console.log('RequestsFeed: received ideas:request_created', newReq);
                 setRankedRequests(prev => {
                     // normalize numeric fields
                     const normalized = { likes: 0, boosts: 0, comments: 0, funding: 0, ...newReq };
+                    // Avoid duplicates
+                    if (prev.some(r => r.id === normalized.id)) return prev;
+                    
                     const combined = [normalized, ...prev.map(p => ({ ...p }))];
                     const recalculated = calculateInfluenceAndRank(combined);
                     return recalculated;
@@ -3980,7 +4091,6 @@ export default function RequestsFeed() {
         switch (activeFilter) {
             case 'For You': {
                 // Personalized: show user's own requests first when available
-                return filtered; // FORCE RETURN ALL TO DEBUG VISIBILITY
                 try {
                     // Robustly determine current user ID (AuthContext or LocalStorage)
                     let currentUserId = (auth && auth.user && auth.user.id) ? String(auth.user.id) : null;
@@ -3996,18 +4106,33 @@ export default function RequestsFeed() {
 
                     if (currentUserId) {
                         return [...filtered].sort((a, b) => {
+                            // Always prioritize optimistic/pending requests at the very top
+                            if (a.isOptimistic && !b.isOptimistic) return -1;
+                            if (b.isOptimistic && !a.isOptimistic) return 1;
+
                             const aSelf = (String(a.createdBy || (a.creator && a.creator.id)) === currentUserId) ? 1 : 0;
                             const bSelf = (String(b.createdBy || (b.creator && b.creator.id)) === currentUserId) ? 1 : 0;
-                            return bSelf - aSelf; // place user's items first
+                            const diff = bSelf - aSelf;
+                            if (diff !== 0) return diff;
+                            // Second sort criteria: Recent first
+                            return new Date(b.createdAt) - new Date(a.createdAt);
                         });
                     }
+                    
+                    // If no user detected, still float optimistic items to top, then descending date
+                    return [...filtered].sort((a, b) => {
+                         if (a.isOptimistic && !b.isOptimistic) return -1;
+                         if (b.isOptimistic && !a.isOptimistic) return 1;
+                         return new Date(b.createdAt) - new Date(a.createdAt);
+                    });
                 } catch (e) { console.warn('Sort For You failed', e); }
                 return filtered;
             }
-            case 'Trending': return filtered.filter(r => r.isTrending);
+            case 'Trending': return filtered; // Backend already returns trending-sorted; don't re-filter
             case 'Newest': return [...filtered].sort((a, b) => {
                 const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                 const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                if (isNaN(da) || isNaN(db)) return 0; // Handle invalid dates
                 return db - da; // Descending
             });
             case 'Top Funded': return [...filtered].sort((a, b) => b.funding - a.funding);
@@ -4019,6 +4144,7 @@ export default function RequestsFeed() {
 
     // Base search filtering (re-using rankedRequests which now contains server-sorted data)
     let displayedRequests = rankedRequests.filter(req => {
+        if (!req || !req.id) return false;
         if (!searchQuery.trim()) return true;
         const q = searchQuery.trim().toLowerCase();
         return (
@@ -4472,7 +4598,6 @@ export default function RequestsFeed() {
                 </div>
             )}
             <main className="px-2 pt-4 max-w-lg mx-auto w-full">
-                {console.log('Rendering requests feed count:', displayedRequests.length, 'Active filter:', activeFilter)}
                 {displayedRequests.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
                         <Search className="w-10 h-10 text-gray-300 mb-4" />

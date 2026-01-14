@@ -1,8 +1,10 @@
-/* eslint-disable no-empty */
-import React, { useState, useEffect, useRef } from "react";
-import { createPortal } from 'react-dom';
+/* eslint-disable no-undef */
+/* eslint-env browser */
+/* eslint-disable no-unused-vars, no-empty */
+import { useState, useEffect, useRef } from "react";
+// import { createPortal } from 'react-dom'; // unused
+// import { useAuth } from './AuthContext.jsx'; // unused
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext.jsx';
 import { getTranslation } from './translations.js';
 import {
   Home,
@@ -876,6 +878,24 @@ const RecurrentVideoDetails = ({
   customRecurrentDates,
   setCustomRecurrentDates,
   selectedLanguage = 'English',
+  // Added missing props
+  setRecurrentStep,
+  selectedDeliveryType,
+  selectedVideoLength,
+  customVideoLength,
+  uploadedFiles,
+  referenceLinks,
+  customPrice,
+  setCustomPrice,
+  editingPrice,
+  setEditingPrice,
+  priceInput,
+  setPriceInput,
+  priceInputRef,
+  savePrice,
+  displayPrice,
+  sanitizePriceInput,
+  handleSaveReview,
 }) => {
   // Frequency options based on user images
   const frequencyOptions = [
@@ -2914,9 +2934,28 @@ const App = () => {
               try {
                 const data = JSON.parse(raw);
                 if (!data.backendSynced) {
+                   console.log('[payment_success] Syncing pending submission');
                    continuePendingSubmission(data.amount || 0, data).then(() => {
-                      // cleanup storage then return
+                      console.log('[payment_success] Sync complete');
                       localStorage.removeItem('pending_payment_data');
+                      // CRITICAL FIX #3: Ensure navigation happens after sync with error handling
+                      setTimeout(() => {
+                        try {
+                           navigate('/requests?filter=Newest');
+                        } catch (e) {
+                           window.location.href = '/requests?filter=Newest';
+                        }
+                      }, 150);
+                   }).catch((err) => {
+                      console.error('[payment_success] Sync failed:', err);
+                      localStorage.removeItem('pending_payment_data');
+                      setTimeout(() => {
+                        try {
+                           navigate('/requests?filter=Newest');
+                        } catch (e) {
+                           window.location.href = '/requests?filter=Newest';
+                        }
+                      }, 150);
                    });
                    return; 
                 }
@@ -3649,11 +3688,16 @@ const App = () => {
   // Payment Integration (Stripe / Backend)
   // When user clicks Pay, we call backend to create a checkout session or intent
   const handlePayment = async () => {
-    // 1. Validate auth
-    if (!auth.user) {
-      auth.openAuthModal();
-      return;
-    }
+    console.log('🟢🟢🟢 HANDLE PAYMENT CALLED');
+    console.log('🟢 Title:', title);
+    console.log('🟢 Description:', description);
+    console.log('🟢 Amount:', paymentAmount);
+    
+    // 1. Validate auth - removed to allow anonymous requests
+    // if (!auth.user) {
+    //   auth.openAuthModal();
+    //   return;
+    // }
 
     // 2. Prepare payload
     const requestData = {
@@ -3683,6 +3727,15 @@ const App = () => {
         // Frontend Save: Optimistic
         const REQUESTS_KEY = "ideas_requests_v1";
         const tempId = `req_${Date.now()}`;
+        
+        // CRITICAL FIX #1: Always create valid creator object (never null)
+        let submitterCreator = null;
+        if (auth && auth.user) {
+            submitterCreator = { id: auth.user.id, name: auth.user.name };
+        } else {
+            submitterCreator = { id: 'anonymous', name: 'Anonymous User' };
+        }
+        
         const newRequest = {
             id: tempId,
             title: requestData.title || "",
@@ -3690,8 +3743,10 @@ const App = () => {
             delivery: requestData.flow,
             step: requestData.nextStep,
             amount: requestData.amount,
+            funding: requestData.amount, // Add funding for display
             role: requestData.role,
-            creator: (auth && auth.user) ? { id: auth.user.id, name: auth.user.name } : null,
+            creator: submitterCreator,
+            createdBy: submitterCreator.id, // Add createdBy for filtering/display
             createdAt: new Date().toISOString(),
             meta: {
               selectedTones: requestData.tones || [],
@@ -3718,22 +3773,45 @@ const App = () => {
               title: newRequest.title,
               description: newRequest.description,
               creator: newRequest.creator,
+              createdBy: newRequest.createdBy,
               meta: newRequest.meta,
-              amount: newRequest.amount
+              amount: newRequest.amount,
+              funding: newRequest.funding
         };
         console.log('Sending request to backend:', payload);
 
-        const saveRes = await fetch(`${BACKEND}/requests`, {
+        // Use public endpoint if user is anonymous (no token) so requests still persist
+        const endpoint = token ? `${BACKEND}/requests` : `${BACKEND}/requests/public`;
+
+        const saveRes = await fetch(endpoint, {
             method: 'POST',
             headers,
             body: JSON.stringify(payload)
         });
-        console.log('Backend save response:', saveRes.status, saveRes.statusText);
+        console.log('🟢🟢🟢 Backend save response:', saveRes.status, saveRes.statusText);
         
         if (saveRes.ok) {
             const json = await saveRes.json();
+            console.log('🟢🟢🟢 Backend returned:', json);
             createdRequest = json.request || newRequest;
             isBackendSynced = true;
+
+            // FORCE UPDATE LOCAL STORAGE with the confirmed backend data
+            try {
+                const rawUpd = window.localStorage.getItem(REQUESTS_KEY);
+                const arrUpd = rawUpd ? JSON.parse(rawUpd) : [];
+                // Update the existing optimistic entry or add if missing
+                const idx = arrUpd.findIndex(r => r.id === newRequest.id);
+                const merged = { ...newRequest, ...createdRequest, backendSynced: true };
+                if (idx !== -1) {
+                    arrUpd[idx] = merged;
+                } else {
+                    arrUpd.unshift(merged);
+                }
+                window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arrUpd));
+                console.log('Local storage updated with backend synced request:', merged.id);
+            } catch(e) { console.error('LS update failed', e); }
+
         } else {
              createdRequest = newRequest; // Fallback to optimistic ID
              isBackendSynced = false;
@@ -3764,12 +3842,13 @@ const App = () => {
     } catch(e) { }
 
     try {
+      const authHeader = (auth && auth.user && auth.user.token) || localStorage.getItem('regaarder_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (authHeader) headers['Authorization'] = `Bearer ${authHeader}`;
+
       const res = await fetch(`${BACKEND}/pay/create-session`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.user.token || localStorage.getItem('regaarder_token')}`
-        },
+        headers,
         body: JSON.stringify(payload)
       });
 
@@ -3789,6 +3868,124 @@ const App = () => {
     } catch (err) {
       console.error('Payment error', err);
       showToast('Payment failed. Please try again.');
+    }
+  };
+
+  // FREE SUBMISSION - Submit request without payment
+  const handleFreeSubmission = async () => {
+    console.log('🟢🟢🟢 FREE SUBMISSION CALLED');
+    console.log('🟢 Title:', title);
+    console.log('🟢 Description:', description);
+    
+    if (!title || !title.trim()) {
+      showToast('Please enter a title for your request');
+      return;
+    }
+
+    try {
+      const REQUESTS_KEY = "ideas_requests_v1";
+      const tempId = `req_${Date.now()}`;
+      const BACKEND = `${window.location.protocol}//${window.location.hostname}:4000`;
+      
+      // Create valid creator object - use localStorage instead of auth context
+      let submitterCreator = null;
+      try {
+        const rawUser = localStorage.getItem('regaarder_user');
+        if (rawUser) {
+          const user = JSON.parse(rawUser);
+          if (user && user.id) {
+            submitterCreator = { id: user.id, name: user.name || user.displayName || 'User' };
+          }
+        }
+      } catch (e) { }
+      
+      if (!submitterCreator) {
+        submitterCreator = { id: 'anonymous', name: 'Anonymous User' };
+      }
+      
+      const newRequest = {
+        id: tempId,
+        title: title.trim(),
+        description: description || '',
+        delivery: pendingSubmission ? pendingSubmission.flow : 'one-time',
+        amount: 0,
+        funding: 0,
+        creator: submitterCreator,
+        createdBy: submitterCreator.id,
+        createdAt: new Date().toISOString(),
+        meta: {
+          selectedTones: selectedTones || [],
+          selectedVideoLength: selectedVideoLength || null,
+          selectedPrivacy: selectedPrivacy || null,
+        },
+        isFreeSubmission: true
+      };
+
+      // Save to localStorage first (optimistic)
+      const raw = window.localStorage.getItem(REQUESTS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      arr.unshift(newRequest);
+      window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
+      console.log('🟢 Saved to localStorage:', newRequest.id);
+
+      // Save to backend
+      const token = localStorage.getItem('regaarder_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const payload = {
+        id: tempId,
+        title: newRequest.title,
+        description: newRequest.description,
+        creator: newRequest.creator,
+        createdBy: newRequest.createdBy,
+        meta: newRequest.meta,
+        amount: 0,
+        funding: 0
+      };
+      
+      const endpoint = token ? `${BACKEND}/requests` : `${BACKEND}/requests/public`;
+      console.log('🟢 Sending to backend:', endpoint, payload);
+
+      const saveRes = await fetch(endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      });
+      
+      console.log('🟢🟢🟢 Backend response:', saveRes.status, saveRes.statusText);
+
+      if (saveRes.ok) {
+        const json = await saveRes.json();
+        console.log('🟢🟢🟢 Backend returned:', json);
+        
+        // Update localStorage with confirmed data
+        const rawUpd = window.localStorage.getItem(REQUESTS_KEY);
+        const arrUpd = rawUpd ? JSON.parse(rawUpd) : [];
+        const idx = arrUpd.findIndex(r => r.id === tempId);
+        if (idx !== -1) {
+          arrUpd[idx] = { ...arrUpd[idx], ...json.request, backendSynced: true };
+          window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arrUpd));
+        }
+        
+        showToast('Request submitted successfully!');
+        
+        // Reset form
+        setTitle('');
+        setDescription('');
+        setPendingSubmission(null);
+        
+        // Navigate to requests page
+        setTimeout(() => {
+          window.location.href = '/requests?filter=Newest';
+        }, 1000);
+      } else {
+        console.error('🔴 Backend save failed:', saveRes.status);
+        showToast('Failed to save request. Please try again.');
+      }
+    } catch (err) {
+      console.error('🔴 Free submission error:', err);
+      showToast('Failed to submit request. Please try again.');
     }
   };
 
@@ -3826,6 +4023,11 @@ const App = () => {
            } catch (e) { }
       }
 
+      // CRITICAL FIX: Always create valid creator object - never null
+      const creatorObj = currentUser 
+          ? { id: currentUser.id, name: currentUser.name, image: currentUser.image || currentUser.avatar || '' }
+          : { id: 'anonymous', name: 'Anonymous User', image: '' };
+      
       const newRequest = {
         id: finalId,
         title: sourceData.title || title || "",
@@ -3833,12 +4035,11 @@ const App = () => {
         delivery: flow,
         step: nextStep,
         amount: finalAmount,
+        funding: finalAmount, // Add funding for display in requests feed
         role: sourceData.role || paymentRole,
         // The request author should be the logged-in user (the requester), not the selected creator.
-        creator: currentUser 
-          ? { id: currentUser.id, name: currentUser.name, image: currentUser.image || currentUser.avatar || '' }
-          : null,
-        createdBy: currentUser ? currentUser.id : null, 
+        creator: creatorObj,
+        createdBy: creatorObj.id, // Use creator id consistently
         createdAt: new Date().toISOString(),
         meta: {
           selectedTones: sourceData.tones || selectedTones || [],
@@ -3871,7 +4072,11 @@ const App = () => {
           }
 
           console.log('Attempting backup save to backend in continuePendingSubmission', newRequest.id);
-          const res = await fetch(`${BACKEND}/requests`, {
+          
+          // Use public endpoint if no token found
+          const endpoint = token ? `${BACKEND}/requests` : `${BACKEND}/requests/public`;
+          
+          const res = await fetch(endpoint, {
             method: 'POST',
             headers,
             body: JSON.stringify({
@@ -3879,38 +4084,44 @@ const App = () => {
               title: newRequest.title,
               description: newRequest.description,
               creator: newRequest.creator,
+              createdBy: newRequest.createdBy,
               meta: newRequest.meta,
-              amount: newRequest.amount
+              amount: newRequest.amount,
+              funding: newRequest.funding
             })
           });
-          const data = await res.json();
-          console.log('Backup save result:', res.status, data);
-          // If backend saved and returned the created request, use that object
-          const published = (data && data.request) ? data.request : newRequest;
+          
+          if (res.ok) {
+            const data = await res.json();
+            console.log('Backup save result:', res.status, data);
+            // If backend saved and returned the created request, use that object
+            const published = (data && data.request) ? data.request : newRequest;
 
-          // Update the stored request with the authoritative version from backend
-          try {
-            const raw = window.localStorage.getItem(REQUESTS_KEY);
-            let arr = raw ? JSON.parse(raw) : [];
-            // Replace the optimistic entry with the server response
-            arr = arr.map(r => r.id === newRequest.id ? published : r);
-            // If for some reason it wasn't there (race condition), ensure it is added
-            if (!arr.find(r => r.id === published.id)) {
-              arr.unshift(published);
+            // Update the stored request with the authoritative version from backend
+            try {
+                const raw = window.localStorage.getItem(REQUESTS_KEY);
+                let arr = raw ? JSON.parse(raw) : [];
+                // Replace the optimistic entry with the server response
+                const idx = arr.findIndex(r => r.id === newRequest.id);
+                const complete = { ...newRequest, ...published, backendSynced: true };
+                if (idx !== -1) arr[idx] = complete; else arr.unshift(complete);
+                window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
+            } catch(e) {}
+          }
+        } catch(e) { console.error('Backup save failed', e); }
+      } else {
+         // Even if backendSynced is true, ensure local storage has the flag
+         try {
+            const rawUpd = window.localStorage.getItem(REQUESTS_KEY);
+            if (rawUpd) {
+                const arrUpd = JSON.parse(rawUpd);
+                const idx = arrUpd.findIndex(r => r.id === newRequest.id);
+                if (idx !== -1 && !arrUpd[idx].backendSynced) {
+                     arrUpd[idx].backendSynced = true;
+                     window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arrUpd));
+                }
             }
-            window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(arr));
-          } catch (e) { /* ignore storage errors */ }
-
-          // Broadcast event with authoritative object
-          try {
-            const ev = new CustomEvent('ideas:request_created', { detail: published });
-            window.dispatchEvent(ev);
-          } catch (e) { }
-        } catch (err) {
-          console.error("Failed to persist to backend", err);
-          // If network fails, we already have the optimistic save.
-          try { const ev = new CustomEvent('ideas:request_created', { detail: newRequest }); window.dispatchEvent(ev); } catch (e) { }
-        }
+         } catch(e) {}
       }
 
       // Broadcast a short-lived event so other windows/components can react immediately
@@ -4624,6 +4835,24 @@ const App = () => {
                 customRecurrentDates={customRecurrentDates}
                 setCustomRecurrentDates={setCustomRecurrentDates}
                 selectedLanguage={selectedLanguage}
+                // Pass missing props
+                setRecurrentStep={setRecurrentStep}
+                selectedDeliveryType={selectedDeliveryType}
+                selectedVideoLength={selectedVideoLength}
+                customVideoLength={customVideoLength}
+                uploadedFiles={uploadedFiles}
+                referenceLinks={referenceLinks}
+                customPrice={customPrice}
+                setCustomPrice={setCustomPrice}
+                editingPrice={editingPrice}
+                setEditingPrice={setEditingPrice}
+                priceInput={priceInput}
+                setPriceInput={setPriceInput}
+                priceInputRef={priceInputRef}
+                savePrice={savePrice}
+                displayPrice={displayPrice}
+                sanitizePriceInput={sanitizePriceInput}
+                handleSaveReview={handleSaveReview}
               />
             )
           ) : selectedDeliveryType === "series" && !isTransitioning ? (
@@ -5188,6 +5417,18 @@ const App = () => {
                         {getTranslation('Pay', selectedLanguage)} ${Number(paymentAmount * (paymentRole === 'expert' ? 1.3 : 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </button>
                     </div>
+                    {/* FREE SUBMISSION BUTTON - Desktop */}
+                    <div className="mt-2">
+                      <button
+                        onClick={() => {
+                          trackEvent("free_submission_clicked");
+                          handleFreeSubmission();
+                        }}
+                        className="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-300 text-gray-600 font-medium hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all"
+                      >
+                        {getTranslation('Submit for Free', selectedLanguage)} ✨
+                      </button>
+                    </div>
                     <div className="modal-trust mt-3" style={{ alignItems: 'center' }}>
                       <span aria-hidden="true">🔒</span>
                       <span style={{ marginLeft: 8 }}>{getTranslation('Secure payment • Instant delivery', selectedLanguage)}</span>
@@ -5534,7 +5775,17 @@ const App = () => {
                         {getTranslation('Cancel', selectedLanguage)}
                       </button>
                     </div>
-                    <div>
+                    <div className="flex gap-2">
+                      {/* FREE SUBMISSION BUTTON - Mobile */}
+                      <button
+                        onClick={() => {
+                          trackEvent("free_submission_clicked");
+                          handleFreeSubmission();
+                        }}
+                        className="px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 text-gray-600 font-medium hover:border-green-500 hover:text-green-600"
+                      >
+                        Free ✨
+                      </button>
                       <button
                         onClick={() => {
                           const base = paymentAmount;

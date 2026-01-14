@@ -5,7 +5,7 @@
     "name": "Joshuar",
     "passwordHash": "$2a$10$qxV674/gnxSih1CY3rXjjOw441ufnAILbG4E48OogNsynCnjUb94S",
     "createdAt": "2025-12-27T17:47:38.728Z",
-    "token": "12cfe5dc5560e47c72e49a916cfed693",
+    "token": "d3da8db32ba8d950739a4db79cbb30ce",
     "isCreator": true,
     "creatorSince": "2025-12-31T18:20:16.251Z",
     "image": "http://localhost:4000/uploads/intro-1767691091607-53684.png",
@@ -18,7 +18,7 @@
     ],
     "introVideo": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
     "streak": 1,
-    "lastStreakDate": "2026-01-07"
+    "lastStreakDate": "2026-01-14"
   },
   {
     "id": "user-1767159330204",
@@ -46,10 +46,10 @@
     "name": "Paul",
     "passwordHash": "$2a$10$3scbR.60iq4sY22opnPw8O8Ar0GvjkLI7i2GdYaWLhH0PbLyVLKnS",
     "createdAt": "2026-01-05T03:56:39.609Z",
-    "token": "8ba60b7f3fa20b3f8dc5ad43946254e0",
+    "token": "b39e33b786bea2014495b109fd5c5409",
     "isCreator": true,
     "creatorSince": "2026-01-12T08:24:51.780Z",
-    "image": "http://localhost:4000/uploads/intro-1768275509856-543715.jpg",
+    "image": "http://localhost:4000/uploads/intro-1768318495477-184494.png",
     "following": [
       "user-1767585399609",
       "user-1766857658728"
@@ -1179,7 +1179,7 @@
         ]
       }
     ],
-    "introVideo": "http://localhost:4000/uploads/intro-1768275513124-804289.mp4"
+    "introVideo": "http://localhost:4000/uploads/intro-1768318508169-486426.mp4"
   },
   {
     "id": "user-1768222892161",

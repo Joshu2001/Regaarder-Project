@@ -1,5 +1,147 @@
 [
   {
+    "id": "req_1768360434961",
+    "title": "knaipnitn",
+    "description": "k'5nyin5nqi5nyqinyi",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Joshuar",
+    "companyInitial": "J",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1766857658728",
+      "name": "Joshuar",
+      "email": "jshsajous@gmail.com"
+    },
+    "createdBy": "user-1766857658728",
+    "createdAt": "2026-01-14T03:13:55.050Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": null,
+      "selectedPrivacy": "public"
+    }
+  },
+  {
+    "id": "req_test_1768359486635",
+    "title": "TEST REQUEST JAN 14",
+    "description": "This is a test submission",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 25,
+    "funding": 25,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Test User",
+    "companyInitial": "T",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "test_user_123",
+      "name": "Test User"
+    },
+    "createdBy": "test_user_123",
+    "createdAt": "2026-01-14T02:58:07.005Z",
+    "meta": {
+      "selectedTones": [
+        "Informative"
+      ],
+      "selectedVideoLength": "5-10 min"
+    }
+  },
+  {
+    "id": "req_test_1768321794",
+    "title": "Test Request from Script",
+    "description": "This is a test request to verify persistence.",
+    "likes": 1,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 50,
+    "funding": 50,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "TestUser",
+    "companyInitial": "T",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "name": "TestUser",
+      "id": "test_user_1"
+    },
+    "createdBy": "test_user_1",
+    "createdAt": "2026-01-13T16:29:54.864Z",
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-13T16:37:51.621Z"
+  },
+  {
+    "id": "req_test_1768319170",
+    "title": "Test Request 1768319170.4198172",
+    "description": "This is a test request description.",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Anonymous",
+    "companyInitial": "A",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "anonymous",
+      "name": "Anonymous"
+    },
+    "createdBy": "anonymous",
+    "createdAt": "2026-01-13T15:46:10.450Z"
+  },
+  {
+    "id": "req_1766845475803",
+    "title": "sthth",
+    "description": "kfnpknpgrpgnprwngpnrwg",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 15,
+    "funding": 15,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Paul",
+    "companyInitial": "P",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767585399609",
+      "name": "Paul",
+      "email": "paul@regaarder.com"
+    },
+    "createdBy": "user-1767585399609",
+    "createdAt": "2026-01-13T14:10:47.101Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": null,
+      "selectedPrivacy": "private"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-13T15:33:19.462Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-13T15:37:47.188Z"
+  },
+  {
     "id": "req_1767780460031",
     "title": "Powerss",
     "description": "Life feels faster and heavier than before, even without obvious reasons. I’m curious if others feel this too and what might be driving it.",
@@ -1236,7 +1378,7 @@
     },
     "claimedAt": "2025-12-31T03:52:18.484Z"
   },
-   {
+  {
     "id": 2,
     "title": "Unknown",
     "claimed": true,
