@@ -2677,28 +2677,6 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                 selectedLanguage={selectedLanguage}
             />
 
-            {/* Request Nudge Modal - 36+ hours with no interaction */}
-            {showNudgeModal && nudgeRequest && (
-                <RequestNudgeModal
-                    onClose={() => {
-                        setShowNudgeModal(false);
-                        setNudgeRequest(null);
-                    }}
-                    onBoostRequest={() => {
-                        setShowNudgeModal(false);
-                        setNudgeRequest(null);
-                        setShowBoostsModal(true);
-                    }}
-                    onInviteFriends={() => {
-                        setShowNudgeModal(false);
-                        setNudgeRequest(null);
-                        // Could open invite modal or navigate to share page
-                        // For now just close the nudge modal
-                    }}
-                    selectedLanguage={selectedLanguage}
-                />
-            )}
-
             <Toast
                 message={swipeToast.message}
                 isVisible={swipeToast.visible}
