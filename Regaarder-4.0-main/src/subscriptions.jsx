@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Home, FileText, Pencil, MoreHorizontal, Crown, Sparkles } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Home, FileText, Pencil, MoreHorizontal, Crown, Sparkles, ArrowRight, Check } from 'lucide-react';
 
 const getCssVar = (name, fallback) => {
     try { 
@@ -124,6 +124,43 @@ const BottomBar = () => {
 };
 
 const Subscriptions = () => {
+    const [currentPlan, setCurrentPlan] = useState(null);
+    const [planDetails, setPlanDetails] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [userPlan, setUserPlan] = useState(null);
+
+    useEffect(() => {
+        // Fetch current user plan from backend
+        const fetchUserPlan = async () => {
+            try {
+                const token = localStorage.getItem('regaarder_token');
+                if (!token) {
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch('http://localhost:4000/users/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserPlan(data.user);
+                    // Check if user has a subscription
+                    if (data.user.userPlan) {
+                        setCurrentPlan(data.user.userPlan);
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching user plan:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserPlan();
+    }, []);
+
     const handleUpgrade = () => {
         try {
             window.location.href = '/sponsorship.jsx';
@@ -132,100 +169,234 @@ const Subscriptions = () => {
         }
     };
 
+    // Define plan details for display
+    const planDetailsMap = {
+        'starter': {
+            name: 'Starter (Free)',
+            price: '$0/month',
+            color: '#6B7280',
+            features: [
+                '1 active free request at a time',
+                'Max 3 paid requests active at a time',
+                'Max $150 total value for paid requests',
+                'Invite contributors (viral growth)',
+                'Maximum video quality: 360p'
+            ]
+        },
+        'pro': {
+            name: 'Pro',
+            price: '$8.24/month',
+            color: ACCENT_COLOR,
+            badge: 'FLASH DEAL -45% OFF',
+            features: [
+                'Unlimited free requests (with decay)',
+                'Up to 5 active paid requests',
+                'No hard cap on request value',
+                'Target specific creators',
+                'Boosting available',
+                'Contributor pooling enabled',
+                'Priority visibility (slower decay)',
+                'Repost faster after no response',
+                'Priority creator matching',
+                'No ads',
+                'Faster request response'
+            ]
+        },
+        'starterCreator': {
+            name: 'Starter Creator',
+            price: '$0/month',
+            color: '#10B981',
+            features: [
+                'Max 3 paid requests per day',
+                'Daily paid value cap: $150–$200',
+                'Unlimited free requests (optional)',
+                'Standard visibility in feed',
+                'Standard response window',
+                'Creator dashboard & monetization'
+            ]
+        },
+        'proCreator': {
+            name: 'Pro Creator',
+            price: '$14.99/month',
+            color: ACCENT_COLOR,
+            badge: 'BEST VALUE',
+            features: [
+                'All in Starter Creator',
+                'Up to 15 paid requests per day',
+                'No daily value cap',
+                'High-value requests unlocked',
+                'Targeted requests with priority access',
+                'Boosted requests with priority',
+                'Queue management (accept/defer)',
+                'Higher algorithmic trust weight',
+                'Add Merch links & other links in video',
+                'Direct access to sponsors',
+                'Priority support',
+                'Up to 80% revenue share'
+            ]
+        }
+    };
+
     return (
         <div className="min-h-screen text-gray-900" style={{ background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb, 202, 138, 4), 0.03) 0%, white 50%)' }}>
             <div className="max-w-md mx-auto px-4 pt-6 pb-28">
-                {/* Header */}
-                <div className="flex items-center justify-center space-x-3 mb-6">
-                    <Crown className="w-6 h-6" style={{ color: ACCENT_COLOR }} />
-                    <h1 className="text-xl font-semibold">Subscriptions</h1>
-                </div>
 
-                {/* Empty State Content */}
-                <div className="flex-grow flex flex-col items-center justify-center text-center space-y-6 pt-16">
-                    
-                    {/* Icon with gradient background */}
-                    <div 
-                        className="w-24 h-24 rounded-2xl flex items-center justify-center"
-                        style={{
-                            background: `linear-gradient(135deg, ${HIGHLIGHT_COLOR} 0%, rgba(255,255,255,0.3) 100%)`,
-                            boxShadow: '0 4px 12px rgba(203,138,0,0.1)'
-                        }}
-                    >
-                        <Crown className="w-12 h-12" style={{ color: ACCENT_COLOR }} />
+                {loading ? (
+                    <div className="flex flex-col items-center justify-start text-center space-y-6 pt-8">
+                        <div className="text-gray-500">Loading...</div>
                     </div>
-                    
-                    {/* Main Empty State Text */}
-                    <div className="space-y-2">
-                        <h2 className="text-xl font-bold text-gray-800">
-                            No Active Subscription
-                        </h2>
-                        <p className="text-sm text-gray-500 max-w-xs mx-auto leading-relaxed">
-                            You haven't upgraded your plan yet. Unlock premium features and exclusive benefits!
-                        </p>
+                ) : currentPlan && planDetailsMap[currentPlan] ? (
+                    // Display Current Plan
+                    <div className="flex flex-col items-stretch text-center space-y-6 pt-8">
+                        {(() => {
+                            const plan = planDetailsMap[currentPlan];
+                            return (
+                                <>
+                                    {/* Plan Card */}
+                                    <div 
+                                        className="rounded-2xl border-2 p-6 bg-white shadow-lg"
+                                        style={{ borderColor: plan.color }}
+                                    >
+                                        {/* Badge */}
+                                        {plan.badge && (
+                                            <div 
+                                                className="inline-block text-xs font-bold px-3 py-1.5 rounded-full text-white mb-4"
+                                                style={{ backgroundColor: plan.color }}
+                                            >
+                                                {plan.badge}
+                                            </div>
+                                        )}
+
+                                        {/* Plan Name */}
+                                        <h2 className="text-2xl font-bold mb-2" style={{ color: plan.color }}>
+                                            {plan.name}
+                                        </h2>
+
+                                        {/* Price */}
+                                        <div className="text-3xl font-bold mb-6" style={{ color: plan.color }}>
+                                            {plan.price}
+                                        </div>
+
+                                        {/* Features List */}
+                                        <div className="text-left space-y-2 mb-6">
+                                            {plan.features.map((feature, idx) => (
+                                                <div key={idx} className="flex items-start space-x-3">
+                                                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: plan.color }} />
+                                                    <span className="text-sm text-gray-700">{feature}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Manage Subscription CTA */}
+                                        <button 
+                                            onClick={handleUpgrade}
+                                            className="w-full py-3 rounded-xl text-white font-semibold transition-all hover:opacity-90"
+                                            style={{ backgroundColor: plan.color }}
+                                        >
+                                            Manage Subscription
+                                        </button>
+                                    </div>
+
+                                    {/* Upgrade/Downgrade Info */}
+                                    <div 
+                                        className="p-4 rounded-xl text-sm"
+                                        style={{ backgroundColor: HIGHLIGHT_COLOR }}
+                                    >
+                                        <p className="text-gray-700">
+                                            Want to upgrade or change your plan? Visit the upgrade page to explore all available plans.
+                                        </p>
+                                    </div>
+                                </>
+                            );
+                        })()}
                     </div>
-
-                    {/* Benefits Preview */}
-                    <div className="w-full max-w-sm space-y-3 pt-4">
-                        <div className="flex items-start space-x-3 p-3 rounded-xl" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
-                            <div 
-                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                style={{ backgroundColor: ICON_BACKGROUND }}
-                            >
-                                <Sparkles className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-semibold text-gray-800">Premium Content</p>
-                                <p className="text-xs text-gray-500">Access exclusive videos and features</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-start space-x-3 p-3 rounded-xl" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
-                            <div 
-                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                style={{ backgroundColor: ICON_BACKGROUND }}
-                            >
-                                <Crown className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-semibold text-gray-800">Priority Support</p>
-                                <p className="text-xs text-gray-500">Get help faster with 24/7 priority support</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-start space-x-3 p-3 rounded-xl" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
-                            <div 
-                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                                style={{ backgroundColor: ICON_BACKGROUND }}
-                            >
-                                <FileText className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-sm font-semibold text-gray-800">Unlimited Requests</p>
-                                <p className="text-xs text-gray-500">Request as many videos as you want</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* CTA Button */}
-                    <div className="pt-6 w-full max-w-sm">
-                        <button 
-                            onClick={handleUpgrade}
-                            className="w-full py-4 rounded-xl text-white font-semibold text-base transition-all hover:opacity-90 shadow-lg flex items-center justify-center space-x-2"
-                            style={{ 
-                                backgroundColor: ACCENT_COLOR,
-                                boxShadow: `0 4px 12px rgba(203, 138, 0, 0.3)`
+                ) : (
+                    // Empty State
+                    <div className="flex flex-col items-center text-center space-y-6 pt-8">
+                        
+                        {/* Icon with gradient background */}
+                        <div 
+                            className="w-24 h-24 rounded-2xl flex items-center justify-center"
+                            style={{
+                                background: `linear-gradient(135deg, ${HIGHLIGHT_COLOR} 0%, rgba(255,255,255,0.3) 100%)`,
+                                boxShadow: '0 4px 12px rgba(203,138,0,0.1)'
                             }}
                         >
-                            <Crown className="w-5 h-5" />
-                            <span>Upgrade Your Plan</span>
-                        </button>
+                            <Crown className="w-12 h-12" style={{ color: ACCENT_COLOR }} />
+                        </div>
                         
-                        <p className="text-xs text-gray-400 mt-3">
-                            Start your premium journey today
-                        </p>
+                        {/* Main Empty State Text */}
+                        <div className="space-y-2">
+                            <h2 className="text-xl font-bold text-gray-800">
+                                No Active Subscription
+                            </h2>
+                            <p className="text-sm text-gray-500 max-w-xs mx-auto leading-relaxed">
+                                You haven't upgraded your plan yet. Unlock premium features and exclusive benefits!
+                            </p>
+                        </div>
+
+                        {/* Benefits Preview */}
+                        <div className="w-full max-w-sm space-y-3 pt-4">
+                            <div className="flex items-start space-x-3 p-3 rounded-xl" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
+                                <div 
+                                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                    style={{ backgroundColor: ICON_BACKGROUND }}
+                                >
+                                    <Sparkles className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-semibold text-gray-800">Premium Content</p>
+                                    <p className="text-xs text-gray-500">Access exclusive videos and features</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start space-x-3 p-3 rounded-xl" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
+                                <div 
+                                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                    style={{ backgroundColor: ICON_BACKGROUND }}
+                                >
+                                    <Crown className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-semibold text-gray-800">Priority Support</p>
+                                    <p className="text-xs text-gray-500">Get help faster with 24/7 priority support</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start space-x-3 p-3 rounded-xl" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
+                                <div 
+                                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                    style={{ backgroundColor: ICON_BACKGROUND }}
+                                >
+                                    <FileText className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-semibold text-gray-800">Unlimited Requests</p>
+                                    <p className="text-xs text-gray-500">Request as many videos as you want</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CTA Button */}
+                        <div className="pt-6 w-full max-w-sm">
+                            <button 
+                                onClick={handleUpgrade}
+                                className="w-full py-4 rounded-xl text-white font-semibold text-base transition-all hover:opacity-90 shadow-lg flex items-center justify-center space-x-2"
+                                style={{ 
+                                    backgroundColor: ACCENT_COLOR,
+                                    boxShadow: `0 4px 12px rgba(203, 138, 0, 0.3)`
+                                }}
+                            >
+                                <Crown className="w-5 h-5" />
+                                <span>Upgrade Your Plan</span>
+                            </button>
+                            
+                            <p className="text-xs text-gray-400 mt-3">
+                                Start your premium journey today
+                            </p>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Bottom Navigation Bar */}

@@ -569,6 +569,40 @@ app.post('/creator-plan/upgrade', authMiddleware, (req, res) => {
   }
 });
 
+// Update user subscription plan (for user/consumer plans: starter, pro)
+app.post('/subscription/upgrade', authMiddleware, (req, res) => {
+  const { plan } = req.body || {};
+  
+  if (!plan || !['starter', 'pro'].includes(plan)) {
+    return res.status(400).json({ error: 'Invalid plan. Must be "starter" or "pro"' });
+  }
+
+  try {
+    const users = readUsers();
+    const user = users.find(u => u.id === req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update user plan
+    user.userPlan = plan;
+    user.userPlanUpgradedAt = new Date().toISOString();
+
+    writeUsers(users);
+
+    return res.json({ 
+      success: true, 
+      message: `Successfully upgraded to ${plan} plan`,
+      userPlan: plan,
+      userPlanUpgradedAt: user.userPlanUpgradedAt
+    });
+  } catch (err) {
+    console.error('subscription upgrade error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Get creator plan and limits for current user
 app.get('/creator-plan', authMiddleware, (req, res) => {
   try {

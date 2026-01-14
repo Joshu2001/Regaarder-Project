@@ -10,6 +10,7 @@ import WatchHistory from './watchhistory.jsx';
 import WatchTogether from './watchtogether.jsx';
 import Marketplace from './Marketplace.jsx';
 import Sponsorship from './sponsorship.jsx';
+import Subscriptions from './subscriptions.jsx';
 import Videoplayer from './Videoplayer.jsx';
 import AdvertiseWithUs from './advertisewithus.jsx';
 import CreatorDashboard from './creatordashboard.jsx';
@@ -49,6 +50,7 @@ function App() {
         <Route path="/watchtogether" element={<WatchTogether />} />
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/sponsorship" element={<Sponsorship />} />
+        <Route path="/subscriptions" element={<Subscriptions />} />
         <Route path="/videoplayer" element={<Videoplayer />} />
         <Route path="/advertisewithus" element={<AdvertiseWithUs />} />
         <Route path="/creatordashboard" element={<CreatorDashboard />} />
@@ -59,7 +61,6 @@ function App() {
         <Route path="/yourprofile" element={<UserProfile />} />
         <Route path="/yourrequests" element={<Requests />} />
         <Route path="/trackyourrequests" element={<Requests />} />
-        <Route path="/subscriptions" element={<Sponsorship />} />
         <Route path="/referralrewards" element={<Home />} />
         <Route path="/bookmarks" element={<Bookmarks />} />
         <Route path="/likedvideos" element={<LikedVideos />} />

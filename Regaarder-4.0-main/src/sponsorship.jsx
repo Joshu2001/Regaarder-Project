@@ -363,7 +363,7 @@ const Sponsorships = () => {
             ],
             cta: 'Start Creating',
             themeColor: ACCENT_COLOR,
-            badge: { label: 'Free', color: '#10B981' }
+            badge: { label: 'Free', color: ACCENT_COLOR }
         },
         {
             type: 'creator',
@@ -418,7 +418,7 @@ const Sponsorships = () => {
                 'Custom feature development'
             ],
             cta: 'Get Special Offer',
-            themeColor: '#F97316' // orange
+            themeColor: ACCENT_COLOR
         },
         {
             type: 'featuresRow'
@@ -772,14 +772,39 @@ const Sponsorships = () => {
                                 <div className="mt-4">
                                 <button disabled={processingPayment} onClick={() => {
                                         setProcessingPayment(true);
-                                        // simulate network/payment processing
-                                        setTimeout(() => {
+                                        
+                                        // Save subscription to backend
+                                        const token = localStorage.getItem('regaarder_token');
+                                        const planType = selectedPlan.type; // 'user' or 'creator'
+                                        const planKey = planType === 'creator' ? 
+                                            (selectedPlan.title.includes('Starter') ? 'starterCreator' : 'proCreator') :
+                                            selectedPlan.title.includes('Pro') ? 'pro' : 'starter';
+                                        
+                                        const endpoint = planType === 'creator' ? '/creator-plan/upgrade' : '/subscription/upgrade';
+                                        const planParam = planKey.includes('Creator') ? 
+                                            planKey.replace('Creator', '').toLowerCase() : 
+                                            planKey.toLowerCase();
+                                        
+                                        fetch(`http://localhost:4000${endpoint}`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Authorization': `Bearer ${token}`,
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({ plan: planParam })
+                                        }).then(() => {
+                                            // simulate network/payment processing
+                                            setTimeout(() => {
+                                                setProcessingPayment(false);
+                                                setShowCheckoutModal(false);
+                                                setSelectedPlan(null);
+                                                // show a simple success — for now use window.alert to simulate confirmation
+                                                try { window.alert('Payment simulated — thank you!'); } catch (e) {}
+                                            }, 1400);
+                                        }).catch(() => {
                                             setProcessingPayment(false);
-                                            setShowCheckoutModal(false);
-                                            setSelectedPlan(null);
-                                            // show a simple success — for now use window.alert to simulate confirmation
-                                            try { window.alert('Payment simulated — thank you!'); } catch (e) {}
-                                        }, 1400);
+                                            try { window.alert('Error processing subscription. Please try again.'); } catch (e) {}
+                                        });
                                     }} className="w-full bg-[var(--color-accent)] text-white py-3 rounded-xl font-semibold">{processingPayment ? t('Processing...') : t('Pay now')}</button>
                                 </div>
                             </div>
