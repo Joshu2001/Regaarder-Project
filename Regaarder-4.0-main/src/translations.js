@@ -4284,6 +4284,34 @@ export const translations = {
     'Explainer': 'Giải thích',
     'Other': 'Khác',
     'Update Status': 'Cập nhật trạng thái',
+    
+    // Daily Claim Limit
+    'Daily Claim Limit Reached': 'Đã đạt giới hạn yêu cầu hàng ngày',
+    "You've reached your daily limit for paid requests. This limit helps maintain quality and fair access for all creators.": "Bạn đã đạt giới hạn hàng ngày cho các yêu cầu trả phí. Giới hạn này giúp duy trì chất lượng và truy cập công bằng cho tất cả các nhà sáng tạo.",
+    'Upgrade to Increase Daily Limits': 'Nâng cấp để tăng giới hạn hàng ngày',
+    'Claim a Free Request': 'Yêu cầu miễn phí',
+    
+    // Request Value Limit
+    'Request Value Limit Reached': 'Đã đạt giới hạn giá trị yêu cầu',
+    'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.': 'Các yêu cầu có giá trị cao hơn cần một kế hoạch cao cấp. Chọn yêu cầu có giá trị thấp hơn hoặc nâng cấp kế hoạch của bạn.',
+    'Upgrade to Select Higher-Value Requests': 'Nâng cấp để chọn yêu cầu có giá trị cao hơn',
+    'View Requests Under $150': 'Xem yêu cầu dưới $150',
+    
+    // Free Request Submitted
+    'Free Request Submitted': 'Yêu cầu miễn phí đã được gửi',
+    'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.': 'Các yêu cầu miễn phí có thể mất nhiều thời gian hơn để đến những người sáng tạo, vì các yêu cầu trả phí được ưu tiên. Để tăng khả năng hiển thị, bạn có thể nâng cấp yêu cầu của mình bất kỳ lúc nào hoặc mời những người khác đóng góp.',
+    'Boost Request': 'Nâng cấp yêu cầu',
+    'Invite Contributors': 'Mời những người đóng góp',
+
+    // Request Nudge Modal
+    'Your Request Needs a Nudge': 'Yêu cầu của bạn cần một gợi ý',
+    'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.': 'Có vẻ như yêu cầu của bạn chưa đến được những người sáng tạo. Các yêu cầu miễn phí có thể bị chôn vùi khi có những yêu cầu mới đến. Nâng cấp yêu cầu của bạn sẽ tăng khả năng hiển thị và tốc độ phản hồi. Mời những người khác đóng góp cũng có thể làm cho nó hấp dẫn hơn đối với những người sáng tạo.',
+    'Boost for Visibility': 'Nâng cấp để tăng khả năng hiển thị',
+    'Invite Friends to Contribute': 'Mời bạn bè đóng góp',
+    'Waiting on': 'Đang chờ',
+    'receives many requests and prioritizes paid or boosted ones': 'nhận được nhiều yêu cầu và ưu tiên những yêu cầu trả phí hoặc được nâng cấp',
+    'Boosting your request signals stronger interest and increases the chance they\'ll respond. You can also invite others to contribute to make your request more compelling.': 'Nâng cấp yêu cầu của bạn cho thấy sự quan tâm mạnh mẽ hơn và tăng khả năng họ sẽ phản hồi. Bạn cũng có thể mời những người khác đóng góp để làm cho yêu cầu của bạn hấp dẫn hơn.',
+    'Boost': 'Nâng cấp',
   },
 
   'Filipino': {
@@ -4980,6 +5008,34 @@ export const translations = {
     'Explainer': 'Paliwanag',
     'Other': 'Iba pa',
     'Update Status': 'I-update ang Status',
+    
+    // Daily Claim Limit
+    'Daily Claim Limit Reached': 'Naabot na ang Pang-araw-araw na Limitasyon sa Claim',
+    "You've reached your daily limit for paid requests. This limit helps maintain quality and fair access for all creators.": "Naabot mo na ang iyong pang-araw-araw na limitasyon para sa mga bayad na kahilingan. Ang limitasyon na ito ay tumutulong na mapanatili ang kalidad at patas na access para sa lahat ng mga creator.",
+    'Upgrade to Increase Daily Limits': 'I-upgrade upang Taasan ang Pang-araw-araw na Limitasyon',
+    'Claim a Free Request': 'Mag-claim ng Libreng Kahilingan',
+    
+    // Request Value Limit
+    'Request Value Limit Reached': 'Naabot na ang Limitasyon sa Halaga ng Kahilingan',
+    'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.': 'Ang mga kahilingan na may mas mataas na halaga ay nangangailangan ng premium na plano. Pumili ng kahilingan na may mas mababang halaga o i-upgrade ang iyong plano.',
+    'Upgrade to Select Higher-Value Requests': 'I-upgrade upang Piliin ang Mas Mataas na Halaga ng Kahilingan',
+    'View Requests Under $150': 'Tingnan ang Mga Kahilingan sa Ilalim ng $150',
+    
+    // Free Request Submitted
+    'Free Request Submitted': 'Nagsumite ng Libreng Kahilingan',
+    'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.': 'Ang mga libreng kahilingan ay maaaring tumagal ng mas mahabang panahon upang maabot ang mga creator, dahil ang mga bayad na kahilingan ay prioridad. Upang mapataas ang visibility, maaari mong palakasin ang iyong kahilingan anumang oras o anyayahan ang iba na magsumite.',
+    'Boost Request': 'Palakasin ang Kahilingan',
+    'Invite Contributors': 'Anyayahan ang mga Contributtor',
+
+    // Request Nudge Modal
+    'Your Request Needs a Nudge': 'Ang Iyong Kahilingan ay Kailangan ng Pag-usbong',
+    'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.': 'Mukhang ang iyong kahilingan ay hindi pa naabot ang isang creator. Ang mga libreng kahilingan ay maaaring mong i-bury habang dumarating ang mga bagong kahilingan. Ang pagpapalakas ng iyong kahilingan ay nagpapataas ng visibility at bilis ng tugon. Ang pag-anyaya sa iba na magsumite ay maaari ring gawing mas akit sa mga creator.',
+    'Boost for Visibility': 'Palakasin para sa Visibility',
+    'Invite Friends to Contribute': 'Anyayahan ang mga Kaibigan na Magsumite',
+    'Waiting on': 'Naghihintay',
+    'receives many requests and prioritizes paid or boosted ones': 'nakakatanggap ng maraming mga kahilingan at nagbibigay ng priyoridad sa mga bayad o pinalaking mga ito',
+    'Boosting your request signals stronger interest and increases the chance they\'ll respond. You can also invite others to contribute to make your request more compelling.': 'Ang pagpapalakas ng iyong kahilingan ay nagpapakita ng mas malakas na interes at nagpapataas ng pagkakataon na sila ay tutugon. Maaari mo ring anyayahan ang iba na magsumite upang gawing mas nakakaakit ang iyong kahilingan.',
+    'Boost': 'Palakasin',
   },
 
   'Español': {
@@ -5962,6 +6018,34 @@ export const translations = {
     'Explainer': 'Explicativo',
     'Other': 'Otro',
     'Update Status': 'Actualizar estado',
+    
+    // Daily Claim Limit
+    'Daily Claim Limit Reached': 'Se ha alcanzado el límite diario de reclamación',
+    "You've reached your daily limit for paid requests. This limit helps maintain quality and fair access for all creators.": "Has alcanzado tu límite diario para solicitudes pagadas. Este límite ayuda a mantener la calidad y el acceso justo para todos los creadores.",
+    'Upgrade to Increase Daily Limits': 'Actualizar para aumentar los límites diarios',
+    'Claim a Free Request': 'Reclamar una solicitud gratuita',
+    
+    // Request Value Limit
+    'Request Value Limit Reached': 'Se ha alcanzado el límite de valor de solicitud',
+    'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.': 'Las solicitudes de mayor valor necesitan un plan premium. Elige una solicitud de menor valor o actualiza tu plan.',
+    'Upgrade to Select Higher-Value Requests': 'Actualizar para seleccionar solicitudes de mayor valor',
+    'View Requests Under $150': 'Ver solicitudes menores a $150',
+    
+    // Free Request Submitted
+    'Free Request Submitted': 'Solicitud gratuita enviada',
+    'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.': 'Las solicitudes gratuitas pueden tardar más en llegar a los creadores, ya que las solicitudes pagadas tienen prioridad. Para aumentar la visibilidad, puedes impulsar tu solicitud en cualquier momento o invitar a otros a contribuir.',
+    'Boost Request': 'Impulsar solicitud',
+    'Invite Contributors': 'Invitar colaboradores',
+
+    // Request Nudge Modal
+    'Your Request Needs a Nudge': 'Tu solicitud necesita un empujón',
+    'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.': 'Parece que tu solicitud aún no ha llegado a un creador. Las solicitudes gratuitas pueden enterrarse cuando llegan nuevas solicitudes. Impulsar tu solicitud aumenta la visibilidad y la velocidad de respuesta. Invitar a otros a contribuir también puede hacerlo más atractivo para los creadores.',
+    'Boost for Visibility': 'Impulsar para visibilidad',
+    'Invite Friends to Contribute': 'Invitar amigos a contribuir',
+    'Waiting on': 'Esperando',
+    'receives many requests and prioritizes paid or boosted ones': 'recibe muchas solicitudes y prioriza las pagadas o impulsadas',
+    'Boosting your request signals stronger interest and increases the chance they\'ll respond. You can also invite others to contribute to make your request more compelling.': 'Impulsar tu solicitud señala un interés más fuerte e aumenta la probabilidad de que respondan. También puedes invitar a otros a contribuir para que tu solicitud sea más convincente.',
+    'Boost': 'Impulsar',
   },
 
   'Estonian': {
@@ -6645,6 +6729,34 @@ export const translations = {
     'Explainer': 'Selgitav',
     'Other': 'Muu',
     'Update Status': 'Uuenda olekut',
+    
+    // Daily Claim Limit
+    'Daily Claim Limit Reached': 'Päevane nõude piirang on saavutatud',
+    "You've reached your daily limit for paid requests. This limit helps maintain quality and fair access for all creators.": "Oled saavutanud oma päevase piiri tasulistele nõuetele. See piir aitab säilitada kvaliteeti ja õiglast juurdepääsu kõigile loojatele.",
+    'Upgrade to Increase Daily Limits': 'Täienda päevase piiri suurendamiseks',
+    'Claim a Free Request': 'Taotlege tasuta nõuet',
+    
+    // Request Value Limit
+    'Request Value Limit Reached': 'Nõude väärtuse piirang saavutatud',
+    'Higher-value requests need a premium plan. Choose a lower-value request or upgrade your plan.': 'Kõrgema väärtusega nõuded vajavad premium plaani. Valige madalam väärtusega nõue või täiendage oma plaani.',
+    'Upgrade to Select Higher-Value Requests': 'Täiendage kõrgema väärtusega nõuete valimiseks',
+    'View Requests Under $150': 'Vaadake nõudeid alla $150',
+    
+    // Free Request Submitted
+    'Free Request Submitted': 'Tasuta nõue esitatud',
+    'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.': 'Tasuta nõuete jõudmine loojateni võib võtta kauem aega, kuna tasulised nõuded on prioriteetsed. Nähtavuse suurendamiseks saate nõuet igal ajal suurendada või kutsuda teisi kaasa tegema.',
+    'Boost Request': 'Suurenda nõuet',
+    'Invite Contributors': 'Kutsu kaasaaitajaid',
+
+    // Request Nudge Modal
+    'Your Request Needs a Nudge': 'Sinu nõue vajab suunamist',
+    'It looks like your request hasn\'t reached a creator yet. Free requests can get buried as new requests come in. Boosting your request increases visibility and response speed. Inviting others to contribute can also make it more attractive to creators.': 'Näib, et sinu nõue ei ole veel loojani jõudnud. Tasuta nõuded võivad uute nõuete jõudmisel maetud jääda. Nõude suurendamine suurendab nähtavust ja reaktsioonkiirust. Teiste kaasatoomise kutsumine võib selle loojatele atraktiivsemaks muuta.',
+    'Boost for Visibility': 'Suurenda nähtavuse jaoks',
+    'Invite Friends to Contribute': 'Kutsu sõpru kaasa tegema',
+    'Waiting on': 'Oodan',
+    'receives many requests and prioritizes paid or boosted ones': 'saab palju nõudeid ja prioritiseerib tasulisi või suurendatud nõudeid',
+    'Boosting your request signals stronger interest and increases the chance they\'ll respond. You can also invite others to contribute to make your request more compelling.': 'Nõude suurendamine näitab tugevamat huvi ja suurendab nende reageerimise tõenäosust. Võite ka kutsuda teisi kaasa tegema, et muuta oma nõue veelgi ahvatlevamaks.',
+    'Boost': 'Suurenda',
   },
 };
 
