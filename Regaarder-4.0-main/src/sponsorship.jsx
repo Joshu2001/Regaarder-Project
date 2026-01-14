@@ -307,85 +307,85 @@ const Sponsorships = () => {
 
     const ANNUAL_DISCOUNT = 0.17;
 
-    const plans = [
+    const getPlanDetails = () => [
         {
             type: 'user',
-            title: 'Starter (Free)',
+            title: t('Starter (Free)'),
             priceMonthly: 0,
             features: [
-                { text: '1 active free request at a time', icon: FileText },
-                { text: 'Max 3 paid requests active at a time', icon: FileText },
-                { text: 'Max $150 total value for paid requests', icon: Gift },
-                { text: 'Targeting specific creators', icon: Users, allowed: false },
-                { text: 'Boosting visibility', icon: TrendingDown, allowed: false },
-                { text: 'Invite contributors (viral growth)', icon: Users, allowed: true },
+                { text: t('1 active free request at a time'), icon: FileText },
+                { text: t('Max 3 paid requests active at a time'), icon: FileText },
+                { text: t('Max $150 total value for paid requests'), icon: Gift },
+                { text: t('Target specific creators'), icon: Users, allowed: false },
+                { text: t('Boosting available'), icon: TrendingDown, allowed: false },
+                { text: t('Invite contributors (viral growth)'), icon: Users, allowed: true },
                 { text: 'Visibility may decay over time', icon: TrendingDown },
-                { text: 'Maximum video quality: 360p', icon: MonitorPlay },
+                { text: t('Maximum video quality: 360p'), icon: MonitorPlay },
             ],
-            cta: 'Start Free',
+            cta: t('Start Free'),
             themeColor: ACCENT_COLOR,
         },
         {
             type: 'user',
-            title: 'Pro',
+            title: t('Pro'),
             priceMonthly: 8.24,
             oldPriceMonthly: 14.99,
             savingLabel: `Save $${(14.99 - 8.24).toFixed(2)}`,
             features: [
-                { text: 'Unlimited free requests (with decay)', icon: FileText },
-                { text: 'Up to 5 active paid requests', icon: FileText },
-                { text: 'No hard cap on request value (soft trust checks)', icon: Gift },
-                { text: 'Target specific creators', icon: Users, allowed: true },
-                { text: 'Boosting available', icon: Zap, allowed: true },
-                { text: 'Contributor pooling enabled', icon: Users, allowed: true },
-                { text: 'Priority visibility (slower decay)', icon: Eye, allowed: true },
-                { text: 'Repost faster after no response', icon: RotateCw, allowed: true },
-                { text: 'Priority creator matching', icon: Sparkles, allowed: true },
-                { text: 'No ads', icon: Ban, allowed: true },
-                { text: 'Faster request response and fulfillment', icon: Zap, allowed: true },
+                { text: t('Unlimited free requests (with decay)'), icon: FileText },
+                { text: t('Up to 5 active paid requests'), icon: FileText },
+                { text: t('No hard cap on request value'), icon: Gift },
+                { text: t('Target specific creators'), icon: Users, allowed: true },
+                { text: t('Boosting available'), icon: Zap, allowed: true },
+                { text: t('Contributor pooling enabled'), icon: Users, allowed: true },
+                { text: t('Priority visibility (slower decay)'), icon: Eye, allowed: true },
+                { text: t('Repost faster after no response'), icon: RotateCw, allowed: true },
+                { text: t('Priority creator matching'), icon: Sparkles, allowed: true },
+                { text: t('No ads'), icon: Ban, allowed: true },
+                { text: t('Faster request response'), icon: Zap, allowed: true },
             ],
-            cta: 'Grab Flash Deal',
+            cta: t('Grab Flash Deal'),
             themeColor: ACCENT_COLOR,
-            badge: { label: 'FLASH DEAL -45% OFF', color: ACCENT_COLOR }
+            badge: { label: t('FLASH DEAL -45% OFF'), color: ACCENT_COLOR }
         },
         {
             type: 'creator',
-            title: 'Starter Creator',
+            title: t('Starter Creator'),
             priceMonthly: 0,
             features: [
-                { text: 'Max 3 paid requests per day', icon: FileText },
-                { text: 'Daily paid value cap: $150–$200', icon: Gift },
-                { text: 'Unlimited free requests (optional)', icon: Star, allowed: true },
-                { text: 'Claim high-value requests (> $150)', icon: Lock, allowed: false },
-                { text: 'Standard visibility in feed', icon: Eye },
-                { text: 'Standard response window', icon: Clock },
-                { text: 'Creator dashboard & monetization', icon: BarChart3, allowed: true },
+                { text: t('Max 3 paid requests per day'), icon: FileText },
+                { text: t('Daily paid value cap: $150–$200'), icon: Gift },
+                { text: t('Unlimited free requests (optional)'), icon: Star, allowed: true },
+                { text: t('Claim high-value requests (> $150)'), icon: Lock, allowed: false },
+                { text: t('Standard visibility in feed'), icon: Eye },
+                { text: t('Standard response window'), icon: Clock },
+                { text: t('Creator dashboard & monetization'), icon: BarChart3, allowed: true },
             ],
-            cta: 'Start Creating',
+            cta: t('Start Creating'),
             themeColor: ACCENT_COLOR,
-            badge: { label: 'Free', color: ACCENT_COLOR }
+            badge: { label: t('Free'), color: ACCENT_COLOR }
         },
         {
             type: 'creator',
-            title: 'Pro Creator',
+            title: t('Pro Creator'),
             priceMonthly: 14.99,
             features: [
-                { text: 'All in Starter Creator', icon: Star, allowed: true },
-                { text: 'Up to 15 paid requests per day', icon: FileText },
-                { text: 'No daily value cap', icon: Gift, allowed: true },
-                { text: 'High-value requests unlocked', icon: Unlock, allowed: true },
-                { text: 'Targeted requests with priority access', icon: Target, allowed: true },
-                { text: 'Boosted requests with priority', icon: Zap, allowed: true },
-                { text: 'Queue management (accept/defer)', icon: RotateCw, allowed: true },
-                { text: 'Higher algorithmic trust weight', icon: TrendingDown, allowed: true },
-                { text: 'Add Merch links & other links in video', icon: Share2, allowed: true },
-                { text: 'Direct access to sponsors', icon: Users, allowed: true },
-                { text: 'Priority support', icon: Headphones, allowed: true },
-                { text: 'Up to 80% revenue share', icon: Percent, allowed: true },
+                { text: t('All in Starter Creator'), icon: Star, allowed: true },
+                { text: t('Up to 15 paid requests per day'), icon: FileText },
+                { text: t('No daily value cap'), icon: Gift, allowed: true },
+                { text: t('High-value requests unlocked'), icon: Unlock, allowed: true },
+                { text: t('Targeted requests with priority access'), icon: Target, allowed: true },
+                { text: t('Boosted requests with priority'), icon: Zap, allowed: true },
+                { text: t('Queue management (accept/defer)'), icon: RotateCw, allowed: true },
+                { text: t('Higher algorithmic trust weight'), icon: TrendingDown, allowed: true },
+                { text: t('Add Merch links & other links in video'), icon: Share2, allowed: true },
+                { text: t('Direct access to sponsors'), icon: Users, allowed: true },
+                { text: t('Priority support'), icon: Headphones, allowed: true },
+                { text: t('Up to 80% revenue share'), icon: Percent, allowed: true },
             ],
-            cta: 'Get Pro Creator',
+            cta: t('Get Pro Creator'),
             themeColor: ACCENT_COLOR,
-            badge: { label: 'BEST VALUE', color: ACCENT_COLOR }
+            badge: { label: t('BEST VALUE'), color: ACCENT_COLOR }
         }
     ];
 
@@ -393,10 +393,10 @@ const Sponsorships = () => {
     const sections = [
         {
             type: 'brand',
-            title: 'Brand',
+            title: t('Brand'),
             oldPriceMonthly: 99.99,
             priceMonthly: 89.99,
-            savingLabel: 'Save $10.00 today',
+            savingLabel: t('Save $10.00 today'),
             features: [
                 'Everything in Creator, plus:',
                 'UNLIMITED everything',
@@ -428,6 +428,8 @@ const Sponsorships = () => {
         }
     ];
 
+    const plans = getPlanDetails();
+
     return (
         <div className="min-h-screen bg-white text-gray-900">
             <div className="max-w-md mx-auto px-4 pt-6 pb-24" ref={containerRef}>
@@ -442,8 +444,8 @@ const Sponsorships = () => {
                     <div className="inline-flex items-center justify-center p-3 rounded-full mb-3" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
                         <Crown className="w-6 h-6" style={{ color: ACCENT_COLOR }} />
                     </div>
-                    <h1 className="text-2xl font-bold mb-1">Upgrade Your Premium Experience</h1>
-                    <p className="text-gray-500 text-sm">Choose the perfect plan for your needs</p>
+                    <h1 className="text-2xl font-bold mb-1">{t('Upgrade Your Premium Experience')}</h1>
+                    <p className="text-gray-500 text-sm">{t('Choose the perfect plan for your needs')}</p>
                 </div>
 
                 {/* Billing toggle (Monthly / Annual) */}
@@ -461,7 +463,7 @@ const Sponsorships = () => {
                             }`}
                             style={billingPeriod === 'monthly' ? { backgroundColor: ACCENT_COLOR } : {}}
                         >
-                            Monthly
+                            {t('Monthly')}
                         </button>
                         <button 
                             className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${
@@ -471,7 +473,7 @@ const Sponsorships = () => {
                             }`}
                             style={billingPeriod === 'annual' ? { backgroundColor: ACCENT_COLOR } : {}}
                         >
-                            Yearly
+                            {t('Yearly')}
                         </button>
                     </div>
                 </div>
@@ -602,8 +604,8 @@ const Sponsorships = () => {
                 <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-50">
                     <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl p-8">
                         <div className="text-center">
-                            <h2 className="text-2xl font-bold mb-2" style={{ color: ACCENT_COLOR }}>Choose Your Plan Type</h2>
-                            <p className="text-gray-600 text-sm mb-8">Select whether you're looking for a user or creator plan</p>
+                            <h2 className="text-2xl font-bold mb-2" style={{ color: ACCENT_COLOR }}>{t('Choose Your Plan Type')}</h2>
+                            <p className="text-gray-600 text-sm mb-8">{t('Select whether you\'re looking for a user or creator plan')}</p>
                         </div>
                         
                         <div className="space-y-3">
@@ -615,7 +617,7 @@ const Sponsorships = () => {
                                 className="w-full px-6 py-4 rounded-xl font-semibold text-white transition-all hover:opacity-90 active:scale-95"
                                 style={{ backgroundColor: ACCENT_COLOR }}
                             >
-                                For Users
+                                {t('For Users')}
                             </button>
                             <button 
                                 onClick={() => {
@@ -625,7 +627,7 @@ const Sponsorships = () => {
                                 className="w-full px-6 py-4 rounded-xl font-semibold transition-all hover:opacity-90 active:scale-95"
                                 style={{ borderColor: ACCENT_COLOR, color: ACCENT_COLOR, borderWidth: '2px' }}
                             >
-                                For Creators
+                                {t('For Creators')}
                             </button>
                         </div>
                     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Home, FileText, Pencil, MoreHorizontal, Crown, Sparkles, ArrowRight, Check } from 'lucide-react';
+import { getTranslation } from './translations.js';
 
 const getCssVar = (name, fallback) => {
     try { 
@@ -128,25 +129,17 @@ const Subscriptions = () => {
     const [planDetails, setPlanDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [userPlan, setUserPlan] = useState(null);
+    const [selectedLanguage, setSelectedLanguage] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
 
     useEffect(() => {
-        // Fetch current user plan from backend
-        const fetchUserPlan = async () => {
-            try {
-                const token = localStorage.getItem('regaarder_token');
-                if (!token) {
-                    setLoading(false);
-                    return;
-                }
+        const handleLanguageChange = () => {
+            setSelectedLanguage(localStorage.getItem('regaarder_language') || 'English');
+        };
+        window.addEventListener('storage', handleLanguageChange);
+        return () => window.removeEventListener('storage', handleLanguageChange);
+    }, []);
 
-                const response = await fetch('http://localhost:4000/users/me', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserPlan(data.user);
-                    // Check if user has a subscription
+    const t = (key) => getTranslation(key, selectedLanguage);
                     if (data.user.userPlan) {
                         setCurrentPlan(data.user.userPlan);
                     }
@@ -172,67 +165,67 @@ const Subscriptions = () => {
     // Define plan details for display
     const planDetailsMap = {
         'starter': {
-            name: 'Starter (Free)',
+            name: t('Starter (Free)'),
             price: '$0/month',
             color: '#6B7280',
             features: [
-                '1 active free request at a time',
-                'Max 3 paid requests active at a time',
-                'Max $150 total value for paid requests',
-                'Invite contributors (viral growth)',
-                'Maximum video quality: 360p'
+                t('1 active free request at a time'),
+                t('Max 3 paid requests active at a time'),
+                t('Max $150 total value for paid requests'),
+                t('Invite contributors (viral growth)'),
+                t('Maximum video quality: 360p')
             ]
         },
         'pro': {
-            name: 'Pro',
+            name: t('Pro'),
             price: '$8.24/month',
             color: ACCENT_COLOR,
-            badge: 'FLASH DEAL -45% OFF',
+            badge: t('FLASH DEAL -45% OFF'),
             features: [
-                'Unlimited free requests (with decay)',
-                'Up to 5 active paid requests',
-                'No hard cap on request value',
-                'Target specific creators',
-                'Boosting available',
-                'Contributor pooling enabled',
-                'Priority visibility (slower decay)',
-                'Repost faster after no response',
-                'Priority creator matching',
-                'No ads',
-                'Faster request response'
+                t('Unlimited free requests (with decay)'),
+                t('Up to 5 active paid requests'),
+                t('No hard cap on request value'),
+                t('Target specific creators'),
+                t('Boosting available'),
+                t('Contributor pooling enabled'),
+                t('Priority visibility (slower decay)'),
+                t('Repost faster after no response'),
+                t('Priority creator matching'),
+                t('No ads'),
+                t('Faster request response')
             ]
         },
         'starterCreator': {
-            name: 'Starter Creator',
+            name: t('Starter Creator'),
             price: '$0/month',
             color: '#10B981',
             features: [
-                'Max 3 paid requests per day',
-                'Daily paid value cap: $150–$200',
-                'Unlimited free requests (optional)',
-                'Standard visibility in feed',
-                'Standard response window',
-                'Creator dashboard & monetization'
+                t('Max 3 paid requests per day'),
+                t('Daily paid value cap: $150–$200'),
+                t('Unlimited free requests (optional)'),
+                t('Standard visibility in feed'),
+                t('Standard response window'),
+                t('Creator dashboard & monetization')
             ]
         },
         'proCreator': {
-            name: 'Pro Creator',
+            name: t('Pro Creator'),
             price: '$14.99/month',
             color: ACCENT_COLOR,
-            badge: 'BEST VALUE',
+            badge: t('BEST VALUE'),
             features: [
-                'All in Starter Creator',
-                'Up to 15 paid requests per day',
-                'No daily value cap',
-                'High-value requests unlocked',
-                'Targeted requests with priority access',
-                'Boosted requests with priority',
-                'Queue management (accept/defer)',
-                'Higher algorithmic trust weight',
-                'Add Merch links & other links in video',
-                'Direct access to sponsors',
-                'Priority support',
-                'Up to 80% revenue share'
+                t('All in Starter Creator'),
+                t('Up to 15 paid requests per day'),
+                t('No daily value cap'),
+                t('High-value requests unlocked'),
+                t('Targeted requests with priority access'),
+                t('Boosted requests with priority'),
+                t('Queue management (accept/defer)'),
+                t('Higher algorithmic trust weight'),
+                t('Add Merch links & other links in video'),
+                t('Direct access to sponsors'),
+                t('Priority support'),
+                t('Up to 80% revenue share')
             ]
         }
     };
@@ -293,7 +286,7 @@ const Subscriptions = () => {
                                             className="w-full py-3 rounded-xl text-white font-semibold transition-all hover:opacity-90"
                                             style={{ backgroundColor: plan.color }}
                                         >
-                                            Manage Subscription
+                                            {t('Manage Subscription')}
                                         </button>
                                     </div>
 
@@ -303,7 +296,7 @@ const Subscriptions = () => {
                                         style={{ backgroundColor: HIGHLIGHT_COLOR }}
                                     >
                                         <p className="text-gray-700">
-                                            Want to upgrade or change your plan? Visit the upgrade page to explore all available plans.
+                                            {t('Want to upgrade or change your plan? Visit the upgrade page to explore all available plans.')}
                                         </p>
                                     </div>
                                 </>
@@ -328,10 +321,10 @@ const Subscriptions = () => {
                         {/* Main Empty State Text */}
                         <div className="space-y-2">
                             <h2 className="text-xl font-bold text-gray-800">
-                                No Active Subscription
+                                {t('No Active Subscription')}
                             </h2>
                             <p className="text-sm text-gray-500 max-w-xs mx-auto leading-relaxed">
-                                You haven't upgraded your plan yet. Unlock premium features and exclusive benefits!
+                                {t('You haven\'t upgraded your plan yet. Unlock premium features and exclusive benefits!')}
                             </p>
                         </div>
 
@@ -345,8 +338,8 @@ const Subscriptions = () => {
                                     <Sparkles className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-sm font-semibold text-gray-800">Premium Content</p>
-                                    <p className="text-xs text-gray-500">Access exclusive videos and features</p>
+                                    <p className="text-sm font-semibold text-gray-800">{t('Premium Content')}</p>
+                                    <p className="text-xs text-gray-500">{t('Access exclusive videos and features')}</p>
                                 </div>
                             </div>
 
@@ -358,8 +351,8 @@ const Subscriptions = () => {
                                     <Crown className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-sm font-semibold text-gray-800">Priority Support</p>
-                                    <p className="text-xs text-gray-500">Get help faster with 24/7 priority support</p>
+                                    <p className="text-sm font-semibold text-gray-800">{t('Priority Support')}</p>
+                                    <p className="text-xs text-gray-500">{t('Get help faster with 24/7 priority support')}</p>
                                 </div>
                             </div>
 
@@ -371,8 +364,8 @@ const Subscriptions = () => {
                                     <FileText className="w-4 h-4" style={{ color: ACCENT_COLOR }} />
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-sm font-semibold text-gray-800">Unlimited Requests</p>
-                                    <p className="text-xs text-gray-500">Request as many videos as you want</p>
+                                    <p className="text-sm font-semibold text-gray-800">{t('Unlimited Requests')}</p>
+                                    <p className="text-xs text-gray-500">{t('Request as many videos as you want')}</p>
                                 </div>
                             </div>
                         </div>
@@ -388,11 +381,11 @@ const Subscriptions = () => {
                                 }}
                             >
                                 <Crown className="w-5 h-5" />
-                                <span>Upgrade Your Plan</span>
+                                <span>{t('Upgrade Your Plan')}</span>
                             </button>
                             
                             <p className="text-xs text-gray-400 mt-3">
-                                Start your premium journey today
+                                {t('Start your premium journey today')}
                             </p>
                         </div>
                     </div>
