@@ -385,6 +385,18 @@ const App = () => {
     // Ref for the hidden file input
     const fileInputRef = useRef(null);
 
+    // Account balance and payment states
+    const [accountBalance, setAccountBalance] = useState(0);
+    const [cardNumber, setCardNumber] = useState(null);
+    const [showUpdateCardModal, setShowUpdateCardModal] = useState(false);
+    const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+    const [addFundsAmount, setAddFundsAmount] = useState('');
+    const [withdrawAmount, setWithdrawAmount] = useState('');
+
+    // Requests display state
+    const [showAllRequests, setShowAllRequests] = useState(false);
+
     // Fetch user profile from backend on mount
     useEffect(() => {
         const fetchProfile = async () => {
@@ -1000,56 +1012,243 @@ const App = () => {
                                 ))}
                             </div>
 
-                            {/* Credits & Payment Section */}
+                            {/* Account Balance & Management Section */}
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-base font-semibold text-stone-900">{t('Credits & Payment')}</h2>
-                                <button className="font-semibold transition" style={{ color: 'var(--color-gold)' }}>
+                                <h2 className="text-base font-semibold text-stone-900">{t('Account Balance')}</h2>
+                                <button className="font-semibold text-sm transition" style={{ color: 'var(--color-gold)' }}>
                                     {t('Manage')}
                                 </button>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3 mb-10">
-                                {/* Credits Balance Card */}
-                                <div className="p-4 rounded-2xl flex flex-col justify-between shadow-md border border-stone-100" style={{ backgroundColor: 'var(--color-gold-light-bg)' }}>
-                                    <div className="flex items-center space-x-1.5 text-stone-600 mb-3">
-                                        <DollarSign size={14} style={{ color: 'var(--color-gold)' }} />
-                                        <span className="text-xs font-medium">{t('Credits Balance')}</span>
+                            <div className="grid grid-cols-1 gap-4 mb-10">
+                                {/* Main Balance Card */}
+                                <div className="p-6 rounded-2xl shadow-md border border-stone-100" style={{ backgroundColor: 'var(--color-gold-light-bg)' }}>
+                                    <div className="flex items-center space-x-2 text-stone-600 mb-2">
+                                        <DollarSign size={16} style={{ color: 'var(--color-gold)' }} />
+                                        <span className="text-sm font-bold">{t('Your Balance')}</span>
                                     </div>
-                                    <p className="text-2xl font-extrabold text-stone-900 mb-3">
-                                        $47.50
+                                    <p className="text-4xl font-extrabold text-stone-900 mb-6">
+                                        {accountBalance > 0 ? `$${accountBalance.toFixed(2)}` : '$0.00'}
                                     </p>
-                                    <button className="w-full py-2 text-sm font-bold rounded-lg transition active:scale-[0.98]" style={{ backgroundColor: 'var(--color-gold)', color: 'var(--color-accent-text)' }}>
-                                        {t('Add Funds')}
-                                    </button>
+                                    
+                                    {/* Action Buttons */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button 
+                                            onClick={() => setShowAddFundsModal(true)}
+                                            className="py-2.5 text-sm font-bold rounded-lg transition active:scale-[0.98] text-white" 
+                                            style={{ backgroundColor: 'var(--color-gold)' }}
+                                        >
+                                            {t('Add Funds')}
+                                        </button>
+                                        <button 
+                                            onClick={() => setShowWithdrawModal(true)}
+                                            className="py-2.5 text-sm font-bold rounded-lg transition active:scale-[0.98] border-2" 
+                                            style={{ borderColor: 'var(--color-gold)', color: 'var(--color-gold)', backgroundColor: 'transparent' }}
+                                        >
+                                            {t('Withdraw')}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Payment Method Card */}
                                 <div className="p-4 bg-white border border-stone-200 rounded-2xl shadow-md flex flex-col justify-between">
                                     <div className="flex items-center space-x-1.5 text-stone-600 mb-3">
                                         <CreditCard size={14} className="text-stone-600" />
-                                        <span className="text-xs font-medium">{t('Payment Method')}</span>
+                                        <span className="text-xs font-bold">{t('Payment Method')}</span>
                                     </div>
                                     <p className="text-lg font-extrabold text-stone-900 mb-3 tracking-wider">
-                                        •••• 4242
+                                        {cardNumber ? `•••• ${cardNumber}` : 'No card added yet'}
                                     </p>
-                                    <button className="font-bold text-xs self-start transition" style={{ color: 'var(--color-gold)' }}>
-                                        {t('Update Card')}
+                                    <button 
+                                        onClick={() => setShowUpdateCardModal(true)}
+                                        className="font-bold text-xs self-start transition" 
+                                        style={{ color: 'var(--color-gold)' }}
+                                    >
+                                        {cardNumber ? t('Update Card') : 'Add Card'}
                                     </button>
                                 </div>
                             </div>
 
+                            {/* Update Card Modal */}
+                            {showUpdateCardModal && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                                    <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+                                        <h3 className="text-xl font-bold mb-4">{cardNumber ? t('Update Card') : 'Add Card'}</h3>
+                                        
+                                        <div className="mb-4">
+                                            <label className="text-sm font-semibold text-stone-700 mb-2 block">Card Number</label>
+                                            <input 
+                                                type="text" 
+                                                placeholder="1234 5678 9012 3456"
+                                                className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2" 
+                                                style={{ '--tw-ring-color': 'var(--color-gold)' }}
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3 mb-6">
+                                            <div>
+                                                <label className="text-sm font-semibold text-stone-700 mb-2 block">Exp. Date</label>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="MM/YY"
+                                                    className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2" 
+                                                    style={{ '--tw-ring-color': 'var(--color-gold)' }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-semibold text-stone-700 mb-2 block">CVV</label>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="123"
+                                                    className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2" 
+                                                    style={{ '--tw-ring-color': 'var(--color-gold)' }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            <button 
+                                                onClick={() => setShowUpdateCardModal(false)}
+                                                className="flex-1 py-2 px-4 border-2 border-stone-300 rounded-lg font-semibold text-stone-700 transition hover:bg-stone-50"
+                                            >
+                                                {t('Cancel')}
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    setCardNumber('4242');
+                                                    setShowUpdateCardModal(false);
+                                                }}
+                                                className="flex-1 py-2 px-4 rounded-lg font-semibold text-white transition active:scale-[0.98]" 
+                                                style={{ backgroundColor: 'var(--color-gold)' }}
+                                            >
+                                                {t('Save Card')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Add Funds Modal */}
+                            {showAddFundsModal && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                                    <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+                                        <h3 className="text-xl font-bold mb-4">{t('Add Funds')}</h3>
+                                        
+                                        <div className="mb-6">
+                                            <label className="text-sm font-semibold text-stone-700 mb-2 block">Amount</label>
+                                            <div className="flex items-center">
+                                                <span className="text-xl font-bold mr-2" style={{ color: 'var(--color-gold)' }}>$</span>
+                                                <input 
+                                                    type="number" 
+                                                    placeholder="0.00"
+                                                    value={addFundsAmount}
+                                                    onChange={(e) => setAddFundsAmount(e.target.value)}
+                                                    className="flex-1 px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2" 
+                                                    style={{ '--tw-ring-color': 'var(--color-gold)' }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            <button 
+                                                onClick={() => {
+                                                    setShowAddFundsModal(false);
+                                                    setAddFundsAmount('');
+                                                }}
+                                                className="flex-1 py-2 px-4 border-2 border-stone-300 rounded-lg font-semibold text-stone-700 transition hover:bg-stone-50"
+                                            >
+                                                {t('Cancel')}
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    if (addFundsAmount) {
+                                                        setAccountBalance(prev => prev + parseFloat(addFundsAmount));
+                                                        setShowAddFundsModal(false);
+                                                        setAddFundsAmount('');
+                                                    }
+                                                }}
+                                                className="flex-1 py-2 px-4 rounded-lg font-semibold text-white transition active:scale-[0.98]" 
+                                                style={{ backgroundColor: 'var(--color-gold)' }}
+                                            >
+                                                {t('Add Funds')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Withdraw Modal */}
+                            {showWithdrawModal && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                                    <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+                                        <h3 className="text-xl font-bold mb-4">{t('Withdraw')}</h3>
+                                        
+                                        <div className="mb-4 p-4 bg-stone-50 rounded-lg">
+                                            <p className="text-sm text-stone-600 mb-2">Available Balance</p>
+                                            <p className="text-2xl font-bold" style={{ color: 'var(--color-gold)' }}>${accountBalance.toFixed(2)}</p>
+                                        </div>
+
+                                        <div className="mb-6">
+                                            <label className="text-sm font-semibold text-stone-700 mb-2 block">Amount to Withdraw</label>
+                                            <div className="flex items-center">
+                                                <span className="text-xl font-bold mr-2" style={{ color: 'var(--color-gold)' }}>$</span>
+                                                <input 
+                                                    type="number" 
+                                                    placeholder="0.00"
+                                                    value={withdrawAmount}
+                                                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                                                    className="flex-1 px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2" 
+                                                    style={{ '--tw-ring-color': 'var(--color-gold)' }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            <button 
+                                                onClick={() => {
+                                                    setShowWithdrawModal(false);
+                                                    setWithdrawAmount('');
+                                                }}
+                                                className="flex-1 py-2 px-4 border-2 border-stone-300 rounded-lg font-semibold text-stone-700 transition hover:bg-stone-50"
+                                            >
+                                                {t('Cancel')}
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    if (withdrawAmount && parseFloat(withdrawAmount) <= accountBalance) {
+                                                        setAccountBalance(prev => prev - parseFloat(withdrawAmount));
+                                                        setShowWithdrawModal(false);
+                                                        setWithdrawAmount('');
+                                                    }
+                                                }}
+                                                className="flex-1 py-2 px-4 rounded-lg font-semibold text-white transition active:scale-[0.98]" 
+                                                style={{ backgroundColor: 'var(--color-gold)' }}
+                                            >
+                                                {t('Withdraw')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Your Requests Section (New Content) */}
                             <div className="flex items-center justify-between mt-8 mb-4">
                                 <h2 className="text-base font-semibold text-stone-900">{t('Your Requests')}</h2>
-                                <button className="font-semibold text-sm transition" style={{ color: 'var(--color-gold)' }}>
-                                    {t('View All')}
-                                </button>
+                                {requests.length > 2 && (
+                                    <button 
+                                        onClick={() => setShowAllRequests(!showAllRequests)}
+                                        className="font-semibold text-sm transition" 
+                                        style={{ color: 'var(--color-gold)' }}
+                                    >
+                                        {showAllRequests ? t('Show Less') : `${t('View All')} (${requests.length})`}
+                                    </button>
+                                )}
                             </div>
 
                             {/* Requests List */}
                             <div className="space-y-3">
                                 {requests.length > 0 ? (
-                                    requests.map((request, index) => (
+                                    (showAllRequests ? requests : requests.slice(0, 2)).map((request, index) => (
                                         <RequestCard
                                             key={index}
                                             {...request}
