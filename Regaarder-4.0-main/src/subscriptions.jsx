@@ -34,9 +34,7 @@ const BottomBar = () => {
             className="fixed bottom-0 left-0 right-0 border-t shadow-2xl z-10"
             style={{ 
                 backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                borderTopColor: `rgba(var(--color-gold-rgb, 202, 138, 4), 0.15)`
-            }}
-            style={{
+                borderTopColor: `rgba(var(--color-gold-rgb), 0.15)`,
                 paddingTop: '10px',
                 paddingBottom: 'calc(44px + env(safe-area-inset-bottom))'
             }}
@@ -250,7 +248,7 @@ const Subscriptions = () => {
     };
 
     return (
-        <div className="min-h-screen text-gray-900" style={{ background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb, 202, 138, 4), 0.03) 0%, white 50%)' }}>
+        <div className="min-h-screen text-gray-900" style={{ background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb), 0.03) 0%, white 50%)' }}>
             <div className="max-w-md mx-auto px-4 pt-6 pb-28">
 
                 {loading ? (

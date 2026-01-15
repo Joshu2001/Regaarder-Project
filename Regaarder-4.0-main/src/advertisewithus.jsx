@@ -41,7 +41,7 @@ const ShareVision = ({ setCurrentPage, ACCENT_COLOR }) => {
     };
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <div className="flex items-center justify-between mb-3">
                 <button onClick={() => setCurrentPage('AudienceSelection')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
@@ -154,7 +154,7 @@ const busOn = (e, cb) => (typeof window !== 'undefined' && window.__eventBus && 
 const busOff = (e, cb) => (typeof window !== 'undefined' && window.__eventBus && window.__eventBus.off) ? window.__eventBus.off(e, cb) : _off(e, cb);
 const busEmit = (e, p) => { if (typeof window !== 'undefined' && window.__eventBus && window.__eventBus.emit) { try { window.__eventBus.emit(e, p); } catch (err) {} } else { _emit(e, p); } };
 // Imports for lucide icons
-import { Home, FileText, Lightbulb, MoreHorizontal, Sparkles, Rocket, LineChart, Eye, Zap, Shield, HeartHandshake, ChevronRight, ChevronLeft, FileEdit, DollarSign, Pencil, Heart, Gift, Users, ArrowLeft, Briefcase, Layers, Crown, Upload, ChevronDown, Check, MousePointerClick, Building2 } from 'lucide-react';
+import { Home, FileText, Lightbulb, MoreHorizontal, Sparkles, Rocket, LineChart, Eye, Zap, Shield, HeartHandshake, ChevronRight, ChevronLeft, FileEdit, DollarSign, Pencil, Heart, Gift, Users, ArrowLeft, Briefcase, Layers, Crown, Upload, ChevronDown, ChevronUp, Check, MousePointerClick, Building2 } from 'lucide-react';
 import { translations } from './translations.js';
 
 // Helper for in-file translations; reads selected language from localStorage at runtime.
@@ -595,20 +595,18 @@ const FinalCTA = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, setCurrentPage }) => (
 );
 
 // Shared fixed Continue CTA placed above the BottomBar
-const ContinueCTA = ({ disabled, onClick, ACCENT_COLOR, bottomOffset = 'calc(64px + env(safe-area-inset-bottom))' }) => {
+const ContinueCTA = ({ disabled, onClick, ACCENT_COLOR, bottomOffset = 'auto' }) => {
     return (
-        <div className="fixed left-0 right-0 z-40 bg-white pt-3 pb-3" style={{ bottom: bottomOffset, boxShadow: '0 -4px 12px rgba(0,0,0,0.05)' }}>
-            <div className="max-w-md mx-auto px-4">
-                <button
-                    onClick={onClick}
-                    disabled={disabled}
-                    className={`w-full flex items-center justify-center space-x-2 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 hover:opacity-90 disabled:opacity-50`}
-                    style={{ backgroundColor: ACCENT_COLOR }}
-                >
-                    <span>{t('Continue')}</span>
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                </button>
-            </div>
+        <div className="w-full mt-8 mb-4">
+            <button
+                onClick={onClick}
+                disabled={disabled}
+                className={`w-full flex items-center justify-center space-x-2 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 hover:opacity-90 disabled:opacity-50 active:scale-[0.98]`}
+                style={{ backgroundColor: ACCENT_COLOR }}
+            >
+                <span>{t('Continue')}</span>
+                <ChevronRight className="w-4 h-4 ml-2" />
+            </button>
         </div>
     );
 };
@@ -677,7 +675,7 @@ const HomePage = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, ICON_BACKGROUND, setCurrentPa
             </div>
             <p className="text-sm text-gray-700 font-medium text-center mt-3 cursor-pointer transition hover:opacity-80" style={{ color: ACCENT_COLOR }}>
                 {t('Watch how it works')} 
-                <span className="ml-1 text-base leading-none">▸</span>
+                <span className="ml-1 text-base leading-none">↗</span>
             </p>
             </section>
 
@@ -704,7 +702,7 @@ const HomePage = ({ ACCENT_COLOR, HIGHLIGHT_COLOR, ICON_BACKGROUND, setCurrentPa
             <section className="pb-12 border-b border-gray-200">
                 <h2 className="text-2xl font-medium text-gray-900 text-center">{t('How it works')}</h2>
                 <p className="text-base text-gray-600 mt-2 mb-8 text-center font-medium">{t('From idea to impact in 4 simple steps')}</p>
-                <StepBlock step={1} icon={FileEdit} title={t("Tell us about your brand")} description={t("Quick setup — just your brand name, industry, and voice. Takes 2 minutes.")}/>
+                <StepBlock step={1} icon={FileEdit} title={t("Tell us about your brand")} description={t("Quick setup ??just your brand name, industry, and voice. Takes 2 minutes.")}/>
                 <StepBlock step={2} icon={Lightbulb} title={t("Create your collaboration brief")} description={t("Set your objective, budget, and creative vision. Our AI does the rest.")}/>
                 <StepBlock step={3} icon={Sparkles} title={t("Get matched with perfect creators")} description={t("AI analyzes thousands of creators to find your ideal matches instantly.")}/>
                 <StepBlock step={4} icon={LineChart} title={t("Watch your brand come to life")} description={t("Creators integrate your brand authentically. Track real-time performance.")}/>
@@ -801,7 +799,7 @@ const WelcomeHeader = ({ title, subtitle, setCurrentPage, previousPage }) => (
 
 const WelcomePage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) => {
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <WelcomeHeader 
                 title={t("Welcome to Regaarder")} 
                 subtitle={t("Tell us about your brand")} 
@@ -898,7 +896,7 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
     const headerSubtitle = role === 'startup' ? t('Tell us about your startup') : role === 'agency' ? t('Agency information to manage client campaigns') : t('Complete your profile to start matching');
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <WelcomeHeader 
                 title={headerTitle} 
                 subtitle={headerSubtitle} 
@@ -906,8 +904,8 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
                 previousPage={'Welcome'}
             />
             
-            <section className="space-y-6">
-                <div className="space-y-2">
+            <section className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <label htmlFor="brandName" className="text-lg font-medium text-gray-900">{role === 'startup' ? t('Startup Name') : role === 'agency' ? t('Agency Name') : t('Brand Name')} <span className="text-red-500">*</span></label>
                     <input 
                         id="brandName"
@@ -919,7 +917,7 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
                     />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <label htmlFor="businessEmail" className="text-lg font-medium text-gray-900">{role === 'agency' ? t('Agency Email') : t('Business Email')} <span className="text-red-500">*</span></label>
                     <input 
                         id="businessEmail"
@@ -934,7 +932,7 @@ const BrandDetailsPage = ({ setCurrentPage, ACCENT_COLOR }) => {
                     )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <label htmlFor="industry" className="text-lg font-medium text-gray-900">{t('Industry')}</label>
                     <div className="relative" ref={industryRef}>
                         <button
@@ -1022,7 +1020,7 @@ const BrandVoicePage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) => {
     // The design only shows the options, but for flow, we need a button. I will place it at the bottom.
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <WelcomeHeader 
                 title={t("Brand Voice")} 
                 subtitle={t("Select tones that represent your brand (select multiple)")} 
@@ -1152,7 +1150,7 @@ const BrandLogoPage = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND, uploaded
     };
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <WelcomeHeader 
                 title={t("Brand Logo (Optional)")} 
                 subtitle={t("Help creators recognize your brand")} 
@@ -1358,11 +1356,11 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
     };
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <header className="mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
                     <div className="sm:flex-1">
-                        <div className="text-left">
+                        <div className="text-center">
                             <h2 className="text-lg font-semibold text-gray-900">{t('Advertiser Dashboard')}</h2>
                             <p className="text-sm text-gray-500">{t('Manage your collaborations')}</p>
                         </div>
@@ -1456,7 +1454,7 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                             <Building2 className="w-6 h-6 text-white" />
                         </div>
                         {showProfileCard ? (
-                            <button onClick={() => { setShowProfileCard(false); }} className="text-gray-500" aria-label="Collapse profile">✕</button>
+                            <button onClick={() => { setShowProfileCard(false); }} className="text-gray-500" aria-label="Collapse profile"><ChevronUp className="w-5 h-5" /></button>
                         ) : (
                             <button onClick={() => { try { localStorage.removeItem('advertiser_profile_dismissed'); } catch(e){} setShowProfileCard(true); }} className="text-gray-500" aria-label="Show profile">
                                 <ChevronDown className="w-5 h-5" />
@@ -1516,7 +1514,7 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                     <div className="relative bg-white w-full max-w-md mx-auto rounded-xl shadow-lg p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold">Add Funds</h3>
-                            <button onClick={() => setShowAddFunds(false)} className="text-gray-500">✕</button>
+                            <button onClick={() => setShowAddFunds(false)} className="text-gray-500"><X className="w-5 h-5" /></button>
                         </div>
 
                         {afStage === 'choose' && (
@@ -1585,7 +1583,7 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                                         className="px-4 py-2 rounded-md text-white font-semibold disabled:opacity-60"
                                         style={{ backgroundColor: ACCENT_COLOR }}
                                     >
-                                        {processingAdd ? 'Processing…' : 'Proceed'}
+                                        {processingAdd ? 'Processing...' : 'Proceed'}
                                     </button>
                                 </div>
                             </>
@@ -1727,7 +1725,7 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                         <div className="relative bg-white w-full max-w-md mx-auto rounded-xl shadow-lg p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold">{t('Edit Campaign')}</h3>
-                                <button onClick={closeEditCampaign} className="text-gray-500">✕</button>
+                                <button onClick={closeEditCampaign} className="text-gray-500"><X className="w-5 h-5" /></button>
                             </div>
                             <div className="mb-4">
                                     <label className="block text-sm text-gray-700 mb-2">{t('Title')}</label>
@@ -1750,7 +1748,7 @@ const AdvertiserDashboard = ({ setCurrentPage, ACCENT_COLOR, previewUrl, uploade
                                     <div className="flex items-center justify-between"><div className="text-xs text-gray-500">{t('Status')}</div><div className="font-medium">{t(editingCampaign.status)}</div></div>
                                     <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">{t('Budget')}</div><div className="font-medium">${Number(localStorage.getItem('sponsor_budget_cap') || editingCampaign.spent || 0).toLocaleString()}</div></div>
                                     <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">{t('Creators Hired')}</div><div className="font-medium">{editingCampaign.creators || Number(localStorage.getItem('sponsor_selected_count') || 0)}</div></div>
-                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">{t('Est. Reach')}</div><div className="font-medium">{(localStorage.getItem('sponsor_estimated_reach') ? formatCompact(Number(localStorage.getItem('sponsor_estimated_reach'))) + ' ' + t('views') : '—')}</div></div>
+                                    <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">{t('Est. Reach')}</div><div className="font-medium">{(localStorage.getItem('sponsor_estimated_reach') ? formatCompact(Number(localStorage.getItem('sponsor_estimated_reach'))) + ' ' + t('views') : 'N/A')}</div></div>
                                     <div className="flex items-center justify-between mt-2"><div className="text-xs text-gray-500">{t('Escrow')}</div><div className="font-medium">${Number(localStorage.getItem('sponsor_escrow_amount') || editingCampaign.spent || 0).toLocaleString()}</div></div>
                                 </div>
 
@@ -1954,7 +1952,7 @@ const StartCollaboration = ({ setCurrentPage, ACCENT_COLOR }) => {
     };
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div>
             <div className="flex items-center justify-between mb-3">
                 <button onClick={() => setCurrentPage('AdvertiserDashboard')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
@@ -1974,8 +1972,8 @@ const StartCollaboration = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <p className="text-sm text-gray-500 mt-2">{t('Choose the best approach for your campaign')}</p>
             </div>
 
-            {/* Selection options (show the same "How would you like to work with creators?" page for all objectives) */}
-            <div className="space-y-4 pb-36"> {/* extra bottom padding so content scrolls above sticky button */}
+            {/* Selection options */}
+            <div className="space-y-4">
                 {awarenessOptions.map(opt => {
                     const Icon = opt.Icon;
                     const isSelected = selectedOption === opt.id;
@@ -2015,10 +2013,10 @@ const StartCollaboration = ({ setCurrentPage, ACCENT_COLOR }) => {
                         </button>
                     );
                 })}
-
-                    {/* Shared Continue CTA (fixed above BottomBar) */}
-                    <ContinueCTA disabled={!selectedOption} onClick={handleContinue} ACCENT_COLOR={ACCENT_COLOR} />
             </div>
+
+            {/* Continue CTA button */}
+            <ContinueCTA disabled={!selectedOption} onClick={handleContinue} ACCENT_COLOR={ACCENT_COLOR} />
         </div>
     );
 };
@@ -2045,7 +2043,7 @@ const SponsorshipFormat = ({ setCurrentPage, ACCENT_COLOR }) => {
     }, []);
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <div className="flex items-center justify-between mb-3">
                 <button onClick={() => setCurrentPage('StartCollaboration')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
@@ -2070,16 +2068,16 @@ const SponsorshipFormat = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <p className="text-sm text-gray-500 mt-2">{t('How should creators feature your brand?')}</p>
             </div>
 
-            <div className="space-y-4 pb-36">{/* extra bottom padding so content scrolls above sticky button */}
-                {formats.map(f => {
+            <div className="space-y-4 pb-36 animate-in fade-in slide-in-from-bottom-4 duration-500">{/* extra bottom padding so content scrolls above sticky button */}
+                {formats.map((f, index) => {
                     const Icon = f.Icon;
                     const isSelected = selected === f.id;
                     return (
                         <button
                             key={f.id}
                             onClick={() => setSelected(f.id)}
-                            className={`w-full text-left p-6 rounded-2xl transition`}
-                            style={isSelected ? { backgroundColor: HIGHLIGHT_COLOR, boxShadow: '0 0 0 2px rgba(var(--color-gold-rgb),0.12)' } : undefined}
+                            className={`w-full text-left p-6 rounded-2xl transition animate-in fade-in slide-in-from-bottom-2 duration-500`}
+                            style={isSelected ? { backgroundColor: HIGHLIGHT_COLOR, boxShadow: '0 0 0 2px rgba(var(--color-gold-rgb),0.12)', animationDelay: `${index * 50}ms` } : { animationDelay: `${index * 50}ms` }}
                         >
                             <div className="flex items-start">
                                 <div className="w-14 h-14 rounded-lg flex items-center justify-center mr-6" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
@@ -2099,7 +2097,7 @@ const SponsorshipFormat = ({ setCurrentPage, ACCENT_COLOR }) => {
                 })}
             </div>
 
-            {/* Shared Continue CTA (fixed above BottomBar) */}
+            {/* Continue CTA button */}
             <ContinueCTA disabled={!selected} onClick={() => {
                 try { localStorage.setItem('sponsor_open_budget', '1'); } catch (e) {}
                 try { localStorage.setItem('sponsor_selected_format', selected || ''); } catch (e) {}
@@ -2128,7 +2126,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
             }
         } catch (e) {}
     }, []);
-    // No inline request previews here — selection happens on the Requests marketplace.
+    // No inline request previews here ??selection happens on the Requests marketplace.
     const [selectedModel, setSelectedModel] = useState('CPM');
     // Lump sum state
     const [lumpBudget, setLumpBudget] = useState(100);
@@ -2604,7 +2602,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                 </div>
             </div>
 
-            {/* Use shared Continue CTA so button visual matches previous steps */}
+            {/* Continue CTA button */}
             <ContinueCTA disabled={false} onClick={() => setShowBudget(true)} ACCENT_COLOR={ACCENT_COLOR} />
         </div>
     );
@@ -2970,7 +2968,7 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                                 </div>
                                 <div>
                                     <div className="text-lg font-semibold text-gray-900">{t('Swipe to Sponsor')}</div>
-                                    <div className="text-sm text-gray-600 mt-1">{t('Swipe right → to sponsor automatically, or swipe left ← to skip/remove')}</div>
+                                    <div className="text-sm text-gray-600 mt-1">{t('Swipe right ??to sponsor automatically, or swipe left ??to skip/remove')}</div>
                                 </div>
                             </div>
                             <button
@@ -2980,7 +2978,7 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                                     setShowSwipeInfo(false);
                                 }}
                                 aria-label="Dismiss swipe info"
-                            >✕</button>
+                            ><X className="w-5 h-5" /></button>
                         </div>
                     </div>
                 )}
@@ -3005,7 +3003,7 @@ const SponsorSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                         <p className="text-sm text-gray-600 mt-2">{firstRequest.description}</p>
 
                         <div className="mt-3 flex items-center justify-between">
-                            <button className="text-sm" style={{ color: ACCENT_COLOR }}>{t('See more...')} ▾</button>
+                            <button className="text-sm" style={{ color: ACCENT_COLOR }}>{t('See more...')}</button>
                             <div className="text-sm text-gray-400">{firstRequest.isSponsored ? t('Sponsored') : ''}</div>
                         </div>
 
@@ -3110,7 +3108,7 @@ const EscrowSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
     }, [budgetCap, selectedCount, engagementBonus]);
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <div className="mb-4">
                 <div className="text-sm text-gray-500">Step 6 of 6</div>
             </div>
@@ -3176,12 +3174,12 @@ const EscrowSummary = ({ setCurrentPage, ACCENT_COLOR }) => {
                 <div className="p-4 rounded-2xl border shadow-sm" style={{ background: 'linear-gradient(to right, var(--color-gold-light), white)', borderColor: ACCENT_COLOR }}>
                     <h4 className="text-sm font-medium text-gray-900 mb-2">{t('How escrow works')}</h4>
                     <ul className="text-sm text-gray-600 space-y-2">
-                        <li> • {t('Your payment is held securely by Regaarder')}</li>
-                        <li> • {t('Requests are marked "Sponsored" for creators to see')}</li>
-                        <li> • {t('Creators apply with proposals for each request')}</li>
-                        <li> • {t('You review and select the best creator(s)')}</li>
-                        <li> • {t('Creators deliver content featuring your brand')}</li>
-                        <li> • {t('You approve the content before payment is released')}</li>
+                        <li> ??{t('Your payment is held securely by Regaarder')}</li>
+                        <li> ??{t('Requests are marked "Sponsored" for creators to see')}</li>
+                        <li> ??{t('Creators apply with proposals for each request')}</li>
+                        <li> ??{t('You review and select the best creator(s)')}</li>
+                        <li> ??{t('Creators deliver content featuring your brand')}</li>
+                        <li> ??{t('You approve the content before payment is released')}</li>
                     </ul>
                 </div>
 
@@ -3290,7 +3288,7 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
     const [method, setMethod] = useState('card');
     const [selectedCount, setSelectedCount] = useState(0);
     const [budgetCap, setBudgetCap] = useState(0);
-    const [estReach, setEstReach] = useState('—');
+    const [estReach, setEstReach] = useState('');
     const [totalCost, setTotalCost] = useState(0);
     const [showBalanceModal, setShowBalanceModal] = useState(false);
     const [miniAfAmount, setMiniAfAmount] = useState('');
@@ -3335,7 +3333,7 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
             }
 
             const estimatedReachRaw = Math.round(b * cnt * viewsPerDollar);
-            setEstReach(estimatedReachRaw ? `${formatCompact(estimatedReachRaw)} views` : '—');
+            setEstReach(estimatedReachRaw ? `${formatCompact(estimatedReachRaw)} views` : 'N/A');
 
             // Compute total cost with engagement bonus and platform fee
             const escrowEstimate = Math.ceil(b * cnt * (1 + (bonusPct/100)) * (1 + feePct));
@@ -3370,7 +3368,7 @@ const PaymentMethods = ({ setCurrentPage, ACCENT_COLOR }) => {
     };
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <div className="mb-4">
                 <div className="flex items-center justify-between mb-3">
                     <div />
@@ -3584,18 +3582,45 @@ const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) =>
 
     const [selectedNiches, setSelectedNiches] = useState([]);
     const [selectedTone, setSelectedTone] = useState('');
+    const [toneDropdownOpen, setToneDropdownOpen] = useState(false);
 
     const toggleNiche = (opt) => {
         setSelectedNiches(prev => prev.includes(opt) ? prev.filter(p => p !== opt) : [...prev, opt]);
     };
     const chooseTone = (t) => setSelectedTone(t === selectedTone ? '' : t);
 
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleOutside = (e) => {
+            const toneDropdownElement = document.querySelector('[aria-label="Tone"]');
+            if (toneDropdownElement && !toneDropdownElement.closest('.relative')?.contains(e.target)) {
+                setToneDropdownOpen(false);
+            }
+        };
+
+        const handleKey = (e) => {
+            if (e.key === "Escape" && toneDropdownOpen) setToneDropdownOpen(false);
+        };
+
+        if (toneDropdownOpen) {
+            document.addEventListener("mousedown", handleOutside);
+            document.addEventListener("touchstart", handleOutside, { passive: true });
+            document.addEventListener("keydown", handleKey);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleOutside);
+            document.removeEventListener("touchstart", handleOutside);
+            document.removeEventListener("keydown", handleKey);
+        };
+    }, [toneDropdownOpen]);
+
     // Progress: compute from step number and default total steps
     const AUDIENCE_STEP = 5;
     const progressPct = computeProgressPct(AUDIENCE_STEP, DEFAULT_TOTAL_STEPS);
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
             <div className="flex items-center justify-between mb-3">
                 <button onClick={() => setCurrentPage('SponsorUserRequests')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
@@ -3616,41 +3641,74 @@ const AudienceSelection = ({ setCurrentPage, ACCENT_COLOR, ICON_BACKGROUND }) =>
                 <p className="text-sm text-gray-500 mt-2">{t('Select niches and tones that match your brand')}</p>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('Creator Niches')}</h3>
-                <div className="grid grid-cols-2 gap-4">
-                    {nicheOptions.map(opt => {
-                        const Icon = nicheIconMap[opt] || Sparkles;
-                        return (
-                            <button key={opt} onClick={() => toggleNiche(opt)} className={`w-full text-left p-4 rounded-2xl transition`} style={selectedNiches.includes(opt) ? { backgroundColor: HIGHLIGHT_COLOR, boxShadow: '0 0 0 2px rgba(var(--color-gold-rgb),0.12)' } : undefined}>
-                                <div className="flex items-center">
-                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-4" style={{ backgroundColor: ICON_BACKGROUND }}>
-                                                        <Icon className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
-                                                    </div>
-                                    <div className="text-sm font-medium text-gray-900">{t(opt)}</div>
-                                </div>
-                            </button>
-                        );
-                    })}
+                <div className="space-y-2">
+                    {nicheOptions.map(opt => (
+                        <label key={opt} className="flex items-center p-4 rounded-xl border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                            <input
+                                type="checkbox"
+                                checked={selectedNiches.includes(opt)}
+                                onChange={() => toggleNiche(opt)}
+                                className="w-5 h-5 rounded-lg"
+                                style={{ accentColor: 'var(--color-gold)' }}
+                            />
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center mx-4" style={{ backgroundColor: 'var(--color-gold-light-bg)' }}>
+                                {React.createElement(nicheIconMap[opt] || Sparkles, { className: "w-5 h-5", style: { color: 'var(--color-gold)' } })}
+                            </div>
+                            <span className="text-sm font-medium text-gray-900">{t(opt)}</span>
+                        </label>
+                    ))}
                 </div>
             </div>
 
-            <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('Preferred Tone')}</h3>
-                <div className="grid grid-cols-2 gap-4">
-                    {toneOptions.map(tOption => {
-                        const Icon = toneIconMap[tOption] || Sparkles;
-                        return (
-                            <button key={tOption} onClick={() => chooseTone(tOption)} className={`w-full text-left p-4 rounded-2xl transition`} style={selectedTone === tOption ? { backgroundColor: HIGHLIGHT_COLOR, boxShadow: '0 0 0 2px rgba(var(--color-gold-rgb),0.12)' } : undefined}>
-                                <div className="flex items-center">
-                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-4" style={{ backgroundColor: ICON_BACKGROUND }}>
-                                        <Icon className="w-5 h-5" />
-                                    </div>
-                                    <div className="text-sm font-medium text-gray-900">{t(tOption)}</div>
-                                </div>
-                            </button>
-                        );
-                    })}
+            <div className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
+                <div className="space-y-2 text-left flex items-center mb-3">
+                    <h3 className="text-gray-800 font-semibold text-base block tracking-tight">
+                        {t('Preferred Tone')}
+                    </h3>
+                </div>
+                <div className="relative">
+                    <button
+                        type="button"
+                        onClick={() => setToneDropdownOpen(prev => !prev)}
+                        aria-haspopup="listbox"
+                        aria-expanded={toneDropdownOpen}
+                        className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl shadow-sm"
+                    >
+                        <div className="flex items-center">
+                            {selectedTone ? (
+                                <span className="text-sm text-gray-800 font-medium">{t(selectedTone)}</span>
+                            ) : (
+                                <span className="text-sm text-gray-500">{t('Select a tone')}</span>
+                            )}
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-gray-500 transition ${toneDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {toneDropdownOpen && (
+                        <div className="absolute z-30 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-lg">
+                            <ul role="listbox" aria-label="Tone" className="divide-y divide-gray-100 max-h-72 overflow-auto">
+                                {toneOptions.map((tOption) => (
+                                    <li
+                                        key={tOption}
+                                        role="option"
+                                        aria-selected={selectedTone === tOption}
+                                        onClick={() => {
+                                            chooseTone(tOption);
+                                            setToneDropdownOpen(false);
+                                        }}
+                                        className={`flex items-center p-3 hover:bg-gray-50 cursor-pointer`}
+                                    >
+                                        <div className="flex-1">
+                                            <div className="text-sm font-medium text-gray-800">{t(tOption)}</div>
+                                        </div>
+                                        {selectedTone === tOption && <Check className="w-4 h-4 text-[var(--color-gold)]" />}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -3825,7 +3883,7 @@ const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
     }, [selectedCreatorIds]);
 
     return (
-        <div className="w-full pb-28 sm:pb-12">
+        <div className="w-full">
                 <div className="mb-4">
                     <div className="flex items-center justify-between mb-3">
                         <button onClick={() => setCurrentPage('SponsorSummary')} className="text-gray-600 hover:text-gray-900 p-2 rounded-full">
@@ -3870,11 +3928,11 @@ const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
                         <div>{t('Style')}:</div>
                         <div className="text-right font-medium text-gray-900">{t(style)}</div>
                         <div>{t('Type')}:</div>
-                        <div className="text-right font-medium text-gray-900">{type ? t(type) : (localStorage.getItem ? t(localStorage.getItem('sponsor_selected_model') || '—') : '—')}</div>
+                        <div className="text-right font-medium text-gray-900">{type ? t(type) : (localStorage.getItem ? t(localStorage.getItem('sponsor_selected_model') ?? 'N/A') : 'N/A')}</div>
                         <div>{t('Budget')}:</div>
                         <div className="text-right font-medium text-gray-900">${Number(budget).toLocaleString()}</div>
                         <div>{t('Est. Reach')}:</div>
-                        <div className="text-right font-medium text-gray-900">{budget ? t('{0} views').replace('{0}', Math.round(budget * 80)) : '—'}</div>
+                        <div className="text-right font-medium text-gray-900">{budget ? t('{0} views').replace('{0}', Math.round(budget * 80)) : 'N/A'}</div>
                     </div>
                 </div>
 
@@ -3907,7 +3965,7 @@ const MeetCreators = ({ setCurrentPage, ACCENT_COLOR }) => {
                                         >
                                             {isSelected ? t('Selected') : t('Select')}
                                         </button>
-                                        <div className="text-xs text-gray-400 mt-2">3 {t('videos')} ▾</div>
+                                        <div className="text-xs text-gray-400 mt-2">3 {t('videos')}</div>
                                     </div>
                                 </div>
                             );
@@ -4105,68 +4163,73 @@ const App = () => {
 
 
     return (
-        <div className="min-h-screen bg-white flex flex-col items-center justify-start py-8 sm:py-12 px-4 pt-16">
+        <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-start">
         
         {/* Inject the custom CSS animation */}
         <style dangerouslySetInnerHTML={{ __html: styleSheet }} />
 
-        {/* Sticky Header Component is now a part of the app wrapper */}
+        {/* Sticky Header Component */}
         <StickyHeader ACCENT_COLOR={ACCENT_COLOR} setCurrentPage={setCurrentPage} visible={showSticky} />
 
-        {/* Main Content Card (simulating the page content) */}
-        <div className={`${currentPage === 'AdvertiserDashboard' ? 'max-w-4xl' : 'max-w-md'} w-full bg-white rounded-2xl p-6 sm:p-8`}> 
-            {/* Conditional Rendering based on currentPage state */}
-            {currentPage === 'BrandLogo' && (
-                <BrandLogoPage
-                    ACCENT_COLOR={ACCENT_COLOR}
-                    HIGHLIGHT_COLOR={HIGHLIGHT_COLOR}
-                    ICON_BACKGROUND={ICON_BACKGROUND}
-                    setCurrentPage={setCurrentPage}
-                    setShowSticky={setShowSticky}
-                    uploadedFile={uploadedFile}
-                    previewUrl={previewUrl}
-                    setUploadedFile={setUploadedFile}
-                    setPreviewUrl={setPreviewUrl}
-                />
-            )}
+        {/* Main scrollable content area with proper spacing for footer */}
+        <div className="flex-1 w-full overflow-y-auto">
+            <div className="py-6 sm:py-8 px-4 sm:px-6">
+                {/* Main Content Card */}
+                <div className={`${currentPage === 'AdvertiserDashboard' ? 'max-w-4xl' : 'max-w-md'} mx-auto w-full bg-white rounded-2xl p-6 sm:p-8`}> 
+                    {/* Conditional Rendering based on currentPage state */}
+                    {currentPage === 'BrandLogo' && (
+                        <BrandLogoPage
+                            ACCENT_COLOR={ACCENT_COLOR}
+                            HIGHLIGHT_COLOR={HIGHLIGHT_COLOR}
+                            ICON_BACKGROUND={ICON_BACKGROUND}
+                            setCurrentPage={setCurrentPage}
+                            setShowSticky={setShowSticky}
+                            uploadedFile={uploadedFile}
+                            previewUrl={previewUrl}
+                            setUploadedFile={setUploadedFile}
+                            setPreviewUrl={setPreviewUrl}
+                        />
+                    )}
 
-                {currentPage === 'AdvertiserDashboard' && (
-                <AdvertiserDashboard
-                    setCurrentPage={setCurrentPage}
-                    ACCENT_COLOR={ACCENT_COLOR}
-                    previewUrl={previewUrl}
-                    uploadedFile={uploadedFile}
-                    campaigns={campaigns}
+                    {currentPage === 'AdvertiserDashboard' && (
+                        <AdvertiserDashboard
+                            setCurrentPage={setCurrentPage}
+                            ACCENT_COLOR={ACCENT_COLOR}
+                            previewUrl={previewUrl}
+                            uploadedFile={uploadedFile}
+                            campaigns={campaigns}
                             onViewCampaign={(id) => { setSelectedCampaignId(id); setSelectedCampaignMode('view'); setCurrentPage('CampaignDetails'); }}
                             onEditCampaign={(id) => { setSelectedCampaignId(id); setSelectedCampaignMode('edit'); setCurrentPage('CampaignDetails'); }}
-                />
-            )}
+                        />
+                    )}
 
-                {currentPage === 'CampaignDetails' && (
-                    <CampaignDetails
-                        setCurrentPage={setCurrentPage}
-                        campaign={campaigns.find(c => c.id === selectedCampaignId)}
-                        onSave={(updated) => {
-                            const next = campaigns.map(p => p.id === updated.id ? { ...p, ...updated } : p);
-                            try { localStorage.setItem('advertiser_campaigns', JSON.stringify(next)); } catch (e) {}
-                            setCampaigns(next);
-                            try { busEmit('advertiser:campaigns_updated', next); } catch (e) {}
-                        }}
-                        readOnly={selectedCampaignMode === 'view'}
-                    />
-                )}
+                    {currentPage === 'CampaignDetails' && (
+                        <CampaignDetails
+                            setCurrentPage={setCurrentPage}
+                            campaign={campaigns.find(c => c.id === selectedCampaignId)}
+                            onSave={(updated) => {
+                                const next = campaigns.map(p => p.id === updated.id ? { ...p, ...updated } : p);
+                                try { localStorage.setItem('advertiser_campaigns', JSON.stringify(next)); } catch (e) {}
+                                setCampaigns(next);
+                                try { busEmit('advertiser:campaigns_updated', next); } catch (e) {}
+                            }}
+                            readOnly={selectedCampaignMode === 'view'}
+                        />
+                    )}
 
-            
-
-            {currentPage !== 'BrandLogo' && currentPage !== 'AdvertiserDashboard' && (
-                <CurrentPage 
-                    ACCENT_COLOR={ACCENT_COLOR} 
-                    HIGHLIGHT_COLOR={HIGHLIGHT_COLOR} 
-                    ICON_BACKGROUND={ICON_BACKGROUND}
-                    setCurrentPage={setCurrentPage} // Pass the navigation function down
-                    setShowSticky={setShowSticky}
-                />
-            )}
+                    {currentPage !== 'BrandLogo' && currentPage !== 'AdvertiserDashboard' && (
+                        <CurrentPage 
+                            ACCENT_COLOR={ACCENT_COLOR} 
+                            HIGHLIGHT_COLOR={HIGHLIGHT_COLOR} 
+                            ICON_BACKGROUND={ICON_BACKGROUND}
+                            setCurrentPage={setCurrentPage}
+                            setShowSticky={setShowSticky}
+                        />
+                    )}
+                </div>
+            </div>
+            {/* Bottom spacing to ensure content doesn't hide behind footer navbar */}
+            <div className="h-24"></div>
         </div>
         
         {/* Bottom Mobile Navigation */}

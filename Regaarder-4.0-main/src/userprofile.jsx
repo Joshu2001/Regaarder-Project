@@ -28,9 +28,9 @@ const selectedLanguage = localStorage.getItem('regaarder_language') || 'English'
 const t = (key) => getTranslation(key, selectedLanguage);
 
 const statsData = [
-    { value: "12", label: t('Requests'), color: "text-stone-900", bgColor: '#ffffff', shadow: "shadow-stone-200/50" },
-    { value: "3", label: t('Active'), color: "text-stone-900", bgColor: 'var(--color-gold-light-bg)', shadow: "shadow-amber-200/50", glow: true },
-    { value: "9", label: t('Fulfilled'), color: "text-stone-900", bgColor: '#ffffff', shadow: "shadow-stone-200/50" },
+    { value: "0", label: t('Requests'), color: "text-stone-900", bgColor: '#ffffff', shadow: "shadow-stone-200/50" },
+    { value: "0", label: t('Active'), color: "text-stone-900", bgColor: 'var(--color-gold-light-bg)', shadow: "shadow-amber-200/50", glow: true },
+    { value: "0", label: t('Completed'), color: "text-stone-900", bgColor: '#ffffff', shadow: "shadow-stone-200/50" },
 ];
 
 const templatesData = [
@@ -97,17 +97,17 @@ const ActionButton = ({ icon: Icon, text, onClick }) => (
 
 const StatCard = ({ value, label, bgColor, shadow, glow }) => (
     <div
-        className={`flex flex-col items-center justify-center p-3 rounded-xl w-full max-w-[90px] aspect-[4/5] shadow-md transition duration-300 hover:shadow-lg cursor-default relative overflow-hidden`}
+        className={`flex flex-col items-center justify-center p-6 rounded-2xl w-full max-w-[130px] aspect-square shadow-lg transition duration-300 hover:shadow-xl cursor-default relative overflow-hidden`}
         style={{
             backgroundColor: bgColor || '#ffffff',
-            boxShadow: glow ? `0 0 12px 4px rgba(var(--color-gold-rgb), 0.15)` : `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)`,
+            boxShadow: glow ? `0 0 16px 6px rgba(202, 138, 4, 0.12)` : `0 10px 15px -3px rgba(0, 0, 0, 0.1)`,
         }}
     >
         {/* <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${!glow && 'hidden'}`} style={{ backgroundColor: 'var(--color-gold)' }}></div> */}
-        <span className="text-3xl font-extrabold text-stone-900 mb-1.5">
+        <span className="text-4xl font-extrabold text-stone-900 mb-3">
             {value}
         </span>
-        <span className="text-[9px] font-semibold text-stone-500 uppercase leading-tight tracking-wider text-center">
+        <span className="text-xs font-semibold text-stone-600 uppercase leading-tight tracking-wider text-center">
             {label}
         </span>
     </div>
@@ -213,30 +213,64 @@ const RequestCard = ({ title, description, time, timeAgo, creator, status, statu
 };
 
 // Component for a single Following Row
-const FollowingRow = ({ id, name, handle, videos, avatar, onUnfollow }) => (
-    <div className="flex items-center p-3 mb-3 bg-white rounded-xl shadow-lg shadow-stone-100/50 cursor-pointer hover:bg-stone-50 transition duration-150 border border-stone-100">
-        <img
-            src={avatar}
-            alt={name}
-            className="w-10 h-10 object-cover rounded-full mr-4 flex-shrink-0 border border-stone-200"
-            onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/40x40/64748B/FFFFFF?text=HB"; }}
-        />
-        <div className="flex-grow text-left min-w-0">
-            <p className="text-base font-semibold text-stone-800 truncate">{name}</p>
-            <p className="text-sm text-stone-500 truncate">
-                @{handle} • {videos} {t('videos')}
-            </p>
+const FollowingRow = ({ id, name, handle, videos, avatar, onUnfollow, isUnfollowed, onSwipe }) => {
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
+    const minSwipeDistance = 50;
+
+    const handleTouchStart = (e) => {
+        setTouchEnd(null);
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchMove = (e) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        const distance = touchStart - touchEnd;
+        if (distance > minSwipeDistance) {
+            // Swiped left
+            onSwipe(id);
+        }
+    };
+
+    return (
+        <div 
+            className={`flex items-center p-3 mb-3 bg-white rounded-xl shadow-lg shadow-stone-100/50 cursor-pointer hover:bg-stone-50 transition duration-150 border border-stone-100 ${isUnfollowed ? 'opacity-30' : ''}`}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+        >
+            <img
+                src={avatar}
+                alt={name}
+                className="w-10 h-10 object-cover rounded-full mr-4 flex-shrink-0 border border-stone-200"
+                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/40x40/64748B/FFFFFF?text=HB"; }}
+            />
+            <div className="flex-grow text-left min-w-0">
+                <p className="text-base font-semibold text-stone-800 truncate">{name}</p>
+                <p className="text-sm text-stone-500 truncate">
+                    @{handle} • {videos} {t('videos')}
+                </p>
+            </div>
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (onUnfollow) onUnfollow(id);
+                }}
+                className={`px-4 py-1.5 text-sm font-semibold rounded-full transition duration-150 active:scale-[0.98] ml-4 flex-shrink-0 ${
+                    isUnfollowed 
+                        ? 'text-stone-600 bg-stone-100 hover:bg-stone-200' 
+                        : 'text-white bg-stone-900 hover:bg-stone-800'
+                }`}
+            >
+                {isUnfollowed ? t('Follow') : t('Following')}
+            </button>
         </div>
-        <button
-            onClick={(e) => {
-                e.stopPropagation();
-                if (onUnfollow) onUnfollow(id);
-            }}
-            className="px-4 py-1.5 text-sm font-semibold text-stone-600 bg-stone-100 rounded-full hover:bg-stone-200 transition duration-150 active:scale-[0.98] ml-4 flex-shrink-0">
-            {t('Following')}
-        </button>
-    </div>
-);
+    );
+};
 
 // Component for a single navigation item to handle the active glow effect
 const NavItem = ({ icon: Icon, name, isActive, onClick }) => {
@@ -475,6 +509,9 @@ const App = () => {
     const [requests, setRequests] = useState([]);
     const [templates, setTemplates] = useState([]);
     const [following, setFollowing] = useState([]);
+
+    // Track unfollowed creators (swipe or button click)
+    const [unfollowedCreators, setUnfollowedCreators] = useState(new Set());
 
     // Privacy settings dropdown state
     const [selectedPrivacy, setSelectedPrivacy] = useState("public");
@@ -745,6 +782,17 @@ const App = () => {
             const token = localStorage.getItem('regaarder_token');
             if (!token) return;
 
+            // Toggle the unfollowed state
+            setUnfollowedCreators(prev => {
+                const newSet = new Set(prev);
+                if (newSet.has(creatorId)) {
+                    newSet.delete(creatorId);
+                } else {
+                    newSet.add(creatorId);
+                }
+                return newSet;
+            });
+
             const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
             const res = await fetch(`${BACKEND}/unfollow`, {
                 method: 'POST',
@@ -756,12 +804,21 @@ const App = () => {
             });
 
             if (res.ok) {
-                // Remove from local state
-                setFollowing(prev => prev.filter(creator => creator.id !== creatorId));
+                // Don't remove from state - only remove on page refresh
+                console.log('Unfollowed creator:', creatorId);
             }
         } catch (err) {
             console.error('Failed to unfollow:', err);
         }
+    }, []);
+
+    // Handle swipe-to-hide action
+    const handleSwipe = useCallback((creatorId) => {
+        setUnfollowedCreators(prev => {
+            const newSet = new Set(prev);
+            newSet.add(creatorId);
+            return newSet;
+        });
     }, []);
 
 
@@ -1000,14 +1057,37 @@ const App = () => {
                         <main className="p-6 pt-4 bg-white pb-24">
 
                             {/* Activity Overview Title */}
-                            <div className="flex items-center justify-center space-x-2 text-sm font-semibold text-stone-700 mb-5">
-                                <LineChart size={16} style={{ color: 'var(--color-gold)' }} />
+                            <div className="flex items-center justify-center space-x-2 text-lg font-bold text-stone-900 mb-8">
+                                <LineChart size={20} style={{ color: 'var(--color-gold)' }} />
                                 <span>{t('Activity Overview')}</span>
                             </div>
 
                             {/* Stats Cards */}
-                            <div className="flex justify-center gap-4 mb-10">
-                                {statsData.map((stat, index) => (
+                            <div className="flex justify-center gap-6 mb-12">
+                                {[
+                                    { 
+                                        value: String(requests.length), 
+                                        label: t('Requests'), 
+                                        color: "text-stone-900", 
+                                        bgColor: '#ffffff', 
+                                        shadow: "shadow-stone-200/50" 
+                                    },
+                                    { 
+                                        value: String(requests.filter(r => r.status === 'In Progress' || r.status === 'Pending').length), 
+                                        label: t('Active'), 
+                                        color: "text-stone-900", 
+                                        bgColor: 'var(--color-gold-light-bg)', 
+                                        shadow: "shadow-amber-200/50", 
+                                        glow: true 
+                                    },
+                                    { 
+                                        value: String(requests.filter(r => r.status === 'Fulfilled' || r.status === 'Completed').length), 
+                                        label: t('Completed'), 
+                                        color: "text-stone-900", 
+                                        bgColor: '#ffffff', 
+                                        shadow: "shadow-stone-200/50" 
+                                    }
+                                ].map((stat, index) => (
                                     <StatCard key={index} {...stat} />
                                 ))}
                             </div>
@@ -1278,7 +1358,9 @@ const App = () => {
                                         <FollowingRow
                                             key={follower.id || index}
                                             {...follower}
+                                            isUnfollowed={unfollowedCreators.has(follower.id)}
                                             onUnfollow={handleUnfollow}
+                                            onSwipe={handleSwipe}
                                         />
                                     ))
                                 ) : (
