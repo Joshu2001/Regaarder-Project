@@ -321,7 +321,7 @@ const StatCard = ({ label, value, selectedLanguage = 'English' }) => (
     </div>
 );
 
-const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTip, selectedCTAs, onCTAClick, availableTags, onShowToast, selectedLanguage = 'English' }) => {
+const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTip, selectedCTAs, onCTAClick, availableTags, onShowToast, isSharedLink = false, selectedLanguage = 'English' }) => {
     const [editingField, setEditingField] = useState(null);
     const [tempPrice, setTempPrice] = useState(profile.price);
     const [tempPricingType, setTempPricingType] = useState(profile.pricingType || 'One Time');
@@ -660,12 +660,14 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                     <Icon name="arrowLeft" size={24} />
                 </button>
                 <div className="flex space-x-3">
-                    <button
-                        className="w-11 h-11 flex items-center justify-center bg-black/20 rounded-full backdrop-blur-sm hover:bg-black/30 transition"
-                        onClick={onTogglePreview}
-                    >
-                        <Icon name={isPreviewMode ? "pencilLine" : "eye"} size={24} style={{ width: 24, height: 24 }} />
-                    </button>
+                    {!isSharedLink && (
+                        <button
+                            className="w-11 h-11 flex items-center justify-center bg-black/20 rounded-full backdrop-blur-sm hover:bg-black/30 transition"
+                            onClick={onTogglePreview}
+                        >
+                            <Icon name={isPreviewMode ? "pencilLine" : "eye"} size={24} style={{ width: 24, height: 24 }} />
+                        </button>
+                    )}
                     <button
                         className="w-11 h-11 flex items-center justify-center bg-black/20 rounded-full backdrop-blur-sm hover:bg-black/30 transition"
                         onClick={handleShare}
@@ -1707,7 +1709,7 @@ const AboutSection = ({ profile, onUpdate, isPreviewMode, selectedLanguage = 'En
 const ShareProfile = ({ profile, onCopy, selectedLanguage = 'English' }) => {
     const handleCopy = async () => {
         // Construct the profile URL (using current origin + handle for demo)
-        const url = `${window.location.origin}/@${profile?.handle || 'user'}`;
+        const url = `${window.location.origin}/@${profile?.handle || 'user'}?shared=true`;
 
         const successData = { title: "Link Copied", subtitle: "Profile link copied to clipboard" };
 
@@ -2031,7 +2033,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
     );
 };
 
-const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, customData, isPreview = false, selectedLanguage = 'English' }) => {
+const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, customData, isPreview = false, isSharedLink = false, selectedLanguage = 'English' }) => {
     if (!isOpen) return null;
 
     const title = (customData?.title || getTranslation('{name} is waiting for you!', selectedLanguage)).replace(/{name}/g, profile.name);
@@ -2070,9 +2072,9 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
                 }
             `}</style>
             {/* Use a plain black backdrop when opened from preview mode (no blur) */}
-            <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
+            <div className={isPreview || isSharedLink ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={!isSharedLink ? onClose : undefined}></div>
             <div className="relative bg-white rounded-xl w-full max-w-none p-6 sm:p-8 shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col items-center">
-                {!isPreview && (
+                {!isPreview && !isSharedLink && (
                     <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                         <Icon name="x" size={24} />
                     </button>
@@ -2109,14 +2111,16 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
                 )}
 
                 <button
-                    className={`relative overflow-hidden w-full bg-[var(--color-gold)] text-white font-semibold py-4 rounded-full text-lg tracking-wide shadow-md hover:bg-[var(--color-gold-darker)] transition flex items-center justify-center mb-4 ${ctaActive ? 'scale-95 opacity-90' : ''}`}
+                    className={`relative overflow-hidden w-full bg-[var(--color-gold)] text-white font-semibold py-4 rounded-full text-lg tracking-wide shadow-md hover:bg-[var(--color-gold-darker)] transition flex items-center justify-center mb-4 ${ctaActive ? 'scale-95 opacity-90' : ''} ${isSharedLink ? 'opacity-50 cursor-not-allowed' : ''}`}
                     onClick={() => {
+                        if (isSharedLink) return;
                         // show a brief active state so users perceive the press, then navigate
                         setCtaActive(true);
                         setTimeout(() => {
                             navigate('/ideas.jsx');
                         }, 120);
                     }}
+                    disabled={isSharedLink}
                     aria-label={ctaText}
                 >
                     <div
@@ -2130,23 +2134,27 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
                 <div className="flex gap-3 w-full mb-4 flex-nowrap">
                     <button
                         onClick={onSendTip}
-                        className="flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide"
+                        disabled={isSharedLink}
+                        className={`flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide ${isSharedLink ? 'opacity-50 cursor-not-allowed hover:bg-white' : ''}`}
                     >
                         <Icon name="heart" size={18} className="mr-2 flex-shrink-0" />
                         <span className="truncate">{getTranslation('Send Tip', selectedLanguage)}</span>
                     </button>
                     <button
                         onClick={onBecomeSponsor}
-                        className="flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide"
+                        disabled={isSharedLink}
+                        className={`flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide ${isSharedLink ? 'opacity-50 cursor-not-allowed hover:bg-white' : ''}`}
                     >
                         <Icon name="star" size={18} className="mr-2 flex-shrink-0" />
                         <span className="truncate">{getTranslation('Become a Sponsor', selectedLanguage)}</span>
                     </button>
                 </div>
 
-                <button onClick={onClose} className="text-gray-500 text-sm hover:text-gray-700 font-normal mt-1">
-                    {getTranslation('Maybe later', selectedLanguage)}
-                </button>
+                {!isSharedLink && (
+                    <button onClick={onClose} className="text-gray-500 text-sm hover:text-gray-700 font-normal mt-1">
+                        {getTranslation('Maybe later', selectedLanguage)}
+                    </button>
+                )}
             </div>
         </div>
     );
@@ -2670,16 +2678,19 @@ const App = () => {
     });
     const [welcomeData, setWelcomeData] = useState(null);
     const [previewWelcomeData, setPreviewWelcomeData] = useState(null);
+    const [isSharedLink, setIsSharedLink] = useState(false);
 
     useEffect(() => {
         let timer;
         if (isPreviewMode) {
+            // For shared links, show welcome popup immediately; for preview mode toggle, delay it
+            const delay = isSharedLink ? 500 : 1000;
             timer = setTimeout(() => {
                 setShowWelcomePopup(true);
-            }, 1000);
+            }, delay);
         }
         return () => clearTimeout(timer);
-    }, [isPreviewMode]);
+    }, [isPreviewMode, isSharedLink]);
 
     // Hydrate profile and featured video from query params (public view) or demo auth stored in localStorage
     useEffect(() => {
@@ -2688,7 +2699,14 @@ const App = () => {
                 const params = new URLSearchParams(window.location.search || '');
                 const id = params.get('id');
                 const handle = params.get('handle') || params.get('h');
+                const isSharedLink = params.get('shared') === 'true';
                 const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                
+                // If this is a shared link, enable shared preview mode
+                if (isSharedLink) {
+                    setIsPreviewMode(true);
+                    setIsSharedLink(true);
+                }
 
                 if (id) {
                     try {
@@ -3488,6 +3506,7 @@ const App = () => {
                 <WelcomePopup
                     isOpen={showWelcomePopup}
                     isPreview={isPreviewMode}
+                    isSharedLink={isSharedLink}
                     onClose={() => {
                         setShowWelcomePopup(false);
                         setPreviewWelcomeData(null);
@@ -3549,6 +3568,7 @@ const App = () => {
                     onCTAClick={handleFanRequest}
                     availableTags={creatorTags}
                     onShowToast={setToastMessage}
+                    isSharedLink={isSharedLink}
                     selectedLanguage={selectedLanguage}
                 />
 

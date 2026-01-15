@@ -203,42 +203,6 @@
     "createdAt": "2026-01-06T11:57:58.764Z"
   },
   {
-    "id": "n-1767697402893",
-    "requestId": "req_1767696907072",
-    "text": "Update for \"La corde the zordes\": In Production ",
-    "from": {
-      "id": "user-1766857658728",
-      "name": "Joshuar"
-    },
-    "to": {
-      "id": "user-1767585399609"
-    },
-    "createdAt": "2026-01-06T11:03:22.893Z",
-    "type": "status_update",
-    "metadata": {
-      "step": 3,
-      "message": ""
-    }
-  },
-  {
-    "id": "n-1767697362687",
-    "requestId": "req_1767696907072",
-    "text": "Update for \"La corde the zordes\": Under Review ",
-    "from": {
-      "id": "user-1766857658728",
-      "name": "Joshuar"
-    },
-    "to": {
-      "id": "user-1767585399609"
-    },
-    "createdAt": "2026-01-06T11:02:42.687Z",
-    "type": "status_update",
-    "metadata": {
-      "step": 2,
-      "message": ""
-    }
-  },
-  {
     "id": "s-1767695478316",
     "requestId": "req_1767690823115",
     "text": "Reply: ,nnnnnnnnn",

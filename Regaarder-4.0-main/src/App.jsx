@@ -21,6 +21,7 @@ import LikedVideos from './likedvideos.jsx';
 import Bookmarks from './bookmarks.jsx';
 import Playlist from './playlists.jsx';
 import Referrals from './referrals.jsx';
+import Policies from './policies.jsx';
 
 function App() {
   const [overrideView, setOverrideView] = useState(null);
@@ -69,7 +70,7 @@ function App() {
         <Route path="/following" element={<Home />} />
         <Route path="/playlist" element={<Playlist />} />
         <Route path="/myfolders" element={<Navigate to="/playlist" replace />} />
-        <Route path="/policies" element={<Home />} />
+        <Route path="/policies" element={<Policies />} />
         <Route path="/upgradetopremium" element={<Home />} />
         <Route path="/settings" element={<Settings />} />
         
