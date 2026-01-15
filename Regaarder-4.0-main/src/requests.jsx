@@ -2828,8 +2828,47 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
 // --- Profile Dialog Component (matching home.jsx) ---
 const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData = null, selectedLanguage = 'English' }) => {
     const currentYear = new Date().getFullYear();
+    const [loadedProfileData, setLoadedProfileData] = useState(null);
 
-    const data = profileData || {
+    // Fetch user profile data to get avatar if not already provided
+    useEffect(() => {
+        if (profileData && profileData.avatar) {
+            setLoadedProfileData(profileData);
+            return;
+        }
+
+        const fetchUserProfile = async () => {
+            try {
+                const targetId = username || name;
+                const response = await fetch('http://localhost:4000/users');
+                const result = await response.json();
+                const users = Array.isArray(result.users) ? result.users : (Array.isArray(result) ? result : []);
+                
+                const user = users.find(u => 
+                    u.id === targetId || 
+                    u.email === targetId || 
+                    u.name === targetId || 
+                    (u.name && u.name.toLowerCase() === String(targetId).toLowerCase())
+                );
+
+                if (user) {
+                    setLoadedProfileData({
+                        ...profileData,
+                        avatar: user.image || user.avatar || null
+                    });
+                } else {
+                    setLoadedProfileData(profileData);
+                }
+            } catch (err) {
+                console.error('Error fetching user profile:', err);
+                setLoadedProfileData(profileData);
+            }
+        };
+
+        fetchUserProfile();
+    }, [username, name, profileData]);
+
+    const data = loadedProfileData || profileData || {
         avatar: null,
         bio: isCreator ? getTranslation('Creating engaging content for you', selectedLanguage) : getTranslation('Enjoying great content', selectedLanguage),
         stats: {

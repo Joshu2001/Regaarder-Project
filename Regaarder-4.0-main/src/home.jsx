@@ -1809,10 +1809,49 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
     const [isFollowing, setIsFollowing] = useState(false);
     const [followActive, setFollowActive] = useState(false);
     const [requestActive, setRequestActive] = useState(false);
+    const [loadedProfileData, setLoadedProfileData] = useState(null);
     const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
 
+    // Fetch user profile data to get avatar if not already provided
+    useEffect(() => {
+        if (profileData && profileData.avatar) {
+            setLoadedProfileData(profileData);
+            return;
+        }
+
+        const fetchUserProfile = async () => {
+            try {
+                const targetId = creatorId || username || name;
+                const response = await fetch(`${BACKEND}/users`);
+                const result = await response.json();
+                const users = Array.isArray(result.users) ? result.users : (Array.isArray(result) ? result : []);
+                
+                const user = users.find(u => 
+                    u.id === targetId || 
+                    u.email === targetId || 
+                    u.name === targetId || 
+                    (u.name && u.name.toLowerCase() === String(targetId).toLowerCase())
+                );
+
+                if (user) {
+                    setLoadedProfileData({
+                        ...profileData,
+                        avatar: user.image || user.avatar || null
+                    });
+                } else {
+                    setLoadedProfileData(profileData);
+                }
+            } catch (err) {
+                console.error('Error fetching user profile:', err);
+                setLoadedProfileData(profileData);
+            }
+        };
+
+        fetchUserProfile();
+    }, [creatorId, username, name, profileData, BACKEND]);
+
     // Use real data if provided, otherwise use placeholder data
-    const initialData = profileData || {
+    const initialData = loadedProfileData || profileData || {
         avatar: null,
         bio: isCreator ? getTranslation('Creating engaging content for you', selectedLanguage) : getTranslation('Enjoying great content', selectedLanguage),
         stats: {
@@ -4625,7 +4664,7 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
     const [pos, setPos] = useState({ right: 16, bottom: 100 });
     const dragRef = useRef({ isDragging: false, hasMoved: false, startX: 0, startY: 0, startRight: 0, startBottom: 0 });
     const videoRef = useRef(null);
-    const [playing, setPlaying] = useState(true);
+    const [playing, setPlaying] = useState(!(data && data.paused));
 
     // Sync initial time from data when mounting or when data source changes
     useEffect(() => {
@@ -4825,7 +4864,7 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
                     src={(data && (data.video && (data.video.src || data.video.videoUrl || data.video.url))) || ''}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#000' }}
                     playsInline
-                    autoPlay
+                    autoPlay={playing}
                     onPlay={() => setPlaying(true)}
                     onPause={() => setPlaying(false)}
                 />

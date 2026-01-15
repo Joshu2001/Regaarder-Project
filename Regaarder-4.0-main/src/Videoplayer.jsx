@@ -2334,7 +2334,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				const fn = recordRef.current;
 				if (typeof fn !== 'function') return;
 				fn({
-					videoId: videoUrl || videoTitle || null,
+					videoId: videoInfo?.id || videoUrl || videoTitle || null,
 					userId: null,
 					lastWatchedTime: Math.floor(v.currentTime || 0),
 					duration: Math.floor(v.duration || 0),
@@ -3653,6 +3653,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							const videoThumb = '';
 							const videoId = searchParams.get('id') || 'custom';
 
+							// Pause the video before navigating to miniplayer
+							if (v) {
+								try {
+									v.pause();
+									setIsPlaying(false);
+								} catch (e) { }
+							}
+
 							const stored = {
 								video: {
 									...(info || {}),
@@ -3668,7 +3676,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									channel: creatorName || (info && info.channel) || null
 								},
 								time: Math.floor(time || 0),
-								paused: !isPlayingNow,
+								paused: true,
 								title: videoTitle || null,
 								creatorName: creatorName || null,
 								progressColor: progressColor || null,
@@ -5766,7 +5774,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				<CommentsModal
 					isOpen={showCommentsModal}
 					onClose={() => setShowCommentsModal(false)}
-					requestId={4}
+					requestId={videoInfo?.id || videoTitle || 'unknown'}
 					selectedLanguage={selectedLanguage}
 				/>
 			)}
@@ -6413,6 +6421,16 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 
 			setInputValue('');
 			setReplyingTo(null);
+			
+			// Dispatch event so profile stats refresh
+			try {
+				window.dispatchEvent(new CustomEvent('request:comment_added', { 
+					detail: { requestId, comment: created || fallback } 
+				}));
+			} catch (e) {
+				console.warn('Failed to dispatch comment event:', e);
+			}
+			
 			setTimeout(() => {
 				try { contentRef.current?.scrollTo({ top: contentRef.current.scrollHeight, behavior: 'smooth' }); } catch { }
 			}, 80);

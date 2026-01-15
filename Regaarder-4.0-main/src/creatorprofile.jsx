@@ -726,8 +726,8 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                     {/* Stats Row */}
                     <div className="flex space-x-2 mb-2">
                         <StatCard label={getTranslation("Followers", selectedLanguage)} value={profile.followers || profile.followerCount || "0"} selectedLanguage={selectedLanguage} />
-                        <StatCard label={getTranslation("Views", selectedLanguage)} value={profile.views || profile.totalViews || "0"} selectedLanguage={selectedLanguage} />
-                        <StatCard label={getTranslation("Rating", selectedLanguage)} value="5.0" selectedLanguage={selectedLanguage} />
+                        <StatCard label={getTranslation("Views", selectedLanguage)} value={profile.views || "0"} selectedLanguage={selectedLanguage} />
+                        <StatCard label={getTranslation("Comments", selectedLanguage)} value={profile.comments || "0"} selectedLanguage={selectedLanguage} />
                     </div>
                 </div>
 
@@ -2708,45 +2708,85 @@ const App = () => {
                     setIsSharedLink(true);
                 }
 
+                const fetchUserWithStats = async (userId, handle) => {
+                    // Fetch user data
+                    let res;
+                    if (userId) {
+                        res = await fetch(`${BACKEND}/users/${encodeURIComponent(userId)}`);
+                    } else if (handle) {
+                        const cleaned = String(handle).trim().replace(/^@/, '');
+                        res = await fetch(`${BACKEND}/users/handle/${encodeURIComponent(cleaned)}`);
+                    }
+                    
+                    if (!res || !res.ok) return null;
+                    const json = await res.json();
+                    if (!json || !json.user) return null;
+
+                    const safeUser = { ...json.user };
+                    if (safeUser.image && String(safeUser.image).startsWith('blob:')) safeUser.image = '';
+                    if (safeUser.image) { 
+                        try { 
+                            const u = new URL(safeUser.image); 
+                            if (u.hostname === 'localhost') u.hostname = window.location.hostname; 
+                            if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; 
+                            safeUser.image = u.toString(); 
+                        } catch (e) { } 
+                    }
+                    if (safeUser.document && String(safeUser.document).startsWith('blob:')) safeUser.document = '';
+
+                    // Fetch all videos to calculate stats for this user
+                    try {
+                        const videosRes = await fetch(`${BACKEND}/videos`);
+                        if (videosRes.ok) {
+                            const videosData = await videosRes.json();
+                            const videos = Array.isArray(videosData) ? videosData : (videosData.videos || []);
+                            
+                            // Filter videos by author ID or email
+                            const userVideos = videos.filter(v => 
+                                (v.authorId === safeUser.id) || 
+                                (v.authorId === safeUser.email) ||
+                                (v.author && v.author.toLowerCase() === (safeUser.name || '').toLowerCase())
+                            );
+                            
+                            // Sum up views and comments
+                            const totalViews = userVideos.reduce((sum, v) => sum + (parseInt(v.views) || 0), 0);
+                            const totalComments = userVideos.reduce((sum, v) => sum + (parseInt(v.comments) || 0), 0);
+                            
+                            safeUser.views = totalViews;
+                            safeUser.comments = totalComments;
+                            safeUser.videoCount = userVideos.length;
+                        }
+                    } catch (e) {
+                        console.error('Error fetching videos for stats:', e);
+                    }
+
+                    return safeUser;
+                };
+
                 if (id) {
                     try {
-                        const res = await fetch(`${BACKEND}/users/${encodeURIComponent(id)}`);
-                        if (res.ok) {
-                            const json = await res.json();
-                            if (json && json.user) {
-                                const safeUser = { ...json.user };
-                                if (safeUser.image && String(safeUser.image).startsWith('blob:')) safeUser.image = '';
-                                if (safeUser.image) { try { const u = new URL(safeUser.image); if (u.hostname === 'localhost') u.hostname = window.location.hostname; if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; safeUser.image = u.toString(); } catch (e) { } }
-                                if (safeUser.document && String(safeUser.document).startsWith('blob:')) safeUser.document = '';
-                                setProfile(prev => ({ ...prev, ...safeUser }));
-                                if (json.user.introVideo) setFeaturedVideo({ url: json.user.introVideo });
-                                if (json.user.categories && Array.isArray(json.user.categories)) {
-                                    try { setCategories(json.user.categories); } catch (e) { /* ignore */ }
-                                }
-                                return;
+                        const user = await fetchUserWithStats(id, null);
+                        if (user) {
+                            setProfile(prev => ({ ...prev, ...user }));
+                            if (user.introVideo) setFeaturedVideo({ url: user.introVideo });
+                            if (user.categories && Array.isArray(user.categories)) {
+                                try { setCategories(user.categories); } catch (e) { /* ignore */ }
                             }
+                            return;
                         }
                     } catch (e) { /* ignore fetch error and fall back */ }
                 }
 
                 if (handle) {
                     try {
-                        const cleaned = String(handle).trim().replace(/^@/, '');
-                        const res = await fetch(`${BACKEND}/users/handle/${encodeURIComponent(cleaned)}`);
-                        if (res.ok) {
-                            const json = await res.json();
-                            if (json && json.user) {
-                                const safeUser = { ...json.user };
-                                if (safeUser.image && String(safeUser.image).startsWith('blob:')) safeUser.image = '';
-                                if (safeUser.image) { try { const u = new URL(safeUser.image); if (u.hostname === 'localhost') u.hostname = window.location.hostname; if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; safeUser.image = u.toString(); } catch (e) { } }
-                                if (safeUser.document && String(safeUser.document).startsWith('blob:')) safeUser.document = '';
-                                setProfile(prev => ({ ...prev, ...safeUser }));
-                                if (json.user.introVideo) setFeaturedVideo({ url: json.user.introVideo });
-                                if (json.user.categories && Array.isArray(json.user.categories)) {
-                                    try { setCategories(json.user.categories); } catch (e) { /* ignore */ }
-                                }
-                                return;
+                        const user = await fetchUserWithStats(null, handle);
+                        if (user) {
+                            setProfile(prev => ({ ...prev, ...user }));
+                            if (user.introVideo) setFeaturedVideo({ url: user.introVideo });
+                            if (user.categories && Array.isArray(user.categories)) {
+                                try { setCategories(user.categories); } catch (e) { /* ignore */ }
                             }
+                            return;
                         }
                     } catch (e) { /* ignore fetch error and fall back */ }
                 }
@@ -2759,6 +2799,28 @@ const App = () => {
                         if (safeStored.image && String(safeStored.image).startsWith('blob:')) safeStored.image = '';
                         if (safeStored.image) { try { const u = new URL(safeStored.image); if (u.hostname === 'localhost') u.hostname = window.location.hostname; if (window && window.location && window.location.protocol) u.protocol = window.location.protocol; safeStored.image = u.toString(); } catch (e) { } }
                         if (safeStored.document && String(safeStored.document).startsWith('blob:')) safeStored.document = '';
+                        
+                        // Fetch videos for stats
+                        try {
+                            const videosRes = await fetch(`${BACKEND}/videos`);
+                            if (videosRes.ok) {
+                                const videosData = await videosRes.json();
+                                const videos = Array.isArray(videosData) ? videosData : (videosData.videos || []);
+                                
+                                const userVideos = videos.filter(v => 
+                                    (v.authorId === safeStored.id) || 
+                                    (v.authorId === safeStored.email) ||
+                                    (v.author && v.author.toLowerCase() === (safeStored.name || '').toLowerCase())
+                                );
+                                
+                                safeStored.views = userVideos.reduce((sum, v) => sum + (parseInt(v.views) || 0), 0);
+                                safeStored.comments = userVideos.reduce((sum, v) => sum + (parseInt(v.comments) || 0), 0);
+                                safeStored.videoCount = userVideos.length;
+                            }
+                        } catch (e) {
+                            console.error('Error fetching videos for stats:', e);
+                        }
+                        
                         setProfile(prev => ({ ...prev, ...safeStored }));
                         if (stored.introVideo) {
                             setFeaturedVideo({ url: stored.introVideo });
@@ -2788,6 +2850,62 @@ const App = () => {
         };
         tryLoad();
     }, []);
+
+    // Refresh stats when comments are added or watch history is updated
+    useEffect(() => {
+        const refreshStats = async () => {
+            try {
+                const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                
+                // Fetch all videos to recalculate stats
+                const videosRes = await fetch(`${BACKEND}/videos`);
+                if (videosRes.ok) {
+                    const videosData = await videosRes.json();
+                    const videos = Array.isArray(videosData) ? videosData : (videosData.videos || []);
+                    
+                    // Filter videos by current profile user
+                    const userVideos = videos.filter(v => 
+                        (v.authorId === profile.id) || 
+                        (v.authorId === profile.email) ||
+                        (v.author && v.author.toLowerCase() === (profile.name || '').toLowerCase())
+                    );
+                    
+                    // Sum up views and comments
+                    const totalViews = userVideos.reduce((sum, v) => sum + (parseInt(v.views) || 0), 0);
+                    const totalComments = userVideos.reduce((sum, v) => sum + (parseInt(v.comments) || 0), 0);
+                    
+                    setProfile(prev => ({
+                        ...prev,
+                        views: totalViews,
+                        comments: totalComments,
+                        videoCount: userVideos.length
+                    }));
+                }
+            } catch (err) {
+                console.error('Error refreshing stats:', err);
+            }
+        };
+
+        // Listen for comment events
+        const handleCommentAdded = (e) => {
+            console.log('Comment event detected, refreshing stats:', e.detail);
+            refreshStats();
+        };
+
+        // Listen for watch history updates (when views change)
+        const handleWatchHistoryUpdated = (e) => {
+            console.log('Watch history updated, refreshing stats');
+            refreshStats();
+        };
+
+        window.addEventListener('request:comment_added', handleCommentAdded);
+        window.addEventListener('watchhistory:updated', handleWatchHistoryUpdated);
+        
+        return () => {
+            window.removeEventListener('request:comment_added', handleCommentAdded);
+            window.removeEventListener('watchhistory:updated', handleWatchHistoryUpdated);
+        };
+    }, [profile.id, profile.email, profile.name]);
 
     const [categories, setCategories] = useState([
         {

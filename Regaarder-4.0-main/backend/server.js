@@ -1373,6 +1373,16 @@ app.post('/requests/:id/comments', authMiddleware, (req, res) => {
       }
     } catch (e) {}
 
+    // Also increment comment counter on video if present
+    try {
+      const videos = readVideos();
+      const vidIdx = videos.findIndex(v => String(v.id) === String(requestId));
+      if (vidIdx !== -1) {
+        videos[vidIdx].comments = (Number(videos[vidIdx].comments) || 0) + 1;
+        writeVideos(videos);
+      }
+    } catch (e) {}
+
     return res.json({ success: true, comment });
   } catch (err) { console.error('POST /requests/:id/comments error', err); return res.status(500).json({ error: 'Server error' }); }
 });
@@ -2100,10 +2110,26 @@ app.post('/watch/history', (req, res) => {
     const ts = timestamp ? (typeof timestamp === 'string' ? timestamp : new Date(timestamp).toISOString()) : new Date().toISOString();
     const list = readWatchHistory();
     const idx = list.findIndex(e => String(e.videoId) === String(videoId) && String(e.userId || 'anonymous') === String(userId));
+    const isNewWatch = idx < 0; // Track if this is a new watch entry
     const entry = { videoId, userId, lastWatchedTime: Number(lastWatchedTime) || 0, duration: Number(duration) || 0, timestamp: ts, isComplete: Boolean(isComplete) };
     if (idx >= 0) list[idx] = { ...list[idx], ...entry }; else list.unshift(entry);
     if (list.length > 2000) list.splice(2000);
     writeWatchHistory(list);
+    
+    // Increment view count on video only if this is a new watch (not an update to existing watch)
+    if (isNewWatch) {
+      try {
+        const videos = readVideos();
+        const vidIdx = videos.findIndex(v => String(v.id) === String(videoId));
+        if (vidIdx !== -1) {
+          videos[vidIdx].views = String(Number(videos[vidIdx].views || 0) + 1);
+          writeVideos(videos);
+        }
+      } catch (e) {
+        console.warn('Failed to increment video views:', e);
+      }
+    }
+    
     if (user) updateStreak(user.id);
     return res.json({ success: true });
   } catch (err) {
