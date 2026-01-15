@@ -3687,7 +3687,17 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							try { localStorage.setItem('miniPlayerData', JSON.stringify(stored)); } catch (e) { }
 							try { if (typeof eventBus !== 'undefined' && eventBus.emit) { eventBus.emit('miniPlayerRequest', stored); eventBus.emit('switchToHome', stored); eventBus.emit('switchToHomeOnly', stored); } } catch (e) { }
 
-							// Navigate to home with state
+							// If onChevronDown callback provided (used when videoplayer is an overlay), call it
+							if (onChevronDown && typeof onChevronDown === 'function') {
+								try {
+									onChevronDown(stored);
+									return;
+								} catch (err) {
+									console.error('onChevronDown callback failed', err);
+								}
+							}
+
+							// Navigate to home with state (traditional page navigation)
 							try {
 								navigate('/home', { state: { miniPlayerData: stored } });
 							} catch (err) {

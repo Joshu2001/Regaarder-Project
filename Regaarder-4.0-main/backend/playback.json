@@ -1,8 +1,8 @@
 {
   "user-1766857658728": {
-    "videoId": "http://localhost:4000/uploads/intro-1768318508169-486426.mp4",
-    "currentTime": 5,
-    "updatedAt": "2026-01-15T17:16:25.837Z"
+    "videoId": "1768318554074-2n8igo79p",
+    "currentTime": 2,
+    "updatedAt": "2026-01-15T22:46:11.040Z"
   },
   "user-1767585399609": {
     "videoId": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
@@ -10,8 +10,8 @@
     "updatedAt": "2026-01-13T15:32:21.891Z"
   },
   "anonymous": {
-    "videoId": "http://localhost:4000/uploads/intro-1767452730683-679882.mp4",
+    "videoId": "1768319170277-xxm6z9lkg",
     "currentTime": 0,
-    "updatedAt": "2026-01-11T04:02:52.029Z"
+    "updatedAt": "2026-01-15T22:47:03.752Z"
   }
 }

@@ -4,10 +4,48 @@ import ReactDOM from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
 import * as eventBus from './eventbus.js';
+import Videoplayer from './Videoplayer.jsx';
 // Updated Lucide imports: Added Video, Sparkles, Pin, Bookmark, Info, EyeOff, Flag
 import { X, Menu, Bell, Settings, Search, Star, TrendingUp, Trophy, Home, FileText, Lightbulb, MoreHorizontal, MoreVertical, Heart, ThumbsDown, HeartOff, Eye, MessageSquare, Share, Share2, Palette, Shield, Globe, Gift, DollarSign, Users, Monitor, BookOpen, History, Scissors, Zap, CreditCard, Crown, Tag, User, Folder, Shuffle, Camera, Pencil, ShoppingBag, Video, Sparkles, Pin, Bookmark, Info, EyeOff, Flag, Check, AlertCircle, AlertTriangle, Sun, Moon, ChevronDown, ChevronLeft, ChevronRight, ListPlus, Music, Clock, Dumbbell } from 'lucide-react';
 import { useTheme } from './ThemeContext.jsx';
 import { getTranslation } from './translations.js';
+
+// Inject global CSS for smooth videoplayer transitions
+if (typeof document !== 'undefined') {
+    const styleId = 'videoplayer-transitions';
+    if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            @keyframes fadeInVideoplayer {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes fadeOutVideoplayer {
+                from {
+                    opacity: 1;
+                }
+                to {
+                    opacity: 0;
+                }
+            }
+            
+            .fullscreen-videoplayer-entering {
+                animation: fadeInVideoplayer 0.3s ease-in-out forwards;
+            }
+            
+            .fullscreen-videoplayer-exiting {
+                animation: fadeOutVideoplayer 0.3s ease-in-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
 // DollarSign is kept in the import list but no longer actively mapped in the Icon component
 // Utility style for clamping long titles to 2 lines when Tailwind line-clamp plugin isn't available
 const clamp2 = {
@@ -2657,6 +2695,11 @@ const App = ({ overrideMiniPlayerData = null }) => {
     const [miniPlayerPos, setMiniPlayerPos] = useState({ right: 16, bottom: 100 });
     const miniDragRef = useRef({ isDragging: false, hasMoved: false, startX: 0, startY: 0, startRight: 16, startBottom: 100 });
 
+    // NEW: Fullscreen videoplayer state (seamless overlay)
+    const [showFullscreenPlayer, setShowFullscreenPlayer] = useState(false);
+    const [fullscreenPlayerData, setFullscreenPlayerData] = useState(null);
+    const [isTransitioningToMiniPlayer, setIsTransitioningToMiniPlayer] = useState(false);
+
     // NEW: Toast state
     const [toast, setToast] = useState({ show: false, type: 'info', title: '', message: '' });
 
@@ -3391,35 +3434,40 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                 selectedLanguage={selectedLanguage} // pass current language
                                 onAddToPlaylistStart={(v) => { setPlaylistTargetVideo(v); setIsPlaylistPickerOpen(true); }}
                                 onVideoClick={() => {
-                                    // Clear any stale miniplayer data before navigating
-                                    try {
-                                        localStorage.removeItem('miniPlayerData');
-                                        setShowMiniPlayer(false);
-                                        setMiniPlayerData(null);
-                                    } catch (e) { }
-
                                     // Store all current videos in localStorage for discover modal to use
                                     // Normalize the videos to ensure consistent property names
                                     try {
                                         const normalizedVideos = videos.map(v => ({
                                             ...v,
-                                            url: v.url || v.videoUrl, // ensure 'url' property exists
-                                            videoUrl: v.videoUrl || v.url, // keep videoUrl for compatibility
-                                            creator: v.creator || v.author, // ensure 'creator' property exists
-                                            thumbnail: v.thumbnail || v.imageUrl, // ensure 'thumbnail' property exists
+                                            url: v.url || v.videoUrl,
+                                            videoUrl: v.videoUrl || v.url,
+                                            creator: v.creator || v.author,
+                                            thumbnail: v.thumbnail || v.imageUrl,
                                         }));
                                         localStorage.setItem('discoverAllVideos', JSON.stringify(normalizedVideos));
                                     } catch (e) { }
 
-                                    // Navigate to videoplayer with video data
-                                    const params = new URLSearchParams({
+                                    // Show fullscreen videoplayer as overlay (seamless transition)
+                                    const initialVideoData = {
                                         id: video.id || '',
                                         title: video.title || '',
-                                        channel: video.author || '',
-                                        subtitle: video.requester || '',
-                                        src: video.videoUrl || ''
+                                        author: video.author || '',
+                                        requester: video.requester || '',
+                                        videoUrl: video.videoUrl || '',
+                                        imageUrl: video.imageUrl || '',
+                                        views: video.views || 0,
+                                        likes: video.likes || 0,
+                                        comments: video.comments || 0,
+                                        duration: video.duration || 0,
+                                    };
+                                    
+                                    setFullscreenPlayerData({
+                                        video: initialVideoData,
+                                        initialVideo: initialVideoData,
+                                        discoverItems: videos,
                                     });
-                                    navigate(`/videoplayer?${params.toString()}`);
+                                    setShowFullscreenPlayer(true);
+                                    setIsTransitioningToMiniPlayer(false);
                                 }} // <-- pass video click handler with video data
                                 // Tooltip props
                                 showRequestsTooltip={showRequestsTooltip}
@@ -3539,6 +3587,70 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     onUpdateData={setMiniPlayerData}
                     navigate={navigate}
                 />
+            )}
+
+            {/* FULLSCREEN VIDEOPLAYER OVERLAY - Seamless Transition */}
+            {showFullscreenPlayer && fullscreenPlayerData && (
+                <div
+                    className="fixed inset-0 z-50 bg-black"
+                    style={{
+                        animation: 'fadeIn 0.3s ease-in-out',
+                        '@keyframes fadeIn': {
+                            'from': { opacity: 0 },
+                            'to': { opacity: 1 }
+                        }
+                    }}
+                >
+                    <style>{`
+                        @keyframes fadeInOverlay {
+                            from { opacity: 0; }
+                            to { opacity: 1; }
+                        }
+                        @keyframes fadeOutOverlay {
+                            from { opacity: 1; }
+                            to { opacity: 0; }
+                        }
+                        .fullscreen-videoplayer-overlay {
+                            animation: fadeInOverlay 0.3s ease-in-out forwards;
+                        }
+                        .fullscreen-videoplayer-overlay.closing {
+                            animation: fadeOutOverlay 0.3s ease-in-out forwards;
+                        }
+                    `}</style>
+                    <Videoplayer
+                        onChevronDown={() => {
+                            // Transition to miniplayer
+                            setIsTransitioningToMiniPlayer(true);
+                            
+                            // Get current video state from videoplayer
+                            // Store in miniPlayerData
+                            if (fullscreenPlayerData && fullscreenPlayerData.video) {
+                                const miniData = {
+                                    video: fullscreenPlayerData.video,
+                                    time: 0, // This should come from videoplayer current time
+                                    paused: true // Pause when transitioning to miniplayer
+                                };
+                                
+                                try {
+                                    localStorage.setItem('miniPlayerData', JSON.stringify(miniData));
+                                } catch (e) { }
+                                
+                                setMiniPlayerData(miniData);
+                                setShowMiniPlayer(true);
+                            }
+                            
+                            // Close fullscreen overlay
+                            setTimeout(() => {
+                                setShowFullscreenPlayer(false);
+                                setFullscreenPlayerData(null);
+                                setIsTransitioningToMiniPlayer(false);
+                            }, 300);
+                        }}
+                        data={fullscreenPlayerData}
+                        initialVideo={fullscreenPlayerData?.initialVideo}
+                        discoverItems={fullscreenPlayerData?.discoverItems || []}
+                    />
+                </div>
             )}
 
             {/* NEW: Global Report Video Dialog */}
