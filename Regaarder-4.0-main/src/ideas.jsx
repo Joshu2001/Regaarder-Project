@@ -4528,7 +4528,7 @@ const App = () => {
         >
           <h1
             className={`
-                            text-[26px] font-normal tracking-tighter leading-normal mx-auto max-w-fit 
+                            text-xl sm:text-2xl md:text-[26px] font-normal tracking-tighter leading-normal mx-auto max-w-fit 
                             sweeping-text-container 
                             transition-all ease-out
                             ${titleVisible
@@ -4539,7 +4539,7 @@ const App = () => {
             style={{
               color: `rgb(var(--color-gold-rgb,203,138,0))`,
               fontWeight: 300,
-              fontSize: '30px',
+              fontSize: 'clamp(18px, 5vw, 30px)',
               letterSpacing: '0',
               lineHeight: 1.1,
               whiteSpace: 'nowrap',
