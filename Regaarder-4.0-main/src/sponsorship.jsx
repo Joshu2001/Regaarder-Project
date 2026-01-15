@@ -14,6 +14,7 @@ const ICON_BACKGROUND = getCssVar('--color-gold-light-bg', 'rgba(202, 138, 4, 0.
 // Safe price formatting helper
 const formatPrice = (monthly, billingPeriod = 'monthly', discount = 0.17) => {
     if (typeof monthly !== 'number' || Number.isNaN(monthly)) return '—';
+    if (billingPeriod === 'daily') return `$${(monthly / 30).toFixed(2)}`;
     if (billingPeriod === 'monthly') return `$${monthly.toFixed(2)}`;
     const annual = monthly * 12 * (1 - discount);
     return `$${annual.toFixed(2)}`;
@@ -156,7 +157,7 @@ const BottomBar = () => {
 const PlanCard = ({ title, priceMonthly, oldPriceMonthly, features = [], cta, themeColor = ACCENT_COLOR, badge = null, savingLabel = null, billingPeriod = 'monthly', annualDiscount = 0.17, onCtaClick = null }) => {
     const displayPrice = (monthly) => formatPrice(monthly, billingPeriod, annualDiscount);
 
-    const periodLabel = billingPeriod === 'monthly' ? '/mo' : '/yr';
+    const periodLabel = billingPeriod === 'daily' ? '/dy' : billingPeriod === 'monthly' ? '/mo' : '/yr';
 
     return (
         <div className="rounded-3xl border p-8 bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
@@ -239,7 +240,7 @@ const Sponsorships = () => {
     const cardRefs = useRef([]);
     const [visibleIdx, setVisibleIdx] = useState(() => ({}));
     const [showAlaCarte, setShowAlaCarte] = useState(false);
-    const [billingPeriod, setBillingPeriod] = useState('monthly');
+    const [billingPeriod, setBillingPeriod] = useState('daily');
     const [selectedAlaCarte, setSelectedAlaCarte] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
@@ -434,7 +435,7 @@ const Sponsorships = () => {
         <div className="min-h-screen bg-white text-gray-900">
             <div className="max-w-md mx-auto px-4 pt-6 pb-24" ref={containerRef}>
                 {/* header */}
-                <div className="flex items-center space-x-4 mb-4">
+                <div className="flex items-center space-x-4 mb-2">
                     <ChevronLeft
                         className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900"
                         onClick={() => navigate('/home')}
@@ -448,20 +449,30 @@ const Sponsorships = () => {
                     <p className="text-gray-500 text-sm">{t('Choose the perfect plan for your needs')}</p>
                 </div>
 
-                {/* Billing toggle (Monthly / Annual) */}
+                {/* Billing toggle (Daily / Monthly / Annual) */}
                 <div className="flex justify-center mb-8">
                     <div 
                         className="inline-flex items-center gap-1 p-1 rounded-full"
                         style={{ backgroundColor: '#F3F4F6' }}
-                        onClick={() => { setBillingPeriod(prev => prev === 'monthly' ? 'annual' : 'monthly'); setVisibleIdx({}); }}
+                        onClick={() => { setBillingPeriod(prev => prev === 'daily' ? 'monthly' : prev === 'monthly' ? 'annual' : 'daily'); setVisibleIdx({}); }}
                     >
+                        <button 
+                            className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${
+                                billingPeriod === 'daily' 
+                                    ? 'text-white' 
+                                    : 'text-gray-600'
+                            }`}
+                            style={billingPeriod === 'daily' ? { backgroundColor: '#374151' } : {}}
+                        >
+                            {t('Daily')}
+                        </button>
                         <button 
                             className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${
                                 billingPeriod === 'monthly' 
                                     ? 'text-white' 
                                     : 'text-gray-600'
                             }`}
-                            style={billingPeriod === 'monthly' ? { backgroundColor: ACCENT_COLOR } : {}}
+                            style={billingPeriod === 'monthly' ? { backgroundColor: '#374151' } : {}}
                         >
                             {t('Monthly')}
                         </button>
@@ -471,7 +482,7 @@ const Sponsorships = () => {
                                     ? 'text-white' 
                                     : 'text-gray-600'
                             }`}
-                            style={billingPeriod === 'annual' ? { backgroundColor: ACCENT_COLOR } : {}}
+                            style={billingPeriod === 'annual' ? { backgroundColor: '#374151' } : {}}
                         >
                             {t('Yearly')}
                         </button>
