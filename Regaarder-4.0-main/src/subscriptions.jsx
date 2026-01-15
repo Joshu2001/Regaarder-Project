@@ -140,6 +140,25 @@ const Subscriptions = () => {
     }, []);
 
     const t = (key) => getTranslation(key, selectedLanguage);
+
+    useEffect(() => {
+        // Fetch current user plan from backend
+        const fetchUserPlan = async () => {
+            try {
+                const token = localStorage.getItem('regaarder_token');
+                if (!token) {
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch('http://localhost:4000/users/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserPlan(data.user);
+                    // Check if user has a subscription
                     if (data.user.userPlan) {
                         setCurrentPlan(data.user.userPlan);
                     }
