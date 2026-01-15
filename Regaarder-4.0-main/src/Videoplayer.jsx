@@ -156,7 +156,7 @@ const VideoPlayer = () => {
 			}
 		} catch (e) { }
 
-		// set source and attempt autoplay (muted trick)
+		// set source (auto-play disabled per user request)
 		try {
 			if (typeof setSource === 'function' && videoInfo.src) {
 				// try resume time from localStorage fallback
@@ -169,19 +169,11 @@ const VideoPlayer = () => {
 						if (parsed && parsed.currentTime) startTime = parsed.currentTime;
 					}
 				} catch { }
-				setSource(videoInfo.src, startTime, true);
+				setSource(videoInfo.src, startTime, false);
 			} else if (v && videoInfo.src) {
 				if (v.src !== videoInfo.src) { v.src = videoInfo.src; try { v.load(); } catch { } }
 				try { v.currentTime = 0; } catch { }
-				const p = v.play(); if (p && p.catch) p.catch(() => { });
-			}
-
-			if (v) {
-				try { v.muted = true; } catch { }
-				const p = v.play();
-				if (p && typeof p.then === 'function') {
-					p.then(() => { try { v.muted = false; } catch { } }).catch((err) => { console.warn('Autoplay prevented:', err); });
-				}
+				// AUTO-PLAY DISABLED: User must click play
 			}
 		} catch (e) { }
 	}, [videoInfo, globalVideoRef, setSource]);
@@ -273,7 +265,7 @@ const VideoPlayer = () => {
 								if (info.src || info.url) {
 									v.src = info.src || info.url;
 									v.currentTime = 0;
-									const p = v.play(); if (p && p.catch) p.catch(() => { });
+									// AUTO-PLAY DISABLED: User must click play
 								}
 							}
 						} catch (err) { }
@@ -1394,32 +1386,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 		}
 	}, [searchParams, initialVideo]);
 
-	// BEST-EFFORT: attempt autoplay when an initialVideo is provided.
-	// Browsers may block autoplay without user gesture; this silently ignores failures.
-	useEffect(() => {
-		if (!initialVideo) return;
-		const tryAutoplay = async () => {
-			try {
-				const v = videoRef.current;
-				if (!v) return;
-				// ensure src is set
-				if (videoUrl) {
-					try { v.src = videoUrl; } catch { }
-				}
-				// small delay to allow mount/paint
-				await new Promise(r => setTimeout(r, 80));
-				const p = v.play();
-				if (p && typeof p.then === 'function') {
-					await p;
-				}
-				setIsPlaying(true);
-			} catch (err) {
-				// Autoplay likely blocked — leave UI for user to start playback.
-			}
-		};
-		// fire but don't block render
-		tryAutoplay();
-	}, [initialVideo, videoUrl]);
+	// AUTO-PLAY DISABLED: Users must manually click play to start video
+	// (previously attempted autoplay when initialVideo was provided)
 	// Tip Creator modal state
 	const [showTipModal, setShowTipModal] = useState(false);
 	const [tipAmount, setTipAmount] = useState(0);
@@ -1672,7 +1640,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						if (v) {
 							try { v.src = videoUrl; } catch { }
 							try { v.currentTime = Math.max(0, time); } catch { }
-							try { const p = v.play(); if (p && p.catch) p.catch(() => { }); setIsPlaying(true); } catch { }
+							// AUTO-PLAY DISABLED: Do not auto-play, respect user's autoPlayEnabled setting
 							try { setControlsVisible(true); showCenterTemporarily(2000); } catch { }
 						}
 					} catch { }
@@ -2156,7 +2124,36 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	const [progressColor, setProgressColor] = usePref('progressColor', "#2563eb");
 	// Loop + playback controls (persisted)
 	const [loopVideo, setLoopVideo] = usePref('loopVideo', false);
+	// Auto-play toggle (persisted, default OFF)
+	const [autoPlayEnabled, setAutoPlayEnabled] = usePref('autoPlayEnabled', false);
 	const colorPresets = ["#4ade80", "#eab308", "#ef4444", "#3b82f6", "#10b981", "#a78bfa", "#fb7185", "#fb923c", "#06b6d4", "#84cc16", "#8b5cf6", "#f472b6", "#ffffff"];
+
+	// Auto-play effect: if autoPlayEnabled is true and video loads, try to auto-play
+	useEffect(() => {
+		if (!autoPlayEnabled || !videoRef.current) return;
+		
+		const tryAutoPlay = async () => {
+			try {
+				const v = videoRef.current;
+				if (!v) return;
+				
+				// Small delay to ensure video is ready
+				await new Promise(r => setTimeout(r, 100));
+				
+				// Try to play
+				const p = v.play();
+				if (p && typeof p.then === 'function') {
+					await p;
+					setIsPlaying(true);
+				}
+			} catch (err) {
+				// Auto-play might be blocked by browser policy - that's ok
+				console.warn('Auto-play blocked:', err.message);
+			}
+		};
+		
+		tryAutoPlay();
+	}, [autoPlayEnabled, videoUrl]);
 
 	// Persist progressColor to backend preference
 	useEffect(() => {
@@ -3086,9 +3083,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									if (v) {
 										if (p.url) v.src = p.url;
 										v.currentTime = 0;
-										const pr = v.play();
-										if (pr && pr.catch) pr.catch(() => { });
-										setIsPlaying(true);
+										// AUTO-PLAY DISABLED: Do not auto-play on tutorial swipe, respect autoPlayEnabled
+										try { v.pause(); } catch { }
+										setIsPlaying(false);
 									}
 								} catch (err) { }
 							}, 120);
@@ -3126,9 +3123,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								if (v) {
 									v.src = next.url;
 									v.currentTime = 0;
-									const p = v.play();
-									if (p && p.catch) p.catch(() => { });
-									setIsPlaying(true);
+									// AUTO-PLAY DISABLED: Do not auto-play on tutorial swipe, respect autoPlayEnabled
+									try { v.pause(); } catch { }
+									setIsPlaying(false);
 								}
 							} catch (err) { }
 						}, 120);
@@ -3188,9 +3185,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								const u = next.url || next.src || next.videoUrl;
 								if (u) v.src = u;
 								v.currentTime = 0;
-								const p = v.play();
-								if (p && p.catch) p.catch(() => { });
-								setIsPlaying(true);
+								// AUTO-PLAY DISABLED: Do not auto-play on swipe, respect autoPlayEnabled
+								try { v.pause(); } catch { }
+								setIsPlaying(false);
 							}
 						} catch (err) { }
 					}, 120);
@@ -3244,9 +3241,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								const u = prev.url || prev.src || prev.videoUrl;
 								if (u) v.src = u;
 								v.currentTime = 0;
-								const p = v.play();
-								if (p && p.catch) p.catch(() => { });
-								setIsPlaying(true);
+								// AUTO-PLAY DISABLED: Do not auto-play on swipe, respect autoPlayEnabled
+								try { v.pause(); } catch { }
+								setIsPlaying(false);
 							}
 						} catch (err) { }
 					}, 120);
@@ -3325,9 +3322,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							if (v) {
 								v.src = prev.url;
 								v.currentTime = 0;
-								const p = v.play();
-								if (p && p.catch) p.catch(() => { });
-								setIsPlaying(true);
+								// AUTO-PLAY DISABLED: Do not auto-play on pointer up, respect autoPlayEnabled
+								try { v.pause(); } catch { }
+								setIsPlaying(false);
 							}
 						} catch (err) { /* ignore autoplay errors */ }
 					}, 120);
@@ -3412,7 +3409,20 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	// --- Video Ended / Autoplay Handler ---
 	const handleVideoEnded = () => {
 		setIsPlaying(false);
+		
+		// Pause video at the end
+		try {
+			const v = videoRef.current;
+			if (v) v.pause();
+		} catch (err) { }
+		
 		if (loopVideo) return; // loop logic handled by useEffect
+
+		// Only auto-load next video if autoPlayEnabled is true
+		if (!autoPlayEnabled) {
+			setShowSuggestionCard(true);
+			return;
+		}
 
 		const src = currentSourceRef.current || [];
 		let idx = currentIndex;
@@ -3448,6 +3458,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							const u = next.url || next.src || next.videoUrl;
 							if (u) v.src = u;
 							v.currentTime = 0;
+							// Auto-play is enabled, so try to play
 							const p = v.play();
 							if (p && p.catch) p.catch(() => { });
 							setIsPlaying(true);
@@ -4043,7 +4054,6 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							className="w-full h-full object-contain bg-black"
 							playsInline
 							webkit-playsinline="true"
-							autoPlay
 							crossOrigin="anonymous"
 							style={{ width: '100%', height: '100%', objectFit: 'contain' }}
 							onLoadedMetadata={(e) => {
@@ -4051,8 +4061,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									const v = e.target;
 									setDuration(v.duration || 0);
 									setNaturalAspect((v.videoWidth && v.videoHeight) ? (v.videoWidth / v.videoHeight) : (16 / 9));
-									// attempt auto-play if not playing
-									if (v.paused) { const p = v.play(); if (p && p.catch) p.catch(() => { }); }
+									// AUTO-PLAY DISABLED: User must manually click play
 								} catch (err) { }
 							}}
 							onTimeUpdate={(e) => {
@@ -4671,6 +4680,32 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								<span style={{ marginLeft: 'auto' }}>
 									<span className="text-xs px-2 py-0.5 rounded-full" style={loopVideo ? { background: '#10b981', color: '#fff' } : { background: '#e5e7eb', color: '#374151' }}>
 										{loopVideo ? getTranslation('On', selectedLanguage) : getTranslation('Off', selectedLanguage)}
+									</span>
+								</span>
+							</button>
+
+							{/* Auto-Play unified */}
+							<button
+								className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${autoPlayEnabled ? 'bg-black/5' : 'hover:bg-gray-100'}`}
+								onClick={() => {
+									setAutoPlayEnabled((s) => {
+										const next = !s;
+										setToastMessage(next ? getTranslation('Auto-play enabled', selectedLanguage) : getTranslation('Auto-play disabled', selectedLanguage));
+										if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+										toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
+										return next;
+									});
+								}}
+							>
+								<div className="w-10 h-10 flex items-center justify-center text-gray-900">
+									<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M8 5v14l11-7Z" />
+									</svg>
+								</div>
+								<span className="text-gray-900">{getTranslation('Auto-play', selectedLanguage)}</span>
+								<span style={{ marginLeft: 'auto' }}>
+									<span className="text-xs px-2 py-0.5 rounded-full" style={autoPlayEnabled ? { background: '#10b981', color: '#fff' } : { background: '#e5e7eb', color: '#374151' }}>
+										{autoPlayEnabled ? getTranslation('On', selectedLanguage) : getTranslation('Off', selectedLanguage)}
 									</span>
 								</span>
 							</button>

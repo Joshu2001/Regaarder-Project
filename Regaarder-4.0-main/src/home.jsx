@@ -3578,11 +3578,18 @@ const App = ({ overrideMiniPlayerData = null }) => {
                         setMiniPlayerData(null);
                     }}
                     onExpand={() => {
+                        // Expand mini-player back to fullscreen videoplayer
                         setShowMiniPlayer(false);
-                        // navigate logic moved to component or just handle here if needed, 
-                        // but component handles click to expand usually.
-                        // Actually the component will handle the expansion logic internally or call this.
-                        // For now let's pass the setter so it can close itself.
+                        
+                        // Reconstruct fullscreen player data from mini player data
+                        if (miniPlayerData && miniPlayerData.video) {
+                            setFullscreenPlayerData({
+                                video: miniPlayerData.video,
+                                initialVideo: miniPlayerData.video,
+                                discoverItems: videos, // or use whatever video list is available
+                            });
+                            setShowFullscreenPlayer(true);
+                        }
                     }}
                     onUpdateData={setMiniPlayerData}
                     navigate={navigate}
