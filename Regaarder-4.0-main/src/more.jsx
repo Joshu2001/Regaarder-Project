@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from './AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations.js';
-import { Home, Pencil, MoreHorizontal, ChevronLeft, User, ArrowRight, FileText, X, Eye, EyeOff, Video, CreditCard, Bell, Settings, LogOut, ChevronRight, Lock } from 'lucide-react';
+import { Home, Pencil, MoreHorizontal, ChevronLeft, User, ArrowRight, FileText, X, Eye, EyeOff, Video, CreditCard, Bell, Settings, LogOut, ChevronRight, Lock, Gift } from 'lucide-react';
 
 // Theme is now provided globally via ThemeProvider; per-page custom CSS vars removed
 
@@ -170,6 +170,7 @@ const MorePage = () => {
       { icon: User, label: 'Profile Settings', href: '/settings' },
       { icon: User, label: 'User Profile', href: '/userprofile' },
       { icon: Video, label: 'Creator Profile', href: '/creatorprofile' },
+      { icon: Gift, label: 'Earn Rewards', href: '/referrals' },
       { icon: CreditCard, label: 'Payment Methods', href: '#' },
       { icon: Bell, label: 'Notifications', href: '/notifications?from=more', badge: notifCount },
       { icon: Settings, label: 'Help & Support', href: '#' },

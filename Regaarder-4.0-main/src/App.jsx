@@ -20,6 +20,7 @@ import Settings from './settings.jsx';
 import LikedVideos from './likedvideos.jsx';
 import Bookmarks from './bookmarks.jsx';
 import Playlist from './playlists.jsx';
+import Referrals from './referrals.jsx';
 
 function App() {
   const [overrideView, setOverrideView] = useState(null);
@@ -61,7 +62,8 @@ function App() {
         <Route path="/yourprofile" element={<UserProfile />} />
         <Route path="/yourrequests" element={<Requests />} />
         <Route path="/trackyourrequests" element={<Requests />} />
-        <Route path="/referralrewards" element={<Home />} />
+        <Route path="/referralrewards" element={<Referrals />} />
+        <Route path="/referrals" element={<Referrals />} />
         <Route path="/bookmarks" element={<Bookmarks />} />
         <Route path="/likedvideos" element={<LikedVideos />} />
         <Route path="/following" element={<Home />} />
