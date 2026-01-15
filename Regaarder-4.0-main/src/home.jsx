@@ -3359,6 +3359,19 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                         setMiniPlayerData(null);
                                     } catch (e) { }
 
+                                    // Store all current videos in localStorage for discover modal to use
+                                    // Normalize the videos to ensure consistent property names
+                                    try {
+                                        const normalizedVideos = videos.map(v => ({
+                                            ...v,
+                                            url: v.url || v.videoUrl, // ensure 'url' property exists
+                                            videoUrl: v.videoUrl || v.url, // keep videoUrl for compatibility
+                                            creator: v.creator || v.author, // ensure 'creator' property exists
+                                            thumbnail: v.thumbnail || v.imageUrl, // ensure 'thumbnail' property exists
+                                        }));
+                                        localStorage.setItem('discoverAllVideos', JSON.stringify(normalizedVideos));
+                                    } catch (e) { }
+
                                     // Navigate to videoplayer with video data
                                     const params = new URLSearchParams({
                                         id: video.id || '',

@@ -1999,6 +1999,37 @@ const App = () => {
         const others = baseTopTabs.filter(t => !t.toLowerCase().includes(normalized));
         return [...matches, ...others];
     };
+    // Track user's creator plan to control feature access
+    const [userPlan, setUserPlan] = useState(null);
+    const [isProCreator, setIsProCreator] = useState(false);
+
+    // Fetch user plan on mount
+    useEffect(() => {
+        const fetchUserPlan = async () => {
+            try {
+                const token = localStorage.getItem('regaarder_token');
+                if (!token) return;
+
+                const response = await fetch('http://localhost:4000/users/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.user) {
+                        setUserPlan(data.user.userPlan || null);
+                        // Check if user is on Pro Creator plan
+                        setIsProCreator((data.user.userPlan || '').toLowerCase() === 'procreator');
+                    }
+                }
+            } catch (err) {
+                console.warn('Error fetching user plan:', err);
+            }
+        };
+
+        fetchUserPlan();
+    }, []);
+
     const [claimedRequests, setClaimedRequests] = useState(() => {
         try {
             const saved = (typeof localStorage !== 'undefined') && localStorage.getItem('claimedRequests');
@@ -2758,42 +2789,58 @@ const App = () => {
                 </div>
             ) : activeTopTab === 'Upload' ? (
                 <div className="px-6 mt-7">
-                    <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
-                        <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
-                            <div className="w-12 h-12 rounded-lg bg-[var(--color-gold-light-bg)] flex items-center justify-center">
-                                <Upload size={24} className="text-[var(--color-gold)]" />
+                    {isProCreator ? (
+                        <div className="rounded-2xl bg-white border border-[var(--color-gold-light-bg)] shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
+                            <div className="w-20 h-20 rounded-xl bg-[var(--color-gold-light-bg)] flex items-center justify-center mb-6 shadow-sm">
+                                <div className="w-12 h-12 rounded-lg bg-[var(--color-gold-light-bg)] flex items-center justify-center">
+                                    <Upload size={24} className="text-[var(--color-gold)]" />
+                                </div>
                             </div>
-                        </div>
-                        <h3 className="text-[20px] font-semibold text-gray-900 mb-3">{getTranslation('Upload', selectedLanguage)}</h3>
-                        <p className="text-sm text-gray-500 text-center max-w-[320px] mb-6">{getTranslation('Upload videos independently without waiting for requests. Available exclusively for Premium creators.', selectedLanguage)}</p>
-                        <div className="flex flex-col gap-3 items-center">
-                            {(() => {
-                                try {
-                                    const uploadedCount = (publishedList || []).length;
-                                    const allowed = uploadedCount < 1;
-                                    if (allowed) {
+                            <h3 className="text-[20px] font-semibold text-gray-900 mb-3">{getTranslation('Upload', selectedLanguage)}</h3>
+                            <p className="text-sm text-gray-500 text-center max-w-[320px] mb-6">{getTranslation('Upload videos independently without waiting for requests. Available exclusively for Premium creators.', selectedLanguage)}</p>
+                            <div className="flex flex-col gap-3 items-center">
+                                {(() => {
+                                    try {
+                                        const uploadedCount = (publishedList || []).length;
+                                        const allowed = uploadedCount < 1;
+                                        if (allowed) {
+                                            return (
+                                                <>
+                                                    <button onClick={handleStartUpload} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>
+                                                    <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] text-gray-700 bg-white">{getTranslation('View Published', selectedLanguage)}</button>
+                                                </>
+                                            );
+                                        }
                                         return (
                                             <>
-                                                <button onClick={handleStartUpload} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>
-                                                <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] text-gray-700 bg-white">{getTranslation('View Published', selectedLanguage)}</button>
+                                                <div className="text-center max-w-[320px] text-sm text-gray-700">{getTranslation('You have reached the free upload limit. Subscribe to upload more videos.', selectedLanguage)}</div>
+                                                <div className="flex gap-3 mt-4">
+                                                    <button onClick={() => { navigate('/sponsorship'); }} className="px-4 py-2 rounded-lg bg-[var(--color-gold)] text-white">{getTranslation('Subscribe', selectedLanguage)}</button>
+                                                    <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] bg-white">{getTranslation('View Published', selectedLanguage)}</button>
+                                                </div>
                                             </>
                                         );
+                                    } catch (e) {
+                                        return (<button onClick={handleStartUpload} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>);
                                     }
-                                    return (
-                                        <>
-                                            <div className="text-center max-w-[320px] text-sm text-gray-700">{getTranslation('You have reached the free upload limit. Subscribe to upload more videos.', selectedLanguage)}</div>
-                                            <div className="flex gap-3 mt-4">
-                                                <button onClick={() => { window.location.href = '/subscriptions.jsx'; }} className="px-4 py-2 rounded-lg bg-[var(--color-gold)] text-white">{getTranslation('Subscribe', selectedLanguage)}</button>
-                                                <button onClick={() => setActiveTopTab('Published')} className="px-4 py-2 rounded-lg border border-[var(--color-gold-light-bg)] bg-white">{getTranslation('View Published', selectedLanguage)}</button>
-                                            </div>
-                                        </>
-                                    );
-                                } catch (e) {
-                                    return (<button onClick={handleStartUpload} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upload Video', selectedLanguage)}</button>);
-                                }
-                            })()}
+                                })()}
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-8 flex flex-col items-center justify-center min-h-[260px]">
+                            <div className="w-20 h-20 rounded-xl bg-gray-100 flex items-center justify-center mb-6 shadow-sm">
+                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                                    <Lock size={24} className="text-gray-400" />
+                                </div>
+                            </div>
+                            <h3 className="text-[20px] font-semibold text-gray-900 mb-3">{getTranslation('Pro Feature', selectedLanguage)}</h3>
+                            <p className="text-sm text-gray-500 text-center max-w-[320px] mb-6">{getTranslation('Upload videos independently without waiting for requests. This feature is exclusive to Pro Creators. Upgrade to unlock independent uploads.', selectedLanguage)}</p>
+                            <div className="flex flex-col gap-3 items-center">
+                                <button onClick={() => { navigate('/sponsorship'); }} className="bg-[var(--color-gold)] text-white px-5 py-2 rounded-lg shadow-md font-semibold">{getTranslation('Upgrade to Pro', selectedLanguage)}</button>
+                                <button onClick={() => setActiveTopTab('Claims')} className="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 bg-white">{getTranslation('Fulfill Requests Instead', selectedLanguage)}</button>
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             ) : activeTopTab === 'Insights' ? (

@@ -822,7 +822,22 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	useEffect(() => {
 		if (discoverItems) return; // prop takes precedence
 		let cancelled = false;
-		// try dynamic import; if `home.jsx` isn't present this will fail silently
+		
+		// First, try to load from localStorage (set by home.jsx when navigating to videoplayer)
+		try {
+			const stored = localStorage.getItem('discoverAllVideos');
+			if (stored && stored.trim()) {
+				const parsed = JSON.parse(stored);
+				if (Array.isArray(parsed) && parsed.length > 0) {
+					if (!cancelled) setDiscoverItemsData(parsed);
+					return;
+				}
+			}
+		} catch (e) {
+			// ignore if parsing fails
+		}
+		
+		// Fallback: try dynamic import; if `home.jsx` isn't present this will fail silently
 		import('./home').then((m) => {
 			if (cancelled) return;
 			const exported = m.default || m.homeVideos || m.VIDEOS || m.discoverItems || null;
@@ -5926,7 +5941,6 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					<div style={{ padding: 14 }}>
 						<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 							<input name="discoverQuery" value={discoverQuery} onChange={(e) => setDiscoverQuery(e.target.value)} placeholder="Search videos..." style={{ flex: 1, padding: "10px 12px", borderRadius: 10, border: "1px solid #e6e6e6", outline: "none" }} />
-							<div aria-hidden className="ml-1 w-3 h-3 rounded-full" style={{ background: isDiscoverLive ? '#10b981' : '#fbbf24', boxShadow: '0 0 0 4px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)' }} title={isDiscoverLive ? 'Live items' : 'Placeholders'} />
 						</div>
 						<div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
 							{(() => {
@@ -5960,7 +5974,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					</div>
 
 					{/* example list (from discover items or placeholders) */}
-					<div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+					<div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 12, flex: 1, overflowY: "auto", minHeight: 0 }}>
 						{(() => {
 							// chips and discover items
 							// derive chips from the source items (prefer prop -> home.jsx -> placeholders)
@@ -6087,8 +6101,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										}, 120);
 									} catch { }
 								}}
-									role="button" tabIndex={0} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#fff", padding: 10, borderRadius: 12, border: "1px solid rgba(0,0,0,0.04)", cursor: 'pointer' }}>
-									<div className="w-28 h-16 rounded-md relative overflow-hidden" style={{ background: item.thumbnail ? `url(${item.thumbnail}) center/cover no-repeat` : '#000' }}>
+									role="button" tabIndex={0} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#fff", padding: 10, borderRadius: 12, border: "1px solid rgba(0,0,0,0.04)", cursor: 'pointer', transition: 'all 200ms ease' }} onMouseEnter={(e) => e.currentTarget.style.background = '#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}>
+									<div className="w-28 h-16 rounded-md relative overflow-hidden flex-shrink-0" style={{ background: item.thumbnail ? `url(${encodeURI(item.thumbnail)}) center/cover no-repeat` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', backgroundColor: '#667eea' }}>
 										<div className="absolute right-2 bottom-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">{(() => { const s = item.duration || 0; return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` })()}</div>
 									</div>
 									<div style={{ flex: 1 }}>

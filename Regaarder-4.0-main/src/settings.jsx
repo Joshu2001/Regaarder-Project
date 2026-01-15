@@ -218,9 +218,9 @@ const Settings = () => {
               onClick={handleDeleteData}
             >
               <div className="flex items-center space-x-3">
-                <Trash className="w-6 h-6 text-yellow-600" />
+                <Trash className="w-6 h-6" style={{ color: 'var(--color-gold)' }} />
                 <div className="text-left">
-                  <div className="text-base font-medium text-yellow-600">{getTranslation('Delete Your Data', selectedLanguage)}</div>
+                  <div className="text-base font-medium" style={{ color: 'var(--color-gold)' }}>{getTranslation('Delete Your Data', selectedLanguage)}</div>
                   <div className="text-sm text-gray-500">{getTranslation('Delete all your data but keep your account', selectedLanguage)}</div>
                 </div>
               </div>
@@ -231,10 +231,10 @@ const Settings = () => {
               onClick={handleDelete}
             >
               <div className="flex items-center space-x-3">
-                <Trash className="w-6 h-6 text-red-500" />
+                <Trash className="w-6 h-6" style={{ color: 'var(--color-gold)' }} />
                 <div className="text-left">
-                  <div className="text-base font-medium text-red-600">{getTranslation('Delete Account', selectedLanguage)}</div>
-                  <div className="text-sm text-red-500">{getTranslation('Permanently delete your account', selectedLanguage)}</div>
+                  <div className="text-base font-medium" style={{ color: 'var(--color-gold)' }}>{getTranslation('Delete Account', selectedLanguage)}</div>
+                  <div className="text-sm" style={{ color: 'var(--color-gold)' }}>{getTranslation('Permanently delete your account', selectedLanguage)}</div>
                 </div>
               </div>
             </button>

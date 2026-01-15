@@ -241,6 +241,7 @@ const Subscriptions = () => {
                 t('Higher algorithmic trust weight'),
                 t('Add Merch links & other links in video'),
                 t('Direct access to sponsors'),
+                t('Upload videos independently (no requests)'),
                 t('Priority support'),
                 t('Up to 80% revenue share')
             ]
