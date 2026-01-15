@@ -279,7 +279,7 @@ app.post('/products', authMiddleware, (req, res) => {
 });
 
 app.post('/signup', async (req, res) => {
-  const { email, password, name } = req.body || {};
+  const { email, password, name, referralCode } = req.body || {};
   if (!email || !password || !name) return res.status(400).json({ error: 'Missing email, password or name' });
   const emailLower = String(email).toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLower)) return res.status(400).json({ error: 'Invalid email format' });
@@ -288,10 +288,42 @@ app.post('/signup', async (req, res) => {
   const users = readUsers();
   if (users.find(u => u.email === emailLower)) return res.status(409).json({ error: 'Account already exists for this email' });
 
+  // Validate referral code if provided
+  let referrerUser = null;
+  if (referralCode && referralCode.trim()) {
+    const trimmedCode = referralCode.trim().toUpperCase();
+    referrerUser = users.find(u => u.referralCode && u.referralCode.toUpperCase() === trimmedCode);
+    if (!referrerUser) return res.status(400).json({ error: 'Invalid referral code' });
+  }
+
   const hash = await bcrypt.hash(password, 10);
   const token = crypto.randomBytes(16).toString('hex');
-  const user = { id: `user-${Date.now()}`, email: emailLower, name, passwordHash: hash, createdAt: new Date().toISOString(), passwordChangedAt: new Date().toISOString(), token };
+  
+  // Generate unique referral code for new user (8 characters alphanumeric)
+  const newReferralCode = crypto.randomBytes(4).toString('hex').toUpperCase().slice(0, 8);
+  
+  const user = { 
+    id: `user-${Date.now()}`, 
+    email: emailLower, 
+    name, 
+    passwordHash: hash, 
+    referralCode: newReferralCode,
+    referrerId: referrerUser ? referrerUser.id : null,
+    referralCount: 0,
+    createdAt: new Date().toISOString(), 
+    passwordChangedAt: new Date().toISOString(), 
+    token 
+  };
   users.push(user);
+  
+  // If user came from a referral, increment referrer's count
+  if (referrerUser) {
+    const referrerIdx = users.findIndex(u => u.id === referrerUser.id);
+    if (referrerIdx !== -1) {
+      users[referrerIdx].referralCount = (users[referrerIdx].referralCount || 0) + 1;
+    }
+  }
+  
   writeUsers(users);
 
   const { passwordHash: _ph, ...publicUser } = user;
@@ -994,8 +1026,17 @@ app.get('/users', (req, res) => {
 app.get('/users/me', authMiddleware, (req, res) => {
   try {
     const users = readUsers();
-    const u = users.find(x => x.id === req.user.id);
-    if (!u) return res.status(404).json({ error: 'User not found' });
+    const idx = users.findIndex(x => x.id === req.user.id);
+    if (idx === -1) return res.status(404).json({ error: 'User not found' });
+    
+    const u = users[idx];
+    
+    // Generate referral code if missing (for existing users)
+    if (!u.referralCode) {
+      u.referralCode = crypto.randomBytes(4).toString('hex').toUpperCase().slice(0, 8);
+      writeUsers(users);
+    }
+    
     const { passwordHash, token, ...publicUser } = u;
     return res.json({ user: publicUser });
   } catch (err) {

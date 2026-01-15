@@ -127,6 +127,7 @@ const Referrals = () => {
     const [showTypeModal, setShowTypeModal] = useState(true); // Show type selection modal on load
     const [showBenefitsModal, setShowBenefitsModal] = useState(null); // 'user' or 'creator' or null
     const [referralCount, setReferralCount] = useState(0);
+    const [copiedCode, setCopiedCode] = useState(false);
     const [copiedLink, setCopiedLink] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -171,10 +172,21 @@ const Referrals = () => {
 
     const getReferralLink = () => {
         if (!userInfo) return '';
-        return `${window.location.origin}/join?ref=${userInfo.id || userInfo._id}`;
+        return `${window.location.origin}/join?code=${userInfo.referralCode || userInfo.id}`;
     };
 
-    const copyToClipboard = () => {
+    const getReferralCode = () => {
+        return userInfo?.referralCode || '';
+    };
+
+    const copyCode = () => {
+        const code = getReferralCode();
+        navigator.clipboard.writeText(code);
+        setCopiedCode(true);
+        setTimeout(() => setCopiedCode(false), 2000);
+    };
+
+    const copyLink = () => {
         const link = getReferralLink();
         navigator.clipboard.writeText(link);
         setCopiedLink(true);
@@ -214,24 +226,52 @@ const Referrals = () => {
 
                 {/* Referral Stats Card */}
                 <div className="rounded-2xl border-2 p-6 mb-8" style={{ borderColor: ACCENT_COLOR, backgroundColor: '#FAFAF8' }}>
-                    <div className="text-center mb-4">
+                    <div className="text-center mb-6">
                         <p className="text-gray-600 text-sm mb-1">{t('Friends invited')}</p>
                         <p className="text-4xl font-bold" style={{ color: ACCENT_COLOR }}>{referralCount}</p>
                     </div>
 
+                    {/* Referral Code Display */}
+                    <div className="mb-4">
+                        <p className="text-xs text-gray-600 mb-2 font-semibold">{t('Your Referral Code')}</p>
+                        <div className="p-4 bg-white rounded-lg border-2 flex items-center space-x-3" style={{ borderColor: ACCENT_COLOR }}>
+                            <div className="flex-1">
+                                <p className="text-lg font-bold tracking-widest" style={{ color: ACCENT_COLOR }}>
+                                    {getReferralCode() || '—'}
+                                </p>
+                            </div>
+                            <button
+                                onClick={copyCode}
+                                className="p-2 hover:bg-gray-100 rounded transition flex-shrink-0"
+                                title={t('Copy code')}
+                                disabled={!getReferralCode()}
+                            >
+                                {copiedCode ? (
+                                    <CheckCircle2 className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
+                                ) : (
+                                    <Copy className="w-5 h-5 text-gray-600" />
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
                     {/* Referral Link Display */}
-                    <div className="mb-4 p-3 bg-white rounded-lg border border-gray-200 flex items-center space-x-2 text-sm">
-                        <span className="text-gray-600 flex-1 truncate text-xs">{getReferralLink()}</span>
-                        <button
-                            onClick={copyToClipboard}
-                            className="p-2 hover:bg-gray-100 rounded transition flex-shrink-0"
-                        >
-                            {copiedLink ? (
-                                <CheckCircle2 className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
-                            ) : (
-                                <Copy className="w-5 h-5 text-gray-600" />
-                            )}
-                        </button>
+                    <div className="mb-6">
+                        <p className="text-xs text-gray-600 mb-2 font-semibold">{t('Or share your link')}</p>
+                        <div className="p-4 bg-white rounded-lg border border-gray-200 flex items-center space-x-2 text-sm">
+                            <span className="text-gray-600 flex-1 truncate text-xs">{getReferralLink()}</span>
+                            <button
+                                onClick={copyLink}
+                                className="p-2 hover:bg-gray-100 rounded transition flex-shrink-0"
+                                title={t('Copy link')}
+                            >
+                                {copiedLink ? (
+                                    <CheckCircle2 className="w-5 h-5" style={{ color: ACCENT_COLOR }} />
+                                ) : (
+                                    <Copy className="w-5 h-5 text-gray-600" />
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     {/* Share Button */}
@@ -239,12 +279,12 @@ const Referrals = () => {
                         onClick={() => {
                             if (navigator.share) {
                                 navigator.share({
-                                    title: t('Earn Rewards'),
-                                    text: t('Invite friends and unlock exclusive benefits'),
+                                    title: t('Get Rewarded for Sharing'),
+                                    text: `Join with my referral code: ${getReferralCode()}`,
                                     url: getReferralLink(),
                                 });
                             } else {
-                                copyToClipboard();
+                                copyLink();
                             }
                         }}
                         className="w-full py-3 rounded-lg font-semibold text-white transition-all active:scale-95 flex items-center justify-center space-x-2"
@@ -320,16 +360,8 @@ const TypeSelectionModal = ({ onUserClick, onCreatorClick, onClose, selectedLang
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
             <div className="bg-white w-full max-w-md rounded-3xl p-8 mx-4 relative">
-                {/* Back Button */}
-                <button
-                    onClick={() => window.location.href = '/home'}
-                    className="absolute top-6 left-6 p-2 hover:bg-gray-100 rounded-full transition"
-                >
-                    <ChevronLeft className="w-6 h-6" style={{ color: ACCENT_COLOR }} />
-                </button>
-
                 <div className="text-center mb-8">
-                    <h2 className="text-2xl font-bold">{t('Get Rewarded for Sharing')}</h2>
+                    <h2 className="text-2xl font-bold">{t('Earn Rewards')}</h2>
                     <p className="text-gray-600 text-sm mt-2">{t('Invite friends and unlock exclusive benefits')}</p>
                 </div>
 
@@ -379,14 +411,6 @@ const BenefitsModal = ({ type, onClose, selectedLanguage }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
             <div className="bg-white w-full max-w-md rounded-3xl p-8 mx-4 max-h-[80vh] overflow-y-auto relative">
-                {/* Back Button */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-6 left-6 p-2 hover:bg-gray-100 rounded-full transition"
-                >
-                    <ChevronLeft className="w-6 h-6" style={{ color: ACCENT_COLOR }} />
-                </button>
-
                 <h2 className="text-2xl font-bold text-center">{title}</h2>
 
                 {subtitleContent}

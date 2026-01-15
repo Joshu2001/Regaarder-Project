@@ -438,6 +438,10 @@ export const translations = {
     'Rewards activate instantly': 'Rewards activate instantly',
     'Use your new benefits right away': 'Use your new benefits right away',
     'Share Referral Link': 'Share Referral Link',
+    'Your Referral Code': 'Your Referral Code',
+    'Or share your link': 'Or share your link',
+    'Copy code': 'Copy code',
+    'Copy link': 'Copy link',
 
     'Date': 'Date',
     'Status': 'Status',
