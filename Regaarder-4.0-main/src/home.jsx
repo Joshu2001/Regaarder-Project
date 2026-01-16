@@ -3611,7 +3611,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                 <FloatingActionButton searchTerm={searchTerm} navigate={navigate} selectedLanguage={selectedLanguage} />
             )}
             <SideDrawer isDrawerOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} onOpenTheme={handleOpenTheme} onOpenLanguage={handleOpenLanguage} currentLanguageFlag={selectedLanguageFlag} onOpenCreator={handleOpenCreatorOnboarding} navigateTo={navigateTo} selectedLanguage={selectedLanguage} />
-            <BottomBar navigateTo={navigateTo} selectedLanguage={selectedLanguage} />
+            <BottomBar selectedLanguage={selectedLanguage} />
 
             {/* Mini Player (Floating) - Extracted for performance */}
             {showMiniPlayer && miniPlayerData && (
@@ -4707,20 +4707,16 @@ const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => 
 };
 
 
-const BottomBar = ({ navigateTo, selectedLanguage = 'English' }) => {
-    const location = useLocation();
-    const mapPathToTab = (p) => {
-        if (!p) return 'Home';
-        if (p.startsWith('/requests')) return 'Requests';
-        if (p.startsWith('/ideas')) return 'Ideas';
-        if (p.startsWith('/more')) return 'More';
-        return 'Home';
-    };
-    const [activeTab, setActiveTab] = useState(() => mapPathToTab(location && location.pathname));
+const BottomBar = ({ selectedLanguage = 'English' }) => {
+    const [activeTab, setActiveTab] = useState('Home');
+
+    // Sync with parent tab state
     useEffect(() => {
-        try { setActiveTab(mapPathToTab(location && location.pathname)); } catch (e) { }
-    }, [location && location.pathname]);
-    const navigatedRef = useRef(false);
+        if (window.setFooterTab) {
+            // Parent will call our setter when it changes tabs
+            window.currentFooterSetTab = setActiveTab;
+        }
+    }, []);
 
     // The Requests tab should always be available in the footer. Tooltip
     // visibility for the Requested badge is handled at the App/ContentCard level
@@ -4760,27 +4756,18 @@ const BottomBar = ({ navigateTo, selectedLanguage = 'English' }) => {
                         wrapperStyle.textShadow = `0 0 8px var(--color-gold-light)`;
                     }
 
-                    const navigateToTab = (tabName) => {
-                        try {
-                            if (tabName === 'Home') {
-                                navigateTo('/home');
-                                return;
-                            }
-                            if (tabName === 'Requests') {
-                                navigateTo('/requests');
-                                return;
-                            }
-                            if (tabName === 'Ideas') {
-                                navigateTo('/ideas');
-                                return;
-                            }
-                            if (tabName === 'More') {
-                                navigateTo('/more');
-                                return;
-                            }
-                        } catch (e) {
-                            console.warn('Navigation failed', e);
+                    const switchTab = (tabName) => {
+                        const tabMap = {
+                            'Home': 'home',
+                            'Requests': 'requests',
+                            'Ideas': 'ideas',
+                            'More': 'more'
+                        };
+                        const tabKey = tabMap[tabName];
+                        if (window.setFooterTab) {
+                            window.setFooterTab(tabKey);
                         }
+                        setActiveTab(tabName);
                     };
 
                     return (
@@ -4791,18 +4778,8 @@ const BottomBar = ({ navigateTo, selectedLanguage = 'English' }) => {
                         >
                             <button
                                 className="flex flex-col items-center w-full"
-                                onMouseDown={() => {
-                                    setActiveTab(tab.name);
-                                    if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); }
-                                }}
-                                onTouchStart={() => {
-                                    setActiveTab(tab.name);
-                                    if (!navigatedRef.current) { navigatedRef.current = true; navigateToTab(tab.name); }
-                                }}
-                                onClick={(e) => {
-                                    if (navigatedRef.current) { navigatedRef.current = false; e.preventDefault(); return; }
-                                    setActiveTab(tab.name);
-                                    navigateToTab(tab.name);
+                                onClick={() => {
+                                    switchTab(tab.name);
                                 }}
                             >
                                 <div className="w-11 h-11 flex items-center justify-center">

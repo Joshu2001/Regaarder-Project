@@ -1,5 +1,5 @@
 /* eslint-disable no-empty */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations.js';
@@ -22,18 +22,38 @@ const customColors = {
 };
 
 // --- Footer component copied from Requests feed for parity ---
-const BottomBar = ({ navigate, selectedLanguage = 'English' }) => {
+const BottomBar = ({ selectedLanguage = 'English' }) => {
   const [activeTab, setActiveTab] = useState('More');
+
+  useEffect(() => {
+    if (window.setFooterTab) {
+      window.currentFooterSetTab = setActiveTab;
+    }
+  }, []);
 
   // The Requests tab should always be available in the footer.
   const tabs = [
-    { name: 'Home', Icon: Home, route: '/home' },
-    { name: 'Requests', Icon: FileText, route: '/requests' },
-    { name: 'Ideas', Icon: Pencil, route: '/ideas' },
-    { name: 'More', Icon: MoreHorizontal, route: '/more' },
+    { name: 'Home', Icon: Home },
+    { name: 'Requests', Icon: FileText },
+    { name: 'Ideas', Icon: Pencil },
+    { name: 'More', Icon: MoreHorizontal },
   ];
 
   const inactiveColor = 'rgb(107 114 128)';
+
+  const switchTab = (tabName) => {
+    const tabMap = {
+      'Home': 'home',
+      'Requests': 'requests',
+      'Ideas': 'ideas',
+      'More': 'more'
+    };
+    const tabKey = tabMap[tabName];
+    if (window.setFooterTab) {
+      window.setFooterTab(tabKey);
+    }
+    setActiveTab(tabName);
+  };
 
   return (
     <div
@@ -67,10 +87,7 @@ const BottomBar = ({ navigate, selectedLanguage = 'English' }) => {
               <button
                 className="flex flex-col items-center w-full"
                 onClick={() => {
-                  setActiveTab(tab.name);
-                  if (tab.route && navigate) {
-                    navigate(tab.route);
-                  }
+                  switchTab(tab.name);
                 }}
               >
                 <div className="w-11 h-11 flex items-center justify-center">
@@ -322,7 +339,7 @@ const MorePage = () => {
       </div>
 
 
-      <BottomBar navigate={navigate} selectedLanguage={selectedLanguage} />
+      <BottomBar selectedLanguage={selectedLanguage} />
     </div>
   );
 };

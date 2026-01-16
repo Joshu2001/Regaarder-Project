@@ -3705,6 +3705,12 @@ export default function RequestsFeed() {
     const BottomBar = () => {
         const [activeTab, setActiveTab] = useState('Requests');
 
+        useEffect(() => {
+            if (window.setFooterTab) {
+                window.currentFooterSetTab = setActiveTab;
+            }
+        }, []);
+
         // The Requests tab should always be available in the footer.
         const tabs = [
             { name: 'Home', Icon: Home },
@@ -3714,6 +3720,20 @@ export default function RequestsFeed() {
         ];
 
         const inactiveColor = 'rgb(107 114 128)';
+
+        const switchTab = (tabName) => {
+            const tabMap = {
+                'Home': 'home',
+                'Requests': 'requests',
+                'Ideas': 'ideas',
+                'More': 'more'
+            };
+            const tabKey = tabMap[tabName];
+            if (window.setFooterTab) {
+                window.setFooterTab(tabKey);
+            }
+            setActiveTab(tabName);
+        };
 
         return (
             <div
@@ -3747,28 +3767,7 @@ export default function RequestsFeed() {
                                 <button
                                     className="flex flex-col items-center w-full"
                                     onClick={() => {
-                                        setActiveTab(tab.name);
-                                        try {
-                                            if (tab.name === 'Home') {
-                                                window.location.href = '/home.jsx';
-                                                return;
-                                            }
-                                            if (tab.name === 'Requests') {
-                                                // Refresh the current page with For You filter
-                                                window.location.href = '/requests.jsx?filter=For You';
-                                                return;
-                                            }
-                                            if (tab.name === 'Ideas') {
-                                                window.location.href = '/ideas.jsx';
-                                                return;
-                                            }
-                                            if (tab.name === 'More') {
-                                                window.location.href = '/more.jsx';
-                                                return;
-                                            }
-                                        } catch (e) {
-                                            // ignore when running in non-browser environments
-                                        }
+                                        switchTab(tab.name);
                                     }}
                                 >
                                     <div className="w-11 h-11 flex items-center justify-center">

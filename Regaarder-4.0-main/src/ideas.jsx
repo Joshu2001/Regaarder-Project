@@ -578,7 +578,13 @@ const getCssVar = (name, fallback) => {
 // --- Footer copied from home.jsx (BottomBar) and adapted ---
 const MobileNav = ({ selectedLanguage = 'English' }) => {
   const [activeTab, setActiveTab] = useState("Ideas");
-  const navigatedRef = useRef(false);
+
+  useEffect(() => {
+    if (window.setFooterTab) {
+      window.currentFooterSetTab = setActiveTab;
+    }
+  }, []);
+
   const tabs = [
     { name: "Home", Icon: Home },
     { name: "Requests", Icon: FileText },
@@ -593,28 +599,19 @@ const MobileNav = ({ selectedLanguage = 'English' }) => {
     paddingBottom: "calc(44px + env(safe-area-inset-bottom))",
   }; // Footer style
 
-  const navigateToTab = (tabName) => {
-    // Function to navigate between tabs
-    try {
-      if (tabName === "Home") {
-        window.location.href = "home.jsx";
-        return;
-      }
-      if (tabName === "Requests") {
-        window.location.href = "requests.jsx?filter=For You";
-        return;
-      }
-      if (tabName === "Ideas") {
-        window.location.reload();
-        return;
-      }
-      if (tabName === "More") {
-        window.location.href = "more.jsx";
-        return;
-      }
-    } catch (e) {
-      console.warn("Navigation failed", e);
+  const switchTab = (tabName) => {
+    // Function to switch tabs
+    const tabMap = {
+      "Home": "home",
+      "Requests": "requests",
+      "Ideas": "ideas",
+      "More": "more"
+    };
+    const tabKey = tabMap[tabName];
+    if (window.setFooterTab) {
+      window.setFooterTab(tabKey);
     }
+    setActiveTab(tabName);
   };
 
   return (
@@ -642,7 +639,7 @@ const MobileNav = ({ selectedLanguage = 'English' }) => {
               style={wrapperStyle}
             >
               <button
-                onClick={() => navigateToTab(tab.name)}
+                onClick={() => switchTab(tab.name)}
                 className="p-2 rounded-md focus:outline-none"
               >
                 <div className="w-11 h-11 flex items-center justify-center">

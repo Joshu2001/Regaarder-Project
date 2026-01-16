@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import * as eventBus from './eventbus.js';
 import React, { useState, useEffect, useTransition, Suspense, lazy } from 'react';
 import PageLoadingSkeleton from './PageLoadingSkeleton.jsx';
@@ -25,6 +25,56 @@ const Bookmarks = lazy(() => import('./bookmarks.jsx'));
 const Playlist = lazy(() => import('./playlists.jsx'));
 const Referrals = lazy(() => import('./referrals.jsx'));
 const Policies = lazy(() => import('./policies.jsx'));
+
+// Main footer tab switcher component
+function FooterTabSwitcher() {
+  const [activeTab, setActiveTab] = useState('home');
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Determine active tab from URL path or window global
+  useEffect(() => {
+    const path = location.pathname.replace('/', '');
+    const mainTabs = ['home', 'ideas', 'requests', 'more'];
+    if (mainTabs.includes(path)) {
+      setActiveTab(path);
+    } else if (path === '' || path === 'home.jsx') {
+      setActiveTab('home');
+    }
+  }, [location.pathname]);
+
+  // Store setActiveTab in window for external access (footer buttons)
+  // This allows footer components to trigger tab switches instantly
+  useEffect(() => {
+    window.setFooterTab = setActiveTab;
+    // Sync back if window.currentFooterTab was set (for footer components)
+    if (window.currentFooterTab && window.currentFooterTab !== activeTab) {
+      setActiveTab(window.currentFooterTab);
+    }
+    return () => {
+      // Don't delete - footer components need this
+    };
+  }, [activeTab]);
+
+  return (
+    <Suspense fallback={<PageLoadingSkeleton />}>
+      {/* Main tab content - switched based on activeTab */}
+      {/* Components remain mounted for instant switching */}
+      <div style={{ display: activeTab === 'home' ? 'block' : 'none', position: activeTab === 'home' ? 'relative' : 'absolute', visibility: activeTab === 'home' ? 'visible' : 'hidden' }}>
+        <Home />
+      </div>
+      <div style={{ display: activeTab === 'ideas' ? 'block' : 'none', position: activeTab === 'ideas' ? 'relative' : 'absolute', visibility: activeTab === 'ideas' ? 'visible' : 'hidden' }}>
+        <Ideas />
+      </div>
+      <div style={{ display: activeTab === 'requests' ? 'block' : 'none', position: activeTab === 'requests' ? 'relative' : 'absolute', visibility: activeTab === 'requests' ? 'visible' : 'hidden' }}>
+        <Requests />
+      </div>
+      <div style={{ display: activeTab === 'more' ? 'block' : 'none', position: activeTab === 'more' ? 'relative' : 'absolute', visibility: activeTab === 'more' ? 'visible' : 'hidden' }}>
+        <More />
+      </div>
+    </Suspense>
+  );
+}
 
 function App() {
   const [overrideView, setOverrideView] = useState(null);
@@ -56,12 +106,19 @@ function App() {
       ) : (
       <Suspense fallback={<PageLoadingSkeleton />}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/ideas" element={<Ideas />} />
-          <Route path="/requests" element={<Requests />} />
+          {/* Main footer tabs - use tab switcher for instant switching */}
+          <Route path="/" element={<FooterTabSwitcher />} />
+          <Route path="/home" element={<FooterTabSwitcher />} />
+          <Route path="/home.jsx" element={<FooterTabSwitcher />} />
+          <Route path="/ideas" element={<FooterTabSwitcher />} />
+          <Route path="/ideas.jsx" element={<FooterTabSwitcher />} />
+          <Route path="/requests" element={<FooterTabSwitcher />} />
+          <Route path="/requests.jsx" element={<FooterTabSwitcher />} />
+          <Route path="/more" element={<FooterTabSwitcher />} />
+          <Route path="/more.jsx" element={<FooterTabSwitcher />} />
+          
+          {/* Other routes - keep normal routing */}
           <Route path="/notifications" element={<Notifications />} />
-          <Route path="/more" element={<More />} />
           <Route path="/watchhistory" element={<WatchHistory />} />
           <Route path="/watchtogether" element={<WatchTogether />} />
           <Route path="/marketplace" element={<Marketplace />} />
@@ -89,11 +146,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           
           {/* Fallback routes for .jsx extensions (redirects) */}
-          <Route path="/home.jsx" element={<Navigate to="/home" replace />} />
-          <Route path="/ideas.jsx" element={<Navigate to="/ideas" replace />} />
-          <Route path="/requests.jsx" element={<Navigate to="/requests" replace />} />
           <Route path="/notifications.jsx" element={<Navigate to="/notifications" replace />} />
-          <Route path="/more.jsx" element={<Navigate to="/more" replace />} />
           <Route path="/watchhistory.jsx" element={<Navigate to="/watchhistory" replace />} />
           <Route path="/watchtogether.jsx" element={<Navigate to="/watchtogether" replace />} />
           <Route path="/marketplace.jsx" element={<Navigate to="/marketplace" replace />} />
