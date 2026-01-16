@@ -191,7 +191,11 @@ const Settings = () => {
       <div className="w-full max-w-xl min-h-screen flex flex-col" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
         <header className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20">
           <div className="flex items-center space-x-4">
-            <ChevronLeft className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900" onClick={() => navigate('/home')} />
+            <ChevronLeft className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900" onClick={() => {
+              const redirectTo = localStorage.getItem('redirectBackTo');
+              localStorage.removeItem('redirectBackTo');
+              navigate(redirectTo === 'creatorDashboard' ? '/creatordashboard' : '/home');
+            }} />
             <h1 className="text-xl font-semibold text-gray-800">{getTranslation('Settings', selectedLanguage)}</h1>
           </div>
         </header>

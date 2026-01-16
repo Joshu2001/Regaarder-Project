@@ -134,8 +134,15 @@ const BottomBar = ({ selectedLanguage = 'English' }) => {
                     const navigateToTab = (tabName) => {
                         try {
                             if (tabName === 'Home') {
-                                // Navigate to the home page instead of refreshing
-                                window.location.href = '/home.jsx';
+                                // Check if we should redirect back to creator dashboard
+                                const redirectTo = localStorage.getItem('redirectBackTo');
+                                if (redirectTo === 'creatorDashboard') {
+                                    localStorage.removeItem('redirectBackTo');
+                                    window.location.href = '/creatordashboard';
+                                } else {
+                                    // Navigate to the home page instead of refreshing
+                                    window.location.href = '/home.jsx';
+                                }
                                 return;
                             }
                             if (tabName === 'Requests') {
@@ -649,7 +656,12 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                             // set a transient active state visible to the user
                             /* eslint-disable no-unused-expressions */
                             (typeof setBackActive === 'function') && setBackActive(true);
-                            setTimeout(() => { window.location.href = '/home.jsx'; }, 120);
+                            const redirectTo = localStorage.getItem('redirectBackTo');
+                            const targetUrl = redirectTo === 'creatorDashboard' ? '/creatordashboard' : '/home.jsx';
+                            if (redirectTo === 'creatorDashboard') {
+                                localStorage.removeItem('redirectBackTo');
+                            }
+                            setTimeout(() => { window.location.href = targetUrl; }, 120);
                             setTimeout(() => { (typeof setBackActive === 'function') && setBackActive(false); }, 420);
                         } catch (e) {
                             console.warn('Navigation failed', e);

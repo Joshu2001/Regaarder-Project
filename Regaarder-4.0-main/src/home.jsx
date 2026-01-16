@@ -3179,12 +3179,15 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     if (data.success && data.videos && data.videos.length > 0) {
                         console.log('Adding', data.videos.length, 'videos from backend');
                         // Ensure unique IDs and filter out blob URLs
+                        // Also filter to show only public videos on the home page
                         const uniqueVideos = data.videos
                             .filter(video => {
+                                // Only show public videos on home page
+                                const isPublic = !video.appearance || video.appearance === 'public';
                                 // Filter out videos with blob URLs as they're invalid across sessions
                                 const hasValidImage = video.imageUrl && !video.imageUrl.startsWith('blob:');
                                 const hasValidVideo = video.videoUrl && !video.videoUrl.startsWith('blob:');
-                                return hasValidImage || hasValidVideo;
+                                return isPublic && (hasValidImage || hasValidVideo);
                             })
                             .map((video, index) => {
                                 // Calculate relative time from timestamp

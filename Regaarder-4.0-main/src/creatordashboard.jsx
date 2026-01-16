@@ -1,7 +1,7 @@
 /* eslint-disable no-empty */
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, FileText, File as FileIcon, Pencil, MoreHorizontal, MoreVertical, Pin, Star, TrendingUp, Trophy, User, Zap, Video, Clock, BarChart, Upload, Lightbulb, Headphones, Copy, LineChart, CheckCircle, Search, Globe, Link2, Image, Lock, Link, Eye, ChevronDown } from 'lucide-react';
+import { Home, FileText, File as FileIcon, Pencil, MoreHorizontal, MoreVertical, Pin, Star, TrendingUp, Trophy, User, Zap, Video, Clock, BarChart, Upload, Lightbulb, Headphones, Copy, LineChart, CheckCircle, Search, Globe, Link2, Image, Lock, Link, Eye, ChevronDown, AlertCircle } from 'lucide-react';
 import RequestsFeed from './requests.jsx';
 import { getTranslation, translations } from './translations.js';
 
@@ -1497,6 +1497,8 @@ const ClaimStatusPanel = ({
                                                         time: Date.now(),
                                                         format: pd.format || videoFormat,
                                                         changeNote: changeNote || null,
+                                                        appearance: appearance,
+                                                        privateLink: appearance === 'private' ? `${window.location.origin}/?vid=${Date.now().toString() + '-' + Math.random().toString(36).slice(2)}` : null,
                                                     };
 
                                                     // POST to backend to save video
@@ -1634,6 +1636,12 @@ const ClaimStatusPanel = ({
                                                         setPublishedItems((arr) => [...arr, publishedMeta]);
                                                         setLastPublished(publishedMeta);
                                                         setToastMessage(`${getTranslation('Published video', selectedLanguage)} #${newCount}`);
+                                                        
+                                                        // Show private link modal if appearance is private
+                                                        if (appearance === 'private' && publishedMeta.privateLink) {
+                                                            setPrivateLink(publishedMeta.privateLink);
+                                                            setShowPrivateLinkModal(true);
+                                                        }
 
                                                         // Reset upload fields so user can add another
                                                         setVideoFile(null);
@@ -1653,6 +1661,12 @@ const ClaimStatusPanel = ({
                                                         setPublishedItems((arr) => [...arr, publishedMeta]);
                                                         setLastPublished(publishedMeta);
                                                         setToastMessage(`${getTranslation('Published episode', selectedLanguage)} #${newCount}`);
+                                                        
+                                                        // Show private link modal if appearance is private
+                                                        if (appearance === 'private' && publishedMeta.privateLink) {
+                                                            setPrivateLink(publishedMeta.privateLink);
+                                                            setShowPrivateLinkModal(true);
+                                                        }
 
                                                         // Auto-increment title for next episode: strip existing (Part N) and add next
                                                         const baseTitle = (titleStr || videoTitle || '').replace(/\s*\(Part\s*\d+\)\s*$/i, '').trim();
@@ -1679,6 +1693,12 @@ const ClaimStatusPanel = ({
                                                         setPublishedItems((arr) => [...arr, publishedMeta]);
                                                         setLastPublished(publishedMeta);
                                                         setToastMessage(`${getTranslation('Published item', selectedLanguage)} #${newCount}`);
+                                                        
+                                                        // Show private link modal if appearance is private
+                                                        if (appearance === 'private' && publishedMeta.privateLink) {
+                                                            setPrivateLink(publishedMeta.privateLink);
+                                                            setShowPrivateLinkModal(true);
+                                                        }
 
                                                         // Reset upload fields for next catalogue item
                                                         setVideoFile(null);
@@ -2343,6 +2363,12 @@ const App = () => {
     const [profileActive, setProfileActive] = useState(false);
     // Separate active state for Settings so tapping it doesn't affect Profile
     const [settingsActive, setSettingsActive] = useState(false);
+    // Availability state for the creator
+    const [isAvailable, setIsAvailable] = useState(true);
+    const [showUnavailableModal, setShowUnavailableModal] = useState(false);
+    const [showPrivateLinkModal, setShowPrivateLinkModal] = useState(false);
+    const [privateLink, setPrivateLink] = useState(null);
+    const [privateLinkCopied, setPrivateLinkCopied] = useState(false);
 
     // First-time user welcome popup
     const [showWelcomePopup, setShowWelcomePopup] = useState(() => {
@@ -2373,17 +2399,15 @@ const App = () => {
             id: 'earnings',
             title: getTranslation('Total Earnings', selectedLanguage),
             jsx: (
-                <div key="earnings" className="snap-start min-w-full flex-shrink-0">
-                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(147,51,234,0.08) 0%, rgba(169,91,243,0.12) 50%, rgba(192,132,252,0.1) 100%)', borderColor: 'var(--color-purple)' }}>
-                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.15) 0%, rgba(147,51,234,0.05) 70%, transparent 100%)' }}></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.08) 0%, transparent 70%)' }}></div>
-                        <div className="flex items-center gap-3 mb-3 relative z-10">
-                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-light) 100%)' }}>
+                <div key="earnings" className="snap-start min-w-full flex-shrink-0 px-5">
+                    <div className="rounded-3xl p-6 shadow-lg border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'white', borderColor: 'var(--color-purple)' }}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md" style={{ background: 'var(--color-purple)' }}>
                                 <Trophy size={22} className="text-white" fill="white" />
                             </div>
                             <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-purple)' }}>{getTranslation('Total Earnings', selectedLanguage)}</span>
                         </div>
-                        <div className="flex-1 flex flex-col justify-center relative z-10">
+                        <div className="flex-1 flex flex-col justify-center">
                             <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
                             <span className="text-[13px] text-gray-600 font-medium">{getTranslation('Start earning today', selectedLanguage)}</span>
                         </div>
@@ -2395,14 +2419,12 @@ const App = () => {
             id: 'requests',
             title: getTranslation('Active Requests', selectedLanguage),
             jsx: (
-                <div key="requests" className="snap-start min-w-full flex-shrink-0">
-                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(147,51,234,0.08) 0%, rgba(169,91,243,0.12) 50%, rgba(192,132,252,0.1) 100%)', borderColor: 'var(--color-purple)' }}>
-                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.15) 0%, rgba(147,51,234,0.05) 70%, transparent 100%)' }}></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.08) 0%, transparent 70%)' }}></div>
-                        <div className="flex items-center gap-3 mb-3 relative z-10">
+                <div key="requests" className="snap-start min-w-full flex-shrink-0 px-5">
+                    <div className="rounded-3xl p-6 shadow-lg border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'white', borderColor: 'var(--color-purple)' }}>
+                        <div className="flex items-center gap-3 mb-3">
                             <div className="flex items-center gap-2">
                                 <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-purple)' }}>{getTranslation('Active Requests', selectedLanguage)}</span>
-                                <span className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-light) 100%)' }}>{getTranslation('NEW', selectedLanguage)}</span>
+                                <span className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-md" style={{ background: 'var(--color-purple)' }}>{getTranslation('NEW', selectedLanguage)}</span>
                             </div>
                         </div>
                         {(() => {
@@ -2412,15 +2434,15 @@ const App = () => {
                                 const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
                                 const label = activeCount === 1 ? getTranslation('active request', selectedLanguage) : getTranslation('active requests', selectedLanguage);
                                 return (
-                                    <div className="flex-1 flex flex-col justify-center relative z-10">
-                                        <div className="text-[40px] font-normal text-gray-900 mb-2 leading-none">{activeCount}</div>
+                                    <div className="flex-1 flex flex-col justify-center">
+                                        <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none">--</div>
                                         <span className="text-[13px] text-gray-600 font-medium">{activeCount ? `${activeCount} ${label}` : getTranslation('No active requests', selectedLanguage)}</span>
                                     </div>
                                 );
                             } catch (e) {
                                 return (
-                                    <div className="flex-1 flex flex-col justify-center relative z-10">
-                                        <div className="text-[40px] font-normal text-gray-900 mb-2 leading-none">0</div>
+                                    <div className="flex-1 flex flex-col justify-center">
+                                        <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none">--</div>
                                         <span className="text-[13px] text-gray-600 font-medium">{getTranslation('No active requests', selectedLanguage)}</span>
                                     </div>
                                 );
@@ -2434,19 +2456,17 @@ const App = () => {
             id: 'rating',
             title: getTranslation('Avg Rating', selectedLanguage),
             jsx: (
-                <div key="rating" className="snap-start min-w-full flex-shrink-0">
-                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(147,51,234,0.08) 0%, rgba(169,91,243,0.12) 50%, rgba(192,132,252,0.1) 100%)', borderColor: 'var(--color-purple)' }}>
-                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.15) 0%, rgba(147,51,234,0.05) 70%, transparent 100%)' }}></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.08) 0%, transparent 70%)' }}></div>
-                        <div className="flex items-center gap-3 mb-3 relative z-10">
-                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-light) 100%)' }}>
+                <div key="rating" className="snap-start min-w-full flex-shrink-0 px-5">
+                    <div className="rounded-3xl p-6 shadow-lg border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'white', borderColor: 'var(--color-purple)' }}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md" style={{ background: 'var(--color-purple)' }}>
                                 <Star size={22} className="text-white" fill="white" />
                             </div>
                             <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-purple)' }}>{getTranslation('Avg Rating', selectedLanguage)}</span>
                         </div>
-                        <div className="flex-1 flex flex-col justify-center relative z-10">
-                            <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
-                            <span className="text-[14px] text-gray-600 font-semibold">{getTranslation('Not rated yet ⭐', selectedLanguage)}</span>
+                        <div className="flex-1 flex flex-col justify-center">
+                            <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
+                            <span className="text-[14px] text-gray-600 font-medium">{getTranslation('Not rated yet ⭐', selectedLanguage)}</span>
                         </div>
                     </div>
                 </div>
@@ -2456,19 +2476,17 @@ const App = () => {
             id: 'response',
             title: getTranslation('Response Time', selectedLanguage),
             jsx: (
-                <div key="response" className="snap-start min-w-full flex-shrink-0">
-                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(147,51,234,0.08) 0%, rgba(169,91,243,0.12) 50%, rgba(192,132,252,0.1) 100%)', borderColor: 'var(--color-purple)' }}>
-                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.15) 0%, rgba(147,51,234,0.05) 70%, transparent 100%)' }}></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.08) 0%, transparent 70%)' }}></div>
-                        <div className="flex items-center gap-3 mb-3 relative z-10">
-                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-light) 100%)' }}>
+                <div key="response" className="snap-start min-w-full flex-shrink-0 px-5">
+                    <div className="rounded-3xl p-6 shadow-lg border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'white', borderColor: 'var(--color-purple)' }}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md" style={{ background: 'var(--color-purple)' }}>
                                 <Zap size={22} className="text-white" fill="white" />
                             </div>
                             <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-purple)' }}>{getTranslation('Response Time', selectedLanguage)}</span>
                         </div>
-                        <div className="flex-1 flex flex-col justify-center relative z-10">
-                            <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
-                            <span className="text-[14px] text-gray-600 font-semibold">{getTranslation('Start responding ⚡', selectedLanguage)}</span>
+                        <div className="flex-1 flex flex-col justify-center">
+                            <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
+                            <span className="text-[14px] text-gray-600 font-medium">{getTranslation('Start responding ⚡', selectedLanguage)}</span>
                         </div>
                     </div>
                 </div>
@@ -2485,47 +2503,144 @@ const App = () => {
             className="w-full max-w-[640px] mx-auto min-h-screen bg-white font-sans relative overflow-y-auto"
             style={{ ...customStyle, paddingBottom: 'calc(115px + env(safe-area-inset-bottom))' }}
         >
-            {/* Header */}
-            <div className="px-6 pt-7 pb-3">
-                {/* Three buttons in a horizontal row */}
-                <div className="flex items-center gap-4">
-                    <span className="px-3 py-2 rounded-lg bg-green-100 text-green-700 text-[13px] font-bold shadow text-center">{getTranslation('Available', selectedLanguage)}</span>
+            {/* Page Selector Dropdown */}
+            <div className="-mx-6 -mt-6 pt-10 pb-10" style={{ background: 'var(--color-purple)', borderTop: '3px solid var(--color-purple)', borderLeft: '3px solid var(--color-purple)', borderRight: '3px solid var(--color-purple)', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
+                <div className="relative px-6">
                     <button
-                        className={`px-3 py-2 rounded-lg border border-gray-200 text-gray-700 text-[13px] font-medium flex items-center justify-center shadow-sm ${settingsActive ? 'bg-[var(--color-gold-light-bg)]' : 'bg-white'}`}
-                        onClick={() => {
-                            try {
-                                navigate('/settings');
-                            } catch (e) {
-                                console.warn('Navigation failed', e);
+                        onClick={() => setShowDropdown(!showDropdown)}
+                        className="w-full px-5 py-3 rounded-2xl border-2 flex items-center justify-between font-semibold text-[15px] shadow-md transition-all"
+                        style={{
+                            backgroundColor: 'var(--color-purple)',
+                            color: 'white',
+                            borderColor: 'var(--color-purple)',
+                            opacity: 0.95
+                        }}
+                        onBlur={(e) => {
+                            // Only close dropdown if focus is moving outside the dropdown menu
+                            if (!e.currentTarget.parentElement.contains(e.relatedTarget)) {
+                                setTimeout(() => setShowDropdown(false), 150);
                             }
                         }}
                     >
-                        <Star size={16} className="mr-1" />
-                        {getTranslation('Settings', selectedLanguage)}
+                        <span className="flex items-center gap-2">
+                            {activeTopTab === 'Overview' && <TrendingUp size={18} />}
+                            {activeTopTab === 'Requests' && <FileText size={18} />}
+                            {activeTopTab === 'Claims' && <CheckCheck size={18} />}
+                            {activeTopTab === 'Published' && <Video size={18} />}
+                            {activeTopTab === 'Analytics' && <LineChart size={18} />}
+                            {activeTopTab === 'Upload' && <Upload size={18} />}
+                            {activeTopTab === 'Insights' && <Lightbulb size={18} />}
+                            {activeTopTab === 'Support' && <Headphones size={18} />}
+                            {activeTopTab === 'Templates' && <Copy size={18} />}
+                            {getTranslation(activeTopTab, selectedLanguage)}
+                        </span>
+                        <ChevronDown size={20} className="transition-transform" style={{transform: showDropdown ? 'rotate(180deg)' : 'rotate(0deg)'}} />
                     </button>
-                    <button
-                        className={`px-3 py-2 rounded-lg border border-gray-200 text-gray-700 text-[13px] font-medium flex items-center justify-center shadow-sm ${profileActive ? 'bg-[var(--color-gold-light-bg)]' : 'bg-white'}`}
-                        onMouseDown={() => {
-                            setProfileActive(true);
-                            if (!headerNavigatedRef.current) {
-                                headerNavigatedRef.current = true; try { window.location.href = '/creatorprofile.jsx'; } catch (e) { console.warn('Navigation failed', e); }
-                            }
-                        }}
-                        onTouchStart={() => {
-                            setProfileActive(true);
-                            if (!headerNavigatedRef.current) { headerNavigatedRef.current = true; try { window.location.href = '/creatorprofile.jsx'; } catch (e) { /* ignore */ } }
-                        }}
-                        onClick={(e) => {
-                            if (headerNavigatedRef.current) { headerNavigatedRef.current = false; e.preventDefault(); setProfileActive(false); return; }
-                            setProfileActive(false);
-                            try { window.location.href = '/creatorprofile.jsx'; } catch (e) { console.warn('Navigation failed', e); }
-                        }}
-                        onMouseUp={() => setProfileActive(false)}
-                        onTouchEnd={() => setProfileActive(false)}
-                    >
-                        <User size={16} className="mr-1" />
-                        {getTranslation('Profile', selectedLanguage)}
-                    </button>
+
+                    {showDropdown && (
+                        <div className="absolute top-full left-5 right-5 mt-2 rounded-2xl border-2 shadow-2xl z-50" style={{background: 'var(--color-purple)', borderColor: 'var(--color-purple)'}}>
+                            {/* Header buttons section */}
+                            <div className="px-4 py-3 flex items-center gap-2">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsAvailable(!isAvailable);
+                                    }}
+                                    className="px-3 py-2 rounded-lg text-[12px] font-bold shadow text-center flex-shrink-0 transition-all"
+                                    style={{
+                                        background: isAvailable ? 'rgb(187, 247, 208)' : 'rgb(254, 202, 202)',
+                                        color: isAvailable ? 'rgb(22, 101, 52)' : 'rgb(127, 29, 29)',
+                                        border: 'none'
+                                    }}
+                                >
+                                    {getTranslation(isAvailable ? 'Available' : 'Unavailable', selectedLanguage)}
+                                </button>
+                                <button
+                                    className={`px-3 py-2 rounded-lg border border-gray-200 text-gray-700 text-[12px] font-medium flex items-center justify-center shadow-sm flex-shrink-0 ${settingsActive ? 'bg-white' : 'bg-white'}`}
+                                    onClick={() => {
+                                        try {
+                                            localStorage.setItem('redirectBackTo', 'creatorDashboard');
+                                            navigate('/settings');
+                                            setShowDropdown(false);
+                                        } catch (e) {
+                                            console.warn('Navigation failed', e);
+                                        }
+                                    }}
+                                >
+                                    <Star size={14} className="mr-1" />
+                                    {getTranslation('Settings', selectedLanguage)}
+                                </button>
+                                <button
+                                    className={`px-3 py-2 rounded-lg border border-gray-200 text-gray-700 text-[12px] font-medium flex items-center justify-center shadow-sm flex-shrink-0 ${profileActive ? 'bg-white' : 'bg-white'}`}
+                                    onMouseDown={() => {
+                                        setProfileActive(true);
+                                        if (!headerNavigatedRef.current) {
+                                            headerNavigatedRef.current = true;
+                                            try {
+                                                localStorage.setItem('redirectBackTo', 'creatorDashboard');
+                                                window.location.href = '/creatorprofile.jsx';
+                                            } catch (e) { console.warn('Navigation failed', e); }
+                                        }
+                                    }}
+                                    onTouchStart={() => {
+                                        setProfileActive(true);
+                                        if (!headerNavigatedRef.current) {
+                                            headerNavigatedRef.current = true;
+                                            try {
+                                                localStorage.setItem('redirectBackTo', 'creatorDashboard');
+                                                window.location.href = '/creatorprofile.jsx';
+                                            } catch (e) { /* ignore */ }
+                                        }
+                                    }}
+                                    onClick={(e) => {
+                                        if (headerNavigatedRef.current) { headerNavigatedRef.current = false; e.preventDefault(); setProfileActive(false); return; }
+                                        setProfileActive(false);
+                                        try {
+                                            localStorage.setItem('redirectBackTo', 'creatorDashboard');
+                                            window.location.href = '/creatorprofile.jsx';
+                                        } catch (e) { console.warn('Navigation failed', e); }
+                                    }}
+                                    onMouseUp={() => setProfileActive(false)}
+                                    onTouchEnd={() => setProfileActive(false)}
+                                >
+                                    <User size={14} className="mr-1" />
+                                    {getTranslation('Profile', selectedLanguage)}
+                                </button>
+                            </div>
+                            
+                            {/* Page tabs */}
+                            {baseTopTabs.map((tabName) => {
+                                const isActive = activeTopTab === tabName;
+                                return (
+                                    <button
+                                        key={tabName}
+                                        onClick={() => {
+                                            setActiveTopTab(tabName);
+                                            setShowDropdown(false);
+                                        }}
+                                        className={`w-full px-5 py-3 text-left text-[15px] font-semibold flex items-center gap-3 transition-colors ${ isActive ? 'bg-var(--color-purple-light-bg)' : 'hover:bg-purple-600'}`}
+                                        style={isActive ? {color: 'white', background: 'rgba(255, 255, 255, 0.15)'} : {color: 'white'}}
+                                    >
+                                        {(() => {
+                                            switch (tabName) {
+                                                case 'Overview': return <TrendingUp size={18} />;
+                                                case 'Requests': return <FileText size={18} />;
+                                                case 'Claims': return <CheckCheck size={18} />;
+                                                case 'Published': return <Video size={18} />;
+                                                case 'Analytics': return <LineChart size={18} />;
+                                                case 'Upload': return <Upload size={18} />;
+                                                case 'Insights': return <Lightbulb size={18} />;
+                                                case 'Support': return <Headphones size={18} />;
+                                                case 'Templates': return <Copy size={18} />;
+                                                default: return null;
+                                            }
+                                        })()}
+                                        {getTranslation(tabName, selectedLanguage)}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -2590,79 +2705,101 @@ const App = () => {
                     </div>
                 </div>
             )}
-            {/* Page Selector Dropdown */}
-            <div className="px-6 mt-5">
-                <div className="relative inline-block w-full">
-                    <button
-                        onClick={() => setShowDropdown(!showDropdown)}
-                        className="w-full px-5 py-3 rounded-2xl border-2 flex items-center justify-between font-semibold text-[15px] shadow-md transition-all"
-                        style={{
-                            backgroundColor: 'var(--color-purple)',
-                            color: 'white',
-                            borderColor: 'var(--color-purple)',
-                            opacity: 0.95
-                        }}
-                        onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-                    >
-                        <span className="flex items-center gap-2">
-                            {activeTopTab === 'Overview' && <TrendingUp size={18} />}
-                            {activeTopTab === 'Requests' && <FileText size={18} />}
-                            {activeTopTab === 'Claims' && <CheckCheck size={18} />}
-                            {activeTopTab === 'Published' && <Video size={18} />}
-                            {activeTopTab === 'Analytics' && <LineChart size={18} />}
-                            {activeTopTab === 'Upload' && <Upload size={18} />}
-                            {activeTopTab === 'Insights' && <Lightbulb size={18} />}
-                            {activeTopTab === 'Support' && <Headphones size={18} />}
-                            {activeTopTab === 'Templates' && <Copy size={18} />}
-                            {getTranslation(activeTopTab, selectedLanguage)}
-                        </span>
-                        <ChevronDown size={20} className="transition-transform" style={{transform: showDropdown ? 'rotate(180deg)' : 'rotate(0deg)'}} />
-                    </button>
 
-                    {showDropdown && (
-                        <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl border-2 bg-white shadow-2xl z-50" style={{borderColor: 'var(--color-purple)'}}>
-                            {baseTopTabs.map((tabName) => {
-                                const isActive = activeTopTab === tabName;
-                                return (
-                                    <button
-                                        key={tabName}
-                                        onClick={() => {
-                                            setActiveTopTab(tabName);
-                                            setShowDropdown(false);
-                                        }}
-                                        className={`w-full px-5 py-3 text-left text-[15px] font-semibold flex items-center gap-3 transition-colors border-b last:border-b-0 ${ isActive ? 'bg-[var(--color-purple-light-bg)]' : 'hover:bg-gray-50'}`}
-                                        style={isActive ? {color: 'var(--color-purple)'} : {color: '#374151'}}
-                                    >
-                                        {(() => {
-                                            switch (tabName) {
-                                                case 'Overview': return <TrendingUp size={18} />;
-                                                case 'Requests': return <FileText size={18} />;
-                                                case 'Claims': return <CheckCheck size={18} />;
-                                                case 'Published': return <Video size={18} />;
-                                                case 'Analytics': return <LineChart size={18} />;
-                                                case 'Upload': return <Upload size={18} />;
-                                                case 'Insights': return <Lightbulb size={18} />;
-                                                case 'Support': return <Headphones size={18} />;
-                                                case 'Templates': return <Copy size={18} />;
-                                                default: return null;
-                                            }
-                                        })()}
-                                        {getTranslation(tabName, selectedLanguage)}
-                                    </button>
-                                );
-                            })}
+            {/* Unavailable Modal */}
+            {showUnavailableModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black opacity-60" onClick={() => setShowUnavailableModal(false)} />
+                    <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 z-10 p-6">
+                        <button onClick={() => setShowUnavailableModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
+
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-14 h-14 rounded-xl bg-red-100 flex items-center justify-center shadow-md">
+                                <AlertCircle size={24} className="text-red-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-[20px] font-semibold text-gray-900">{getTranslation('Creator Unavailable', selectedLanguage)}</h3>
+                            </div>
                         </div>
-                    )}
-                </div>
-            </div>
 
-            {/* Cards Row */}
-            {/* Cards Row — horizontal swipeable, one card per screen */}
-            <div
-                className="px-6 mt-5 overflow-x-auto hide-scrollbar snap-x snap-mandatory flex gap-5"
-                style={{ WebkitOverflowScrolling: 'touch', paddingLeft: '21px', scrollPaddingLeft: '26px' }}
-            >
-                {orderedCards.map(c => c.jsx)}
+                        <p className="text-[15px] text-gray-600 leading-relaxed mb-6">
+                            {getTranslation('This creator is unavailable right now. You can check back later or send your request to another creator.', selectedLanguage)}
+                        </p>
+
+                        <button
+                            onClick={() => setShowUnavailableModal(false)}
+                            className="w-full bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold shadow-md"
+                        >
+                            {getTranslation('Got It', selectedLanguage)}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Private Video Link Modal */}
+            {showPrivateLinkModal && privateLink && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black opacity-60" onClick={() => setShowPrivateLinkModal(false)} />
+                    <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 z-10 p-6">
+                        <button onClick={() => setShowPrivateLinkModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
+
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-14 h-14 rounded-xl bg-purple-100 flex items-center justify-center shadow-md">
+                                <Lock size={24} className="text-purple-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-[20px] font-semibold text-gray-900">{getTranslation('Private Video Published', selectedLanguage)}</h3>
+                            </div>
+                        </div>
+
+                        <p className="text-[15px] text-gray-600 leading-relaxed mb-4">
+                            {getTranslation('Your video has been published as private. Share this link with the requester to let them view it.', selectedLanguage)}
+                        </p>
+
+                        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                            <div className="text-xs text-gray-500 mb-2">{getTranslation('Private Video Link', selectedLanguage)}</div>
+                            <div className="flex items-center gap-2">
+                                <input 
+                                    type="text" 
+                                    value={privateLink} 
+                                    readOnly 
+                                    className="flex-1 bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-900 font-mono"
+                                />
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            await navigator.clipboard.writeText(privateLink);
+                                            setPrivateLinkCopied(true);
+                                            setTimeout(() => setPrivateLinkCopied(false), 2000);
+                                        } catch (e) {
+                                            window.prompt && window.prompt('Copy this link', privateLink);
+                                        }
+                                    }}
+                                    className="px-3 py-2 bg-purple-600 text-white rounded text-sm font-semibold hover:bg-purple-700 transition-colors"
+                                >
+                                    {privateLinkCopied ? '✓' : getTranslation('Copy', selectedLanguage)}
+                                </button>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setShowPrivateLinkModal(false)}
+                            className="w-full bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold shadow-md"
+                        >
+                            {getTranslation('Done', selectedLanguage)}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Cards Row with Accent Background and Border */}
+            <div className="mt-0 -mx-6 px-0 py-6" style={{ backgroundColor: 'var(--color-purple)', minHeight: '280px', borderLeft: '3px solid var(--color-purple)', borderRight: '3px solid var(--color-purple)', borderBottom: '3px solid var(--color-purple)', borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px' }}>
+                <div
+                    className="overflow-x-auto hide-scrollbar snap-x snap-mandatory flex gap-4"
+                    style={{ WebkitOverflowScrolling: 'touch', paddingLeft: '20px', paddingRight: '20px', scrollPaddingLeft: '20px' }}
+                >
+                    {orderedCards.map(c => c.jsx)}
+                </div>
             </div>
             {/* Content area — show RequestsFeed when Requests tab is active, otherwise show overview placeholders */}
             {activeTopTab === 'Requests' ? (

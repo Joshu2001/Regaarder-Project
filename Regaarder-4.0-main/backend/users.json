@@ -8,14 +8,14 @@
     "token": "f56ad48ed69de730bcfeb5963036b3e1",
     "isCreator": true,
     "creatorSince": "2025-12-31T18:20:16.251Z",
-    "image": "http://localhost:4000/uploads/intro-1767691091607-53684.png",
+    "image": "http://localhost:4000/uploads/intro-1768546391161-670757.jpg",
     "price": "788",
     "bio": "Christ is King",
     "tagline": "",
     "following": [
       "user-1767585399609"
     ],
-    "introVideo": "http://localhost:4000/uploads/intro-1767691091782-875706.mp4",
+    "introVideo": "http://localhost:4000/uploads/intro-1768546392131-397072.mp4",
     "streak": 3,
     "lastStreakDate": "2026-01-16",
     "lastClaimReset": "2026-01-15",
