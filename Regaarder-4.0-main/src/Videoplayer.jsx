@@ -3797,7 +3797,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										channel: creatorName || (info && info.channel) || null
 									},
 									time: Math.floor(currentTime || 0),
-									paused: isPaused,
+									paused: false,
 									title: videoTitle || null,
 									creatorName: creatorName || null,
 									duration: v ? Math.floor(v.duration || 0) : 0
@@ -4061,7 +4061,14 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									const v = e.target;
 									setDuration(v.duration || 0);
 									setNaturalAspect((v.videoWidth && v.videoHeight) ? (v.videoWidth / v.videoHeight) : (16 / 9));
-									// AUTO-PLAY DISABLED: User must manually click play
+									// Auto-play video when metadata is loaded
+									try {
+										v.muted = true;
+										const p = v.play();
+										if (p && p.then) {
+											p.then(() => { try { v.muted = false; } catch (e) { } }).catch(() => { });
+										}
+									} catch (err) { }
 								} catch (err) { }
 							}}
 							onTimeUpdate={(e) => {
@@ -4146,55 +4153,6 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					)}
 
 				</div>
-
-				{/* Suggestion Card (inline) shown after a video ends — renders under the video container */}
-				{showSuggestionCard && (
-					<>
-						<style>{`
-							@keyframes vx-suggest-in {
-								from { transform: translateY(6vh) scale(0.992); opacity: 0 }
-								60% { transform: translateY(-2px) scale(1.004); }
-								to { transform: translateY(0) scale(1); opacity: 1 }
-							}
-							@keyframes vx-suggest-out {
-								from { transform: translateY(0) scale(1); opacity: 1 }
-								to { transform: translateY(4vh) scale(0.994); opacity: 0 }
-							}
-						`}</style>
-						<div role="dialog" aria-modal="true" style={{ position: 'absolute', left: '50%', top: '34%', transform: 'translate(-50%,-50%)', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 80, pointerEvents: 'auto', background: suggestionExiting ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.18)', transition: 'background 260ms ease' }}>
-							<div className="modal-dialog bg-white p-4 w-full" onClick={(e) => e.stopPropagation()} style={{ boxShadow: '0 24px 54px rgba(2,6,23,0.28)', border: '1px solid rgba(0,0,0,0.06)', maxWidth: '640px', width: 'calc(100% - 40px)', paddingLeft: 12, paddingRight: 12, borderRadius: 12, height: '42vh', position: 'relative', display: 'flex', flexDirection: 'column', animation: (suggestionExiting ? 'vx-suggest-out 300ms cubic-bezier(.4,0,.2,1) forwards' : 'vx-suggest-in 420ms cubic-bezier(.2,.9,.3,1)') }}>
-								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 12, paddingLeft: 16, paddingRight: 16 }}>
-									<h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>{`Suggest an idea to ${creatorName}`}</h3>
-
-								</div>
-								<div style={{ marginTop: 10, color: '#374151', fontSize: 13, paddingLeft: 16, paddingRight: 16 }}>{`Tell ${creatorName} what videos you want next`}</div>
-								<div style={{ marginTop: 8, fontSize: 13, color: '#6b7280', paddingLeft: 16, paddingRight: 16 }}>Based on: <strong style={{ color: '#111' }}>{videoTitle || 'Current video'}</strong></div>
-								<div style={{ marginTop: 12, paddingLeft: 16, paddingRight: 16, flex: 1, display: 'flex', flexDirection: 'column' }}>
-									<div style={{ height: 6, background: '#eef2f6', borderRadius: 6, overflow: 'hidden', marginBottom: 8 }} aria-hidden>
-										<div style={{ height: '100%', width: `${Math.round(suggestionProgress * 100)}%`, background: '#f97316', transition: 'width 260ms cubic-bezier(.2,.9,.3,1)' }} />
-									</div>
-									<div style={{ transition: 'height 260ms cubic-bezier(.2,.9,.3,1)', height: suggestionTextareaHeight, overflow: 'hidden' }}>
-										<textarea
-											value={suggestionText}
-											onChange={(e) => setSuggestionText(e.target.value)}
-											onFocus={() => setSuggestionFocused(true)}
-											onBlur={() => setSuggestionFocused(false)}
-											autoFocus
-											aria-label={`Suggest an idea to ${creatorName}`}
-											placeholder="I’d like a video about..."
-											style={{ width: '100%', height: '100%', padding: 12, borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', fontSize: 14, resize: 'none', boxSizing: 'border-box', transition: 'height 260ms cubic-bezier(.2,.9,.3,1)' }}
-										/>
-									</div>
-									<div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end', fontSize: 12, color: '#9ca3af' }}>{`${(suggestionText || '').length}/${SUGGESTION_GOAL}`}</div>
-								</div>
-								<div style={{ position: 'absolute', left: 12, right: 12, bottom: -50, display: 'flex', gap: 4, justifyContent: 'space-between', alignItems: 'center' }}>
-									<button onClick={() => closeSuggestionCard()} className="rounded-md" style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', padding: '5px 10px', fontSize: 13, whiteSpace: 'nowrap', color: '#374151' }}>Maybe later</button>
-									<button onClick={sendSuggestionToCreator} disabled={suggestionSending || !(suggestionText || '').trim()} className="rounded-md" style={{ background: '#f97316', color: '#fff', padding: '5px 12px', fontSize: 13, whiteSpace: 'nowrap', border: 'none', flexGrow: 1, maxWidth: '100%', boxShadow: '0 6px 18px rgba(249,115,22,0.18)', fontWeight: 700 }}>{suggestionSending ? 'Sending…' : 'Send idea — creator sees it'}</button>
-								</div>
-							</div>
-						</div>
-					</>
-				)}
 
 				{/* --- ADD: Screen Locked overlay + transient top toast --- */}
 				{/* toast shows only briefly after locking */}

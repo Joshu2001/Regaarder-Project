@@ -2874,19 +2874,14 @@ const App = ({ overrideMiniPlayerData = null }) => {
                         try { v.currentTime = Math.max(0, Math.floor(miniPlayerData.time)); } catch (e) { /* ignore seeking errors */ }
                     }
 
-                    // Play/pause according to payload (prefer explicit paused flag)
-                    if (miniPlayerData && miniPlayerData.paused) {
-                        try { v.pause(); } catch (e) { }
-                    } else {
-                        // attempt to play with muted autoplay, then unmute on success
-                        try {
-                            v.muted = true;
-                            const p = v.play();
-                            if (p && p.then) {
-                                p.then(() => { try { v.muted = false; } catch (e) { } }).catch(() => { });
-                            }
-                        } catch (e) { }
-                    }
+                    // Always play when switching to miniplayer - continue playback
+                    try {
+                        v.muted = true;
+                        const p = v.play();
+                        if (p && p.then) {
+                            p.then(() => { try { v.muted = false; } catch (e) { } }).catch(() => { });
+                        }
+                    } catch (e) { }
                 } catch (err) { console.warn('miniPlayer applyState failed', err); }
             };
 
