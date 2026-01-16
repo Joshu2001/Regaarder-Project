@@ -647,6 +647,66 @@ const ShareIcon = () => (
 	</svg>
 );
 
+// VideoCard component with dynamic duration and thumbnail loading
+const VideoCard = ({ item, idx, filtered, onVideoClick, setToastMessage, toastTimerRef, sharePopoverFor, setSharePopoverFor, accentColor, accentText, makeShareLink, copyToClipboard, setShowShareModal, videoRef }) => {
+	const [loadedDuration, setLoadedDuration] = useState(0);
+	const [thumbnail, setThumbnail] = useState(item.thumbnail || item.imageUrl);
+
+	// Load video metadata from item's URL
+	useEffect(() => {
+		let cancelled = false;
+		
+		const videoUrl = item.url || item.videoUrl;
+		if (!videoUrl) return;
+
+		try {
+			const video = document.createElement('video');
+			video.preload = 'metadata';
+			video.crossOrigin = 'anonymous';
+			
+			const handleLoadedMetadata = () => {
+				if (!cancelled && video.duration && !isNaN(video.duration)) {
+					setLoadedDuration(Math.round(video.duration));
+				}
+			};
+
+			video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
+			video.src = videoUrl;
+			video.load();
+
+			// Timeout after 5 seconds
+			const timeoutId = setTimeout(() => {
+				if (!cancelled) {
+					video.pause();
+					video.src = '';
+				}
+			}, 5000);
+
+			return () => {
+				cancelled = true;
+				clearTimeout(timeoutId);
+				video.pause();
+				video.src = '';
+			};
+		} catch (e) {
+			// ignore errors
+		}
+	}, [item.url, item.videoUrl]);
+
+	return (
+		<div key={item.id} onClick={onVideoClick}
+			role="button" tabIndex={0} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#fff", padding: 10, borderRadius: 12, border: "1px solid rgba(0,0,0,0.04)", cursor: 'pointer', transition: 'all 200ms ease' }} onMouseEnter={(e) => e.currentTarget.style.background = '#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}>
+			<div className="w-28 h-16 rounded-md relative overflow-hidden flex-shrink-0" style={{ background: thumbnail ? `url(${encodeURI(thumbnail)}) center/cover no-repeat` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', backgroundColor: '#667eea' }}>
+				<div className="absolute right-2 bottom-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">{(() => { const s = loadedDuration || 0; return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` })()}</div>
+			</div>
+			<div style={{ flex: 1 }}>
+				<div style={{ fontWeight: 700, lineHeight: '1.3' }}>{item.title}</div>
+				<div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{item.creator} {item.tags && item.tags[0] ? <span style={{ background: '#e6f2ff', color: '#2563eb', padding: '2px 6px', borderRadius: 8, marginLeft: 8, fontSize: 11 }}>{item.tags[0]}</span> : null}</div>
+			</div>
+		</div>
+	);
+};
+
 // --- Main Component ---
 
 export default function MobileVideoPlayer({ discoverItems = null, initialVideo = null, onChevronDown = null } = {}) {
@@ -6219,7 +6279,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							const filteredByChip = selectedChip && selectedChip !== 'All Videos' ? source.filter(it => (it.tags || []).some(t => t.toLowerCase().includes(selectedChip.toLowerCase()))) : source;
 							const filtered = q ? filteredByChip.filter(it => (it.title || '').toLowerCase().includes(q) || (it.creator || '').toLowerCase().includes(q)) : filteredByChip;
 							return filtered.map((item, idx) => (
-								<div key={item.id} onClick={async () => {
+							<VideoCard
+								key={item.id}
+								item={item}
+								onVideoClick={async () => {
 									try {
 										try { currentSourceRef.current = filtered || []; setCurrentIndex(idx); } catch { }
 										setVideoTitle(item.title || 'Video');
@@ -6247,54 +6310,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										}, 120);
 									} catch { }
 								}}
-									role="button" tabIndex={0} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#fff", padding: 10, borderRadius: 12, border: "1px solid rgba(0,0,0,0.04)", cursor: 'pointer', transition: 'all 200ms ease' }} onMouseEnter={(e) => e.currentTarget.style.background = '#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}>
-									<div className="w-28 h-16 rounded-md relative overflow-hidden flex-shrink-0" style={{ background: item.thumbnail ? `url(${encodeURI(item.thumbnail)}) center/cover no-repeat` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', backgroundColor: '#667eea' }}>
-										<div className="absolute right-2 bottom-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">{(() => { const s = item.duration || 0; return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` })()}</div>
-									</div>
-									<div style={{ flex: 1 }}>
-										<div style={{ fontWeight: 700 }}>{item.title}</div>
-										<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
-											<div style={{ fontSize: 12, color: '#6b7280' }}>{item.creator} {item.tags && item.tags[0] ? <span style={{ background: '#e6f2ff', color: '#2563eb', padding: '2px 6px', borderRadius: 8, marginLeft: 8, fontSize: 11 }}>{item.tags[0]}</span> : null}</div>
-											<div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-												{/** Share icon for non-bookmark items (anchored similar to bookmark cards) */}
-												<button aria-label="Share video" data-share-anchor={`${item.url}::${item.id}`} onClick={(e) => {
-													e.stopPropagation?.();
-													try { setSharePopoverFor((s) => s === `${item.url}::${item.id}` ? null : `${item.url}::${item.id}`); } catch { }
-												}} className="p-1.5 rounded-full hover:bg-gray-100" style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-													<ShareIcon />
-												</button>
-											</div>
-										</div>
-									</div>
-									{/** Share popover for this item (non-timestamped) */}
-									{sharePopoverFor === `${item.url}::${item.id}` && (
-										<div role="dialog" aria-label="Share video" data-share-key={`${item.url}::${item.id}`} className="min-w-[220px] sm:min-w-[260px] bg-white rounded-xl p-4 shadow-2xl" style={{ position: 'absolute', right: 12, top: 56, zIndex: 1100, border: '1px solid rgba(0,0,0,0.06)' }} onClick={(e) => e.stopPropagation()}>
-											<div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Share video</div>
-											<div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>Share a link to this video.</div>
-											<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-												<button onClick={() => {
-													try {
-														const link = makeShareLink(item.url, 0);
-														copyToClipboard(link);
-														setToastMessage('Link copied');
-														setSharePopoverFor(null);
-														if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-														toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600);
-													} catch { }
-												}} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fafafa', cursor: 'pointer', textAlign: 'left' }}>Copy link</button>
-												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `whatsapp://send?text=${encodeURIComponent(link)}`; } catch { } setTimeout(() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Send to WhatsApp</button>
-												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `twitter://post?message=${encodeURIComponent(link)}`; } catch { } setTimeout(() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Twitter</button>
-												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `fb-messenger://share?link=${encodeURIComponent(link)}`; } catch { } setTimeout(() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank'), 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Facebook</button>
-												<button onClick={() => { try { const link = makeShareLink(item.url, 0); try { window.location.href = `instagram://share?text=${encodeURIComponent(link)}`; } catch { } setTimeout(() => { copyToClipboard(link); setToastMessage('Link copied — share via Instagram'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1600); }, 600); setSharePopoverFor(null); } catch { } }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)', background: '#fff', cursor: 'pointer', textAlign: 'left' }}>Share to Instagram</button>
-												<div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-													<button onClick={() => { try { setShowShareModal(true); setSharePopoverFor(null); } catch { } }} style={{ flex: 1, padding: '8px 10px', borderRadius: 8, background: accentColor, color: accentText, border: 'none', cursor: 'pointer' }}>More...</button>
-													<button onClick={() => setSharePopoverFor(null)} style={{ padding: '8px 10px', borderRadius: 8, background: '#f3f4f6', border: 'none', cursor: 'pointer' }}>Close</button>
-												</div>
-											</div>
-										</div>
-									)}
-								</div>
-							));
+								setToastMessage={setToastMessage}
+								toastTimerRef={toastTimerRef}
+							/>
+						));
 						})()}
 						<div style={{ height: 8 }} />
 					</div>
