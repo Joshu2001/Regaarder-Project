@@ -1,7 +1,7 @@
 /* eslint-disable no-empty */
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, FileText, File as FileIcon, Pencil, MoreHorizontal, MoreVertical, Pin, Star, TrendingUp, Trophy, User, Zap, Video, Clock, BarChart, Upload, Lightbulb, Headphones, Copy, LineChart, CheckCircle, Search, Globe, Link2, Image, Lock, Link, Eye } from 'lucide-react';
+import { Home, FileText, File as FileIcon, Pencil, MoreHorizontal, MoreVertical, Pin, Star, TrendingUp, Trophy, User, Zap, Video, Clock, BarChart, Upload, Lightbulb, Headphones, Copy, LineChart, CheckCircle, Search, Globe, Link2, Image, Lock, Link, Eye, ChevronDown } from 'lucide-react';
 import RequestsFeed from './requests.jsx';
 import { getTranslation, translations } from './translations.js';
 
@@ -1925,7 +1925,7 @@ const BottomBar = ({ selectedLanguage = 'English' }) => {
 const App = () => {
     const navigate = useNavigate();
     const [activeTopTab, setActiveTopTab] = useState('Overview');
-
+    const [showDropdown, setShowDropdown] = useState(false);
 
     // Check URL parameters on mount to navigate to specific tab
     useEffect(() => {
@@ -2374,14 +2374,14 @@ const App = () => {
             title: getTranslation('Total Earnings', selectedLanguage),
             jsx: (
                 <div key="earnings" className="snap-start min-w-full flex-shrink-0">
-                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
-                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(147,51,234,0.08) 0%, rgba(169,91,243,0.12) 50%, rgba(192,132,252,0.1) 100%)', borderColor: 'var(--color-purple)' }}>
+                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.15) 0%, rgba(147,51,234,0.05) 70%, transparent 100%)' }}></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.08) 0%, transparent 70%)' }}></div>
                         <div className="flex items-center gap-3 mb-3 relative z-10">
-                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-light) 100%)' }}>
                                 <Trophy size={22} className="text-white" fill="white" />
                             </div>
-                            <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Total Earnings', selectedLanguage)}</span>
+                            <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-purple)' }}>{getTranslation('Total Earnings', selectedLanguage)}</span>
                         </div>
                         <div className="flex-1 flex flex-col justify-center relative z-10">
                             <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
@@ -2396,13 +2396,13 @@ const App = () => {
             title: getTranslation('Active Requests', selectedLanguage),
             jsx: (
                 <div key="requests" className="snap-start min-w-full flex-shrink-0">
-                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
-                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(147,51,234,0.08) 0%, rgba(169,91,243,0.12) 50%, rgba(192,132,252,0.1) 100%)', borderColor: 'var(--color-purple)' }}>
+                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.15) 0%, rgba(147,51,234,0.05) 70%, transparent 100%)' }}></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.08) 0%, transparent 70%)' }}></div>
                         <div className="flex items-center gap-3 mb-3 relative z-10">
                             <div className="flex items-center gap-2">
-                                <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Active Requests', selectedLanguage)}</span>
-                                <span className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>{getTranslation('NEW', selectedLanguage)}</span>
+                                <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-purple)' }}>{getTranslation('Active Requests', selectedLanguage)}</span>
+                                <span className="px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-light) 100%)' }}>{getTranslation('NEW', selectedLanguage)}</span>
                             </div>
                         </div>
                         {(() => {
@@ -2435,14 +2435,14 @@ const App = () => {
             title: getTranslation('Avg Rating', selectedLanguage),
             jsx: (
                 <div key="rating" className="snap-start min-w-full flex-shrink-0">
-                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
-                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(147,51,234,0.08) 0%, rgba(169,91,243,0.12) 50%, rgba(192,132,252,0.1) 100%)', borderColor: 'var(--color-purple)' }}>
+                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.15) 0%, rgba(147,51,234,0.05) 70%, transparent 100%)' }}></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.08) 0%, transparent 70%)' }}></div>
                         <div className="flex items-center gap-3 mb-3 relative z-10">
-                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-light) 100%)' }}>
                                 <Star size={22} className="text-white" fill="white" />
                             </div>
-                            <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Avg Rating', selectedLanguage)}</span>
+                            <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-purple)' }}>{getTranslation('Avg Rating', selectedLanguage)}</span>
                         </div>
                         <div className="flex-1 flex flex-col justify-center relative z-10">
                             <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
@@ -2457,14 +2457,14 @@ const App = () => {
             title: getTranslation('Response Time', selectedLanguage),
             jsx: (
                 <div key="response" className="snap-start min-w-full flex-shrink-0">
-                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(237,233,254,0.4) 0%, rgba(221,214,254,0.6) 50%, rgba(196,181,253,0.5) 100%)', borderColor: '#8B5CF6' }}>
-                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.05) 70%, transparent 100%)' }}></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)' }}></div>
+                    <div className="rounded-3xl p-6 shadow-xl border-2 flex flex-col items-start justify-between min-h-[200px] relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(147,51,234,0.08) 0%, rgba(169,91,243,0.12) 50%, rgba(192,132,252,0.1) 100%)', borderColor: 'var(--color-purple)' }}>
+                        <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.15) 0%, rgba(147,51,234,0.05) 70%, transparent 100%)' }}></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full -ml-16 -mb-16 blur-xl" style={{ background: 'radial-gradient(circle, rgba(147,51,234,0.08) 0%, transparent 70%)' }}></div>
                         <div className="flex items-center gap-3 mb-3 relative z-10">
-                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)' }}>
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-light) 100%)' }}>
                                 <Zap size={22} className="text-white" fill="white" />
                             </div>
-                            <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: '#5B21B6' }}>{getTranslation('Response Time', selectedLanguage)}</span>
+                            <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-purple)' }}>{getTranslation('Response Time', selectedLanguage)}</span>
                         </div>
                         <div className="flex-1 flex flex-col justify-center relative z-10">
                             <div className="text-[48px] font-bold text-gray-900 mb-2 leading-none tracking-tight">--</div>
@@ -2590,17 +2590,69 @@ const App = () => {
                     </div>
                 </div>
             )}
-            {/* Search bar */}
+            {/* Page Selector Dropdown */}
             <div className="px-6 mt-5">
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder={getTranslation('Search requests, videos, or creators...', selectedLanguage)}
-                        value={dashboardSearch}
-                        onChange={(e) => setDashboardSearch(e.target.value)}
-                        className="w-full px-4 py-3 pl-11 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-gold-light)] shadow-sm"
-                    />
-                    <Search size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <div className="relative inline-block w-full">
+                    <button
+                        onClick={() => setShowDropdown(!showDropdown)}
+                        className="w-full px-5 py-3 rounded-2xl border-2 flex items-center justify-between font-semibold text-[15px] shadow-md transition-all"
+                        style={{
+                            backgroundColor: 'var(--color-purple)',
+                            color: 'white',
+                            borderColor: 'var(--color-purple)',
+                            opacity: 0.95
+                        }}
+                        onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                    >
+                        <span className="flex items-center gap-2">
+                            {activeTopTab === 'Overview' && <TrendingUp size={18} />}
+                            {activeTopTab === 'Requests' && <FileText size={18} />}
+                            {activeTopTab === 'Claims' && <CheckCheck size={18} />}
+                            {activeTopTab === 'Published' && <Video size={18} />}
+                            {activeTopTab === 'Analytics' && <LineChart size={18} />}
+                            {activeTopTab === 'Upload' && <Upload size={18} />}
+                            {activeTopTab === 'Insights' && <Lightbulb size={18} />}
+                            {activeTopTab === 'Support' && <Headphones size={18} />}
+                            {activeTopTab === 'Templates' && <Copy size={18} />}
+                            {getTranslation(activeTopTab, selectedLanguage)}
+                        </span>
+                        <ChevronDown size={20} className="transition-transform" style={{transform: showDropdown ? 'rotate(180deg)' : 'rotate(0deg)'}} />
+                    </button>
+
+                    {showDropdown && (
+                        <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl border-2 bg-white shadow-2xl z-50" style={{borderColor: 'var(--color-purple)'}}>
+                            {baseTopTabs.map((tabName) => {
+                                const isActive = activeTopTab === tabName;
+                                return (
+                                    <button
+                                        key={tabName}
+                                        onClick={() => {
+                                            setActiveTopTab(tabName);
+                                            setShowDropdown(false);
+                                        }}
+                                        className={`w-full px-5 py-3 text-left text-[15px] font-semibold flex items-center gap-3 transition-colors border-b last:border-b-0 ${ isActive ? 'bg-[var(--color-purple-light-bg)]' : 'hover:bg-gray-50'}`}
+                                        style={isActive ? {color: 'var(--color-purple)'} : {color: '#374151'}}
+                                    >
+                                        {(() => {
+                                            switch (tabName) {
+                                                case 'Overview': return <TrendingUp size={18} />;
+                                                case 'Requests': return <FileText size={18} />;
+                                                case 'Claims': return <CheckCheck size={18} />;
+                                                case 'Published': return <Video size={18} />;
+                                                case 'Analytics': return <LineChart size={18} />;
+                                                case 'Upload': return <Upload size={18} />;
+                                                case 'Insights': return <Lightbulb size={18} />;
+                                                case 'Support': return <Headphones size={18} />;
+                                                case 'Templates': return <Copy size={18} />;
+                                                default: return null;
+                                            }
+                                        })()}
+                                        {getTranslation(tabName, selectedLanguage)}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -2611,33 +2663,6 @@ const App = () => {
                 style={{ WebkitOverflowScrolling: 'touch', paddingLeft: '21px', scrollPaddingLeft: '26px' }}
             >
                 {orderedCards.map(c => c.jsx)}
-            </div>
-            {/* Tabs - horizontally scrollable */}
-            <div className="px-6 mt-8">
-                <div className="flex gap-2 overflow-x-auto flex-nowrap hide-scrollbar pb-2">
-                    {getTopTabs().map((tabName) => {
-                        const isActive = activeTopTab === tabName;
-                        const cls = isActive ? topActiveClass : topInactiveClass;
-                        return (
-                            <button key={tabName} onClick={() => setActiveTopTab(tabName)} className={cls}>
-                                {(() => {
-                                    switch (tabName) {
-                                        case 'Overview': return (<><TrendingUp size={17} className="mr-1" />{getTranslation('Overview', selectedLanguage)}</>);
-                                        case 'Requests': return (<><FileText size={17} className="mr-1" />{getTranslation('Requests', selectedLanguage)}</>);
-                                        case 'Claims': return (<div className="flex items-center gap-2"><CheckCheck size={17} className="mr-1 text-current" /><span className="truncate max-w-[120px]">{getTranslation('Claims', selectedLanguage)}</span></div>);
-                                        case 'Published': return (<div className="flex items-center gap-2"><Video size={17} className="mr-1 text-current" /><span className="truncate max-w-[120px]">{getTranslation('Published', selectedLanguage)}</span></div>);
-                                        case 'Analytics': return (<><LineChart size={17} className="mr-1" />{getTranslation('Analytics', selectedLanguage)}</>);
-                                        case 'Upload': return (<><Upload size={17} className="mr-1" />{getTranslation('Upload', selectedLanguage)}</>);
-                                        case 'Insights': return (<><Lightbulb size={17} className="mr-1" />{getTranslation('Insights', selectedLanguage)}</>);
-                                        case 'Support': return (<><Headphones size={17} className="mr-1" />{getTranslation('Support', selectedLanguage)}</>);
-                                        case 'Templates': return (<><Copy size={17} className="mr-1" />{getTranslation('Templates', selectedLanguage)}</>);
-                                        default: return (<span>{getTranslation(tabName, selectedLanguage)}</span>);
-                                    }
-                                })()}
-                            </button>
-                        );
-                    })}
-                </div>
             </div>
             {/* Content area — show RequestsFeed when Requests tab is active, otherwise show overview placeholders */}
             {activeTopTab === 'Requests' ? (

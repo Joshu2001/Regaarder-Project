@@ -142,6 +142,11 @@ export function ThemeProvider({ children }) {
       const lighterRgb = { r: Math.min(255, rgb.r + 80), g: Math.min(255, rgb.g + 80), b: Math.min(255, rgb.b + 80) };
       document.documentElement.style.setProperty('--color-gold-cream', `rgb(${lighterRgb.r}, ${lighterRgb.g}, ${lighterRgb.b})`);
       document.documentElement.style.setProperty('--color-accent-soft', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.12)`);
+      
+      // Also set purple color variables for dashboard and other uses
+      document.documentElement.style.setProperty('--color-purple', accentColor);
+      document.documentElement.style.setProperty('--color-purple-light', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`);
+      document.documentElement.style.setProperty('--color-purple-light-bg', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`);
       // also provide accessibility-safe colors for the built-in final/purple CTA
       try {
         const finalHex = '#7C3AED';
