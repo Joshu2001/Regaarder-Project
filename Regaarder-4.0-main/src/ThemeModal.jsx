@@ -5,7 +5,7 @@ import { getTranslation } from './translations.js';
 
 const ThemeModal = ({ onClose }) => {
   const { accentColor, setAccentColor, themeId, setThemeId, closeThemeModal, showThemeModal } = useTheme();
-  const [localColor, setLocalColor] = useState(accentColor || '#CB8A00');
+  const [localColor, setLocalColor] = useState(accentColor || '#9333ea');
   const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
   
   if (!showThemeModal) return null;
@@ -18,11 +18,11 @@ const ThemeModal = ({ onClose }) => {
 
   const presetColors = [
     '#ca8a04',
-    '#ea580c',
+    '#a95bf3',
     '#dc2626',
     '#db2777',
     '#9333ea',
-    '#3b82f6',
+    '#c084fc',
     '#0891b2',
     '#059669',
     '#65a30d',

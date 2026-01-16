@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 const ThemeContext = createContext(null);
 
 const defaultState = {
-  accentColor: '#ca8a04',
+  accentColor: '#9333ea',
   themeId: 'Light',
 };
 

@@ -11,9 +11,17 @@ const getCssVar = (name, fallback) => {
     }
 };
 
-const ACCENT_COLOR = getCssVar('--color-accent', '#CA8A04');
-const HIGHLIGHT_COLOR = getCssVar('--color-accent-soft', 'rgba(202, 138, 4, 0.12)');
-const ICON_BACKGROUND = getCssVar('--color-gold-light-bg', 'rgba(202, 138, 4, 0.1)');
+const getAccentColor = () => {
+    try {
+        return getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim() || '#9333ea';
+    } catch (e) {
+        return '#9333ea';
+    }
+};
+
+const ACCENT_COLOR = getAccentColor();
+const HIGHLIGHT_COLOR = `rgba(${parseInt(ACCENT_COLOR.slice(1, 3), 16)}, ${parseInt(ACCENT_COLOR.slice(3, 5), 16)}, ${parseInt(ACCENT_COLOR.slice(5, 7), 16)}, 0.12)`;
+const ICON_BACKGROUND = `rgba(${parseInt(ACCENT_COLOR.slice(1, 3), 16)}, ${parseInt(ACCENT_COLOR.slice(3, 5), 16)}, ${parseInt(ACCENT_COLOR.slice(5, 7), 16)}, 0.1)`;
 
 // Bottom navigation bar component
 const BottomBar = () => {

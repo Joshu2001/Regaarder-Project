@@ -7,9 +7,18 @@ import { getTranslation } from './translations.js';
 const getCssVar = (name, fallback) => {
     try { const v = getComputedStyle(document.documentElement).getPropertyValue(name); return v ? v.trim() : fallback; } catch (e) { return fallback; }
 };
-const ACCENT_COLOR = getCssVar('--color-accent', '#CA8A04');
-const HIGHLIGHT_COLOR = getCssVar('--color-accent-soft', 'rgba(202, 138, 4, 0.12)');
-const ICON_BACKGROUND = getCssVar('--color-gold-light-bg', 'rgba(202, 138, 4, 0.1)');
+
+const getAccentColor = () => {
+    try {
+        return getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim() || '#9333ea';
+    } catch (e) {
+        return '#9333ea';
+    }
+};
+
+const ACCENT_COLOR = getAccentColor();
+const HIGHLIGHT_COLOR = `rgba(${parseInt(ACCENT_COLOR.slice(1, 3), 16)}, ${parseInt(ACCENT_COLOR.slice(3, 5), 16)}, ${parseInt(ACCENT_COLOR.slice(5, 7), 16)}, 0.12)`;
+const ICON_BACKGROUND = `rgba(${parseInt(ACCENT_COLOR.slice(1, 3), 16)}, ${parseInt(ACCENT_COLOR.slice(3, 5), 16)}, ${parseInt(ACCENT_COLOR.slice(5, 7), 16)}, 0.1)`;
 
 // Safe price formatting helper
 const formatPrice = (monthly, billingPeriod = 'monthly', discount = 0.17) => {
@@ -22,6 +31,16 @@ const formatPrice = (monthly, billingPeriod = 'monthly', discount = 0.17) => {
 
 // Ala carte items (from provided images)
 const alaCarteItems = [
+    {
+        title: 'Video Quality - Up to 1440p',
+        priceMonthly: 3.99,
+        description: 'Unlock 1440p video resolution for high-definition viewing',
+    },
+    {
+        title: 'Video Quality - Up to 2160p (4K)',
+        priceMonthly: 5.99,
+        description: 'Unlock 2160p 4K video resolution for ultra-clear viewing',
+    },
     {
         title: 'Extra Paid Requests',
         priceMonthly: 4.99,
@@ -321,7 +340,8 @@ const Sponsorships = () => {
                 { text: t('Boosting available'), icon: TrendingDown, allowed: false },
                 { text: t('Invite contributors (viral growth)'), icon: Users, allowed: true },
                 { text: 'Visibility may decay over time', icon: TrendingDown },
-                { text: t('Maximum video quality: 360p'), icon: MonitorPlay },
+                { text: t('Video quality limited to: 360p maximum'), icon: MonitorPlay },
+                { text: t('Upgrade for higher resolutions'), icon: MonitorPlay, allowed: false },
             ],
             cta: t('Start Free'),
             themeColor: ACCENT_COLOR,
@@ -344,6 +364,7 @@ const Sponsorships = () => {
                 { text: t('Priority creator matching'), icon: Sparkles, allowed: true },
                 { text: t('No ads'), icon: Ban, allowed: true },
                 { text: t('Faster request response'), icon: Zap, allowed: true },
+                { text: t('Video quality up to 1080p'), icon: MonitorPlay, allowed: true },
             ],
             cta: t('Grab Flash Deal'),
             themeColor: ACCENT_COLOR,
@@ -547,7 +568,7 @@ const Sponsorships = () => {
                             {alaCarteItems.map((a, aIdx) => {
                                 const idx = aIdx; // separate index space for ala carte
                                 const displayPrice = formatPrice(a.priceMonthly, billingPeriod, ANNUAL_DISCOUNT);
-                                const periodLabel = billingPeriod === 'monthly' ? '/month' : '/year';
+                                const periodLabel = billingPeriod === 'daily' ? '/day' : (billingPeriod === 'monthly' ? '/month' : '/year');
                                 const isSelected = selectedAlaCarte.includes(a.title);
                                 return (
                                     <div key={a.title} ref={el => cardRefs.current[idx] = el} data-idx={idx} className={`transform transition duration-700 ease-out ${visibleIdx[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>

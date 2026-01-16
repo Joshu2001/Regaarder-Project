@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
+import { useTheme } from './ThemeContext.jsx';
 import { getTranslation } from './translations.js';
 import * as eventBus from './eventbus.js';
 import { PlayerContext } from './PlayerProvider.jsx';
@@ -652,9 +653,41 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 	const selectedLanguage = typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English';
 	const auth = useAuth();
+	const { accentColor: themeAccentColor } = useTheme(); // Get theme accent color
 	const [searchParams] = useSearchParams();
+	
+	// Helper function to get max allowed quality based on subscription tier
+	const getMaxAllowedQuality = () => {
+		try {
+			// Check if user has pro subscription
+			if (auth && auth.user && auth.user.subscription) {
+				const sub = auth.user.subscription;
+				// Check for "1440p" or "2160p" quality addons
+				const hasHighQuality = auth.user.alaCarteAddons?.includes('Video Quality - Up to 2160p (4K)');
+				const has1440p = auth.user.alaCarteAddons?.includes('Video Quality - Up to 1440p');
+				
+				// Pro users get 1080p by default
+				if (sub.tier === 'pro' || sub.tier === 'Pro' || sub.tier === 'Pro Creator') {
+					if (hasHighQuality) return '2160p'; // 4K addon
+					if (has1440p) return '1440p'; // 1440p addon
+					return '1080p'; // Pro default
+				}
+			}
+			// Free/Starter users limited to 360p, but addons can upgrade
+			const has1440p = auth?.user?.alaCarteAddons?.includes('Video Quality - Up to 1440p');
+			const has4k = auth?.user?.alaCarteAddons?.includes('Video Quality - Up to 2160p (4K)');
+			
+			if (has4k) return '2160p';
+			if (has1440p) return '1440p';
+			return '360p'; // Free/Starter default
+		} catch (e) {
+			return '360p'; // Fallback to 360p for safety
+		}
+	};
+	
 	const containerRef = useRef(null);
 	const [showMenu, setShowMenu] = useState(false);
+	const [showQualityDropdown, setShowQualityDropdown] = useState(false);
 	const [locked, setLocked] = useState(false); // NEW: lock toggle state
 	const [showLockToast, setShowLockToast] = useState(false); // transient toast
 	const [showLockVisual, setShowLockVisual] = useState(false); // transient visual inside circle
@@ -2120,13 +2153,13 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 
 	// NEW: progress bar color state & presets (persisted)
-	// UPDATED: Default color slightly dimmer to keep focus on the video
-	const [progressColor, setProgressColor] = usePref('progressColor', "#2563eb");
+	// Default to theme accent color, allowing user to override with quick presets
+	const [progressColor, setProgressColor] = usePref('progressColor', themeAccentColor || "#9333ea");
 	// Loop + playback controls (persisted)
 	const [loopVideo, setLoopVideo] = usePref('loopVideo', false);
 	// Auto-play toggle (persisted, default OFF)
 	const [autoPlayEnabled, setAutoPlayEnabled] = usePref('autoPlayEnabled', false);
-	const colorPresets = ["#4ade80", "#eab308", "#ef4444", "#3b82f6", "#10b981", "#a78bfa", "#fb7185", "#fb923c", "#06b6d4", "#84cc16", "#8b5cf6", "#f472b6", "#ffffff"];
+	const colorPresets = ['#ca8a04', '#a95bf3', '#dc2626', '#db2777', '#9333ea', '#c084fc', '#0891b2', '#059669', '#65a30d', '#84cc16', '#eab308', '#f59e0b'];
 
 	// Auto-play effect: if autoPlayEnabled is true and video loads, try to auto-play
 	useEffect(() => {
@@ -2201,22 +2234,93 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	// New UI states for modal controls (persisted preferences)
 	const [darkMode, setDarkMode] = usePref('darkMode', true);
 	const [selectedQuality, setSelectedQuality] = usePref('selectedQuality', "480p");
+	const [autoQualityEnabled, setAutoQualityEnabled] = useState(selectedQuality === "Auto");
 
 	// map of quality -> source URL (can be extended/overridden)
 	const qualitySources = useRef({});
+	const autoQualityRef = useRef("480p"); // Track the currently selected auto quality
+
+	// Detect network connection type and speed
+	const getNetworkQuality = () => {
+		try {
+			const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+			if (!connection) return "480p"; // Default fallback
+			
+			const effectiveType = connection.effectiveType; // "4g", "3g", "2g", "slow-2g"
+			const downlink = connection.downlink; // Mbps
+			
+			// Determine quality based on effective type and downlink speed
+			if (effectiveType === "4g" && downlink >= 10) return "1440p";
+			if (effectiveType === "4g" && downlink >= 5) return "1080p";
+			if (effectiveType === "4g" && downlink >= 2.5) return "720p";
+			if (effectiveType === "3g" && downlink >= 2.5) return "720p";
+			if (effectiveType === "3g" || downlink >= 1.5) return "480p";
+			if (effectiveType === "2g" || downlink >= 0.5) return "360p";
+			return "240p"; // Minimum quality for very slow networks
+		} catch (e) {
+			return "480p"; // Default fallback
+		}
+	};
+
+	// Monitor network changes and auto-adjust quality
+	useEffect(() => {
+		if (selectedQuality !== "Auto") {
+			setAutoQualityEnabled(false);
+			return;
+		}
+
+		setAutoQualityEnabled(true);
+		const v = videoRef.current;
+		if (!v) return;
+
+		// Initial quality based on network
+		const initialQuality = getNetworkQuality();
+		autoQualityRef.current = initialQuality;
+
+		// Monitor network changes
+		const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+		const handleNetworkChange = () => {
+			const newQuality = getNetworkQuality();
+			if (newQuality !== autoQualityRef.current) {
+				autoQualityRef.current = newQuality;
+				// Switch quality only if not manually paused
+				if (!v.paused) {
+					try {
+						const newSrc = getQualitySrc(newQuality);
+						if (newSrc && (v.currentSrc || v.src || '').split('?')[0] !== newSrc.split('?')[0]) {
+							const currentTime = v.currentTime || 0;
+							v.pause();
+							v.src = newSrc;
+							v.load();
+							v.currentTime = Math.max(0, Math.min(currentTime, v.duration || Infinity));
+							v.play().catch(() => {});
+						}
+					} catch (err) {}
+				}
+			}
+		};
+
+		if (connection) {
+			connection.addEventListener('change', handleNetworkChange);
+			return () => connection.removeEventListener('change', handleNetworkChange);
+		}
+	}, [selectedQuality]);
 
 	const getQualitySrc = (quality) => {
+		// Get actual quality to use (convert "Auto" to current auto quality)
+		const qualityToUse = quality === "Auto" ? autoQualityRef.current : quality;
+		
 		// priority: explicit mapping in qualitySources, otherwise try to derive from videoUrl
-		if (qualitySources.current && qualitySources.current[quality]) return qualitySources.current[quality];
+		if (qualitySources.current && qualitySources.current[qualityToUse]) return qualitySources.current[qualityToUse];
 		const base = videoUrl && videoUrl.trim() ? videoUrl.trim() : "";
 		try {
 			// try replace resolution token like 480p/720p in filename
 			if (/\b\d{3,4}p\b/.test(base)) {
-				return base.replace(/\b\d{3,4}p\b/, quality);
+				return base.replace(/\b\d{3,4}p\b/, qualityToUse);
 			}
 			// fallback: append query param so server (if aware) may serve variant
 			const url = new URL(base, window.location.origin);
-			url.searchParams.set('quality', quality);
+			url.searchParams.set('quality', qualityToUse);
 			return url.toString();
 		} catch (e) {
 			// last resort: return base unchanged
@@ -2229,6 +2333,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 		try {
 			const v = videoRef.current;
 			if (!v) return;
+			
+			// If Auto is selected, skip this effect and let the auto quality effect handle it
+			if (selectedQuality === "Auto") return;
+			
 			const newSrc = getQualitySrc(selectedQuality);
 			if (!newSrc) return;
 			// if the src is already the same, nothing to do
@@ -4411,21 +4519,85 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							})()}
 						</span>
 						{/* match "Requested" badge colors: dark background + blue text */}
-						<span
-							className="text-[10px] px-1.5 py-0.5 rounded font-bold"
+						<button
+							onClick={() => setShowQualityDropdown(!showQualityDropdown)}
+							className="text-[10px] px-1.5 py-0.5 rounded font-bold hover:opacity-80 transition-opacity relative"
 							style={{
 								background: "#1e2736",
 								color: accentColor,
-								border: `1px solid ${accentBorder}`
+								border: `1px solid ${accentBorder}`,
+								cursor: 'pointer'
 							}}
 						>
 							{selectedQuality}
-						</span>
+							{/* Quality Dropdown */}
+							{showQualityDropdown && (
+								<div
+									className="absolute bottom-full right-0 mb-2 bg-[#0f1419] rounded-lg shadow-lg border border-gray-700 py-2 z-50"
+									style={{
+										minWidth: '120px',
+										backgroundColor: '#0f1419',
+										borderColor: 'rgba(255,255,255,0.08)'
+									}}
+									onClick={(e) => e.stopPropagation()}
+								>
+									<button
+										onClick={() => {
+											setSelectedQuality('Auto');
+											setShowQualityDropdown(false);
+										}}
+										className="w-full px-4 py-2 text-left text-sm hover:bg-gray-800 transition-colors"
+										style={{
+											color: selectedQuality === 'Auto' ? accentColor : 'rgba(255,255,255,0.8)',
+											backgroundColor: selectedQuality === 'Auto' ? 'rgba(255,255,255,0.06)' : 'transparent',
+											fontWeight: selectedQuality === 'Auto' ? '600' : '400'
+										}}
+									>
+										Auto
+									</button>
+									{['144p', '240p', '360p', '480p', '720p', '1080p', '1440p', '2160p'].map((q) => {
+										const qualityOrder = ['144p', '240p', '360p', '480p', '720p', '1080p', '1440p', '2160p'];
+										const maxAllowed = getMaxAllowedQuality();
+										const maxIdx = qualityOrder.indexOf(maxAllowed);
+										const qIdx = qualityOrder.indexOf(q);
+										const isAllowed = qIdx <= maxIdx;
+										const isLocked = !isAllowed;
+										
+										return (
+											<button
+												key={q}
+												disabled={isLocked}
+												onClick={() => {
+													if (!isLocked) {
+														setSelectedQuality(q);
+														setShowQualityDropdown(false);
+													}
+												}}
+												className="w-full px-4 py-2 text-left text-sm hover:bg-gray-800 transition-colors relative group"
+												style={{
+													color: isLocked ? 'rgba(255,255,255,0.4)' : (selectedQuality === q ? accentColor : 'rgba(255,255,255,0.8)'),
+													backgroundColor: selectedQuality === q ? 'rgba(255,255,255,0.06)' : 'transparent',
+													fontWeight: selectedQuality === q ? '600' : '400',
+													cursor: isLocked ? 'not-allowed' : 'pointer',
+													opacity: isLocked ? 0.6 : 1
+												}}
+												title={isLocked ? `Upgrade to unlock ${q}` : ''}
+											>
+												<span className="flex items-center justify-between w-full">
+													<span>{q}</span>
+													{isLocked && <span className="text-xs">🔒</span>}
+												</span>
+											</button>
+										);
+									})}
+								</div>
+							)}
+						</button>
 					</div>
 
 					<div className="flex items-center space-x-6" style={{ alignItems: 'center' }}>
 						{/* Comment button */}
-						<button onClick={() => { if (!auth.user) return auth.openAuthModal(); setShowCommentsModal(true); }} className="p-1.5 hover:opacity-80 transition-opacity">
+						<button onClick={() => { setShowQualityDropdown(false); if (!auth.user) return auth.openAuthModal(); setShowCommentsModal(true); }} className="p-1.5 hover:opacity-80 transition-opacity">
 							<MessageSquare />
 						</button>
 						{/* Notes button (replaces Like + Bookmark) */}
@@ -4713,46 +4885,6 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 							<div className="border-t border-gray-200 mt-1" />
 
-
-							{/* Video Quality section */}
-							<div className="px-2 pt-2">
-								<div className="text-gray-500 text-sm mb-3">{getTranslation("Video Quality", selectedLanguage)}</div>
-
-								<div className="grid grid-cols-3 gap-2">
-									{/*
-										{ id: "360p", locked: false },
-										{ id: "480p", locked: false },
-										{ id: "720p", locked: true },
-										{ id: "1080p", locked: true },
-										{ id: "4K", locked: true },
-									*/}
-									{["360p", "480p", "720p", "1080p", "4K"].map((q, index) => {
-										const locked = index >= 2; // 720p and above are locked
-										const selected = selectedQuality === q;
-										return (
-											<button
-												key={q}
-												onClick={() => !locked && setSelectedQuality(q)}
-												className={`py-2 rounded-full text-sm font-medium ${locked ? "bg-gray-100 text-gray-400 opacity-80" : "bg-gray-100 text-gray-700"} flex items-center justify-center relative`}
-												style={selected ? { background: '#111', color: '#fff', boxShadow: '0 6px 14px rgba(0,0,0,0.12)' } : undefined}
-											>
-												{q}
-												{locked && (
-													<svg className="absolute right-2 w-3 h-3" viewBox="0 0 24 24" fill="none">
-														<path d="M12 17v-4" stroke={selected ? "#fff" : "#9ca3af"} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"></path>
-														<rect x="6" y="9" width="12" height="8" rx="2" stroke={selected ? "#fff" : "#9ca3af"} strokeWidth="1.2" />
-													</svg>
-												)}
-											</button>
-										);
-									})}
-								</div>
-
-								<div className="text-gray-500 text-xs mt-3 mb-2">{getTranslation("Upgrade to Premium for HD, 4K quality", selectedLanguage)}</div>
-							</div>
-
-							<div className="border-t border-gray-200 my-3" />
-
 							{/* Playback Speed */}
 							<div className="px-2">
 								<div className="flex items-center justify-between mb-3">
@@ -4948,8 +5080,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			{/* Captions / Subtitle Settings Dialog (carbon copy style) */}
 			{showCaptions && (
 				<div
-					className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center"
+					className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
 					onClick={() => setShowCaptions(false)}
+					style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', transition: 'backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease' }}
 				>
 					<div
 						className="modal-dialog w-full max-w-md rounded-2xl p-4 shadow-xl backdrop-blur-sm flex flex-col mx-4"
@@ -5135,9 +5268,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			{/* Share Video dialog (opened from Options -> Share) */}
 			{showShareModal && (
 				<div
-					className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center"
+					className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
 					onClick={() => setShowShareModal(false)}
-					style={{ backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}
+					style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}
 				>
 					<div
 						className="modal-dialog w-full max-w-md rounded-2xl p-4 shadow-xl backdrop-blur-sm flex flex-col mx-4"
@@ -5366,7 +5499,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 			{/* Tip Creator modal (activated from Options -> Tip Creator) */}
 			{showTipModal && (
-				<div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center" onClick={() => setShowTipModal(false)} style={{ zIndex: 710, backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}>
+				<div className="fixed inset-0 flex items-end sm:items-center justify-center" onClick={() => setShowTipModal(false)} style={{ zIndex: 710, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}>
 					<div
 						className="modal-dialog w-full max-w-md rounded-t-2xl p-4 shadow-xl flex flex-col mx-0 sm:mx-4"
 						onClick={(e) => e.stopPropagation()}
@@ -5392,7 +5525,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 								{/* Bookmark This Moment modal */}
 								{showBookmarkModal && (
-									<div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center" onClick={() => setShowBookmarkModal(false)} style={{ zIndex: 720 }}>
+									<div className="fixed inset-0 flex items-end sm:items-center justify-center" onClick={() => setShowBookmarkModal(false)} style={{ zIndex: 720, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}>
 										<div
 											className="w-full max-w-md rounded-t-2xl p-4 shadow-xl flex flex-col mx-4"
 											onClick={(e) => e.stopPropagation()}
@@ -5559,7 +5692,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 			{/* Quick-centered Bookmark modal (small centered popup triggered from quick-action) */}
 			{showQuickBookmarkModal && (
-				<div className="fixed inset-0 bg-black/30 flex items-center justify-center" onClick={() => setShowQuickBookmarkModal(false)} style={{ zIndex: 2200 }}>
+				<div className="fixed inset-0 flex items-center justify-center" onClick={() => setShowQuickBookmarkModal(false)} style={{ zIndex: 2200, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}>
 					<div className="bg-white rounded-xl p-4 shadow-2xl w-[90%] max-w-sm" onClick={(e) => e.stopPropagation()} style={{ color: '#111' }}>
 						<div className="flex items-start gap-3 mb-3">
 							<div className="w-11 h-11 rounded-xl flex items-center justify-center border" style={{ background: '#fbfbfd', borderColor: 'rgba(0,0,0,0.04)' }}>
@@ -5647,7 +5780,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 			{/* Report An Issue modal (top-level, activated from Options -> Report an issue) */}
 			{showReportModal && (
-				<div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center" onClick={() => setShowReportModal(false)} style={{ zIndex: 700 }}>
+				<div className="fixed inset-0 flex items-end sm:items-center justify-center" onClick={() => setShowReportModal(false)} style={{ zIndex: 700, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}>
 					<div
 						className="modal-dialog w-full bg-white rounded-t-2xl p-4 shadow-xl flex flex-col mx-0 sm:mx-4"
 						onClick={(e) => e.stopPropagation()}
@@ -5784,7 +5917,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 			{/* Notes modal (per-video notes, optional timestamp links, emoji quick-picks) */}
 			{showNotesModal && (
-				<div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center" onClick={() => setShowNotesModal(false)} style={{ zIndex: 700 }}>
+				<div className="fixed inset-0 flex items-end sm:items-center justify-center" onClick={() => setShowNotesModal(false)} style={{ zIndex: 700, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}>
 					<div
 						className="modal-dialog w-full max-w-md rounded-2xl p-4 shadow-xl flex flex-col mx-4"
 						onClick={(e) => e.stopPropagation()}
@@ -6489,7 +6622,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage }) => {
 	}, []);
 
 	return isOpen ? (
-		<div className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center" onClick={onClose}>
+		<div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={onClose} style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}>
 			<div
 				ref={modalRef}
 				className="modal-dialog w-full max-w-md bg-white rounded-t-2xl shadow-xl overflow-hidden flex flex-col"

@@ -1,5 +1,5 @@
 /* eslint-disable no-empty */
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
@@ -1559,6 +1559,7 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
     const requireAuthNavigate = (path) => {
         try {
             if (!auth?.user) return auth.openAuthModal();
+            // navigateTo already closes miniplayer, no need to do it here
             navigateTo(path);
         } catch (e) {
             console.warn('requireAuthNavigate failed', e);
@@ -2638,14 +2639,6 @@ const App = ({ overrideMiniPlayerData = null }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Navigation helper to convert .jsx paths to routes
-    const navigateTo = (path) => {
-        if (!path) return;
-        // Remove .jsx extension and navigate
-        const cleanPath = path.replace(/\.jsx$/, '');
-        navigate(cleanPath);
-    };
-
     // State is lifted here to manage filtering based on search
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearchActive, setIsSearchActive] = useState(false);
@@ -2694,6 +2687,31 @@ const App = ({ overrideMiniPlayerData = null }) => {
     const [miniPlaying, setMiniPlaying] = useState(true);
     const [miniPlayerPos, setMiniPlayerPos] = useState({ right: 16, bottom: 100 });
     const miniDragRef = useRef({ isDragging: false, hasMoved: false, startX: 0, startY: 0, startRight: 16, startBottom: 100 });
+
+    // Navigation helper to convert .jsx paths to routes - DEFINED AFTER STATE
+    const navigateTo = useCallback((path) => {
+        if (!path) return;
+        // Close miniplayer when navigating away from home
+        setShowMiniPlayer(false);
+        setMiniPlayerData(null);
+        try { localStorage.removeItem('miniPlayerData'); } catch (e) { }
+        // Remove .jsx extension and navigate
+        const cleanPath = path.replace(/\.jsx$/, '');
+        navigate(cleanPath);
+    }, [navigate]);
+
+    // NEW: Close miniplayer when navigating to different pages (run BEFORE restoration logic)
+    useEffect(() => {
+        // Only show miniplayer on home page (/home or /)
+        // Close it when navigating to other pages like /requests, /ideas, etc.
+        const isHomePage = location.pathname === '/' || location.pathname === '/home';
+        if (!isHomePage) {
+            setShowMiniPlayer(false);
+            setMiniPlayerData(null);
+            // Clear stored miniplayer data so it doesn't auto-restore when navigating back
+            try { localStorage.removeItem('miniPlayerData'); } catch (e) { }
+        }
+    }, [location.pathname]);
 
     // NEW: Fullscreen videoplayer state (seamless overlay)
     const [showFullscreenPlayer, setShowFullscreenPlayer] = useState(false);
@@ -2771,7 +2789,9 @@ const App = ({ overrideMiniPlayerData = null }) => {
     // Listen for mini player events from videoplayer
     useEffect(() => {
         const handleMiniPlayerRequest = (data) => {
-            if (data && data.video) {
+            // Only show miniplayer if we're on the home page
+            const isHomePage = location.pathname === '/' || location.pathname === '/home';
+            if (isHomePage && data && data.video) {
                 setMiniPlayerData(data);
                 setMiniPlaying(!(data.paused));
                 setShowMiniPlayer(true);
@@ -2780,7 +2800,9 @@ const App = ({ overrideMiniPlayerData = null }) => {
         const unsubscribe = eventBus.on('miniPlayerRequest', handleMiniPlayerRequest);
         // Immediate switch listener: show mini-player instantly when videoplayer emits switchToHome
         const handleSwitchToHome = (data) => {
-            if (data && data.video) {
+            // Only show miniplayer if we're on the home page
+            const isHomePage = location.pathname === '/' || location.pathname === '/home';
+            if (isHomePage && data && data.video) {
                 setMiniPlayerData(data);
                 setMiniPlaying(!(data.paused));
                 setShowMiniPlayer(true);
@@ -2791,10 +2813,16 @@ const App = ({ overrideMiniPlayerData = null }) => {
             unsubscribe();
             try { unsubscribe2(); } catch (e) { }
         };
-    }, []);
+    }, [location.pathname]);
 
     // Check for mini player data in multiple channels: override prop, location.state, URL params, localStorage
     useEffect(() => {
+        // Only restore miniplayer on home page
+        const isHomePage = location.pathname === '/' || location.pathname === '/home';
+        if (!isHomePage) {
+            return; // Don't restore miniplayer data on non-home pages
+        }
+
         try {
             if (overrideMiniPlayerData && overrideMiniPlayerData.video) {
                 console.log('home: using overrideMiniPlayerData prop ->', overrideMiniPlayerData);
