@@ -2687,16 +2687,22 @@ const App = ({ overrideMiniPlayerData = null }) => {
     const [miniPlaying, setMiniPlaying] = useState(true);
     const [miniPlayerPos, setMiniPlayerPos] = useState({ right: 16, bottom: 100 });
     const miniDragRef = useRef({ isDragging: false, hasMoved: false, startX: 0, startY: 0, startRight: 16, startBottom: 100 });
+    const miniPlayerClosedTimestampRef = useRef(0); // Track when miniplayer was explicitly closed
+    const skipNextSwitchToHomeRef = useRef(false); // Skip next switchToHome event if user just closed miniplayer
 
     // Navigation helper to convert .jsx paths to routes - DEFINED AFTER STATE
     const navigateTo = useCallback((path) => {
         if (!path) return;
-        // Close miniplayer when navigating away from home
-        setShowMiniPlayer(false);
-        setMiniPlayerData(null);
-        try { localStorage.removeItem('miniPlayerData'); } catch (e) { }
-        // Remove .jsx extension and navigate
         const cleanPath = path.replace(/\.jsx$/, '');
+        
+        // Only close miniplayer if navigating away from home
+        const isHomePage = cleanPath === '/' || cleanPath === '/home';
+        if (!isHomePage) {
+            setShowMiniPlayer(false);
+            setMiniPlayerData(null);
+            try { localStorage.removeItem('miniPlayerData'); } catch (e) { }
+        }
+        
         navigate(cleanPath);
     }, [navigate]);
 
@@ -2800,6 +2806,12 @@ const App = ({ overrideMiniPlayerData = null }) => {
         const unsubscribe = eventBus.on('miniPlayerRequest', handleMiniPlayerRequest);
         // Immediate switch listener: show mini-player instantly when videoplayer emits switchToHome
         const handleSwitchToHome = (data) => {
+            // Skip if user just closed the miniplayer
+            if (skipNextSwitchToHomeRef.current) {
+                skipNextSwitchToHomeRef.current = false; // Reset flag
+                return;
+            }
+            
             // Only show miniplayer if we're on the home page
             const isHomePage = location.pathname === '/' || location.pathname === '/home';
             if (isHomePage && data && data.video) {
@@ -2821,6 +2833,12 @@ const App = ({ overrideMiniPlayerData = null }) => {
         const isHomePage = location.pathname === '/' || location.pathname === '/home';
         if (!isHomePage) {
             return; // Don't restore miniplayer data on non-home pages
+        }
+
+        // Don't restore if miniplayer was just explicitly closed (within 2 seconds)
+        const timeSinceClosed = Date.now() - miniPlayerClosedTimestampRef.current;
+        if (timeSinceClosed < 2000) {
+            return; // Recently closed, don't auto-restore
         }
 
         try {
@@ -3590,15 +3608,20 @@ const App = ({ overrideMiniPlayerData = null }) => {
                 <FloatingActionButton searchTerm={searchTerm} navigate={navigate} selectedLanguage={selectedLanguage} />
             )}
             <SideDrawer isDrawerOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} onOpenTheme={handleOpenTheme} onOpenLanguage={handleOpenLanguage} currentLanguageFlag={selectedLanguageFlag} onOpenCreator={handleOpenCreatorOnboarding} navigateTo={navigateTo} selectedLanguage={selectedLanguage} />
-            <BottomBar navigate={navigate} selectedLanguage={selectedLanguage} />
+            <BottomBar navigateTo={navigateTo} selectedLanguage={selectedLanguage} />
 
             {/* Mini Player (Floating) - Extracted for performance */}
             {showMiniPlayer && miniPlayerData && (
                 <MiniPlayer
                     data={miniPlayerData}
                     onClose={() => {
+                        // Set flag to prevent switchToHome event from immediately showing miniplayer again
+                        skipNextSwitchToHomeRef.current = true;
+                        // Mark when miniplayer was explicitly closed to prevent auto-restore
+                        miniPlayerClosedTimestampRef.current = Date.now();
                         setShowMiniPlayer(false);
                         setMiniPlayerData(null);
+                        try { localStorage.removeItem('miniPlayerData'); } catch (e) { }
                     }}
                     onExpand={() => {
                         // Expand mini-player back to fullscreen videoplayer
@@ -4681,7 +4704,7 @@ const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => 
 };
 
 
-const BottomBar = ({ navigate, selectedLanguage = 'English' }) => {
+const BottomBar = ({ navigateTo, selectedLanguage = 'English' }) => {
     const location = useLocation();
     const mapPathToTab = (p) => {
         if (!p) return 'Home';
@@ -4737,19 +4760,19 @@ const BottomBar = ({ navigate, selectedLanguage = 'English' }) => {
                     const navigateToTab = (tabName) => {
                         try {
                             if (tabName === 'Home') {
-                                navigate('/home');
+                                navigateTo('/home');
                                 return;
                             }
                             if (tabName === 'Requests') {
-                                navigate('/requests');
+                                navigateTo('/requests');
                                 return;
                             }
                             if (tabName === 'Ideas') {
-                                navigate('/ideas');
+                                navigateTo('/ideas');
                                 return;
                             }
                             if (tabName === 'More') {
-                                navigate('/more');
+                                navigateTo('/more');
                                 return;
                             }
                         } catch (e) {

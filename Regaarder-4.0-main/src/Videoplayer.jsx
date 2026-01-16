@@ -3804,17 +3804,19 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							};
 							console.log('ChevronDown: storing miniPlayerData ->', stored);
 							try { localStorage.setItem('miniPlayerData', JSON.stringify(stored)); } catch (e) { }
-							try { if (typeof eventBus !== 'undefined' && eventBus.emit) { eventBus.emit('miniPlayerRequest', stored); eventBus.emit('switchToHome', stored); eventBus.emit('switchToHomeOnly', stored); } } catch (e) { }
-
+							
 							// If onChevronDown callback provided (used when videoplayer is an overlay), call it
 							if (onChevronDown && typeof onChevronDown === 'function') {
 								try {
 									onChevronDown(stored);
-									return;
+									return; // Return early - don't emit events since callback handles it
 								} catch (err) {
 									console.error('onChevronDown callback failed', err);
 								}
 							}
+							
+							// Only emit events if callback wasn't provided (for standalone videoplayer)
+							try { if (typeof eventBus !== 'undefined' && eventBus.emit) { eventBus.emit('miniPlayerRequest', stored); eventBus.emit('switchToHome', stored); eventBus.emit('switchToHomeOnly', stored); } } catch (e) { }
 
 							// Navigate to home with state (traditional page navigation)
 							try {
