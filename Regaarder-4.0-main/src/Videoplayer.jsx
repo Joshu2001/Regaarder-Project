@@ -5,6 +5,7 @@ import { useTheme } from './ThemeContext.jsx';
 import { getTranslation } from './translations.js';
 import * as eventBus from './eventbus.js';
 import { PlayerContext } from './PlayerProvider.jsx';
+import { Compass, Star, TrendingUp, Clock, Globe, BookOpen, Music, Dumbbell, Video } from 'lucide-react';
 
 const VideoPlayer = () => {
 	const navigate = useNavigate();
@@ -697,7 +698,7 @@ const VideoCard = ({ item, idx, filtered, onVideoClick, setToastMessage, toastTi
 		<div key={item.id} onClick={onVideoClick}
 			role="button" tabIndex={0} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#fff", padding: 10, borderRadius: 12, border: "1px solid rgba(0,0,0,0.04)", cursor: 'pointer', transition: 'all 200ms ease' }} onMouseEnter={(e) => e.currentTarget.style.background = '#f9f9f9'} onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}>
 			<div className="w-28 h-16 rounded-md relative overflow-hidden flex-shrink-0" style={{ background: thumbnail ? `url(${encodeURI(thumbnail)}) center/cover no-repeat` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', backgroundColor: '#667eea' }}>
-				<div className="absolute right-2 bottom-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">{(() => { const s = loadedDuration || 0; return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` })()}</div>
+				<div className="absolute right-2 bottom-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">{(() => { const s = item.duration || loadedDuration || 0; return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` })()}</div>
 			</div>
 			<div style={{ flex: 1 }}>
 				<div style={{ fontWeight: 700, lineHeight: '1.3' }}>{item.title}</div>
@@ -6132,63 +6133,82 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					}}
 				>
 					{/* header */}
-					<div style={{ padding: 18, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-						<div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-							<div className="w-9 h-9 rounded-md flex items-center justify-center bg-gray-100 font-bold">Q</div>
-							<div>
-								<div style={{ fontSize: 18, fontWeight: 700 }}>Discover More</div>
-								<div style={{ fontSize: 12, color: "#6b7280" }}>Search and explore related videos</div>
-							</div>
+				<div style={{ padding: 18, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+					<div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+						<div className="w-9 h-9 rounded-md flex items-center justify-center bg-gray-100" style={{ color: "#111" }}><Compass size={20} strokeWidth={2.5} /></div>
+						<div>
+							<div style={{ fontSize: 18, fontWeight: 700 }}>Discover More</div>
+							<div style={{ fontSize: 12, color: "#6b7280" }}>Search and explore related videos</div>
 						</div>
-						<button aria-label="Close" onClick={() => { setShowCarbonCopy(false); setSwipeTranslate(0); }} style={{ border: "none", background: "transparent", fontSize: 20, cursor: "pointer" }}>✕</button>
 					</div>
+					<button aria-label="Close" onClick={() => { setShowCarbonCopy(false); setSwipeTranslate(0); }} style={{ border: "none", background: "transparent", fontSize: 24, cursor: "pointer", color: "#6b7280", padding: "4px" }}>✕</button>
+				</div>
 
-					{/* search + chips */}
-					<div style={{ padding: 14 }}>
-						<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							<input name="discoverQuery" value={discoverQuery} onChange={(e) => setDiscoverQuery(e.target.value)} placeholder="Search videos..." style={{ flex: 1, padding: "10px 12px", borderRadius: 10, border: "1px solid #e6e6e6", outline: "none" }} />
-						</div>
-						<div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-							{(() => {
-								// Derive chips from available discover items (prefer prop, then home.jsx data, otherwise fall back to defaults)
-								const srcForChips = (typeof discoverItems !== 'undefined' && discoverItems && discoverItems.length) ? discoverItems : (discoverItemsData && discoverItemsData.length ? discoverItemsData : null);
-								const base = ["All Videos", "Bookmarks"];
-								if (!srcForChips) {
-									const items = [...base, "Similar Themes", "Challenges", "DIY & Crafts", "Science & Tech"];
-									const q = (discoverQuery || '').trim().toLowerCase();
-									const filtered = q ? items.filter(t => t.toLowerCase().includes(q)) : items;
-									return filtered.map((t) => (
-										<button key={t} onClick={() => setSelectedChip(t)} style={{ background: selectedChip === t ? accentColor : "#f3f4f6", color: selectedChip === t ? accentText : "#374151", padding: "8px 12px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 13 }}>
-											{t}
-										</button>
-									));
-								}
-								// collect tags from items
-								const tagSet = new Set();
-								(srcForChips || []).forEach(it => (it.tags || []).forEach(t => tagSet.add(t)));
-								const tagArr = Array.from(tagSet).slice(0, 6);
-								const items = [...base, ...tagArr];
-								const q = (discoverQuery || '').trim().toLowerCase();
-								const filtered = q ? items.filter(t => t.toLowerCase().includes(q)) : items;
-								return filtered.map((t) => (
-									<button key={t} onClick={() => setSelectedChip(t)} style={{ background: selectedChip === t ? accentColor : "#f3f4f6", color: selectedChip === t ? accentText : "#374151", padding: "8px 12px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 13 }}>
-										{t}
+				{/* search + tabs/chips */}
+				<div style={{ padding: 14 }}>
+					<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+						<input name="discoverQuery" value={discoverQuery} onChange={(e) => setDiscoverQuery(e.target.value)} placeholder="Search videos..." style={{ flex: 1, padding: "10px 12px", borderRadius: 10, border: "1px solid #e6e6e6", outline: "none" }} />
+					</div>
+					{/* Navigation Tabs - Same as Home Page - Horizontally Scrollable */}
+					<div style={{ marginTop: 12, display: "flex", gap: 8, overflowX: "auto", overflowY: "hidden", paddingBottom: 8, whiteSpace: "nowrap", scrollBehavior: "smooth" }}>
+						{(() => {
+							const tabs = [
+								{ name: 'Recommended', icon: Star },
+								{ name: 'Trending Now', icon: TrendingUp },
+								{ name: 'New', icon: Clock },
+								{ name: 'Travel', icon: Globe },
+								{ name: 'Education', icon: BookOpen },
+								{ name: 'Entertainment', icon: Video },
+								{ name: 'Music', icon: Music },
+								{ name: 'Sports', icon: Dumbbell },
+								{ name: 'Bookmarks', icon: Bookmark },
+								{ name: 'Liked', icon: Heart },
+							];
+							return tabs.map((tab) => {
+								const isSelected = tab.name === selectedChip;
+								const IconComponent = tab.icon;
+								return (
+									<button
+										key={tab.name}
+										onClick={() => setSelectedChip(tab.name)}
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: 6,
+											paddingLeft: 12,
+											paddingRight: 12,
+											paddingTop: 10,
+											paddingBottom: 10,
+											borderRadius: '8px',
+											border: 'none',
+											cursor: 'pointer',
+											fontSize: 13,
+											transition: 'all 150ms ease-in-out',
+											background: isSelected ? accentColor : '#fff',
+											color: isSelected ? accentText : '#4b5563',
+											fontWeight: isSelected ? 700 : 500,
+											boxShadow: isSelected 
+												? `0 4px 10px rgba(0, 0, 0, 0.3), 0 0 10px ${accentColor}33, inset 0 1px 0 rgba(255, 255, 255, 0.6)`
+												: `0 1px 3px rgba(0, 0, 0, 0.05), inset 0 1px 0 #ffffff`,
+											flexShrink: 0,
+											whiteSpace: 'nowrap'
+										}}
+									>
+										<IconComponent size={16} strokeWidth={2.5} />
+										{tab.name}
 									</button>
-								));
-							})()}
+								);
+							});
+						})()}
 						</div>
 					</div>
 
 					{/* example list (from discover items or placeholders) */}
 					<div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 12, flex: 1, overflowY: "auto", minHeight: 0 }}>
 						{(() => {
-							// chips and discover items
-							// derive chips from the source items (prefer prop -> home.jsx -> placeholders)
+							// Video filtering based on selected tab
 							const placeholders = [];
 							const source = (typeof discoverItems !== 'undefined' && discoverItems && discoverItems.length) ? discoverItems : (discoverItemsData && discoverItemsData.length ? discoverItemsData : placeholders);
-							const tagSet = new Set();
-							(source || []).forEach(it => (it.tags || []).forEach(t => tagSet.add(t)));
-							const chips = ['All Videos', 'Bookmarks', ...Array.from(tagSet).slice(0, 6)];
 							const q = (discoverQuery || '').trim().toLowerCase();
 							// Special-case: show saved bookmarks across videos
 							if (selectedChip === 'Bookmarks') {
@@ -6276,8 +6296,82 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									});
 								});
 							}
-							const filteredByChip = selectedChip && selectedChip !== 'All Videos' ? source.filter(it => (it.tags || []).some(t => t.toLowerCase().includes(selectedChip.toLowerCase()))) : source;
+							// Handle "Liked" chip - show all liked videos
+							if (selectedChip === 'Liked') {
+								try {
+									const raw = localStorage.getItem('likedVideos');
+									const likedVideos = raw ? JSON.parse(raw) : [];
+									if (!likedVideos || !likedVideos.length) {
+										return (
+											<div className="text-gray-400 text-center py-8">No liked videos yet.</div>
+										);
+									}
+									// Render each liked video
+									return likedVideos.map((likedItem) => {
+										const thumb = likedItem.imageUrl || 'https://placehold.co/220x128/000000/ffffff?text=Video';
+										const title = likedItem.title || 'Untitled Video';
+										const creator = likedItem.creatorName || 'Unknown Creator';
+										const likeKey = `liked-${likedItem.videoId}`;
+										return (
+											<div key={likeKey} role="button" tabIndex={0} onClick={() => {
+												try {
+													setShowCarbonCopy(false);
+													if (likedItem.url) setVideoUrl(likedItem.url);
+													setVideoTitle(likedItem.title || 'Video');
+													setCreatorName(likedItem.creatorName || '');
+													setTimeout(() => {
+														try {
+															const v = videoRef.current;
+															if (v) {
+																if (likedItem.url) v.src = likedItem.url;
+																v.currentTime = 0;
+																try { const p = v.play(); if (p && p.catch) p.catch(() => { }); setIsPlaying(true); } catch { }
+																try { setControlsVisible(true); showCenterTemporarily(2000); } catch { }
+															}
+														} catch { }
+													}, 180);
+													try { setToastMessage('Now playing'); if (toastTimerRef.current) clearTimeout(toastTimerRef.current); toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400); } catch { }
+												} catch { }
+											}} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#fff', padding: 10, borderRadius: 12, border: '1px solid rgba(0,0,0,0.04)', cursor: 'pointer', position: 'relative' }}>
+												<div className="w-28 h-16 rounded-md relative overflow-hidden" style={{ background: `url(${thumb}) center/cover no-repeat`, minWidth: '112px' }}>
+													<div className="absolute top-1 left-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded" style={{ fontSize: '10px' }}>♥</div>
+												</div>
+												<div style={{ flex: 1 }}>
+													<div style={{ fontWeight: 700 }}>{title}</div>
+													<div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{creator}</div>
+												</div>
+											</div>
+										);
+									});
+								} catch (e) {
+									return <div className="text-gray-400 text-center py-8">Error loading liked videos.</div>;
+								}
+							}
+							
+							// Filter videos based on selected tab
+							const tabNames = ['Recommended', 'Trending Now', 'New', 'Travel', 'Education', 'Entertainment', 'Music', 'Sports'];
+							let filteredByChip = source;
+							
+							if (selectedChip === 'Recommended') {
+								// Show all videos for Recommended
+								filteredByChip = source;
+							} else if (tabNames.includes(selectedChip)) {
+								// For other tabs, filter by tags matching the tab name
+								filteredByChip = source.filter(it => (it.tags || []).some(t => t.toLowerCase().includes(selectedChip.toLowerCase())));
+								// If no matches by tag, show all videos (fallback)
+								if (filteredByChip.length === 0) {
+									filteredByChip = source;
+								}
+							}
+							
 							const filtered = q ? filteredByChip.filter(it => (it.title || '').toLowerCase().includes(q) || (it.creator || '').toLowerCase().includes(q)) : filteredByChip;
+							
+							if (filtered.length === 0) {
+								return (
+									<div className="text-gray-400 text-center py-8">No videos found for this category.</div>
+								);
+							}
+							
 							return filtered.map((item, idx) => (
 							<VideoCard
 								key={item.id}
