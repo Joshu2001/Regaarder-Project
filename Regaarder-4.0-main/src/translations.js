@@ -1655,6 +1655,8 @@ export const translations = {
     // Request Details Modal
     'Request Details': 'Request Details',
     'Details': 'Details',
+    'View Details': 'View Details',
+    'Click to see all request information including delivery type, tones, styles, and more': 'Click to see all request information including delivery type, tones, styles, and more',
     'Not provided': 'Not provided',
     'Basic Information': 'Basic Information',
     'Title': 'Title',
@@ -1713,6 +1715,9 @@ export const translations = {
     'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.': 'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.',
     'Boost Request': 'Boost Request',
     'Invite Contributors': 'Invite Contributors',
+    'Check out this request on Regaarder!': 'Check out this request on Regaarder!',
+    'Help boost this request and earn rewards by contributing! Visit Regaarder to see more.': 'Help boost this request and earn rewards by contributing! Visit Regaarder to see more.',
+    'Share message copied to clipboard!': 'Share message copied to clipboard!',
 
     // Request Nudge Modal
     'Your Request Needs a Nudge': 'Your Request Needs a Nudge',
@@ -3102,6 +3107,9 @@ export const translations = {
     'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.': '免費請求可能需要更長時間才能到達創作者，因為付費請求優先。要提高知名度，您可以隨時提升您的請求或邀請他人貢獻。',
     'Boost Request': '提升請求',
     'Invite Contributors': '邀請貢獻者',
+    'Check out this request on Regaarder!': '看看 Regaarder 上的這個請求！',
+    'Help boost this request and earn rewards by contributing! Visit Regaarder to see more.': '幫助提升此請求並通過貢獻獲得獎勵！訪問 Regaarder 以查看更多。',
+    'Share message copied to clipboard!': '分享消息已複製到剪貼板！',
 
     // Request Nudge Modal
     'Your Request Needs a Nudge': '您的請求需要推一把',
@@ -3161,6 +3169,9 @@ export const translations = {
     'Explainer': '解說',
     'Other': '其他',
     'Update Status': '更新狀態',
+    'Details': '詳細資訊',
+    'View Details': '查看詳細資訊',
+    'Click to see all request information including delivery type, tones, styles, and more': '點擊查看所有請求信息，包括交付類型、語調、風格等',
   },
 
   'Vietnamese': {
@@ -4871,6 +4882,9 @@ export const translations = {
     'Free requests may take longer to reach creators, as paid requests are prioritized. To increase visibility, you can boost your request at any time or invite others to contribute.': 'Các yêu cầu miễn phí có thể mất nhiều thời gian hơn để đến những người sáng tạo, vì các yêu cầu trả phí được ưu tiên. Để tăng khả năng hiển thị, bạn có thể nâng cấp yêu cầu của mình bất kỳ lúc nào hoặc mời những người khác đóng góp.',
     'Boost Request': 'Nâng cấp yêu cầu',
     'Invite Contributors': 'Mời những người đóng góp',
+    'Check out this request on Regaarder!': 'Hãy xem yêu cầu này trên Regaarder!',
+    'Help boost this request and earn rewards by contributing! Visit Regaarder to see more.': 'Giúp nâng cấp yêu cầu này và kiếm được phần thưởng bằng cách đóng góp! Truy cập Regaarder để xem thêm.',
+    'Share message copied to clipboard!': 'Tin nhắn chia sẻ đã được sao chép vào clipboard!',
 
     // Request Nudge Modal
     'Your Request Needs a Nudge': 'Yêu cầu của bạn cần một gợi ý',
@@ -4881,6 +4895,9 @@ export const translations = {
     'receives many requests and prioritizes paid or boosted ones': 'nhận được nhiều yêu cầu và ưu tiên những yêu cầu trả phí hoặc được nâng cấp',
     'Boosting your request signals stronger interest and increases the chance they\'ll respond. You can also invite others to contribute to make your request more compelling.': 'Nâng cấp yêu cầu của bạn cho thấy sự quan tâm mạnh mẽ hơn và tăng khả năng họ sẽ phản hồi. Bạn cũng có thể mời những người khác đóng góp để làm cho yêu cầu của bạn hấp dẫn hơn.',
     'Boost': 'Nâng cấp',
+    'Details': 'Chi tiết',
+    'View Details': 'Xem chi tiết',
+    'Click to see all request information including delivery type, tones, styles, and more': 'Nhấp để xem tất cả thông tin yêu cầu bao gồm loại giao hàng, giọng điệu, kiểu dáng, v.v.',
   },
 
   'Filipino': {

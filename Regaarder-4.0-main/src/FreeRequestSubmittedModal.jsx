@@ -1,7 +1,34 @@
 import { X, CheckCircle } from 'lucide-react';
 import { getTranslation } from './translations.js';
 
-export default function FreeRequestSubmittedModal({ onClose, onBoostRequest, onInviteContributors, selectedLanguage }) {
+export default function FreeRequestSubmittedModal({ onClose, onBoostRequest, onInviteContributors, selectedLanguage, requestData }) {
+  const handleInviteContributors = async () => {
+    try {
+      const shareMessage = `${getTranslation('Check out this request on Regaarder!', selectedLanguage)}\n\n${getTranslation('Title', selectedLanguage)}: ${requestData?.title || 'Request'}\n${getTranslation('Requester', selectedLanguage)}: ${requestData?.requesterName || 'Unknown'}\n\n${getTranslation('Help boost this request and earn rewards by contributing! Visit Regaarder to see more.', selectedLanguage)}`;
+
+      // Use native share API if available
+      if (navigator.share) {
+        await navigator.share({
+          title: requestData?.title || 'Check out this request on Regaarder!',
+          text: shareMessage,
+          url: window.location.href
+        });
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(shareMessage);
+        alert(getTranslation('Share message copied to clipboard!', selectedLanguage));
+      }
+      
+      // Keep modal open after sharing
+    } catch (error) {
+      console.error('Share failed:', error);
+      // Fallback to callback if share fails
+      if (onInviteContributors) {
+        onInviteContributors();
+      }
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
@@ -41,7 +68,7 @@ export default function FreeRequestSubmittedModal({ onClose, onBoostRequest, onI
 
         {/* Secondary CTA - Invite Contributors */}
         <button
-          onClick={onInviteContributors}
+          onClick={handleInviteContributors}
           className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-3 rounded-lg transition-colors"
         >
           {getTranslation('Invite Contributors', selectedLanguage)}

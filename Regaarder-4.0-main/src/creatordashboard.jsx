@@ -405,6 +405,14 @@ const ClaimStatusPanel = ({
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [showUnclaimModal, setShowUnclaimModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [showDetailsHint, setShowDetailsHint] = useState(false);
+    const [detailsHintCount, setDetailsHintCount] = useState(() => {
+        try {
+            return parseInt(localStorage.getItem('detailsHintCount') || '0', 10);
+        } catch (e) {
+            return 0;
+        }
+    });
     const [message, setMessage] = useState('');
     const [videoFile, setVideoFile] = useState(null);
     const [videoPreview, setVideoPreview] = useState(null);
@@ -424,6 +432,19 @@ const ClaimStatusPanel = ({
         };
         window.addEventListener('storage', handleStorage);
         return () => window.removeEventListener('storage', handleStorage);
+    }, []);
+
+    // Initialize Details button hint visibility (show only for first 2 views)
+    useEffect(() => {
+        try {
+            const count = parseInt(localStorage.getItem('detailsHintCount') || '0', 10);
+            if (count < 2) {
+                setShowDetailsHint(true);
+                const newCount = count + 1;
+                setDetailsHintCount(newCount);
+                localStorage.setItem('detailsHintCount', String(newCount));
+            }
+        } catch (e) { }
     }, []);
 
     const [videoTitle, setVideoTitle] = useState(title || '');
@@ -925,11 +946,66 @@ const ClaimStatusPanel = ({
                             </div>
                         </div>
                     ) : (
-                        // Expanded view: show title and price
-                        <>
-                            <h3 className="text-[18px] font-semibold text-gray-900">{title}</h3>
-                            <div className="text-sm text-gray-600 mt-1">${(0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div>
-                        </>
+                        // Expanded view: show title, price and details button inline
+                        <div className="flex items-start justify-between w-full">
+                            <div className="flex-1">
+                                <h3 className="text-[18px] font-semibold text-gray-900">{title}</h3>
+                                <div className="text-sm text-gray-600 mt-1">${(0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div>
+                            </div>
+                            <button
+                                onClick={() => setShowDetailsModal(true)}
+                                className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-md transition font-medium ml-3 relative flex-shrink-0"
+                                title="View full request details"
+                                style={{
+                                    ...(showDetailsHint && {
+                                        boxShadow: '0 0 0 0 rgba(147, 51, 234, 0.7)',
+                                        animation: 'pulse-hint 2s infinite'
+                                    })
+                                }}
+                            >
+                                {getTranslation('Details', selectedLanguage)}
+                                
+                                {/* Details Button Hint - Positioned above and to the right */}
+                                {showDetailsHint && (
+                                    <div className="absolute -top-56 right-0 w-64 bg-white rounded-xl shadow-2xl border-2 p-4 z-50 animate-fade-in-up"
+                                         style={{
+                                            borderColor: 'rgba(147, 51, 234, 0.8)',
+                                            backgroundColor: 'rgba(147, 51, 234, 0.95)',
+                                         }}>
+                                        {/* Arrow pointing down to button */}
+                                        <div 
+                                            className="absolute -bottom-2 right-8 w-4 h-4 rotate-45"
+                                            style={{
+                                                backgroundColor: 'rgba(147, 51, 234, 0.95)',
+                                                borderRight: '2px solid rgba(147, 51, 234, 0.95)',
+                                                borderBottom: '2px solid rgba(147, 51, 234, 0.95)'
+                                            }}
+                                        />
+                                        
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="flex-1">
+                                                <p className="text-sm font-bold text-white flex items-center gap-1">
+                                                    <span>👁️</span> {getTranslation('View Details', selectedLanguage)}
+                                                </p>
+                                                <p className="text-sm text-white mt-2 leading-snug font-medium">
+                                                    {getTranslation('Click to see all request information including delivery type, tones, styles, and more', selectedLanguage)}
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowDetailsHint(false);
+                                                }}
+                                                className="text-white hover:text-gray-100 flex-shrink-0 mt-0.5 font-bold text-lg leading-none opacity-80 hover:opacity-100 transition"
+                                                aria-label="Close hint"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </button>
+                        </div>
                     )}
                 </div>
                 <div className="flex items-center gap-2">

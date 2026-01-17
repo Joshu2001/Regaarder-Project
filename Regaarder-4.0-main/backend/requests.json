@@ -28,12 +28,9 @@
       "selectedVideoLength": "standard",
       "selectedPrivacy": "private"
     },
-    "claimed": true,
-    "claimedBy": {
-      "id": "user-1766857658728",
-      "name": "Joshuar"
-    },
-    "claimedAt": "2026-01-17T13:50:31.462Z"
+    "claimed": false,
+    "claimedBy": null,
+    "claimedAt": null
   },
   {
     "id": "req_1768657708836",

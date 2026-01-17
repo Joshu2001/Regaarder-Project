@@ -2669,6 +2669,7 @@ const App = () => {
   const [creatorSelectionType, setCreatorSelectionType] = useState(null); // 'specific' | 'any' | 'expert' | null
   const [showCreatorModal, setShowCreatorModal] = useState(false); // For the ideas page creator selection modal
   const [showFreeRequestSubmittedModal, setShowFreeRequestSubmittedModal] = useState(false); // For free request submission confirmation
+  const [currentFreeRequest, setCurrentFreeRequest] = useState(null); // Store request data for sharing
 
   // When focus mode is toggled on, ensure the chooser is expanded and focus the input.
   useEffect(() => {
@@ -4117,7 +4118,8 @@ const App = () => {
         setPendingSubmission(null);
         setPaymentModalOpen(false);
         
-        // Show free request submitted modal instead of immediate navigation
+        // Store request data and show free request submitted modal
+        setCurrentFreeRequest(newRequest);
         setShowFreeRequestSubmittedModal(true);
       } else {
         console.error('🔴 Backend save failed:', saveRes.status);
@@ -6150,17 +6152,21 @@ const App = () => {
         <FreeRequestSubmittedModal
           onClose={() => {
             setShowFreeRequestSubmittedModal(false);
+            setCurrentFreeRequest(null);
             window.location.href = '/requests?filter=For You';
           }}
           onBoostRequest={() => {
             setShowFreeRequestSubmittedModal(false);
+            setCurrentFreeRequest(null);
             setShowBoostsModal(true);
           }}
           onInviteContributors={() => {
             setShowFreeRequestSubmittedModal(false);
+            setCurrentFreeRequest(null);
             // Navigate to requests page to share/invite contributors
             window.location.href = '/requests?filter=For You';
           }}
+          requestData={currentFreeRequest}
           selectedLanguage={selectedLanguage}
         />
       )}
