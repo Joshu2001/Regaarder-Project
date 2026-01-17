@@ -1,7 +1,7 @@
 /* eslint-disable no-empty */
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, FileText, File as FileIcon, Pencil, MoreHorizontal, MoreVertical, Pin, Star, TrendingUp, Trophy, User, Zap, Video, Clock, BarChart, Upload, Lightbulb, Headphones, Copy, LineChart, CheckCircle, Search, Globe, Link2, Image, Lock, Link, Eye, ChevronDown, AlertCircle } from 'lucide-react';
+import { Home, FileText, File as FileIcon, Pencil, MoreHorizontal, MoreVertical, Pin, Star, TrendingUp, Trophy, User, Zap, Video, Clock, BarChart, Upload, Lightbulb, Headphones, Copy, LineChart, CheckCircle, Search, Globe, Link2, Image, Lock, Link, Eye, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import RequestsFeed from './requests.jsx';
 import { getTranslation, translations } from './translations.js';
 
@@ -204,12 +204,16 @@ const ClaimStatusPanel = ({
     requesterRole = getTranslation('Requester', (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English'),
     requesterAvatar = null,
     currentStep = 1,
+    requestId = null,
     onClose = () => { },
     onUpdateProgress = () => { },
+    onUnclaim = () => { },
     pendingReuploadItem = null,
     clearPendingReupload = () => { },
 }) => {
     const [showModal, setShowModal] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [showUnclaimModal, setShowUnclaimModal] = useState(false);
     const [message, setMessage] = useState('');
     const [videoFile, setVideoFile] = useState(null);
     const [videoPreview, setVideoPreview] = useState(null);
@@ -703,26 +707,71 @@ const ClaimStatusPanel = ({
     return (
         <div className="rounded-2xl border border-[#F3E8D0] bg-white p-5 shadow-sm">
             <div className="flex items-start justify-between">
-                <h3 className="text-[18px] font-semibold text-gray-900">{title}</h3>
-                <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
-            </div>
-
-            <div className="mt-4 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
-                    {requesterAvatar ? (
-                        <img src={requesterAvatar} alt={requesterName} className="w-full h-full object-cover" />
+                <div className="flex-1">
+                    {isCollapsed ? (
+                        // Collapsed view: show profile picture, name, role, and price
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+                                {requesterAvatar ? (
+                                    <img src={requesterAvatar} alt={requesterName} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="text-xs text-gray-500">{requesterName.charAt(0)}</div>
+                                )}
+                            </div>
+                            <div className="flex-1">
+                                <div className="text-sm font-semibold text-gray-900">{requesterName}</div>
+                                <div className="text-xs text-gray-400">{requesterRole}</div>
+                            </div>
+                            <div className="text-sm text-gray-600 font-medium whitespace-nowrap">$0</div>
+                        </div>
                     ) : (
-                        <div className="text-sm text-gray-500">{requesterName.charAt(0)}</div>
+                        // Expanded view: show title and price
+                        <>
+                            <h3 className="text-[18px] font-semibold text-gray-900">{title}</h3>
+                            <div className="text-sm text-gray-600 mt-1">${(0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div>
+                        </>
                     )}
                 </div>
-                <div>
-                    <div className="text-sm font-semibold text-gray-900">{requesterName}</div>
-                    <div className="text-xs text-gray-400">{requesterRole}</div>
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={() => setIsCollapsed(!isCollapsed)} 
+                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                        title={isCollapsed ? "Expand" : "Collapse"}
+                    >
+                        {isCollapsed ? (
+                            <ChevronDown size={20} />
+                        ) : (
+                            <ChevronUp size={20} />
+                        )}
+                    </button>
+                    <button 
+                        onClick={() => setShowUnclaimModal(true)} 
+                        className="text-gray-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition"
+                        title="Unclaim request"
+                    >
+                        ✕
+                    </button>
                 </div>
             </div>
 
-            <div className="mt-6 flex items-center justify-between">
-                <div className="text-sm font-semibold text-gray-900">{getTranslation('Status Tracker', selectedLanguage)}</div>
+            {!isCollapsed && (
+                <>
+                    <div className="mt-4 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+                            {requesterAvatar ? (
+                                <img src={requesterAvatar} alt={requesterName} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-sm text-gray-500">{requesterName.charAt(0)}</div>
+                            )}
+                        </div>
+                        <div>
+                            <div className="text-sm font-semibold text-gray-900">{requesterName}</div>
+                            <div className="text-xs text-gray-400">{requesterRole}</div>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 flex items-center justify-between">
+                        <div className="text-sm font-semibold text-gray-900">{getTranslation('Status Tracker', selectedLanguage)}</div>
                 {(() => {
                     const publishStage = steps.findIndex((s) => s === 'Preview Ready') + 1; // step number for 'Preview Ready' -> show 'Publish Video'
                     const isPublishStage = currentStep === publishStage;
@@ -1824,6 +1873,68 @@ const ClaimStatusPanel = ({
                     <Toast message={"Your video has been successfully completed. We're proud of you !"} bottom={false} duration={3500} />
                 </>
             )}
+
+            {/* Unclaim Confirmation Modal */}
+            {showUnclaimModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black opacity-50" onClick={() => setShowUnclaimModal(false)} />
+                    <div className="relative bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-4">
+                        <div className="text-center">
+                            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                                <AlertCircle size={32} className="text-red-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900 mb-2">{getTranslation('Unclaim Request?', selectedLanguage)}</h2>
+                            <p className="text-gray-600 text-sm mb-6">
+                                {getTranslation('Are you sure you want to stop working on this request? It will become available for other creators to claim.', selectedLanguage)}
+                            </p>
+                            <div className="space-y-3">
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const token = localStorage.getItem('regaarder_token');
+                                            const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                                            if (token) {
+                                                const response = await fetch(`${BACKEND}/claims`, {
+                                                    method: 'DELETE',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'Authorization': `Bearer ${token}`
+                                                    },
+                                                    body: JSON.stringify({ requestId: requestId || title, title })
+                                                });
+                                                if (response.ok) {
+                                                    setShowUnclaimModal(false);
+                                                    // Call the onUnclaim callback to remove from claimed requests using ID
+                                                    onUnclaim(requestId || title);
+                                                    console.log('Request successfully unclaimed');
+                                                } else {
+                                                    const errorData = await response.json();
+                                                    console.error('Failed to unclaim request:', response.status, errorData);
+                                                    alert(`Failed to unclaim: ${errorData.error || 'Unknown error'}`);
+                                                }
+                                            }
+                                        } catch (err) {
+                                            console.error('Unclaim failed', err);
+                                            alert('Error unclaiming request: ' + err.message);
+                                        }
+                                    }}
+                                    className="w-full bg-red-600 text-white font-semibold py-3 rounded-lg hover:bg-red-700 transition"
+                                >
+                                    {getTranslation('Yes, Unclaim', selectedLanguage)}
+                                </button>
+                                <button
+                                    onClick={() => setShowUnclaimModal(false)}
+                                    className="w-full border border-gray-200 text-gray-900 font-semibold py-3 rounded-lg hover:bg-gray-50 transition"
+                                >
+                                    {getTranslation('Keep Working', selectedLanguage)}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+                </>
+            )}
         </div>
     );
 };
@@ -2328,6 +2439,8 @@ const App = () => {
         } catch (e) {
             console.warn('Update claim stats error', e);
         }
+        // Auto-switch to Active Claims tab when status is updated
+        setActiveTopTab('Claims');
         // Optionally store or send `message` to server here.
         console.log('Status updated to', nextStep, 'message:', message);
 
@@ -2429,20 +2542,19 @@ const App = () => {
                         </div>
                         {(() => {
                             try {
-                                const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title || '') || '').toString().trim().toLowerCase() === ((r.title || '') || '').toString().trim().toLowerCase())));
-                                const activeCount = unpublished.length;
-                                const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
+                                const activeCount = (claimedRequests || []).length;
+                                const totalEarnings = (claimedRequests || []).reduce((s, it) => s + (Number(it.funding) || 0), 0);
                                 const label = activeCount === 1 ? getTranslation('active request', selectedLanguage) : getTranslation('active requests', selectedLanguage);
                                 return (
                                     <div className="flex-1 flex flex-col justify-center">
-                                        <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none">--</div>
+                                        <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none">{activeCount}</div>
                                         <span className="text-[13px] text-gray-600 font-medium">{activeCount ? `${activeCount} ${label}` : getTranslation('No active requests', selectedLanguage)}</span>
                                     </div>
                                 );
                             } catch (e) {
                                 return (
                                     <div className="flex-1 flex flex-col justify-center">
-                                        <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none">--</div>
+                                        <div className="text-[32px] font-bold text-gray-900 mb-2 leading-none">0</div>
                                         <span className="text-[13px] text-gray-600 font-medium">{getTranslation('No active requests', selectedLanguage)}</span>
                                     </div>
                                 );
@@ -2811,9 +2923,8 @@ const App = () => {
                     <h3 className="text-[18px] font-semibold text-gray-900 mb-4">{getTranslation('Active Claims', selectedLanguage)}</h3>
                     {/* Active requests stats */}
                     {(() => {
-                        const unpublished = (requestsList || []).filter(r => !((publishedList || []).some(p => ((p.title || '') || '').toString().trim().toLowerCase() === ((r.title || '') || '').toString().trim().toLowerCase())));
-                        const activeCount = unpublished.length;
-                        const totalEarnings = unpublished.reduce((s, it) => s + (Number(it.funding) || 0), 0);
+                        const activeCount = (claimedRequests || []).length;
+                        const totalEarnings = (claimedRequests || []).reduce((s, it) => s + (Number(it.funding) || 0), 0);
                         return (
                             <div className="flex items-center justify-between mb-4">
                                 <div className="text-sm text-gray-600">{getTranslation('Active requests:', selectedLanguage)} <span className="font-semibold text-gray-900">{activeCount}</span></div>
@@ -2848,8 +2959,13 @@ const App = () => {
                                     requesterName={req.requesterName}
                                     requesterAvatar={req.requesterAvatar}
                                     currentStep={req.currentStep || 1}
+                                    requestId={req.id}
                                     onClose={() => { }}
                                     onUpdateProgress={(step, msg) => handleUpdateClaimStatus(step, msg, req.id)}
+                                    onUnclaim={(requestIdentifier) => {
+                                        // Remove the unclaimed request from claimedRequests using ID
+                                        setClaimedRequests(prev => prev.filter(r => r.id !== requestIdentifier));
+                                    }}
                                     // Pass pendingReuploadItem ONLY if it targets this request (or if reupload has no target ID, pass to first/active?)
                                     pendingReuploadItem={pendingReuploadItem && (pendingReuploadItem.targetClaimId === req.id) ? pendingReuploadItem : null}
                                     clearPendingReupload={() => setPendingReuploadItem(null)}

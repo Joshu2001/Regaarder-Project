@@ -1,5 +1,36 @@
 [
   {
+    "id": "req_1768650003595",
+    "title": "treee",
+    "description": "kntkn\nwenhngiq\nginh",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Paul",
+    "companyInitial": "P",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1767585399609",
+      "name": "Paul",
+      "email": "paul@regaarder.com"
+    },
+    "createdBy": "user-1767585399609",
+    "createdAt": "2026-01-17T11:40:03.685Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": "short-form",
+      "selectedPrivacy": "public"
+    },
+    "claimed": false,
+    "claimedBy": null,
+    "claimedAt": null
+  },
+  {
     "id": "req_1768387118903",
     "title": "Tout puissant",
     "description": "hhsehrqerhererer",
@@ -370,12 +401,11 @@
       "selectedVideoLength": "standard",
       "selectedPrivacy": "public"
     },
-    "claimed": true,
-    "claimedBy": {
-      "id": "user-1766857658728",
-      "name": "Joshuar"
-    },
-    "claimedAt": "2026-01-17T10:39:08.286Z"
+    "claimed": false,
+    "claimedBy": null,
+    "claimedAt": null,
+    "currentStep": 2,
+    "updatedAt": "2026-01-17T10:49:17.582Z"
   },
   {
     "id": "req_1768379186340",
@@ -439,12 +469,9 @@
       "selectedPrivacy": "public"
     },
     "updatedAt": "2026-01-14T03:33:51.725Z",
-    "claimed": true,
-    "claimedBy": {
-      "id": "user-1766857658728",
-      "name": "Joshuar"
-    },
-    "claimedAt": "2026-01-14T03:35:13.425Z"
+    "claimed": false,
+    "claimedBy": null,
+    "claimedAt": null
   },
   {
     "id": "req_1768360658369",
@@ -563,12 +590,9 @@
     },
     "createdBy": "test_user_1",
     "createdAt": "2026-01-13T16:29:54.864Z",
-    "claimed": true,
-    "claimedBy": {
-      "id": "user-1766857658728",
-      "name": "Joshuar"
-    },
-    "claimedAt": "2026-01-13T16:37:51.621Z"
+    "claimed": false,
+    "claimedBy": null,
+    "claimedAt": null
   },
   {
     "id": "req_test_1768319170",

@@ -2620,4 +2620,55 @@ app.delete('/dislikes', authMiddleware, (req, res) => {
   } catch (err) { console.error('DELETE /dislikes error', err); return res.status(500).json({ error: 'Server error' }); }
 });
 
+// Unclaim a request - remove creator's claim and revert request to claimable state
+app.delete('/claims', authMiddleware, (req, res) => {
+  try {
+    const body = req.body || {};
+    const requestId = body.requestId || body.title; // Try to match by ID first, then fall back to title
+    const userId = req.user.id;
+
+    if (!requestId) {
+      return res.status(400).json({ error: 'Missing requestId or title' });
+    }
+
+    const requests = readRequests();
+    let idx = -1;
+
+    // Try to find by ID first (preferred method)
+    if (body.requestId) {
+      idx = requests.findIndex(r => String(r.id) === String(body.requestId));
+    }
+    
+    // Fall back to title match if ID not found
+    if (idx === -1 && body.title) {
+      idx = requests.findIndex(r => r.title === body.title);
+    }
+
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    const request = requests[idx];
+
+    // Verify the request is claimed by the current user
+    if (!request.claimed || !request.claimedBy || request.claimedBy.id !== userId) {
+      return res.status(403).json({ error: 'You have not claimed this request' });
+    }
+
+    // Remove the claim
+    request.claimed = false;
+    request.claimedBy = null;
+    request.claimedAt = null;
+    
+    writeRequests(requests);
+    console.log(`Request ${request.id} (${request.title}) unclaimed by user ${userId}`);
+
+    return res.json({ success: true, request });
+  } catch (err) {
+    console.error('DELETE /claims error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.listen(PORT, () => console.log(`Regaarder backend listening on ${PORT}`));
+
