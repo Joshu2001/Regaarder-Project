@@ -369,7 +369,13 @@
       "selectedTones": [],
       "selectedVideoLength": "standard",
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-17T10:39:08.286Z"
   },
   {
     "id": "req_1768379186340",

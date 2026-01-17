@@ -12,7 +12,7 @@ import {
     Home, MoreHorizontal, FileText, Clock, DollarSign, Search,
     TrendingUp, Heart, MessageSquare, ChevronsUp, Bookmark, Pin, ChevronDown, ChevronUp, Lightbulb,
     X, Send, ThumbsUp, Zap, Pencil, ThumbsDown, Flag, Share2, HeartOff, SlidersHorizontal, Calendar, CheckCircle2,
-    User, Check, Sparkles, Trophy, Rocket, Gem, CreditCard, Award
+    User, Check, Sparkles, Trophy, Rocket, Gem, CreditCard, Award, Eye, EyeOff
 } from 'lucide-react';
 
 // --- Component Data ---
@@ -3040,7 +3040,37 @@ export default function RequestsFeed() {
     const [showMonthYearPicker, setShowMonthYearPicker] = useState(false);
     const [showNudgeModal, setShowNudgeModal] = useState(false);
     const [nudgeRequest, setNudgeRequest] = useState(null); // Store the request that needs nudging
+    const [hideClaimedRequests, setHideClaimedRequests] = useState(() => {
+        try {
+            return localStorage.getItem('hideClaimedRequests') === 'true';
+        } catch (e) {
+            return false;
+        }
+    }); // Toggle to hide claimed requests
+    const [hideClaimedHintCount, setHideClaimedHintCount] = useState(() => {
+        try {
+            return parseInt(localStorage.getItem('hideClaimedHintCount') || '0', 10);
+        } catch (e) {
+            return 0;
+        }
+    });
+    const [showHideClaimedHint, setShowHideClaimedHint] = useState(false);
     const filterDropdownRef = useRef(null);
+
+    // Initialize hint visibility on component mount
+    useEffect(() => {
+        try {
+            const count = parseInt(localStorage.getItem('hideClaimedHintCount') || '0', 10);
+            // Show hint only for first 2 page loads
+            if (count < 2) {
+                setShowHideClaimedHint(true);
+                // Increment count
+                const newCount = count + 1;
+                setHideClaimedHintCount(newCount);
+                localStorage.setItem('hideClaimedHintCount', String(newCount));
+            }
+        } catch (e) { }
+    }, []);
 
     // Sync active filter with URL param when location changes (client-side navigation)
     useEffect(() => {
@@ -3854,6 +3884,11 @@ export default function RequestsFeed() {
     const applyActiveFilter = (list) => {
         let filtered = list;
 
+        // Filter out claimed requests if toggle is enabled
+        if (hideClaimedRequests) {
+            filtered = filtered.filter(r => !r.claimed && !r.claimedBy);
+        }
+
         // Apply category filter
         if (selectedCategory !== 'All') {
             filtered = filtered.filter(r => {
@@ -4047,6 +4082,66 @@ export default function RequestsFeed() {
                                         className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
                                         style={{ backgroundColor: 'var(--color-gold)' }}
                                     />
+                                )}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setHideClaimedRequests(!hideClaimedRequests);
+                                    localStorage.setItem('hideClaimedRequests', !hideClaimedRequests);
+                                }}
+                                aria-label={hideClaimedRequests ? "Show claimed requests" : "Hide claimed requests"}
+                                title={hideClaimedRequests ? "Show claimed requests" : "Hide claimed requests"}
+                                className="p-1.5 rounded-full text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition relative"
+                                style={{
+                                    backgroundColor: hideClaimedRequests ? 'var(--color-gold-light)' : 'transparent',
+                                    color: hideClaimedRequests ? 'var(--color-gold)' : '#6b7280',
+                                    ...(showHideClaimedHint && {
+                                        boxShadow: '0 0 0 0 rgba(202, 138, 4, 0.7)',
+                                        animation: 'pulse-hint 2s infinite'
+                                    })
+                                }}
+                            >
+                                {hideClaimedRequests ? (
+                                    <EyeOff className="w-5 h-5" />
+                                ) : (
+                                    <Eye className="w-5 h-5" />
+                                )}
+                                
+                                {/* Hint Popover - Positioned above and to the left */}
+                                {showHideClaimedHint && (
+                                    <div className="absolute -top-40 -right-8 w-64 bg-white rounded-xl shadow-2xl border-2 p-4 z-50 animate-fade-in-up"
+                                         style={{
+                                            borderColor: 'var(--color-gold)',
+                                            backgroundColor: 'var(--color-gold)',
+                                         }}>
+                                        {/* Arrow pointing down to button */}
+                                        <div 
+                                            className="absolute -bottom-2 right-6 w-4 h-4 rotate-45"
+                                            style={{
+                                                backgroundColor: 'var(--color-gold)',
+                                                borderRight: '2px solid var(--color-gold)',
+                                                borderBottom: '2px solid var(--color-gold)'
+                                            }}
+                                        />
+                                        
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="flex-1">
+                                                <p className="text-sm font-bold text-white flex items-center gap-1">
+                                                    <span>👁️</span> Hide Claimed Requests
+                                                </p>
+                                                <p className="text-sm text-white mt-2 leading-snug font-medium">
+                                                    Click the eye icon to focus on available requests and hide the ones already claimed by others
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => setShowHideClaimedHint(false)}
+                                                className="text-white hover:text-gray-100 flex-shrink-0 mt-0.5 font-bold text-lg leading-none opacity-80 hover:opacity-100 transition"
+                                                aria-label="Close hint"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
                             </button>
                         </div>

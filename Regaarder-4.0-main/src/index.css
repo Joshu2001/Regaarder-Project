@@ -96,3 +96,32 @@ body {
   }
 }
 
+/* Subtle fade-in and slide-up animation for hint tooltips */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Pulsing glow animation for hint button */
+@keyframes pulse-hint {
+  0% {
+    box-shadow: 0 0 0 0 rgba(202, 138, 4, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(202, 138, 4, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(202, 138, 4, 0.8);
+  }
+}
+
