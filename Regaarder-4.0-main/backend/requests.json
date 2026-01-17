@@ -237,7 +237,13 @@
       "selectedTones": [],
       "selectedVideoLength": null,
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-17T15:16:54.355Z"
   },
   {
     "id": "req_1768385356952",

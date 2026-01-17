@@ -967,7 +967,7 @@ const ClaimStatusPanel = ({
                                 
                                 {/* Details Button Hint - Positioned above and to the right */}
                                 {showDetailsHint && (
-                                    <div className="absolute -top-56 right-0 w-64 bg-white rounded-xl shadow-2xl border-2 p-4 z-50 animate-fade-in-up"
+                                    <div className="absolute -top-56 right-0 translate-x-12 w-64 bg-white rounded-xl shadow-2xl border-2 p-4 z-50 animate-fade-in-up"
                                          style={{
                                             borderColor: 'rgba(147, 51, 234, 0.8)',
                                             backgroundColor: 'rgba(147, 51, 234, 0.95)',

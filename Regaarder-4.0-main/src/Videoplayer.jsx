@@ -2893,43 +2893,54 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				return;
 			}
 
-			// Try to request fullscreen. Prefer the video element but fall back to documentElement.
-			const target = v || document.documentElement;
+			// Try to request fullscreen. Prefer the entire document to maximize screen real estate
+			const target = document.documentElement || v;
 			await requestFS(target);
 
 			// Orientation lock should be requested after entering fullscreen.
 			const doLock = async () => {
 				try {
-					await screen.orientation?.lock?.("landscape");
+					// Try landscape-primary first, fall back to landscape
+					try {
+						await screen.orientation?.lock?.("landscape-primary");
+					} catch {
+						await screen.orientation?.lock?.("landscape");
+					}
 				} catch {
 					// some browsers require fullscreen + user gesture or don't support lock
+					// Force CSS fallback rotation
+					setForceLandscapeCss(true);
 				}
 			};
 
-			// If already fullscreen, try lock immediately, otherwise wait for fullscreenchange event
-			if (document.fullscreenElement || document.webkitFullscreenElement) {
-				await doLock();
-				// Fallback if still portrait viewport
-				setTimeout(() => {
-					const t = screen.orientation?.type || "";
+			// Wait a bit for fullscreen to fully activate, then lock orientation
+			await new Promise(resolve => setTimeout(resolve, 100));
+			
+			// Immediately try to lock
+			await doLock();
+			
+			// Double-check and ensure landscape CSS is applied if orientation lock failed
+			setTimeout(() => {
+				const isPortraitViewport = (typeof window !== "undefined") && window.innerHeight > window.innerWidth;
+				if (isPortraitViewport) {
+					setForceLandscapeCss(true);
+				}
+			}, 300);
+
+			// Also listen for fullscreen change in case orientation lock updates
+			const handler = async () => {
+				if (document.fullscreenElement || document.webkitFullscreenElement) {
+					// Still in fullscreen, ensure landscape
 					const isPortraitViewport = (typeof window !== "undefined") && window.innerHeight > window.innerWidth;
-					setForceLandscapeCss(t.startsWith("portrait") || isPortraitViewport);
-				}, 250);
-			} else {
-				const handler = async () => {
-					await doLock();
-					// Fallback if still portrait viewport
-					setTimeout(() => {
-						const t = screen.orientation?.type || "";
-						const isPortraitViewport = (typeof window !== "undefined") && window.innerHeight > window.innerWidth;
-						setForceLandscapeCss(t.startsWith("portrait") || isPortraitViewport);
-					}, 250);
-					document.removeEventListener("fullscreenchange", handler);
-					document.removeEventListener("webkitfullscreenchange", handler);
-				};
-				document.addEventListener("fullscreenchange", handler);
-				document.addEventListener("webkitfullscreenchange", handler);
-			}
+					if (isPortraitViewport) {
+						setForceLandscapeCss(true);
+					}
+				}
+				document.removeEventListener("fullscreenchange", handler);
+				document.removeEventListener("webkitfullscreenchange", handler);
+			};
+			document.addEventListener("fullscreenchange", handler);
+			document.addEventListener("webkitfullscreenchange", handler);
 		} catch {
 			// noop on errors (permissions, unsupported APIs)
 		}
@@ -3774,23 +3785,29 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				</div>
 			)}
 			{/* 1. Top Icon Row */}
-			<div
-				// backdrop overlay for top controls (auto-hideable)
-				className="w-full flex items-center justify-between"
+				<div
+					// backdrop overlay for top controls (auto-hideable)
+					className="w-full flex items-center justify-between"
 				style={{
+					// Force landscape: position at visual top (physical right)
+					position: forceLandscapeCss ? "fixed" : "relative",
+					left: forceLandscapeCss ? "50%" : -16,
+					right: forceLandscapeCss ? "auto" : 0,
+					top: forceLandscapeCss ? "50%" : "auto",
+					width: forceLandscapeCss ? "100vh" : "calc(100% + 32px)",
+					// Rotate 90deg and position at visual top (opposite of bottom bar)
+					transform: forceLandscapeCss ? "translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 50%))" : "none",
+					transformOrigin: "center",
+					
 					paddingTop: 8,
 					paddingBottom: 8,
-					position: "relative",
+					paddingLeft: forceLandscapeCss ? 20 : 16,
+					paddingRight: forceLandscapeCss ? 20 : 16,
 					zIndex: 500,
+					boxSizing: "border-box",
 					transition: "opacity 220ms ease, backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease",
 					opacity: controlsVisible || locked ? 1 : 0,
 					pointerEvents: controlsVisible || locked ? "auto" : "none",
-					// Make the frosted background full-bleed (compensate for outer `px-4`)
-					// Use a width calc + left offset so it reliably reaches both edges.
-					width: "calc(100% + 32px)",
-					left: -16,
-					paddingLeft: 16,
-					paddingRight: 16,
 					// Frosted glass / muted background to keep focus on video
 					background: darkMode
 						? "linear-gradient(180deg, rgba(0,0,0,0.36), rgba(0,0,0,0.28))"
@@ -3894,10 +3911,30 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				>
 					<ChevronDown />
 				</button>
+
+					{/* Watch Together in Top Bar Left (Physical Top) */}
+					{(!isFloatingMode && (showWatchTogether || watchFading)) && (
+						<button
+							className="flex items-center text-white pl-3 pr-4 py-1.5 rounded-full text-sm font-medium"
+							onClick={(e) => performWatchTogether(e)}
+							style={{
+								background: '#6b5bd1', 
+								transition: 'opacity 260ms ease, transform 260ms ease',
+								opacity: showWatchTogether ? 1 : 0,
+								pointerEvents: showWatchTogether ? 'auto' : 'none',
+								boxShadow: '0 8px 24px rgba(0,0,0,0.28)',
+								marginLeft: 12
+							}}
+						>
+							<Users size={18} />
+							<span className="ml-2 whitespace-nowrap">Watch Together</span>
+						</button>
+					)}
+				
 				{/* Lock button: rendered inline with other top icons so spacing matches. */}
 
 				<div className="flex items-center space-x-4" style={{ transition: 'opacity 220ms ease', pointerEvents: 'auto' }}>
-					{/* Lock slot (keeps same spacing whether visible or not) */}
+				{/* Watch Together removed from here */}
 					<div className="w-9 flex items-center justify-center" style={{ pointerEvents: 'auto' }}>
 						{locked ? (
 							<button
@@ -4011,15 +4048,23 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				</div>
 			</div>
 
-
-
 			{/* 2. Title & Metadata Section */}
 			{/* Always keep this block in the DOM to preserve layout.
 				    Use visibility+opacity so it hides visually but still reserves space,
 				    preventing the video container from shifting when controls hide. */}
-			<div
-				className="w-full mt-8 mb-4"
+				<div
+					className="w-full mt-8 mb-4"
 				style={{
+					// Force landscape: rotate 90deg and stick near visual top (physical right), below top controls
+					position: forceLandscapeCss ? "fixed" : "relative",
+					left: forceLandscapeCss ? "50%" : "auto",
+					top: forceLandscapeCss ? "50%" : "auto",
+					width: forceLandscapeCss ? "100vh" : "100%",
+					// Y points Left. -50vw moves center to Right Edge. +120px moves Left (Down). 
+					transform: forceLandscapeCss ? "translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 120px))" : "none",
+					transformOrigin: "center",
+					zIndex: 450, // slightly below top controls
+
 					visibility: controlsVisible ? "visible" : "hidden",
 					opacity: controlsVisible ? 1 : 0,
 					transition: "opacity 220ms ease, backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease",
@@ -4050,90 +4095,68 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					</span>
 				</div>
 
-				{/* Watch Together Button (appears after 3s) */}
-				<div className="mt-4">
-					{(!isFloatingMode && (showWatchTogether || watchFading)) && (
-						<button
-							className="flex items-center text-white pl-3 pr-4 py-1.5 rounded-full text-sm font-medium"
-							onClick={(e) => performWatchTogether(e)}
-							style={{
-								background: '#6b5bd1', // desaturated purple
-								transition: 'opacity 260ms ease, transform 260ms ease',
-								opacity: showWatchTogether ? 1 : 0,
-								transform: showWatchTogether ? 'translateY(0)' : 'translateY(6px)',
-								pointerEvents: showWatchTogether ? 'auto' : 'none',
-								boxShadow: '0 8px 24px rgba(0,0,0,0.28)'
-							}}
-						>
-							<Users />
-							<span className="ml-2">Watch Together</span>
-							<div className="w-2 h-2 bg-white rounded-full ml-2"></div>
-						</button>
-					)}
+				{/* Floating watch-together button (appears after timeout) */}
+				{isFloatingMode && (
+					<>
+						{/* collapsed chevron (when user swiped it away) */}
+						{collapsed && (
+							<button
+								aria-label="Show Watch Together"
+								className="fixed flex items-center justify-center w-12 h-12 rounded-full text-white shadow-lg"
+								style={{
+									left: collapsedSide === "left" ? 8 : "auto",
+									right: collapsedSide === "right" ? 8 : "auto",
+									top: forceLandscapeCss ? Math.max(20, floatPos.y) : Math.max(80, floatPos.y),
+									transition: "transform 220ms ease, opacity 220ms",
+									// place under comments/modal overlay — keep lower than modals (use small zIndex)
+									zIndex: showCommentsModal ? 30 : 20,
+									background: '#6b5bd1',
+									boxShadow: '0 10px 26px rgba(0,0,0,0.28)'
+								}}
+								onClick={(e) => performWatchTogether(e)}
+							>
+								{/* small chevron icon to restore */}
+								<ChevronRight />
+							</button>
+						)}
 
-					{/* Floating watch-together button (appears after timeout) */}
-					{isFloatingMode && (
-						<>
-							{/* collapsed chevron (when user swiped it away) */}
-							{collapsed && (
-								<button
-									aria-label="Show Watch Together"
-									className="fixed flex items-center justify-center w-12 h-12 rounded-full text-white shadow-lg"
-									style={{
-										left: collapsedSide === "left" ? 8 : "auto",
-										right: collapsedSide === "right" ? 8 : "auto",
-										top: Math.max(80, floatPos.y),
-										transition: "transform 220ms ease, opacity 220ms",
-										// place under comments/modal overlay — keep lower than modals (use small zIndex)
-										zIndex: showCommentsModal ? 30 : 20,
-										background: '#6b5bd1',
-										boxShadow: '0 10px 26px rgba(0,0,0,0.28)'
-									}}
-									onClick={(e) => performWatchTogether(e)}
-								>
-									{/* small chevron icon to restore */}
-									<ChevronRight />
-								</button>
-							)}
-
-							{/* draggable floating circle */}
-							{floatVisible && !collapsed && (
-								<button
-									ref={floatBtnRef}
-									aria-label="Watch Together (floating)"
-									className="fixed flex items-center justify-center rounded-full text-white shadow-xl backdrop-blur-md"
-									style={{
-										width: 56,
-										height: 56,
-										background: "linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95))",
-										border: "1px solid rgba(255,255,255,0.1)",
-										left: floatPos.x,
-										top: floatPos.y,
-										transition: dragRef.current.dragging ? "none" : "transform 220ms ease, left 220ms ease, top 220ms ease",
-										// render beneath modals when open (ensure lower than modal z-indexes)
-										zIndex: showCommentsModal ? 30 : 20,
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										boxShadow: "0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)"
-									}}
-									onPointerDown={onFloatPointerDown}
-									onPointerMove={onFloatPointerMove}
-									onPointerUp={onFloatPointerUp}
-									onPointerCancel={onFloatPointerUp}
-									onClick={(e) => {
-										e.stopPropagation();
-										// if the user dragged the button, suppress navigation
-										if (floatMovedRef.current) { floatMovedRef.current = false; return; }
-										performWatchTogether(e);
-									}}
-								>
-									<Users size={22} strokeWidth={2} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }} />
-								</button>
-							)}
-						</>
-					)}
-				</div>
+						{/* draggable floating circle */}
+						{floatVisible && !collapsed && (
+							<button
+								ref={floatBtnRef}
+								aria-label="Watch Together (floating)"
+								className="fixed flex items-center justify-center rounded-full text-white shadow-xl backdrop-blur-md"
+								style={{
+									width: 56,
+									height: 56,
+									background: "linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95))",
+									border: "1px solid rgba(255,255,255,0.1)",
+									left: floatPos.x,
+									top: floatPos.y,
+									transition: dragRef.current.dragging ? "none" : "transform 220ms ease, left 220ms ease, top 220ms ease",
+									// render beneath modals when open (ensure lower than modal z-indexes)
+									zIndex: showCommentsModal ? 30 : 20,
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									boxShadow: "0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)"
+								}}
+								onPointerDown={onFloatPointerDown}
+								onPointerMove={onFloatPointerMove}
+								onPointerUp={onFloatPointerUp}
+								onPointerCancel={onFloatPointerUp}
+								onClick={(e) => {
+									e.stopPropagation();
+									// if the user dragged the button, suppress navigation
+									if (floatMovedRef.current) { floatMovedRef.current = false; return; }
+									performWatchTogether(e);
+								}}
+							>
+								<Users size={22} strokeWidth={2} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }} />
+							</button>
+						)}
+					</>
+				)}
 			</div>
 
 			{/* 3. Center Video Area (Play Button) */}
@@ -4181,14 +4204,16 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					style={{
 						position: "absolute",
 						left: "50%",
-						top: "30%",               // nudged upward from 50% to 30%
-						transform: "translate(-50%, -50%)",
-						width: "100vw",            // full viewport width
+						top: forceLandscapeCss ? "50%" : "30%",  // Center when in landscape rotation
+						transform: forceLandscapeCss ? "translate(-50%, -50%)" : "translate(-50%, -50%)",
+						width: forceLandscapeCss ? "100vh" : "100vw",  // Swap dimensions for landscape
+						height: forceLandscapeCss ? "100vw" : "auto",
 						zIndex: 10,
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
-						background: "transparent"
+						background: "transparent",
+						transition: "all 200ms ease"
 					}}
 				>
 					<div
@@ -4196,8 +4221,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						aria-hidden={false}
 						style={{
 							width: "auto",
-							maxHeight: `calc(100vh - 48px - 140px)`,
-							maxWidth: "100vw",
+							maxHeight: forceLandscapeCss ? "100vw" : "calc(100vh - 48px - 140px)",
+							maxWidth: forceLandscapeCss ? "100vh" : "100vw",
 							borderRadius: 0,
 							display: "block",
 							transform: forceLandscapeCss ? "rotate(90deg)" : undefined,
@@ -4300,7 +4325,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								position: "absolute",
 								left: "50%",
 								top: "50%",
-								transform: "translate(-50%, -50%)",
+								transform: forceLandscapeCss ? "translate(-50%, -50%) rotate(90deg)" : "translate(-50%, -50%)",
 								// make overlay ring subtler so video remains focus
 								border: "1px solid rgba(255,255,255,0.08)",
 								zIndex: 20,
@@ -4316,7 +4341,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								boxShadow: "0 6px 14px rgba(0,0,0,0.36)",
 								pointerEvents: centerVisible ? "auto" : "none",
 								opacity: centerVisible ? 1 : 0,
-								transition: 'opacity 360ms ease'
+								transition: 'opacity 360ms ease, transform 200ms ease'
 							}}
 						>
 							<PauseIcon width={56} height={56} />
@@ -4392,17 +4417,22 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				className="w-full flex flex-col pb-2"
 				style={{
 					position: "fixed",
-					left: 0,
-					right: 0,
-					// increase gap above nav so controls don't clash with system UI
-					bottom: "calc(env(safe-area-inset-bottom, 20px) + 38px)",
 					zIndex: 40,
+					// Landscape: Rotate 90deg, stick to visual bottom (physical left)
+					left: forceLandscapeCss ? "50%" : 0,
+					right: forceLandscapeCss ? "auto" : 0,
+					top: forceLandscapeCss ? "50%" : "auto",
+					bottom: forceLandscapeCss ? "auto" : "calc(env(safe-area-inset-bottom, 20px) + 38px)",
+					width: forceLandscapeCss ? "100vh" : undefined,
+					transform: forceLandscapeCss ? "translate(-50%, -50%) rotate(90deg) translateY(calc(50vw - 50%))" : "none",
+					transformOrigin: "center",
+
 					boxSizing: "border-box",
 					paddingLeft: 20,
 					paddingRight: 20,
-					transition: "opacity 220ms ease",
-					opacity: locked ? 0.28 : (controlsVisible ? 1 : 0),
-					pointerEvents: locked ? "none" : (controlsVisible ? "auto" : "none"),
+					transition: "opacity 220ms ease, bottom 200ms ease",
+					opacity: forceLandscapeCss ? (controlsVisible ? 1 : 0) : (locked ? 0.28 : (controlsVisible ? 1 : 0)),
+					pointerEvents: forceLandscapeCss ? (controlsVisible ? "auto" : "none") : (locked ? "none" : (controlsVisible ? "auto" : "none")),
 					// Frosted glass / muted footer to keep eyes on the video
 					background: darkMode
 						? "linear-gradient(180deg, rgba(0,0,0,0.30), rgba(0,0,0,0.22))"

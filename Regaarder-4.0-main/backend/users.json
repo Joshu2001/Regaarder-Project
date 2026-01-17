@@ -1185,7 +1185,8 @@
     "introVideo": "http://localhost:4000/uploads/intro-1768318508169-486426.mp4",
     "lastClaimReset": "2026-01-14",
     "dailyClaimCount": 1,
-    "dailyClaimEarnings": 133
+    "dailyClaimEarnings": 133,
+    "referralCode": "F874FD7C"
   },
   {
     "id": "user-1768222892161",
