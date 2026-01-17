@@ -6355,10 +6355,20 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							if (selectedChip === 'Recommended') {
 								// Show all videos for Recommended
 								filteredByChip = source;
+							} else if (selectedChip === 'Trending Now') {
+								// Trending Now - show videos sorted by views/engagement (for now show all)
+								filteredByChip = source.sort((a, b) => (parseInt(b.views) || 0) - (parseInt(a.views) || 0));
+							} else if (selectedChip === 'New') {
+								// New - show videos sorted by timestamp (newest first)
+								filteredByChip = source.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 							} else if (tabNames.includes(selectedChip)) {
-								// For other tabs, filter by tags matching the tab name
-								filteredByChip = source.filter(it => (it.tags || []).some(t => t.toLowerCase().includes(selectedChip.toLowerCase())));
-								// If no matches by tag, show all videos (fallback)
+								// For other tabs, filter by category matching the tab name
+								filteredByChip = source.filter(it => {
+									const category = (it.category || '').toLowerCase();
+									const tabLower = selectedChip.toLowerCase();
+									return category.includes(tabLower) || (it.tags && it.tags.some(t => t.toLowerCase().includes(tabLower)));
+								});
+								// If no matches by category, show all videos (fallback)
 								if (filteredByChip.length === 0) {
 									filteredByChip = source;
 								}

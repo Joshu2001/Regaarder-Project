@@ -3269,6 +3269,17 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     videoUrl: videoUrl,
                                     // Ensure time field exists
                                     time: video.time || '0:00',
+                                    // Parse time into duration in seconds for display
+                                    duration: (() => {
+                                        const timeStr = video.time || '0:00';
+                                        const parts = timeStr.split(':');
+                                        if (parts.length === 2) {
+                                            const minutes = parseInt(parts[0]) || 0;
+                                            const seconds = parseInt(parts[1]) || 0;
+                                            return minutes * 60 + seconds;
+                                        }
+                                        return 0;
+                                    })(),
                                     // Ensure requester field exists
                                     requester: video.requester || video.author || 'Unknown',
                                     // Sync bookmark state from backend
