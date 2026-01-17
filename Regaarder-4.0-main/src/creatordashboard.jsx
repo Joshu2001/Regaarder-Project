@@ -198,6 +198,195 @@ const Toast = ({ message, duration = 2000, bottom = true }) => {
         </div>
     );
 };
+
+// RequestDetailsModal - Beautiful modal displaying all request metadata
+const RequestDetailsModal = ({ isOpen, onClose, requestData = {}, selectedLanguage = 'English' }) => {
+    if (!isOpen || !requestData) return null;
+
+    const meta = requestData.meta || {};
+
+    // Render label + value pair (always shows, with placeholder if empty)
+    const DetailField = ({ label, value, icon: Icon = null }) => {
+        let displayValue = null;
+        
+        if (Array.isArray(value)) {
+            displayValue = value.length > 0 ? value.join(', ') : getTranslation('Not provided', selectedLanguage);
+        } else if (typeof value === 'object' && value !== null) {
+            displayValue = JSON.stringify(value);
+        } else if (value !== undefined && value !== null && value !== '') {
+            displayValue = String(value);
+        } else {
+            displayValue = getTranslation('Not provided', selectedLanguage);
+        }
+
+        return (
+            <div className="flex items-start gap-3 pb-4 border-b border-gray-200 last:border-b-0">
+                {Icon && <Icon size={18} className="text-blue-500 mt-0.5 flex-shrink-0" />}
+                <div className="flex-1">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{label}</p>
+                    <p className={`text-sm leading-relaxed break-words ${!displayValue || displayValue === getTranslation('Not provided', selectedLanguage) ? 'text-gray-400 italic' : 'text-gray-800'}`}>
+                        {displayValue}
+                    </p>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <>
+            {/* Backdrop */}
+            <div 
+                className="fixed inset-0 bg-black/40 z-40"
+                onClick={onClose}
+                style={{ animation: 'fadeIn 280ms ease-out' }}
+            />
+            {/* Modal */}
+            <div 
+                className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+                onClick={(e) => e.target === e.currentTarget && onClose()}
+            >
+                <div 
+                    className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+                    style={{ animation: 'slideUp 300ms cubic-bezier(0.16, 1, 0.3, 1)' }}
+                >
+                    <style>{`
+                        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+                        @keyframes slideUp { from { transform: translateY(30px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+                    `}</style>
+
+                    {/* Header */}
+                    <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 px-6 py-4 flex items-center justify-between">
+                        <h2 className="text-lg font-bold text-gray-900">{getTranslation('Request Details', selectedLanguage)}</h2>
+                        <button
+                            onClick={onClose}
+                            className="p-1 hover:bg-white rounded-lg transition text-gray-400 hover:text-gray-600"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 space-y-6">
+                        {/* Basic Info */}
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <span className="w-1 h-1 bg-blue-500 rounded-full"></span>
+                                {getTranslation('Basic Information', selectedLanguage)}
+                            </h3>
+                            <div className="space-y-3 pl-5">
+                                <DetailField label={getTranslation('Title', selectedLanguage)} value={requestData.title} />
+                                <DetailField label={getTranslation('Description', selectedLanguage)} value={requestData.description} />
+                                <DetailField label={getTranslation('Requester', selectedLanguage)} value={requestData.requesterName || requestData.creator?.name} />
+                            </div>
+                        </div>
+
+                        {/* Video Preferences */}
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <span className="w-1 h-1 bg-purple-500 rounded-full"></span>
+                                {getTranslation('Video Preferences', selectedLanguage)}
+                            </h3>
+                            <div className="space-y-3 pl-5">
+                                <DetailField label={getTranslation('Video Length', selectedLanguage)} value={meta.selectedVideoLength} />
+                                <DetailField label={getTranslation('Custom Length', selectedLanguage)} value={meta.customVideoLength} />
+                                <DetailField label={getTranslation('Tones', selectedLanguage)} value={meta.selectedTones} />
+                                <DetailField label={getTranslation('Styles', selectedLanguage)} value={meta.selectedStyles} />
+                            </div>
+                        </div>
+
+                        {/* Delivery & Frequency */}
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                                {getTranslation('Delivery Schedule', selectedLanguage)}
+                            </h3>
+                            <div className="space-y-3 pl-5">
+                                <DetailField label={getTranslation('Delivery Type', selectedLanguage)} value={meta.selectedDeliveryType} />
+                                <DetailField label={getTranslation('Frequency', selectedLanguage)} value={meta.selectedFrequency} />
+                                <DetailField label={getTranslation('Release Schedule', selectedLanguage)} value={meta.selectedReleaseSchedule} />
+                                <DetailField label={getTranslation('Custom Dates', selectedLanguage)} value={meta.customRecurrentDates} />
+                                <DetailField label={getTranslation('Series Dates', selectedLanguage)} value={meta.customSeriesDates} />
+                            </div>
+                        </div>
+
+                        {/* Series/Episodes */}
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                                {getTranslation('Series Information', selectedLanguage)}
+                            </h3>
+                            <div className="space-y-3 pl-5">
+                                <DetailField label={getTranslation('Number of Episodes', selectedLanguage)} value={meta.numberOfEpisodes} />
+                                <DetailField label={getTranslation('Target Videos', selectedLanguage)} value={meta.targetVideos} />
+                            </div>
+                        </div>
+
+                        {/* Content & Themes */}
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <span className="w-1 h-1 bg-yellow-500 rounded-full"></span>
+                                {getTranslation('Content & Privacy', selectedLanguage)}
+                            </h3>
+                            <div className="space-y-3 pl-5">
+                                <DetailField label={getTranslation('Themes', selectedLanguage)} value={meta.themes} />
+                                <DetailField label={getTranslation('Privacy', selectedLanguage)} value={meta.selectedPrivacy} />
+                            </div>
+                        </div>
+
+                        {/* Creator & Expert */}
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <span className="w-1 h-1 bg-indigo-500 rounded-full"></span>
+                                {getTranslation('Creator Preferences', selectedLanguage)}
+                            </h3>
+                            <div className="space-y-3 pl-5">
+                                <DetailField label={getTranslation('Selected Creator', selectedLanguage)} value={meta.selectedCreator} />
+                                <DetailField label={getTranslation('Creator Type', selectedLanguage)} value={meta.creatorSelectionType} />
+                                <DetailField label={getTranslation('Expert Type', selectedLanguage)} value={meta.expertType} />
+                            </div>
+                        </div>
+
+                        {/* Budget & Files */}
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <span className="w-1 h-1 bg-orange-500 rounded-full"></span>
+                                {getTranslation('Budget & Resources', selectedLanguage)}
+                            </h3>
+                            <div className="space-y-3 pl-5">
+                                <DetailField 
+                                    label={getTranslation('Custom Price', selectedLanguage)} 
+                                    value={meta.customPrice ? `$${meta.customPrice}` : null} 
+                                />
+                                <DetailField 
+                                    label={getTranslation('Uploaded Files', selectedLanguage)} 
+                                    value={
+                                        meta.uploadedFiles && Array.isArray(meta.uploadedFiles) && meta.uploadedFiles.length > 0 
+                                            ? `${meta.uploadedFiles.length} ${getTranslation('file(s)', selectedLanguage)}`
+                                            : null
+                                    } 
+                                />
+                                <DetailField label={getTranslation('Reference Links', selectedLanguage)} value={meta.referenceLinks} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4">
+                        <button
+                            onClick={onClose}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
+                        >
+                            {getTranslation('Close', selectedLanguage)}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
 const ClaimStatusPanel = ({
     title = 'A night tour of taipei',
     requesterName = 'AllVater',
@@ -205,6 +394,7 @@ const ClaimStatusPanel = ({
     requesterAvatar = null,
     currentStep = 1,
     requestId = null,
+    requestData = null,
     onClose = () => { },
     onUpdateProgress = () => { },
     onUnclaim = () => { },
@@ -214,6 +404,7 @@ const ClaimStatusPanel = ({
     const [showModal, setShowModal] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [showUnclaimModal, setShowUnclaimModal] = useState(false);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [message, setMessage] = useState('');
     const [videoFile, setVideoFile] = useState(null);
     const [videoPreview, setVideoPreview] = useState(null);
@@ -710,7 +901,7 @@ const ClaimStatusPanel = ({
                 <div className="flex-1">
                     {isCollapsed ? (
                         // Collapsed view: show profile picture, name, role, and price
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 w-full">
                             <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
                                 {requesterAvatar ? (
                                     <img src={requesterAvatar} alt={requesterName} className="w-full h-full object-cover" />
@@ -722,7 +913,16 @@ const ClaimStatusPanel = ({
                                 <div className="text-sm font-semibold text-gray-900">{requesterName}</div>
                                 <div className="text-xs text-gray-400">{requesterRole}</div>
                             </div>
-                            <div className="text-sm text-gray-600 font-medium whitespace-nowrap">$0</div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setShowDetailsModal(true)}
+                                    className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-md transition font-medium"
+                                    title="View full request details"
+                                >
+                                    {getTranslation('Details', selectedLanguage)}
+                                </button>
+                                <div className="text-sm text-gray-600 font-medium whitespace-nowrap">$0</div>
+                            </div>
                         </div>
                     ) : (
                         // Expanded view: show title and price
@@ -1933,6 +2133,14 @@ const ClaimStatusPanel = ({
                     </div>
                 </div>
             )}
+
+            {/* Request Details Modal */}
+            <RequestDetailsModal 
+                isOpen={showDetailsModal} 
+                onClose={() => setShowDetailsModal(false)} 
+                requestData={requestData}
+                selectedLanguage={selectedLanguage}
+            />
                 </>
             )}
         </div>
@@ -2960,6 +3168,7 @@ const App = () => {
                                     requesterAvatar={req.requesterAvatar}
                                     currentStep={req.currentStep || 1}
                                     requestId={req.id}
+                                    requestData={req}
                                     onClose={() => { }}
                                     onUpdateProgress={(step, msg) => handleUpdateClaimStatus(step, msg, req.id)}
                                     onUnclaim={(requestIdentifier) => {
