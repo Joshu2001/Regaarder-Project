@@ -4121,7 +4121,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						)}
 
 						{/* draggable floating circle */}
-						{floatVisible && !collapsed && (
+						{floatVisible && !collapsed && !forceLandscapeCss && (
 							<button
 								ref={floatBtnRef}
 								aria-label="Watch Together (floating)"
@@ -4131,8 +4131,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									height: 56,
 									background: "linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95))",
 									border: "1px solid rgba(255,255,255,0.1)",
-									left: floatPos.x,
-									top: floatPos.y,
+									left: forceLandscapeCss ? "50%" : floatPos.x,
+									top: forceLandscapeCss ? "50%" : floatPos.y,
+									transform: forceLandscapeCss ? "translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 120px))" : "none",
 									transition: dragRef.current.dragging ? "none" : "transform 220ms ease, left 220ms ease, top 220ms ease",
 									// render beneath modals when open (ensure lower than modal z-indexes)
 									zIndex: showCommentsModal ? 30 : 20,
