@@ -4333,6 +4333,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							inset: 0,
 							pointerEvents: 'none',
 							zIndex: 25,
+							transform: forceLandscapeCss ? 'rotate(90deg)' : 'none',
+							transformOrigin: 'center',
 						}}
 					>
 						{visibleOverlays.map((ov) => (
@@ -4344,8 +4346,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									rel="noopener noreferrer"
 									style={{
 										position: 'absolute',
-										bottom: `${(ov.positionY || 20) * 100 / 720}%`,
-										left: `${(ov.positionX || 20) * 100 / 1280}%`,
+										bottom: `${(ov.positionY || 20)}px`,
+										left: `${(ov.positionX || 20)}px`,
 										padding: '12px 16px',
 										borderRadius: '8px',
 										backgroundColor: `${ov.linkColor}33`,
@@ -4381,8 +4383,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 									key={ov.id}
 									style={{
 										position: 'absolute',
-										bottom: `${(ov.positionY || 20) * 100 / 720}%`,
-										left: `${(ov.positionX || 20) * 100 / 1280}%`,
+										bottom: `${(ov.positionY || 20)}px`,
+										left: `${(ov.positionX || 20)}px`,
 										borderRadius: '8px',
 										overflow: 'hidden',
 										boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
