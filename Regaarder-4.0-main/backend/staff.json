@@ -1,0 +1,44 @@
+{
+  "employees": [
+    {
+      "id": 1000,
+      "name": "Admin",
+      "email": "admin@regaarder.com",
+      "role": "administrator",
+      "passwords": [
+        "pass123",
+        "staff456",
+        "admin789"
+      ],
+      "createdAt": "2026-01-18T00:00:00Z",
+      "status": "active"
+    }
+  ],
+  "pendingAccounts": [],
+  "reports": [],
+  "shadowDeleted": [],
+  "notifications": [],
+  "hiddenLog": [
+    {
+      "type": "video",
+      "id": "1768716793172-4lw88hmuz",
+      "reason": "nn",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-18T10:41:17.374Z"
+    },
+    {
+      "type": "request",
+      "id": "req_1768657702084",
+      "reason": "nnn",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-18T11:04:34.889Z"
+    },
+    {
+      "type": "request",
+      "id": "req_1768657708836",
+      "reason": "jjj",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-18T11:04:48.796Z"
+    }
+  ]
+}

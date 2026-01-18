@@ -25,6 +25,7 @@ const Bookmarks = lazy(() => import('./bookmarks.jsx'));
 const Playlist = lazy(() => import('./playlists.jsx'));
 const Referrals = lazy(() => import('./referrals.jsx'));
 const Policies = lazy(() => import('./policies.jsx'));
+const StaffDashboard = lazy(() => import('./StaffDashboard.jsx'));
 
 // Main footer tab switcher component
 function FooterTabSwitcher() {
@@ -142,6 +143,7 @@ function App() {
           <Route path="/playlist" element={<Playlist />} />
           <Route path="/myfolders" element={<Navigate to="/playlist" replace />} />
           <Route path="/policies" element={<Policies />} />
+          <Route path="/staff" element={<StaffDashboard />} />
           <Route path="/upgradetopremium" element={<Home />} />
           <Route path="/settings" element={<Settings />} />
           

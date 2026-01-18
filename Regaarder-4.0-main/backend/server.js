@@ -2673,5 +2673,699 @@ app.delete('/claims', authMiddleware, (req, res) => {
   }
 });
 
+// ===== STAFF ADMIN ENDPOINTS =====
+const STAFF_FILE = path.join(__dirname, 'staff.json');
+
+const readStaff = () => {
+  try {
+    const data = fs.readFileSync(STAFF_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error('Error reading staff.json:', err);
+    return { employees: [], pendingAccounts: [], reports: [], shadowDeleted: [], notifications: [] };
+  }
+};
+
+const writeStaff = (data) => {
+  try {
+    fs.writeFileSync(STAFF_FILE, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Error writing staff.json:', err);
+  }
+};
+
+// Staff Login - verify 3 passwords
+app.post('/staff/login', (req, res) => {
+  try {
+    const { employeeId, password1, password2, password3 } = req.body;
+    
+    if (!employeeId || !password1 || !password2 || !password3) {
+      return res.status(400).json({ error: 'Missing credentials' });
+    }
+
+    const staff = readStaff();
+    const employee = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    if (!employee) {
+      return res.status(401).json({ error: 'Employee not found' });
+    }
+
+    if (employee.status !== 'active') {
+      return res.status(401).json({ error: 'Account inactive' });
+    }
+
+    // Check all 3 passwords
+    const pwd1Match = password1 === employee.passwords[0];
+    const pwd2Match = password2 === employee.passwords[1];
+    const pwd3Match = password3 === employee.passwords[2];
+
+    if (!pwd1Match || !pwd2Match || !pwd3Match) {
+      return res.status(401).json({ error: 'Incorrect credentials' });
+    }
+
+    return res.json({
+      success: true,
+      employee: {
+        id: employee.id,
+        name: employee.name,
+        email: employee.email,
+        role: employee.role
+      }
+    });
+  } catch (err) {
+    console.error('Staff login error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Create staff account (requires approval)
+app.post('/staff/create-account', (req, res) => {
+  try {
+    const { employeeId, password1, password2, password3, name, email } = req.body;
+
+    if (!employeeId || !password1 || !password2 || !password3 || !name || !email) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const staff = readStaff();
+
+    // Check if employee already exists
+    const exists = staff.employees.find(e => e.id === parseInt(employeeId));
+    if (exists) {
+      return res.status(400).json({ error: 'Employee ID already exists' });
+    }
+
+    // Check if pending request exists
+    const pending = staff.pendingAccounts.find(p => p.employeeId === parseInt(employeeId));
+    if (pending) {
+      return res.status(400).json({ error: 'Pending request already exists' });
+    }
+
+    // Create pending account
+    const newPending = {
+      employeeId: parseInt(employeeId),
+      name,
+      email,
+      passwords: [password1, password2, password3],
+      createdAt: new Date().toISOString(),
+      status: 'pending'
+    };
+
+    staff.pendingAccounts.push(newPending);
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Account request submitted for approval' });
+  } catch (err) {
+    console.error('Create account error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get pending accounts (admin only - ID 1000)
+app.get('/staff/pending-accounts', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    return res.json({ pendingAccounts: staff.pendingAccounts });
+  } catch (err) {
+    console.error('Get pending accounts error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Approve/Deny account (admin only - ID 1000)
+app.post('/staff/approve-account', (req, res) => {
+  try {
+    const { employeeId, pendingId, approve } = req.body;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const pendingIdx = staff.pendingAccounts.findIndex(p => p.employeeId === parseInt(pendingId));
+
+    if (pendingIdx === -1) {
+      return res.status(404).json({ error: 'Pending account not found' });
+    }
+
+    if (approve) {
+      // Add to employees
+      const pending = staff.pendingAccounts[pendingIdx];
+      const nextId = Math.max(...staff.employees.map(e => e.id)) + 1;
+      
+      staff.employees.push({
+        id: pending.employeeId,
+        name: pending.name,
+        email: pending.email,
+        role: 'moderator',
+        passwords: pending.passwords,
+        createdAt: new Date().toISOString(),
+        status: 'active'
+      });
+    }
+
+    // Remove from pending
+    staff.pendingAccounts.splice(pendingIdx, 1);
+    writeStaff(staff);
+
+    return res.json({ success: true, message: approve ? 'Account approved' : 'Account denied' });
+  } catch (err) {
+    console.error('Approve account error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get report queue
+app.get('/staff/reports', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+    
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const employee = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    if (!employee) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    return res.json({ reports: staff.reports || [] });
+  } catch (err) {
+    console.error('Get reports error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Report video
+app.post('/videos/:id/report', (req, res) => {
+  try {
+    const { videoId, reason, reportedBy } = req.body;
+    const staff = readStaff();
+
+    const report = {
+      id: `report-${Date.now()}`,
+      videoId: videoId || req.params.id,
+      reason,
+      reportedBy,
+      createdAt: new Date().toISOString(),
+      status: 'pending'
+    };
+
+    if (!staff.reports) staff.reports = [];
+    staff.reports.push(report);
+    writeStaff(staff);
+
+    return res.json({ success: true, report });
+  } catch (err) {
+    console.error('Report error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Shadow delete video (hides without permanent deletion)
+app.post('/staff/shadow-delete/:videoId', (req, res) => {
+  try {
+    const { employeeId, reason } = req.body;
+    const videoId = req.params.videoId;
+
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
+    const video = videos.find(v => v.id === videoId);
+
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    // Mark as shadow deleted
+    video.shadowDeleted = true;
+    video.shadowDeletedBy = parseInt(employeeId);
+    video.shadowDeletedAt = new Date().toISOString();
+    video.shadowDeleteReason = reason;
+
+    fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2));
+
+    // Track in staff file
+    const staff = readStaff();
+    if (!staff.shadowDeleted) staff.shadowDeleted = [];
+    staff.shadowDeleted.push({
+      videoId,
+      deletedBy: parseInt(employeeId),
+      reason,
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Video shadow deleted' });
+  } catch (err) {
+    console.error('Shadow delete error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get user history (how many times flagged)
+app.get('/staff/user-history/:userId', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+    
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const userId = req.params.userId;
+    
+    const userReports = (staff.reports || []).filter(r => r.reportedBy === userId || r.videoId.includes(userId));
+    const flagCount = userReports.length;
+
+    return res.json({
+      userId,
+      flagCount,
+      reports: userReports
+    });
+  } catch (err) {
+    console.error('User history error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get all videos (admin)
+app.get('/staff/videos', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
+    return res.json({ videos });
+  } catch (err) {
+    console.error('Get videos error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get all users (admin) 
+app.get('/staff/users', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const users = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    return res.json({ users });
+  } catch (err) {
+    console.error('Get users error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete video (admin)
+app.delete('/staff/delete-video/:videoId', (req, res) => {
+  try {
+    const { employeeId, reason } = req.body;
+    const videoId = req.params.videoId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
+    const videoIndex = videos.findIndex(v => v.id === videoId);
+
+    if (videoIndex === -1) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    const deletedVideo = videos.splice(videoIndex, 1)[0];
+    fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2));
+
+    // Log deletion
+    const staff = readStaff();
+    if (!staff.deletionLog) staff.deletionLog = [];
+    staff.deletionLog.push({
+      type: 'video',
+      id: videoId,
+      reason,
+      deletedBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Video deleted' });
+  } catch (err) {
+    console.error('Delete video error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Hide video (admin)
+app.post('/staff/hide-video/:videoId', (req, res) => {
+  try {
+    const { employeeId, reason } = req.body;
+    const videoId = req.params.videoId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
+    const video = videos.find(v => v.id === videoId);
+
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    video.hidden = true;
+    video.hiddenReason = reason;
+    video.hiddenBy = parseInt(employeeId);
+    video.hiddenAt = new Date().toISOString();
+    fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2));
+
+    // Log hiding
+    const staff = readStaff();
+    if (!staff.hiddenLog) staff.hiddenLog = [];
+    staff.hiddenLog.push({
+      type: 'video',
+      id: videoId,
+      reason,
+      hiddenBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Video hidden' });
+  } catch (err) {
+    console.error('Hide video error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get all requests (admin)
+app.get('/staff/requests', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const requests = JSON.parse(fs.readFileSync(REQUESTS_FILE, 'utf8'));
+    return res.json({ requests });
+  } catch (err) {
+    console.error('Get requests error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete request (admin)
+app.delete('/staff/delete-request/:requestId', (req, res) => {
+  try {
+    const { employeeId, reason } = req.body;
+    const requestId = req.params.requestId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let requests = JSON.parse(fs.readFileSync(REQUESTS_FILE, 'utf8'));
+    const requestIndex = requests.findIndex(r => r.id === requestId);
+
+    if (requestIndex === -1) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    const deletedRequest = requests.splice(requestIndex, 1)[0];
+    fs.writeFileSync(REQUESTS_FILE, JSON.stringify(requests, null, 2));
+
+    // Log deletion
+    const staff = readStaff();
+    if (!staff.deletionLog) staff.deletionLog = [];
+    staff.deletionLog.push({
+      type: 'request',
+      id: requestId,
+      reason,
+      deletedBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Request deleted' });
+  } catch (err) {
+    console.error('Delete request error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Hide request (admin)
+app.post('/staff/hide-request/:requestId', (req, res) => {
+  try {
+    const { employeeId, reason } = req.body;
+    const requestId = req.params.requestId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let requests = JSON.parse(fs.readFileSync(REQUESTS_FILE, 'utf8'));
+    const request = requests.find(r => r.id === requestId);
+
+    if (!request) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    request.hidden = true;
+    request.hiddenReason = reason;
+    request.hiddenBy = parseInt(employeeId);
+    request.hiddenAt = new Date().toISOString();
+    fs.writeFileSync(REQUESTS_FILE, JSON.stringify(requests, null, 2));
+
+    // Log hiding
+    const staff = readStaff();
+    if (!staff.hiddenLog) staff.hiddenLog = [];
+    staff.hiddenLog.push({
+      type: 'request',
+      id: requestId,
+      reason,
+      hiddenBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Request hidden' });
+  } catch (err) {
+    console.error('Hide request error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get all comments (admin)
+app.get('/staff/comments', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const comments = JSON.parse(fs.readFileSync(COMMENTS_FILE, 'utf8'));
+    return res.json({ comments });
+  } catch (err) {
+    console.error('Get comments error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete comment (admin)
+app.delete('/staff/delete-comment/:commentId', (req, res) => {
+  try {
+    const { employeeId, reason } = req.body;
+    const commentId = req.params.commentId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let comments = JSON.parse(fs.readFileSync(COMMENTS_FILE, 'utf8'));
+    const commentIndex = comments.findIndex(c => c.id === commentId);
+
+    if (commentIndex === -1) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    const deletedComment = comments.splice(commentIndex, 1)[0];
+    fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
+
+    // Log deletion
+    const staff = readStaff();
+    if (!staff.deletionLog) staff.deletionLog = [];
+    staff.deletionLog.push({
+      type: 'comment',
+      id: commentId,
+      reason,
+      deletedBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Comment deleted' });
+  } catch (err) {
+    console.error('Delete comment error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Hide comment (admin)
+app.post('/staff/hide-comment/:commentId', (req, res) => {
+  try {
+    const { employeeId, reason } = req.body;
+    const commentId = req.params.commentId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let comments = JSON.parse(fs.readFileSync(COMMENTS_FILE, 'utf8'));
+    const comment = comments.find(c => c.id === commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    comment.hidden = true;
+    comment.hiddenReason = reason;
+    comment.hiddenBy = parseInt(employeeId);
+    comment.hiddenAt = new Date().toISOString();
+    fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
+
+    // Log hiding
+    const staff = readStaff();
+    if (!staff.hiddenLog) staff.hiddenLog = [];
+    staff.hiddenLog.push({
+      type: 'comment',
+      id: commentId,
+      reason,
+      hiddenBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Comment hidden' });
+  } catch (err) {
+    console.error('Hide comment error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update video metadata (admin only)
+app.put('/staff/videos/:videoId', (req, res) => {
+  try {
+    const { employeeId, title, description, tags } = req.body;
+    
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
+    const video = videos.find(v => v.id === req.params.videoId);
+
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    if (title) video.title = title;
+    if (description) video.description = description;
+    if (tags) video.tags = tags;
+    video.modifiedBy = parseInt(employeeId);
+    video.modifiedAt = new Date().toISOString();
+
+    fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2));
+
+    return res.json({ success: true, video });
+  } catch (err) {
+    console.error('Update video error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Apply user action (warn, ban, shadow ban, delete) - admin only
+app.post('/staff/user-action/:userId', (req, res) => {
+  try {
+    const { employeeId, action, reason } = req.body;
+    const userId = req.params.userId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    const userIndex = users.findIndex(u => u.id === userId);
+
+    if (userIndex === -1) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = users[userIndex];
+
+    // Apply action based on type
+    switch(action) {
+      case 'warn':
+        user.warnings = (user.warnings || 0) + 1;
+        user.lastWarning = new Date().toISOString();
+        break;
+      case 'ban':
+        user.status = 'banned';
+        user.bannedAt = new Date().toISOString();
+        user.bannedReason = reason;
+        break;
+      case 'shadowban':
+        user.shadowBanned = true;
+        user.shadowBannedAt = new Date().toISOString();
+        user.shadowBanReason = reason;
+        break;
+      case 'delete':
+        // Mark for deletion instead of permanently deleting
+        user.status = 'deleted';
+        user.deletedAt = new Date().toISOString();
+        user.deletedReason = reason;
+        break;
+    }
+
+    users[userIndex] = user;
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+
+    // Log action
+    const staff = readStaff();
+    if (!staff.userActions) staff.userActions = [];
+    staff.userActions.push({
+      type: 'user',
+      userId: userId,
+      action: action,
+      reason: reason,
+      actionBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: `User ${action} applied`, user });
+  } catch (err) {
+    console.error('User action error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.listen(PORT, () => console.log(`Regaarder backend listening on ${PORT}`));
 

@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations.js';
-import { Home, Pencil, MoreHorizontal, ChevronLeft, User, ArrowRight, FileText, X, Eye, EyeOff, Video, CreditCard, Bell, Settings, LogOut, ChevronRight, Lock, Gift } from 'lucide-react';
+import { Home, Pencil, MoreHorizontal, ChevronLeft, User, ArrowRight, FileText, X, Eye, EyeOff, Video, CreditCard, Bell, Settings, LogOut, ChevronRight, Lock, Gift, Shield } from 'lucide-react';
+import StaffLoginModal from './StaffLoginModal.jsx';
 
 // Theme is now provided globally via ThemeProvider; per-page custom CSS vars removed
 
@@ -162,6 +163,7 @@ const MorePage = () => {
     const navigate = useNavigate();
     const auth = useAuth();
     const [showCreatorGate, setShowCreatorGate] = useState(false);
+    const [showStaffLogin, setShowStaffLogin] = useState(false);
 
     // Notification badge: read count from localStorage (kept by home.jsx) and poll periodically so the More page shows it
     const [notifCount, setNotifCount] = useState(() => {
@@ -191,6 +193,7 @@ const MorePage = () => {
       { icon: CreditCard, label: 'Payment Methods', href: '#' },
       { icon: Bell, label: 'Notifications', href: '/notifications?from=more', badge: notifCount },
       { icon: Settings, label: 'Help & Support', href: '#' },
+      { icon: Shield, label: 'Staff', href: '#', isStaff: true },
     ];
 
     return (
@@ -199,6 +202,10 @@ const MorePage = () => {
           <button
             key={index}
             onClick={() => {
+              // Handle staff button
+              if (item.isStaff) {
+                return setShowStaffLogin(true);
+              }
               // Allow Help & Support to be public; protect everything else
               if (item.label !== 'Help & Support' && !auth?.user) return auth.openAuthModal();
               // If the user is signed-in but hasn't completed creator onboarding, gate Creator Profile
@@ -263,6 +270,17 @@ const MorePage = () => {
             <span className="text-red-500 font-medium text-base">{getTranslation('Log Out', selectedLanguage)}</span>
           </button>
         </div>
+
+        {/* Staff Login Modal */}
+        <StaffLoginModal
+          isOpen={showStaffLogin}
+          onClose={() => setShowStaffLogin(false)}
+          onLoginSuccess={(employee) => {
+            setShowStaffLogin(false);
+            navigate('/staff');
+          }}
+        />
+
         {/* Creator gating modal */}
         {showCreatorGate && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowCreatorGate(false)}>

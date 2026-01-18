@@ -35,7 +35,11 @@
     },
     "claimedAt": "2026-01-18T02:07:39.334Z",
     "currentStep": 6,
-    "updatedAt": "2026-01-18T05:40:19.475Z"
+    "updatedAt": "2026-01-18T05:40:19.475Z",
+    "hidden": true,
+    "hiddenReason": "nnn",
+    "hiddenBy": 1000,
+    "hiddenAt": "2026-01-18T11:04:34.886Z"
   },
   {
     "id": "req_1768657708836",
@@ -73,7 +77,11 @@
     },
     "claimedAt": "2026-01-18T02:12:44.447Z",
     "currentStep": 6,
-    "updatedAt": "2026-01-18T05:40:10.583Z"
+    "updatedAt": "2026-01-18T05:40:10.583Z",
+    "hidden": true,
+    "hiddenReason": "jjj",
+    "hiddenBy": 1000,
+    "hiddenAt": "2026-01-18T11:04:48.793Z"
   },
   {
     "id": "req_1768657738398",
