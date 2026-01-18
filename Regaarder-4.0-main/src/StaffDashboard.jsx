@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Home, Users } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Home, Users, Zap, X } from 'lucide-react';
 
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
@@ -21,6 +21,11 @@ export default function StaffDashboard() {
   const [actionModal, setActionModal] = useState({ isOpen: false, itemId: null, itemType: null });
   const [reasonModal, setReasonModal] = useState({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
   const [userActionModal, setUserActionModal] = useState({ isOpen: false, userId: null, action: null });
+  const [promotionModal, setPromotionModal] = useState({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer' });
+  const [selectedActionType, setSelectedActionType] = useState(null);
+  const [notificationPreview, setNotificationPreview] = useState(null);
+  const [banType, setBanType] = useState('permanent');
+  const [banDuration, setBanDuration] = useState({ value: 7, unit: 'days' });
 
   useEffect(() => {
     const session = localStorage.getItem('staffSession');
@@ -330,7 +335,11 @@ export default function StaffDashboard() {
         body: JSON.stringify({
           employeeId: staffSession.id,
           action: action,
-          reason
+          reason,
+          ...(action === 'ban' && {
+            banType: banType,
+            banDuration: banType === 'temporary' ? banDuration : null
+          })
         })
       });
 
@@ -339,6 +348,10 @@ export default function StaffDashboard() {
         if (staffSession) loadData(staffSession);
         setUserActionModal({ isOpen: false, userId: null, action: null });
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
+        setSelectedActionType(null);
+        setNotificationPreview(null);
+        setBanType('permanent');
+        setBanDuration({ value: 7, unit: 'days' });
         setError('');
       } else {
         setError('Failed to apply user action');
@@ -347,6 +360,79 @@ export default function StaffDashboard() {
       console.error('User action failed:', err);
       setError('Error applying user action');
     }
+  };
+
+  const handleSendPromotion = async () => {
+    if (!promotionModal.title.trim() || !promotionModal.message.trim()) {
+      setError('Please fill in all promotion fields');
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:4000/staff/send-promotion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id,
+          title: promotionModal.title,
+          message: promotionModal.message,
+          promotionType: promotionModal.promotionType,
+          recipientType: promotionModal.recipientType,
+          selectedUsers: promotionModal.recipientType === 'individual' ? promotionModal.selectedUsers : null
+        })
+      });
+
+      if (res.ok) {
+        setPromotionModal({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer' });
+        setError('');
+        alert('Promotion sent successfully!');
+      } else {
+        setError('Failed to send promotion');
+      }
+    } catch (err) {
+      console.error('Promotion send failed:', err);
+      setError('Error sending promotion');
+    }
+  };
+
+  const handleNotificationPreview = (actionType, reason) => {
+    let banMessage = '';
+    if (actionType === 'ban') {
+      if (banType === 'temporary') {
+        const durationText = banDuration.value === 1 ? banDuration.unit.slice(0, -1) : banDuration.unit;
+        banMessage = `Your account has been temporarily banned for ${banDuration.value} ${durationText}.\n\nReason: ${reason || 'Violating terms of service'}`;
+      } else {
+        banMessage = `Your account has been permanently banned.\n\nReason: ${reason || 'Violating terms of service'}`;
+      }
+    }
+
+    const previews = {
+      warn: {
+        title: '⚠️ Warning Notice',
+        message: `Your account has received a warning for violating community guidelines.\n\nReason: ${reason || 'Violating community guidelines'}`,
+        color: '#f59e0b',
+        icon: '⚠️'
+      },
+      ban: {
+        title: '🚫 Account Banned',
+        message: banMessage,
+        color: '#ef4444',
+        icon: '🚫'
+      },
+      shadowban: {
+        title: '👁️ Content Restricted',
+        message: `Your content visibility has been restricted.\n\nReason: ${reason || 'Content violates guidelines'}`,
+        color: '#6b7280',
+        icon: '👁️'
+      },
+      delete: {
+        title: '🗑️ Account Deleted',
+        message: `Your account and all associated content have been permanently deleted.\n\nReason: ${reason || 'Severe violation of terms of service'}`,
+        color: '#8b5cf6',
+        icon: '🗑️'
+      }
+    };
+    setNotificationPreview(previews[actionType] || null);
   };
 
   if (!staffSession) {
@@ -1693,31 +1779,817 @@ export default function StaffDashboard() {
             padding: '32px',
             maxWidth: '500px',
             width: '90%',
-            boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)'
+            boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)',
+            maxHeight: '90vh',
+            overflowY: 'auto'
           }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px 0', color: '#1f2937' }}>
-              Apply Action to User
-            </h2>
-            <p style={{ fontSize: '14px', color: '#666', margin: '0 0 24px 0' }}>
-              Please provide a reason for this action
-            </p>
-            <textarea
-              value={reasonModal.reason}
-              onChange={(e) => setReasonModal({ ...reasonModal, reason: e.target.value })}
-              placeholder="Enter your reason here..."
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '2px solid #e5e7eb',
+            {!selectedActionType ? (
+              <>
+                <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px 0', color: '#1f2937' }}>
+                  Apply Action to User
+                </h2>
+                <p style={{ fontSize: '14px', color: '#666', margin: '0 0 24px 0' }}>
+                  Select an action to apply to this user
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button
+                    onClick={() => setSelectedActionType('warn')}
+                    style={{
+                      padding: '12px 16px',
+                      backgroundColor: '#f59e0b',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  >
+                    ⚠️ Send Warning
+                  </button>
+                  <button
+                    onClick={() => setSelectedActionType('ban')}
+                    style={{
+                      padding: '12px 16px',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  >
+                    🚫 Ban User
+                  </button>
+                  <button
+                    onClick={() => setSelectedActionType('shadowban')}
+                    style={{
+                      padding: '12px 16px',
+                      backgroundColor: '#6b7280',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  >
+                    👁️ Shadow Ban User
+                  </button>
+                  <button
+                    onClick={() => setSelectedActionType('delete')}
+                    style={{
+                      padding: '12px 16px',
+                      backgroundColor: '#8b5cf6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  >
+                    🗑️ Delete User Account
+                  </button>
+                  <button
+                    onClick={() => {
+                      setUserActionModal({ isOpen: false, userId: null, action: null });
+                      setSelectedActionType(null);
+                      setNotificationPreview(null);
+                      setBanType('permanent');
+                      setBanDuration({ value: 7, unit: 'days' });
+                    }}
+                    style={{
+                      padding: '12px 16px',
+                      backgroundColor: '#e5e7eb',
+                      color: '#374151',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+                    onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px 0', color: '#1f2937' }}>
+                  {selectedActionType === 'warn' && '⚠️ Send Warning'}
+                  {selectedActionType === 'ban' && '🚫 Ban User'}
+                  {selectedActionType === 'shadowban' && '👁️ Shadow Ban User'}
+                  {selectedActionType === 'delete' && '🗑️ Delete User Account'}
+                </h2>
+                <p style={{ fontSize: '14px', color: '#666', margin: '0 0 16px 0' }}>
+                  Select a reason or provide a custom one. The preview below shows exactly how users will see this.
+                </p>
+
+                {/* Ban Type Selector (Only for ban action) */}
+                {selectedActionType === 'ban' && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', margin: '0 0 8px 0' }}>BAN TYPE</p>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <button
+                        onClick={() => setBanType('temporary')}
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          backgroundColor: banType === 'temporary' ? '#ef4444' : '#f3f4f6',
+                          color: banType === 'temporary' ? 'white' : '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        ⏰ Temporary
+                      </button>
+                      <button
+                        onClick={() => setBanType('permanent')}
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          backgroundColor: banType === 'permanent' ? '#ef4444' : '#f3f4f6',
+                          color: banType === 'permanent' ? 'white' : '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        ♾️ Permanent
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Ban Duration Selector (Only for temporary bans) */}
+                {selectedActionType === 'ban' && banType === 'temporary' && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', margin: '0 0 8px 0' }}>BAN DURATION</p>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <input
+                        type="number"
+                        value={banDuration.value}
+                        onChange={(e) => setBanDuration({ ...banDuration, value: parseInt(e.target.value) || 1 })}
+                        min="1"
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '6px',
+                          fontSize: '13px',
+                          fontFamily: 'inherit',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      <select
+                        value={banDuration.unit}
+                        onChange={(e) => setBanDuration({ ...banDuration, unit: e.target.value })}
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '6px',
+                          fontSize: '13px',
+                          fontFamily: 'inherit',
+                          cursor: 'pointer',
+                          backgroundColor: 'white'
+                        }}
+                      >
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                        <option value="weeks">Weeks</option>
+                        <option value="months">Months</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Reason Templates */}
+                <div style={{ marginBottom: '16px' }}>
+                  <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', margin: '0 0 8px 0' }}>COMMON REASONS</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {selectedActionType === 'warn' && [
+                      'Violating community guidelines',
+                      'Spam or repetitive posting',
+                      'Misleading or false information',
+                      'Inappropriate language or behavior'
+                    ].map((template) => (
+                      <button
+                        key={template}
+                        onClick={() => {
+                          setReasonModal({ ...reasonModal, reason: template });
+                          handleNotificationPreview(selectedActionType, template);
+                        }}
+                        style={{
+                          padding: '10px 12px',
+                          backgroundColor: reasonModal.reason === template ? '#f59e0b' : '#f3f4f6',
+                          color: reasonModal.reason === template ? 'white' : '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          textAlign: 'left',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (reasonModal.reason !== template) {
+                            e.target.style.backgroundColor = '#e5e7eb';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (reasonModal.reason !== template) {
+                            e.target.style.backgroundColor = '#f3f4f6';
+                          }
+                        }}
+                      >
+                        {template}
+                      </button>
+                    ))}
+                    {selectedActionType === 'ban' && [
+                      'Severe violation of terms of service',
+                      'Repeated harassment or abuse',
+                      'Copyright infringement',
+                      'Illegal activity detected'
+                    ].map((template) => (
+                      <button
+                        key={template}
+                        onClick={() => {
+                          setReasonModal({ ...reasonModal, reason: template });
+                          handleNotificationPreview(selectedActionType, template);
+                        }}
+                        style={{
+                          padding: '10px 12px',
+                          backgroundColor: reasonModal.reason === template ? '#ef4444' : '#f3f4f6',
+                          color: reasonModal.reason === template ? 'white' : '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          textAlign: 'left',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (reasonModal.reason !== template) {
+                            e.target.style.backgroundColor = '#e5e7eb';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (reasonModal.reason !== template) {
+                            e.target.style.backgroundColor = '#f3f4f6';
+                          }
+                        }}
+                      >
+                        {template}
+                      </button>
+                    ))}
+                    {selectedActionType === 'shadowban' && [
+                      'Content violates platform guidelines',
+                      'Suspected artificial engagement',
+                      'Low-quality or repetitive content',
+                      'Restricted for review'
+                    ].map((template) => (
+                      <button
+                        key={template}
+                        onClick={() => {
+                          setReasonModal({ ...reasonModal, reason: template });
+                          handleNotificationPreview(selectedActionType, template);
+                        }}
+                        style={{
+                          padding: '10px 12px',
+                          backgroundColor: reasonModal.reason === template ? '#6b7280' : '#f3f4f6',
+                          color: reasonModal.reason === template ? 'white' : '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          textAlign: 'left',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (reasonModal.reason !== template) {
+                            e.target.style.backgroundColor = '#e5e7eb';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (reasonModal.reason !== template) {
+                            e.target.style.backgroundColor = '#f3f4f6';
+                          }
+                        }}
+                      >
+                        {template}
+                      </button>
+                    ))}
+                    {selectedActionType === 'delete' && [
+                      'Severe violation of terms of service',
+                      'Repeated policy violations after warnings',
+                      'Harmful or illegal content',
+                      'Account used for malicious purposes'
+                    ].map((template) => (
+                      <button
+                        key={template}
+                        onClick={() => {
+                          setReasonModal({ ...reasonModal, reason: template });
+                          handleNotificationPreview(selectedActionType, template);
+                        }}
+                        style={{
+                          padding: '10px 12px',
+                          backgroundColor: reasonModal.reason === template ? '#8b5cf6' : '#f3f4f6',
+                          color: reasonModal.reason === template ? 'white' : '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          textAlign: 'left',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (reasonModal.reason !== template) {
+                            e.target.style.backgroundColor = '#e5e7eb';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (reasonModal.reason !== template) {
+                            e.target.style.backgroundColor = '#f3f4f6';
+                          }
+                        }}
+                      >
+                        {template}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Reason Input */}
+                <div style={{ marginBottom: '16px' }}>
+                  <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', margin: '0 0 8px 0' }}>CUSTOM REASON (OPTIONAL)</p>
+                  <textarea
+                    value={reasonModal.reason}
+                    onChange={(e) => {
+                      setReasonModal({ ...reasonModal, reason: e.target.value });
+                      handleNotificationPreview(selectedActionType, e.target.value);
+                    }}
+                    placeholder="Or type a custom reason here..."
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontFamily: 'inherit',
+                      boxSizing: 'border-box',
+                      minHeight: '80px',
+                      marginBottom: '16px',
+                      resize: 'none'
+                    }}
+                  />
+                </div>
+
+                {/* Notification Preview */}
+                {notificationPreview && (
+                  <div style={{
+                    marginBottom: '16px'
+                  }}>
+                    <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', margin: '0 0 12px 0' }}>HOW USERS WILL SEE THIS</p>
+                    <div style={{
+                      backgroundColor: '#f0f4f8',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                      border: '1px solid #e5e7eb'
+                    }}>
+                      <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        padding: '24px',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        border: `1px solid ${notificationPreview.color}33`
+                      }}>
+                        {/* Close Button */}
+                        <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+                          <span style={{
+                            fontSize: '20px',
+                            color: '#9ca3af',
+                            cursor: 'pointer',
+                            fontWeight: 'bold'
+                          }}>✕</span>
+                        </div>
+
+                        {/* Icon */}
+                        <div style={{
+                          textAlign: 'center',
+                          marginBottom: '16px'
+                        }}>
+                          <div style={{
+                            fontSize: '48px',
+                            width: '70px',
+                            height: '70px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: notificationPreview.color,
+                            borderRadius: '50%',
+                            color: 'white',
+                            margin: '0 auto',
+                            boxShadow: `0 4px 12px ${notificationPreview.color}40`
+                          }}>
+                            {notificationPreview.icon}
+                          </div>
+                        </div>
+
+                        {/* Title */}
+                        <h3 style={{
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          margin: '0 0 12px 0',
+                          color: '#1f2937',
+                          textAlign: 'center',
+                          letterSpacing: '-0.5px'
+                        }}>
+                          {notificationPreview.title}
+                        </h3>
+
+                        {/* Message */}
+                        <p style={{
+                          fontSize: '14px',
+                          color: '#4b5563',
+                          margin: '0',
+                          lineHeight: '1.6',
+                          whiteSpace: 'pre-wrap',
+                          textAlign: 'center'
+                        }}>
+                          {notificationPreview.message}
+                        </p>
+
+                        {/* Action Buttons */}
+                        {selectedActionType === 'warn' && (
+                          <button style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            backgroundColor: '#f59e0b',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            marginTop: '16px',
+                            transition: 'opacity 0.2s'
+                          }}>
+                            Acknowledge
+                          </button>
+                        )}
+                        {selectedActionType === 'shadowban' && (
+                          <button style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            backgroundColor: '#6b7280',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            marginTop: '16px',
+                            transition: 'opacity 0.2s'
+                          }}>
+                            Learn More
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div style={{
+                    padding: '12px',
+                    backgroundColor: '#fee2e2',
+                    border: '1px solid #fca5a5',
+                    borderRadius: '8px',
+                    color: '#dc2626',
+                    fontSize: '13px',
+                    marginBottom: '16px'
+                  }}>
+                    {error}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button
+                    onClick={() => handleUserAction(selectedActionType)}
+                    style={{
+                      padding: '12px 16px',
+                      backgroundColor: selectedActionType === 'warn' ? '#f59e0b' : selectedActionType === 'ban' ? '#ef4444' : selectedActionType === 'delete' ? '#8b5cf6' : '#6b7280',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  >
+                    Confirm Action
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedActionType(null);
+                      setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
+                      setNotificationPreview(null);
+                      setBanType('permanent');
+                      setBanDuration({ value: 7, unit: 'days' });
+                    }}
+                    style={{
+                      padding: '12px 16px',
+                      backgroundColor: '#e5e7eb',
+                      color: '#374151',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+                    onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  >
+                    Back
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+          {/* Ads & Promotions Tab */}
+          {activeTab === 'ads' && (
+            <div>
+              <div style={{ marginBottom: '24px' }}>
+                <button
+                  onClick={() => setPromotionModal({ ...promotionModal, isOpen: true })}
+                  style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#f59e0b',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    transition: 'opacity 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                  onMouseLeave={(e) => e.target.style.opacity = '1'}
+                >
+                  + Send New Promotion
+                </button>
+              </div>
+              <div style={{
+                padding: '32px',
+                textAlign: 'center',
+                backgroundColor: '#f3f4f6',
                 borderRadius: '8px',
-                fontSize: '14px',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-                minHeight: '120px',
-                marginBottom: '24px',
-                resize: 'none'
-              }}
-            />
+                color: '#9ca3af'
+              }}>
+                <Zap size={48} style={{ margin: '0 auto 16px' }} />
+                <p>No promotions sent yet. Create one to engage users with special offers!</p>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* Promotion Modal */}
+        {promotionModal.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(2px)',
+          WebkitBackdropFilter: 'blur(2px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '32px',
+            maxWidth: '600px',
+            width: '90%',
+            boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0', color: '#1f2937' }}>
+                Create Promotion
+              </h2>
+              <button
+                onClick={() => setPromotionModal({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer' })}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#9ca3af',
+                  padding: '0'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
+                Promotion Type
+              </label>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => setPromotionModal({ ...promotionModal, promotionType: 'offer' })}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    backgroundColor: promotionModal.promotionType === 'offer' ? '#f59e0b' : '#f3f4f6',
+                    color: promotionModal.promotionType === 'offer' ? 'white' : '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  💰 Special Offer
+                </button>
+                <button
+                  onClick={() => setPromotionModal({ ...promotionModal, promotionType: 'announcement' })}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    backgroundColor: promotionModal.promotionType === 'announcement' ? '#3b82f6' : '#f3f4f6',
+                    color: promotionModal.promotionType === 'announcement' ? 'white' : '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  📢 Announcement
+                </button>
+                <button
+                  onClick={() => setPromotionModal({ ...promotionModal, promotionType: 'feature' })}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    backgroundColor: promotionModal.promotionType === 'feature' ? '#10b981' : '#f3f4f6',
+                    color: promotionModal.promotionType === 'feature' ? 'white' : '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  ⭐ Featured
+                </button>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
+                Title
+              </label>
+              <input
+                type="text"
+                value={promotionModal.title}
+                onChange={(e) => setPromotionModal({ ...promotionModal, title: e.target.value })}
+                placeholder="e.g., New Feature Launch, 50% Off Boost..."
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
+                Message
+              </label>
+              <textarea
+                value={promotionModal.message}
+                onChange={(e) => setPromotionModal({ ...promotionModal, message: e.target.value })}
+                placeholder="Describe the promotion or announcement..."
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box',
+                  minHeight: '100px',
+                  resize: 'none'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
+                Send To
+              </label>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => setPromotionModal({ ...promotionModal, recipientType: 'all' })}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    backgroundColor: promotionModal.recipientType === 'all' ? '#10b981' : '#f3f4f6',
+                    color: promotionModal.recipientType === 'all' ? 'white' : '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  📢 All Users
+                </button>
+                <button
+                  onClick={() => setPromotionModal({ ...promotionModal, recipientType: 'creators' })}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    backgroundColor: promotionModal.recipientType === 'creators' ? '#10b981' : '#f3f4f6',
+                    color: promotionModal.recipientType === 'creators' ? 'white' : '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  👑 Creators Only
+                </button>
+                <button
+                  onClick={() => setPromotionModal({ ...promotionModal, recipientType: 'individual' })}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    backgroundColor: promotionModal.recipientType === 'individual' ? '#10b981' : '#f3f4f6',
+                    color: promotionModal.recipientType === 'individual' ? 'white' : '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  👤 Select Users
+                </button>
+              </div>
+            </div>
+
             {error && (
               <div style={{
                 padding: '12px',
@@ -1731,9 +2603,10 @@ export default function StaffDashboard() {
                 {error}
               </div>
             )}
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button
-                onClick={() => handleUserAction('warn')}
+                onClick={handleSendPromotion}
                 style={{
                   padding: '12px 16px',
                   backgroundColor: '#f59e0b',
@@ -1748,67 +2621,10 @@ export default function StaffDashboard() {
                 onMouseEnter={(e) => e.target.style.opacity = '0.9'}
                 onMouseLeave={(e) => e.target.style.opacity = '1'}
               >
-                Send Warning
+                Send Promotion
               </button>
               <button
-                onClick={() => handleUserAction('ban')}
-                style={{
-                  padding: '12px 16px',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  transition: 'opacity 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                onMouseLeave={(e) => e.target.style.opacity = '1'}
-              >
-                Ban User
-              </button>
-              <button
-                onClick={() => handleUserAction('shadowban')}
-                style={{
-                  padding: '12px 16px',
-                  backgroundColor: '#6b7280',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  transition: 'opacity 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                onMouseLeave={(e) => e.target.style.opacity = '1'}
-              >
-                Shadow Ban User
-              </button>
-              <button
-                onClick={() => handleUserAction('delete')}
-                style={{
-                  padding: '12px 16px',
-                  backgroundColor: '#8b5cf6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  transition: 'opacity 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                onMouseLeave={(e) => e.target.style.opacity = '1'}
-              >
-                Delete User Account
-              </button>
-              <button
-                onClick={() => {
-                  setUserActionModal({ isOpen: false, userId: null, action: null });
-                  setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
-                }}
+                onClick={() => setPromotionModal({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer' })}
                 style={{
                   padding: '12px 16px',
                   backgroundColor: '#e5e7eb',
@@ -1828,11 +2644,7 @@ export default function StaffDashboard() {
             </div>
           </div>
         </div>
-      )}
-
-    </div>
-
-    {/* Footer - Fixed at bottom like normal app footer */}
+        )}
     <footer style={{
       position: 'fixed',
       bottom: 0,
@@ -1880,6 +2692,41 @@ export default function StaffDashboard() {
       >
         <Home size={24} />
         <span>Home</span>
+      </button>
+      <button
+        onClick={() => setActiveTab('ads')}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0',
+          width: '50px',
+          height: '50px',
+          backgroundColor: activeTab === 'ads' ? '#f0f4f8' : 'transparent',
+          color: activeTab === 'ads' ? '#f59e0b' : '#666',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          transition: 'all 0.2s',
+          flexDirection: 'column',
+          gap: '4px'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#f0f4f8';
+          e.currentTarget.style.color = '#f59e0b';
+        }}
+        onMouseLeave={(e) => {
+          if (activeTab !== 'ads') {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = '#666';
+          }
+        }}
+        title="Manage Ads & Promotions"
+      >
+        <Zap size={24} />
+        <span>Ads</span>
       </button>
     </footer>
     </>
