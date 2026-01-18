@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, FileText, File as FileIcon, Pencil, MoreHorizontal, MoreVertical, Pin, Star, TrendingUp, Trophy, User, Zap, Video, Clock, BarChart, Upload, Lightbulb, Headphones, Copy, LineChart, CheckCircle, Search, Globe, Link2, Image, Lock, Link, Eye, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import RequestsFeed from './requests.jsx';
+import VideoOverlayEditor from './VideoOverlayEditor.jsx';
 import { getTranslation, translations } from './translations.js';
 
 // No per-page CSS vars here — let the page inherit the global :root variables
@@ -145,10 +146,10 @@ const Toast = ({ message, duration = 2000, bottom = true }) => {
 
     const positionClass = bottom
         ? 'bottom-6 left-1/2 transform -translate-x-1/2'
-        : 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2';
+        : 'top-1/2 left-1/2';
 
     return (
-        <div className={`fixed ${positionClass} z-50 pointer-events-auto ${exiting ? 'toast-exit' : 'toast-enter'}`}>
+        <div className={`fixed ${positionClass} z-50 pointer-events-auto ${exiting ? 'toast-exit' : 'toast-enter'}`} style={!bottom ? { transform: 'translate(-50%, -50%)' } : {}}>
             <style>{`
                 /* Bottom toast: slide up/out */
                 @keyframes toastInUp { from { transform: translateY(14px) scale(0.98); opacity: 0 } to { transform: translateY(0) scale(1); opacity: 1 } }
@@ -529,9 +530,10 @@ const ClaimStatusPanel = ({
     const seriesLimit = 5;
     const catalogueLimit = 5;
     const [lastPublished, setLastPublished] = useState(null);
-    // Two-step publish flow state: 'form' or 'preview'
+    // Two-step publish flow state: 'form', 'overlays', or 'preview'
     const [publishStep, setPublishStep] = useState('form');
     const [previewData, setPreviewData] = useState(null);
+    const [videoOverlays, setVideoOverlays] = useState([]);
     const [creatorName, setCreatorName] = useState('CreatorName');
     const [creatorHandle, setCreatorHandle] = useState(null);
     // If the parent requests a reupload, we'll open preview with this item
@@ -1020,13 +1022,16 @@ const ClaimStatusPanel = ({
                             <ChevronUp size={20} />
                         )}
                     </button>
-                    <button 
-                        onClick={() => setShowUnclaimModal(true)} 
-                        className="text-gray-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition"
-                        title="Unclaim request"
-                    >
-                        ✕
-                    </button>
+                    {/* Hide unclaim button for re-uploads from Published tab */}
+                    {!requestData?.sourceTab && (
+                        <button 
+                            onClick={() => setShowUnclaimModal(true)} 
+                            className="text-gray-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition"
+                            title="Unclaim request"
+                        >
+                            ✕
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -1287,10 +1292,10 @@ const ClaimStatusPanel = ({
 
                                     {/* Toast message (simple) inside modal container */}
                                     {toastMessage && (
-                                        <Toast message={toastMessage} bottom={false} />
+                                        <Toast message={toastMessage} bottom={true} />
                                     )}
 
-                                    {publishStep !== 'preview' && (
+                                    {publishStep === 'form' && (
                                         <>
                                             <div className="mb-6">
                                                 <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Upload Video', selectedLanguage)} <span className="text-red-500">*</span></div>
@@ -1639,7 +1644,36 @@ const ClaimStatusPanel = ({
                                                 </div>
                                             )}
 
+                                            {/* Video Overlay Editor - for adding interactive elements to public videos */}
+                                            <VideoOverlayEditor
+                                                videoFile={videoFile}
+                                                isPublic={appearance === 'public'}
+                                                onOverlaysChange={setVideoOverlays}
+                                                getTranslation={getTranslation}
+                                                selectedLanguage={selectedLanguage}
+                                            />
+
                                             {/* Duplicate CTA removed — fixed action area below handles Next/Cancel */}
+                                        </>
+                                    )}
+
+                                    {/* Overlays step - shown when publishStep === 'overlays' */}
+                                    {publishStep === 'overlays' && (
+                                        <>
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div>
+                                                    <h3 className="text-[20px] font-semibold text-gray-900">{getTranslation('Add Interactive Elements', selectedLanguage)}</h3>
+                                                    <div className="text-sm text-gray-400 mt-2">{getTranslation('Make your video more engaging with clickable links and images', selectedLanguage)}</div>
+                                                </div>
+                                            </div>
+
+                                            <VideoOverlayEditor
+                                                videoFile={videoFile}
+                                                isPublic={true}
+                                                onOverlaysChange={setVideoOverlays}
+                                                getTranslation={getTranslation}
+                                                selectedLanguage={selectedLanguage}
+                                            />
                                         </>
                                     )}
                                 </React.Fragment>
@@ -1744,7 +1778,7 @@ const ClaimStatusPanel = ({
                                                     return;
                                                 }
 
-                                                // prepare preview data and move to preview step
+                                                // prepare preview data and move to overlays step (if public) or preview step
                                                 setPreviewData({
                                                     title: videoTitle,
                                                     file: videoFile,
@@ -1754,13 +1788,31 @@ const ClaimStatusPanel = ({
                                                     category,
                                                     scriptType,
                                                 });
-                                                setPublishStep('preview');
+                                                // If video is public, show overlay editor. Otherwise skip to preview.
+                                                if (appearance === 'public') {
+                                                    setPublishStep('overlays');
+                                                } else {
+                                                    setPublishStep('preview');
+                                                }
                                             }}
                                             disabled={(videoFormat === 'one-time' && publishedCount >= 1) || (videoFormat === 'series' && publishedCount >= seriesLimit) || (videoFormat === 'catalogue' && publishedCount >= catalogueLimit)}
                                             className={`w-full bg-[var(--color-gold)] text-white px-4 py-3 rounded-lg font-semibold mb-3`}
                                         >
                                             {getTranslation('Next: Preview', selectedLanguage)}
                                         </button>
+                                        <button onClick={() => setShowModal(false)} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
+                                    </>
+                                ) : publishStep === 'overlays' ? (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                setPublishStep('preview');
+                                            }}
+                                            className={`w-full bg-[var(--color-gold)] text-white px-4 py-3 rounded-lg font-semibold mb-3`}
+                                        >
+                                            {getTranslation('Next: Preview', selectedLanguage)}
+                                        </button>
+                                        <button onClick={() => setPublishStep('form')} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white mb-3">{getTranslation('Back', selectedLanguage)}</button>
                                         <button onClick={() => setShowModal(false)} className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white">{getTranslation('Cancel', selectedLanguage)}</button>
                                     </>
                                 ) : (
@@ -1824,6 +1876,7 @@ const ClaimStatusPanel = ({
                                                         changeNote: changeNote || null,
                                                         appearance: appearance,
                                                         privateLink: appearance === 'private' ? `${window.location.origin}/?vid=${Date.now().toString() + '-' + Math.random().toString(36).slice(2)}` : null,
+                                                        overlays: videoOverlays && Array.isArray(videoOverlays) ? videoOverlays : [],
                                                     };
 
                                                     // POST to backend to save video
@@ -1934,7 +1987,8 @@ const ClaimStatusPanel = ({
                                                                 category: category || 'General',
                                                                 format: pd.format || videoFormat,
                                                                 time: videoDuration,
-                                                                requester: requesterName || null
+                                                                requester: requesterName || null,
+                                                                overlays: videoOverlays && Array.isArray(videoOverlays) ? videoOverlays : []
                                                             })
                                                         });
 
@@ -2145,7 +2199,7 @@ const ClaimStatusPanel = ({
                         })()}
                     </div>
 
-                    {/* Prominent success toast at bottom-center (uses Toast for animations) */}
+                    {/* Prominent success toast at center (uses Toast for animations) */}
                     <Toast message={"Your video has been successfully completed. We're proud of you !"} bottom={false} duration={3500} />
                 </>
             )}
@@ -2476,6 +2530,7 @@ const App = () => {
     }, []);
 
     const [pendingReuploadItem, setPendingReuploadItem] = useState(null);
+    const [collapsedRequests, setCollapsedRequests] = useState({}); // Track which requests are collapsed by ID
     const [claimsMinimized, setClaimsMinimized] = useState(false);
     // Published list stored in local state (backed by localStorage)
     const [publishedList, setPublishedList] = useState(() => {
@@ -2653,11 +2708,12 @@ const App = () => {
             requesterName: item?.requesterName || getTranslation('Requester', selectedLanguage),
             requesterAvatar: item?.requesterAvatar || null,
             currentStep: 5,
-            isReupload: true
+            isReupload: true,
+            sourceTab: 'Published' // Track that this re-upload came from Published tab
         };
         setClaimedRequests(prev => [newClaim, ...prev]);
-        setPendingReuploadItem({ ...item, targetClaimId: newId });
-        setActiveTopTab('Claims');
+        setPendingReuploadItem({ ...item, targetClaimId: newId, sourceTab: 'Published' });
+        // Stay on Published tab instead of switching to Claims
     };
 
     const handleStartUpload = () => {
@@ -2694,6 +2750,9 @@ const App = () => {
 
     // Called when the ClaimStatusPanel modal advances the status
     const handleUpdateClaimStatus = (nextStep, message, requestId) => {
+        // Get the request that's being updated
+        const requestBeingUpdated = claimedRequests.find(r => r.id === requestId);
+        
         setClaimedRequests((prev) => {
             return prev.map(req => {
                 if (req.id === requestId) {
@@ -2702,6 +2761,31 @@ const App = () => {
                 return req;
             });
         });
+        
+        // If this is the final step (completion), move to published
+        const stepsCount = 6; // Based on ClaimStatusPanel steps
+        if (nextStep >= stepsCount && requestBeingUpdated) {
+            setTimeout(() => {
+                // Remove from claims
+                setClaimedRequests(prev => prev.filter(r => r.id !== requestId));
+                
+                // Add to published list
+                const publishedItem = {
+                    id: requestBeingUpdated.id,
+                    title: requestBeingUpdated.title,
+                    description: requestBeingUpdated.description,
+                    funding: requestBeingUpdated.funding,
+                    requesterName: requestBeingUpdated.requesterName,
+                    requesterAvatar: requestBeingUpdated.requesterAvatar,
+                    format: requestBeingUpdated.format,
+                    completedAt: Date.now(),
+                    currentStep: nextStep,
+                    originalClaim: requestBeingUpdated
+                };
+                setPublishedList(prev => [publishedItem, ...prev]);
+            }, 2000);
+        }
+        
         // Ensure this request is considered active in the Requests list so
         // the Active Requests card and the Claims view reflect the update.
         try {
@@ -3236,26 +3320,50 @@ const App = () => {
                         </div>
                     ) : (
                         <div className="space-y-6">
-                            {claimedRequests.map((req) => (
-                                <ClaimStatusPanel
-                                    key={req.id || Math.random()}
-                                    title={req.title}
-                                    requesterName={req.requesterName}
-                                    requesterAvatar={req.requesterAvatar}
-                                    currentStep={req.currentStep || 1}
-                                    requestId={req.id}
-                                    requestData={req}
-                                    onClose={() => { }}
-                                    onUpdateProgress={(step, msg) => handleUpdateClaimStatus(step, msg, req.id)}
-                                    onUnclaim={(requestIdentifier) => {
-                                        // Remove the unclaimed request from claimedRequests using ID
-                                        setClaimedRequests(prev => prev.filter(r => r.id !== requestIdentifier));
-                                    }}
-                                    // Pass pendingReuploadItem ONLY if it targets this request (or if reupload has no target ID, pass to first/active?)
-                                    pendingReuploadItem={pendingReuploadItem && (pendingReuploadItem.targetClaimId === req.id) ? pendingReuploadItem : null}
-                                    clearPendingReupload={() => setPendingReuploadItem(null)}
-                                />
-                            ))}
+                            {claimedRequests.map((req, idx) => {
+                                // Auto-collapse if more than 2 active requests
+                                const shouldCollapse = claimedRequests.length > 2 && idx > 0;
+                                const isCollapsed = collapsedRequests[req.id] !== false ? shouldCollapse : false;
+                                
+                                return (
+                                    <div key={req.id || Math.random()}>
+                                        {/* Collapse button for requests beyond the first when 2+ exist */}
+                                        {claimedRequests.length > 2 && idx > 0 && (
+                                            <button
+                                                onClick={() => setCollapsedRequests(prev => ({
+                                                    ...prev,
+                                                    [req.id]: !isCollapsed
+                                                }))}
+                                                className="text-sm text-[var(--color-gold)] font-semibold mb-2 flex items-center gap-2 hover:opacity-80"
+                                            >
+                                                {isCollapsed ? '▶' : '▼'} {req.title}
+                                            </button>
+                                        )}
+                                        {!isCollapsed && (
+                                            <ClaimStatusPanel
+                                                key={req.id || Math.random()}
+                                                title={req.title}
+                                                requesterName={req.requesterName}
+                                                requesterAvatar={req.requesterAvatar}
+                                                currentStep={req.currentStep || 1}
+                                                requestId={req.id}
+                                                requestData={req}
+                                                onClose={() => { }}
+                                                onUpdateProgress={(step, msg) => {
+                                                    handleUpdateClaimStatus(step, msg, req.id);
+                                                }}
+                                                onUnclaim={(requestIdentifier) => {
+                                                    // Remove the unclaimed request from claimedRequests using ID
+                                                    setClaimedRequests(prev => prev.filter(r => r.id !== requestIdentifier));
+                                                }}
+                                                // Pass pendingReuploadItem ONLY if it targets this request (or if reupload has no target ID, pass to first/active?)
+                                                pendingReuploadItem={pendingReuploadItem && (pendingReuploadItem.targetClaimId === req.id) ? pendingReuploadItem : null}
+                                                clearPendingReupload={() => setPendingReuploadItem(null)}
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -3280,7 +3388,7 @@ const App = () => {
                                         </div>
                                         <div>
                                             <div className="font-semibold text-gray-900">{item.title}</div>
-                                            <div className="text-xs text-gray-500">{new Date(item.time).toLocaleString()} {item.changeNote ? `• ${getTranslation('Updated:', selectedLanguage)} ${item.changeNote}` : ''}</div>
+                                            <div className="text-xs text-gray-500">{new Date(item.time || item.completedAt || Date.now()).toLocaleString()} {item.changeNote ? `• ${getTranslation('Updated:', selectedLanguage)} ${item.changeNote}` : ''}</div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -3345,9 +3453,9 @@ const App = () => {
                     )}
 
 
-                    {/* small toast (moved to top-right for better visibility) */}
+                    {/* small toast (moved to bottom for better visibility) */}
                     {appToast && (
-                        <Toast message={appToast} bottom={false} />
+                        <Toast message={appToast} bottom={true} />
                     )}
                 </div>
             ) : activeTopTab === 'Upload' ? (

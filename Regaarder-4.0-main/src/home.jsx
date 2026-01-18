@@ -3502,6 +3502,9 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                         localStorage.setItem('discoverAllVideos', JSON.stringify(normalizedVideos));
                                     } catch (e) { }
 
+                                    // Overlays are now part of the video object from the backend
+                                    const overlays = video.overlays || [];
+
                                     // Show fullscreen videoplayer as overlay (seamless transition)
                                     const initialVideoData = {
                                         id: video.id || '',
@@ -3514,6 +3517,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                         likes: video.likes || 0,
                                         comments: video.comments || 0,
                                         duration: video.duration || 0,
+                                        overlays: overlays,
                                     };
                                     
                                     setFullscreenPlayerData({

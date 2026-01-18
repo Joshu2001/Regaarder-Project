@@ -339,7 +339,7 @@ const VideoPlayer = () => {
 	if (error) {
 		return (
 			<div className="p-6">
-				<div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">
+				<div className="p-4 bg-red-50 text-red-700 rounded-md" style={{border: 'none', display: 'none'}}>
 					<strong>Error:</strong> {error}
 				</div>
 			</div>
@@ -889,6 +889,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	const videoRef = useRef(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [duration, setDuration] = useState(0);
+
+	// NEW: Video overlays (links/images) that appear at specific times
+	const [videoOverlays, setVideoOverlays] = useState([]);
+	const [visibleOverlays, setVisibleOverlays] = useState([]);
 
 	// NEW: orientation + natural aspect
 	const [orientation, setOrientation] = useState("landscape"); // "landscape" (16:9 default) or "portrait" (9:16)
@@ -1479,6 +1483,51 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			setCreatorName(channel);
 		}
 	}, [searchParams, initialVideo]);
+
+	// Load overlays from videoInfo when it changes
+	useEffect(() => {
+		if (videoInfo && videoInfo.overlays && Array.isArray(videoInfo.overlays)) {
+			setVideoOverlays(videoInfo.overlays);
+		} else {
+			setVideoOverlays([]);
+		}
+	}, [videoInfo]);
+
+	// Update visible overlays based on current playback time
+	useEffect(() => {
+		if (!videoRef.current || videoOverlays.length === 0) {
+			setVisibleOverlays([]);
+			return;
+		}
+
+		const currentTime = videoRef.current.currentTime;
+		const visible = videoOverlays.filter(ov => {
+			const startTime = ov.timeSec;
+			const endTime = ov.timeSec + (ov.durationSec || 3);
+			return currentTime >= startTime && currentTime < endTime;
+		});
+
+		setVisibleOverlays(visible);
+	}, [videoOverlays]);
+
+	// Update visible overlays on timeupdate
+	useEffect(() => {
+		const v = videoRef.current;
+		if (!v) return;
+
+		const handleTimeUpdate = () => {
+			const currentTime = v.currentTime;
+			const visible = videoOverlays.filter(ov => {
+				const startTime = ov.timeSec;
+				const endTime = ov.timeSec + (ov.durationSec || 3);
+				return currentTime >= startTime && currentTime < endTime;
+			});
+			setVisibleOverlays(visible);
+		};
+
+		v.addEventListener('timeupdate', handleTimeUpdate);
+		return () => v.removeEventListener('timeupdate', handleTimeUpdate);
+	}, [videoOverlays]);
 
 	// AUTO-PLAY DISABLED: Users must manually click play to start video
 	// (previously attempted autoplay when initialVideo was provided)
@@ -4276,6 +4325,87 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							onPlay={() => setIsPlaying(true)}
 						/>
 					</div>
+
+					{/* Video Overlay Layer - renders links and images at specific times */}
+					<div
+						style={{
+							position: 'absolute',
+							inset: 0,
+							pointerEvents: 'none',
+							zIndex: 25,
+						}}
+					>
+						{visibleOverlays.map((ov) => (
+							ov.type === 'link' ? (
+								<a
+									key={ov.id}
+									href={ov.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									style={{
+										position: 'absolute',
+										bottom: `${(ov.positionY || 20) * 100 / 720}%`,
+										left: `${(ov.positionX || 20) * 100 / 1280}%`,
+										padding: '12px 16px',
+										borderRadius: '8px',
+										backgroundColor: `${ov.linkColor}33`,
+										border: `2px solid ${ov.linkColor}`,
+										color: ov.linkColor,
+										textDecoration: 'none',
+										fontWeight: 'bold',
+										fontSize: '14px',
+										cursor: 'pointer',
+										pointerEvents: 'auto',
+										transition: 'all 200ms ease',
+										transform: 'scale(1)',
+										boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+										display: 'inline-block',
+										whiteSpace: 'nowrap',
+										maxWidth: 'calc(100% - 40px)',
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+									}}
+									onMouseEnter={(e) => {
+										e.target.style.transform = 'scale(1.05)';
+										e.target.style.backgroundColor = `${ov.linkColor}44`;
+									}}
+									onMouseLeave={(e) => {
+										e.target.style.transform = 'scale(1)';
+										e.target.style.backgroundColor = `${ov.linkColor}33`;
+									}}
+								>
+									🔗 {ov.linkText}
+								</a>
+							) : (
+								<div
+									key={ov.id}
+									style={{
+										position: 'absolute',
+										bottom: `${(ov.positionY || 20) * 100 / 720}%`,
+										left: `${(ov.positionX || 20) * 100 / 1280}%`,
+										borderRadius: '8px',
+										overflow: 'hidden',
+										boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+										border: '2px solid rgba(255,255,255,0.3)',
+										opacity: 0.95,
+										pointerEvents: 'none',
+									}}
+								>
+									<img
+										src={ov.imageData}
+										alt="Video overlay"
+										style={{
+											width: '160px',
+											maxHeight: '160px',
+											objectFit: 'cover',
+											display: 'block',
+										}}
+									/>
+								</div>
+							)
+						))}
+					</div>
+
 					{/* Centered translucent play/pause overlay — also supports pointer tap */}
 					{controlsVisible && centerVisible && !isPlaying && !isMiniplayer && (
 						<button

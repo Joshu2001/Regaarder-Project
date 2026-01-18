@@ -28,9 +28,14 @@
       "selectedVideoLength": "standard",
       "selectedPrivacy": "private"
     },
-    "claimed": false,
-    "claimedBy": null,
-    "claimedAt": null
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-18T02:07:39.334Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-18T05:40:19.475Z"
   },
   {
     "id": "req_1768657708836",
@@ -60,7 +65,15 @@
       ],
       "selectedVideoLength": "standard",
       "selectedPrivacy": "private"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-18T02:12:44.447Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-18T05:40:10.583Z"
   },
   {
     "id": "req_1768657738398",
@@ -90,7 +103,15 @@
       ],
       "selectedVideoLength": "standard",
       "selectedPrivacy": "private"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-18T03:55:44.076Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-18T05:34:20.381Z"
   },
   {
     "id": "req_1768657738166",
@@ -120,7 +141,15 @@
       ],
       "selectedVideoLength": "standard",
       "selectedPrivacy": "private"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-18T04:32:52.163Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-18T05:34:00.549Z"
   },
   {
     "id": "req_1768657736892",
@@ -150,7 +179,15 @@
       ],
       "selectedVideoLength": "standard",
       "selectedPrivacy": "private"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-18T05:54:19.382Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-18T05:55:59.003Z"
   },
   {
     "id": "req_1768650003595",
@@ -179,9 +216,14 @@
       "selectedVideoLength": "short-form",
       "selectedPrivacy": "public"
     },
-    "claimed": false,
-    "claimedBy": null,
-    "claimedAt": null
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "claimedAt": "2026-01-18T03:03:43.098Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-18T05:34:29.737Z"
   },
   {
     "id": "req_1768387118903",
@@ -531,7 +573,9 @@
       "id": "user-1766857658728",
       "name": "Joshuar"
     },
-    "claimedAt": "2026-01-15T02:22:22.133Z"
+    "claimedAt": "2026-01-15T02:22:22.133Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-18T05:53:31.778Z"
   },
   {
     "id": "req_1768379394281",

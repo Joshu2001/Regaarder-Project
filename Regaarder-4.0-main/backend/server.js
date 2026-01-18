@@ -1779,7 +1779,7 @@ app.post('/videos/publish', (req, res) => {
     console.log('POST /videos/publish received');
     console.log('Request body:', req.body);
     
-    const { title, thumbnail, videoUrl, category, format, time, requester } = req.body;
+    const { title, thumbnail, videoUrl, category, format, time, requester, overlays } = req.body;
     
     // Try to get authenticated user, otherwise use default
     let author = 'Anonymous';
@@ -1836,6 +1836,7 @@ app.post('/videos/publish', (req, res) => {
       date: 'Just now',
       category: category || 'General',
       format: format || 'one-time',
+      appearance: 'public',  // Videos published are public by default
       pinned: false,
       pinnedDays: null,
       bookmarked: false,
@@ -1847,7 +1848,9 @@ app.post('/videos/publish', (req, res) => {
       comments: '0',
       shares: '0',
       retentionRate: '0',
-      retentionPercentage: '0%'
+      retentionPercentage: '0%',
+      // Add overlays if provided
+      overlays: Array.isArray(overlays) && overlays.length > 0 ? overlays : []
     };
 
     videos.unshift(newVideo);
