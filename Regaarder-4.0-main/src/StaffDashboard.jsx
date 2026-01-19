@@ -3,7 +3,7 @@ import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Home
 
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
-  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'requests', 'comments', 'reports', 'users', 'creators', 'shadowDeleted', 'approvals', 'promotions', 'ads'
+  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'requests', 'comments', 'reports', 'users', 'creators', 'shadowDeleted', 'approvals', 'promotions', 'templates', 'ads'
   const [adAssets, setAdAssets] = useState([]);
   const [adOverlays, setAdOverlays] = useState([]);
   const [selectedAdVideo, setSelectedAdVideo] = useState(null);
@@ -3051,6 +3051,86 @@ export default function StaffDashboard() {
             </div>
           )}
 
+          {/* Templates Tab */}
+          {activeTab === 'templates' && (
+            <div>
+              <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 20px 0', color: '#1f2937' }}>Overlay Templates</h2>
+              {templates.length === 0 ? (
+                <div style={{
+                  padding: '48px 32px',
+                  textAlign: 'center',
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
+                }}>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(59,130,246,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Copy size={36} style={{ color: '#3b82f6' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Templates Yet</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Save overlays from the preview to create reusable templates</p>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  {templates.map(t => (
+                    <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: '1px solid #e5e7eb', borderRadius: '8px', background: 'white' }}>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1 }}>
+                        <div style={{ width: '12px', height: '12px', background: '#3b82f6', borderRadius: '3px' }} />
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#1f2937' }}>{t.name}</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>{t.overlay?.assetType || 'overlay'}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <button onClick={() => setTemplatePanelOpen(templatePanelOpen === t.id ? null : t.id)} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer' }}>{templatePanelOpen === t.id ? 'Close' : 'Apply'}</button>
+                        <button onClick={() => { setTemplates(prev => prev.filter(x => x.id !== t.id)); setTemplatePanelOpen(null); }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #fca5a5', background: '#fee2e2', color: '#dc2626', cursor: 'pointer' }}>Delete</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {templatePanelOpen && (
+                <div style={{ marginTop: '20px', padding: '16px', border: '1px dashed #d1d5db', borderRadius: '8px', background: '#f9fafb' }}>
+                  <div style={{ marginBottom: '12px', fontWeight: '600' }}>Apply to Videos</div>
+                  <div style={{ maxHeight: '240px', overflow: 'auto', border: '1px solid #e5e7eb', padding: '8px', borderRadius: '6px', marginBottom: '12px' }}>
+                    {videos.length === 0 ? (
+                      <p style={{ color: '#6b7280', fontSize: '13px' }}>No videos available</p>
+                    ) : (
+                      videos.map(v => (
+                        <label key={v.id} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={selectedVideosForApply.includes(v.id)} onChange={(e) => {
+                            if (e.target.checked) setSelectedVideosForApply(prev => [...prev, v.id]);
+                            else setSelectedVideosForApply(prev => prev.filter(id => id !== v.id));
+                          }} />
+                          <span style={{ fontSize: '13px' }}>{v.title || v.id}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                  <div style={{ marginBottom: '12px', fontWeight: '600' }}>Position</div>
+                  <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+                    <label style={{ display: 'flex', gap: '6px', alignItems: 'center', cursor: 'pointer' }}><input type="radio" name="placement" value="beginning" checked={applyPlacement === 'beginning'} onChange={() => setApplyPlacement('beginning')} /> Beginning of video</label>
+                    <label style={{ display: 'flex', gap: '6px', alignItems: 'center', cursor: 'pointer' }}><input type="radio" name="placement" value="end" checked={applyPlacement === 'end'} onChange={() => setApplyPlacement('end')} /> End of video</label>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                    <button onClick={() => { setTemplatePanelOpen(null); setSelectedVideosForApply([]); }} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer' }}>Cancel</button>
+                    <button onClick={() => { applyTemplateToVideos(templatePanelOpen, selectedVideosForApply, applyPlacement); setTemplatePanelOpen(null); setSelectedVideosForApply([]); }} style={{ padding: '8px 12px', borderRadius: '6px', background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer' }}>Apply Template</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Ads Tab */}
           {activeTab === 'ads' && (
             <div>
@@ -5783,6 +5863,41 @@ export default function StaffDashboard() {
         <span>Promotions</span>
       </button>
       <button
+        onClick={() => setActiveTab('templates')}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0',
+          width: '50px',
+          height: '50px',
+          backgroundColor: activeTab === 'templates' ? 'rgba(59,130,246,0.1)' : 'transparent',
+          color: activeTab === 'templates' ? '#3b82f6' : '#6b7280',
+          border: 'none',
+          borderRadius: '10px',
+          cursor: 'pointer',
+          fontSize: '12px',
+          fontWeight: activeTab === 'templates' ? '700' : '600',
+          transition: 'all 0.3s ease',
+          flexDirection: 'column',
+          gap: '4px'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(59,130,246,0.1)';
+          e.currentTarget.style.color = '#3b82f6';
+        }}
+        onMouseLeave={(e) => {
+          if (activeTab !== 'templates') {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = '#6b7280';
+          }
+        }}
+        title="Manage Overlay Templates"
+      >
+        <Copy size={24} />
+        <span>Templates</span>
+      </button>
+      <button
         onClick={() => setActiveTab('ads')}
         style={{
           display: 'flex',
@@ -6044,6 +6159,9 @@ export default function StaffDashboard() {
               overlayEl.setPointerCapture && overlayEl.setPointerCapture(e.pointerId);
               overlayEl.dataset.dragging = 'true';
               overlayEl.style.cursor = 'grabbing';
+              let lastUpdate = 0;
+              const throttleMs = 16; // ~60fps
+              let pendingX = startPosX, pendingY = startPosY;
 
               const handlePointerMove = (moveEvent) => {
                 moveEvent.preventDefault();
@@ -6052,16 +6170,21 @@ export default function StaffDashboard() {
                 const deltaXPercent = (deltaX / containerRect.width) * 100;
                 const deltaYPercent = (deltaY / containerRect.height) * 100;
 
-                const newX = Math.max(0, Math.min(100, startPosX + deltaXPercent));
-                const newY = Math.max(0, Math.min(100, startPosY + deltaYPercent));
+                pendingX = Math.max(0, Math.min(100, startPosX + deltaXPercent));
+                pendingY = Math.max(0, Math.min(100, startPosY + deltaYPercent));
 
-                setPreviewingOverlay(prev => ({ ...prev, x: newX, y: newY }));
+                const now = performance.now();
+                if (now - lastUpdate >= throttleMs) {
+                  lastUpdate = now;
+                  setPreviewingOverlay(prev => ({ ...prev, x: pendingX, y: pendingY }));
+                }
               };
 
               const handlePointerUp = (upEvent) => {
                 overlayEl.releasePointerCapture && overlayEl.releasePointerCapture(upEvent.pointerId);
                 overlayEl.dataset.dragging = 'false';
                 overlayEl.style.cursor = 'grab';
+                setPreviewingOverlay(prev => ({ ...prev, x: pendingX, y: pendingY }));
                 document.removeEventListener('pointermove', handlePointerMove);
                 document.removeEventListener('pointerup', handlePointerUp);
               };
