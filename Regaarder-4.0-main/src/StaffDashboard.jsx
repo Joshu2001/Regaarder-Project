@@ -7,6 +7,7 @@ export default function StaffDashboard() {
   const [adAssets, setAdAssets] = useState([]);
   const [adOverlays, setAdOverlays] = useState([]);
   const [selectedAdVideo, setSelectedAdVideo] = useState(null);
+  const [expandedVideoCardId, setExpandedVideoCardId] = useState(null); // Track which video card is showing full stats
   const [adOverlayModal, setAdOverlayModal] = useState({ isOpen: false, assetUrl: '', assetType: 'image', videoId: null, startTime: 0, duration: null });
   const [videoPreviewState, setVideoPreviewState] = useState({ isPlaying: false, currentTime: 0, videoDuration: 100, overlayPosition: { x: 50, y: 50 }, overlaySize: { width: 80, height: 60 }, isDragging: false, dragStart: { x: 0, y: 0 } });
   const [showOverlayUrlInput, setShowOverlayUrlInput] = useState(false);
@@ -2664,7 +2665,17 @@ export default function StaffDashboard() {
                           <div />
                         ) : (
                           // Collapsed View - Show thumbnail and details
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '12px' }}>
+                          <div 
+                            style={{ 
+                              display: 'flex', 
+                              justifyContent: 'space-between', 
+                              alignItems: 'start', 
+                              gap: '12px',
+                              transition: 'all 0.3s ease'
+                            }}
+                            onMouseEnter={() => setExpandedVideoCardId(video.id)}
+                            onMouseLeave={() => setExpandedVideoCardId(null)}
+                          >
                             {/* Video Thumbnail - Larger when collapsed */}
                             <div style={{
                               width: '120px',
@@ -2723,30 +2734,47 @@ export default function StaffDashboard() {
                                 </>
                               )}
                             </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <h4 style={{ margin: '0', fontSize: '14px', fontWeight: '600', color: '#1f2937', marginBottom: '8px' }}>
+                            
+                            {/* Video Info - Compact by default, expands on hover */}
+                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <h4 style={{ margin: '0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
                                 {video.title}
                               </h4>
-                              <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#6b7280', marginBottom: '8px', flexWrap: 'wrap' }}>
-                                <span title="Duration"><Clock size={14} style={{ display: 'inline', marginRight: '4px' }} />{formatTimeCompact(video.duration)}</span>
-                                <span title="Views"><Eye size={14} style={{ display: 'inline', marginRight: '4px' }} />{(video.views || 0).toLocaleString()}</span>
-                                <span title="Comments"><MessageCircle size={14} style={{ display: 'inline', marginRight: '4px' }} />{(video.comments?.length || 0).toLocaleString()}</span>
-                                <span title="Likes"><ThumbsUp size={14} style={{ display: 'inline', marginRight: '4px' }} />{(video.likes || 0).toLocaleString()}</span>
+                              
+                              {/* Duration - Always visible */}
+                              <div style={{ fontSize: '12px', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <Clock size={12} />
+                                {video.duration ? formatTimeCompact(video.duration) : '0:00'}
                               </div>
-                              {video.category && (
-                                <span style={{
-                                  display: 'inline-block',
-                                  padding: '4px 10px',
-                                  backgroundColor: '#f3f4f6',
-                                  borderRadius: '4px',
-                                  fontSize: '11px',
-                                  fontWeight: '500',
-                                  color: '#6b7280'
+                              
+                              {/* Stats - Show on hover/expand */}
+                              {expandedVideoCardId === video.id && (
+                                <div style={{ 
+                                  display: 'flex', 
+                                  gap: '12px', 
+                                  fontSize: '11px', 
+                                  color: '#9ca3af',
+                                  marginTop: '4px',
+                                  animation: 'slideIn 0.3s ease'
                                 }}>
-                                  {video.category}
-                                </span>
+                                  <span title="Views" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                    <Eye size={12} />{(video.views || 0).toLocaleString()}
+                                  </span>
+                                  <span title="Comments" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                    <MessageCircle size={12} />{(video.comments?.length || 0)}
+                                  </span>
+                                  <span title="Likes" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                    <ThumbsUp size={12} />{(video.likes || 0)}
+                                  </span>
+                                  {video.category && (
+                                    <span style={{ marginLeft: 'auto', padding: '2px 6px', backgroundColor: '#f0f0f0', borderRadius: '3px' }}>
+                                      {video.category}
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </div>
+                            
                             <button
                               onClick={() => setSelectedAdVideo(selectedAdVideo === video.id ? null : video.id)}
                               style={{
@@ -2759,7 +2787,8 @@ export default function StaffDashboard() {
                                 fontSize: '13px',
                                 fontWeight: '600',
                                 transition: 'all 0.2s',
-                                whiteSpace: 'nowrap'
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0
                               }}
                               onMouseEnter={(e) => e.target.style.opacity = '0.9'}
                               onMouseLeave={(e) => e.target.style.opacity = '1'}
