@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Home, Users, Zap, X, AlertTriangle, Ban, EyeOff as EyeOffIcon, Trash, Send, Megaphone, Star, Gift, Bell, Crown, Mail, Calendar, Flame, Play, Settings, Share2, Check, Image, Upload, Plus, Pause, Trash as TrashIcon, Copy, Film, MessageCircle, ThumbsUp, Search, ChevronUp, ChevronDown as ChevronDownIcon, Filter } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Home, Users, Zap, X, AlertTriangle, Ban, EyeOff as EyeOffIcon, Trash, Send, Megaphone, Star, Gift, Bell, Crown, Mail, Calendar, Flame, Play, Settings, Share2, Check, Image, Upload, Plus, Pause, Trash as TrashIcon, Copy, Film, MessageCircle, ThumbsUp, Search, ChevronUp, ChevronDown as ChevronDownIcon, Filter, Maximize2, Link2, Type } from 'lucide-react';
 
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
@@ -10,6 +10,7 @@ export default function StaffDashboard() {
   const [expandedVideoCardId, setExpandedVideoCardId] = useState(null); // Track which video card is showing full stats
   const [adOverlayModal, setAdOverlayModal] = useState({ isOpen: false, assetUrl: '', assetType: 'image', videoId: null, startTime: 0, duration: null });
   const [videoPreviewState, setVideoPreviewState] = useState({ isPlaying: false, currentTime: 0, videoDuration: 100, overlayPosition: { x: 50, y: 50 }, overlaySize: { width: 80, height: 60 }, isDragging: false, dragStart: { x: 0, y: 0 } });
+  const [previewFullscreen, setPreviewFullscreen] = useState(false);
   const [showOverlayUrlInput, setShowOverlayUrlInput] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [reportCategory, setReportCategory] = useState('all'); // 'all', 'users', 'creators', 'requests', 'ads', 'videos'
@@ -3651,44 +3652,83 @@ export default function StaffDashboard() {
                                   marginBottom: '8px'
                                 }}
                               />
-                              <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'block' }}>
-                                Text Color
-                              </label>
-                              <div style={{ display: 'flex', gap: '8px' }}>
-                                <input
-                                  type="color"
-                                  value={adOverlayModal.overlayColor || '#ffffff'}
-                                  onChange={(e) => setAdOverlayModal({
-                                    ...adOverlayModal,
-                                    overlayColor: e.target.value
-                                  })}
-                                  style={{
-                                    width: '50px',
-                                    height: '40px',
-                                    border: '1px solid #e5e7eb',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer'
-                                  }}
-                                />
-                                <input
-                                  type="text"
-                                  value={adOverlayModal.overlayColor || '#ffffff'}
-                                  onChange={(e) => setAdOverlayModal({
-                                    ...adOverlayModal,
-                                    overlayColor: e.target.value
-                                  })}
-                                  style={{
-                                    flex: 1,
-                                    padding: '8px',
-                                    border: '1px solid #e5e7eb',
-                                    borderRadius: '6px',
-                                    fontSize: '13px'
-                                  }}
-                                />
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div>
+                                  <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <Type size={14} /> Text Color
+                                  </label>
+                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                    <input
+                                      type="color"
+                                      value={adOverlayModal.overlayColor || '#ffffff'}
+                                      onChange={(e) => setAdOverlayModal({
+                                        ...adOverlayModal,
+                                        overlayColor: e.target.value
+                                      })}
+                                      style={{
+                                        width: '40px',
+                                        height: '36px',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer'
+                                      }}
+                                    />
+                                    <input
+                                      type="text"
+                                      value={adOverlayModal.overlayColor || '#ffffff'}
+                                      onChange={(e) => setAdOverlayModal({
+                                        ...adOverlayModal,
+                                        overlayColor: e.target.value
+                                      })}
+                                      style={{
+                                        flex: 1,
+                                        padding: '8px',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '6px',
+                                        fontSize: '12px'
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <div style={{ width: '14px', height: '14px', borderRadius: '2px', backgroundColor: adOverlayModal.overlayBgColor || 'rgba(0, 0, 0, 0.6)', border: '1px solid #ccc' }} /> BG Color
+                                  </label>
+                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                    <input
+                                      type="color"
+                                      value={adOverlayModal.overlayBgColor || '#000000'}
+                                      onChange={(e) => setAdOverlayModal({
+                                        ...adOverlayModal,
+                                        overlayBgColor: e.target.value
+                                      })}
+                                      style={{
+                                        width: '40px',
+                                        height: '36px',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer'
+                                      }}
+                                    />
+                                    <input
+                                      type="text"
+                                      value={adOverlayModal.overlayBgColor || 'rgba(0, 0, 0, 0.6)'}
+                                      onChange={(e) => setAdOverlayModal({
+                                        ...adOverlayModal,
+                                        overlayBgColor: e.target.value
+                                      })}
+                                      placeholder="rgba(0,0,0,0.6)"
+                                      style={{
+                                        flex: 1,
+                                        padding: '8px',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '6px',
+                                        fontSize: '12px'
+                                      }}
+                                    />
+                                  </div>
+                                </div>
                               </div>
-                              <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'block', marginTop: '8px' }}>
-                                Make Clickable
-                              </label>
                               <input
                                 type="text"
                                 placeholder="Enter URL (optional)..."
@@ -4010,7 +4050,7 @@ export default function StaffDashboard() {
                                     }}>
                                       {adOverlayModal.assetType === 'text' ? (
                                         <div style={{
-                                          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                          backgroundColor: adOverlayModal.overlayBgColor || 'rgba(0, 0, 0, 0.6)',
                                           padding: '12px 16px',
                                           borderRadius: '6px',
                                           color: adOverlayModal.overlayColor || '#ffffff',
@@ -4022,8 +4062,8 @@ export default function StaffDashboard() {
                                         }}>
                                           {adOverlayModal.overlayText || 'Click here'}
                                           {adOverlayModal.overlayUrl && (
-                                            <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8 }}>
-                                              🔗 {adOverlayModal.overlayUrl}
+                                            <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                              <Link2 size={10} /> {adOverlayModal.overlayUrl}
                                             </div>
                                           )}
                                         </div>
@@ -4643,11 +4683,10 @@ export default function StaffDashboard() {
                                   />
                                 </div>
 
-                                {/* Make Overlay Clickable - For Image/Video */}
-                                {adOverlayModal.assetType !== 'text' && (
+                                {/* Make Overlay Clickable - For Image/Video/Text */}
                                 <div style={{ marginBottom: '12px' }}>
-                                  <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'block' }}>
-                                    Make Clickable (Optional)
+                                  <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <Link2 size={14} /> Clickable URL (Optional)
                                   </label>
                                   <input
                                     type="text"
@@ -4670,12 +4709,11 @@ export default function StaffDashboard() {
                                     }}
                                   />
                                   {adOverlayModal.overlayUrl && (
-                                    <div style={{ marginTop: '4px', fontSize: '11px', color: '#10b981' }}>
-                                      ✓ Overlay will be clickable: {adOverlayModal.overlayUrl}
+                                    <div style={{ marginTop: '4px', fontSize: '11px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                      <CheckCircle size={12} /> Overlay will be clickable
                                     </div>
                                   )}
                                 </div>
-                                )}
                               </div>
                             )}
 
@@ -5650,29 +5688,30 @@ export default function StaffDashboard() {
         justifyContent: 'center',
         flexDirection: 'column',
         overflow: 'hidden',
-        padding: deviceOrientation === 'landscape' ? '20px' : '40px 20px'
+        padding: previewFullscreen ? '0' : (deviceOrientation === 'landscape' ? '20px' : '40px 20px')
       }}>
-        {/* Header with close button */}
+        {/* Header with close and maximize buttons */}
         <div style={{
           position: 'absolute',
-          top: '20px',
-          right: '20px',
-          zIndex: 10000
+          top: '12px',
+          right: '12px',
+          zIndex: 10000,
+          display: 'flex',
+          gap: '8px'
         }}>
           <button
-            onClick={() => setShowOverlayPreview(false)}
+            onClick={() => setPreviewFullscreen(!previewFullscreen)}
             style={{
               width: '40px',
               height: '40px',
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
               border: '2px solid white',
-              borderRadius: '50%',
+              borderRadius: '6px',
               color: 'white',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
               transition: 'all 0.3s ease',
               fontWeight: 'bold'
             }}
@@ -5684,31 +5723,62 @@ export default function StaffDashboard() {
               e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
               e.target.style.transform = 'scale(1)';
             }}
-            title="Close preview (Escape to close)"
+            title={previewFullscreen ? 'Exit fullscreen' : 'Fullscreen/Landscape'}
           >
-            ×
+            <Maximize2 size={20} />
+          </button>
+          <button
+            onClick={() => setShowOverlayPreview(false)}
+            style={{
+              width: '40px',
+              height: '40px',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              border: '2px solid white',
+              borderRadius: '6px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.3s ease',
+              fontWeight: 'bold'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+              e.target.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+              e.target.style.transform = 'scale(1)';
+            }}
+            title="Close preview (Esc)"
+          >
+            <X size={20} />
           </button>
         </div>
 
-        {/* Confirmation Message */}
+        {/* Confirmation Message - Compact */}
         <div style={{
           position: 'absolute',
           top: '60px',
           left: '50%',
           transform: 'translateX(-50%)',
-          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          backgroundColor: 'rgba(16, 185, 129, 0.25)',
           border: '2px solid #10b981',
-          borderRadius: '8px',
-          padding: '16px 24px',
+          borderRadius: '6px',
+          padding: '8px 16px',
           color: '#10b981',
-          fontSize: '14px',
+          fontSize: '13px',
           fontWeight: '600',
           textAlign: 'center',
           zIndex: 10001,
           animation: 'slideDown 0.3s ease',
-          maxWidth: '90%'
+          maxWidth: '80%',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
         }}>
-          ✓ Overlay created successfully! Displaying preview...
+          <CheckCircle size={14} /> Overlay created
         </div>
 
         {/* Video container with responsive sizing */}
@@ -5718,19 +5788,20 @@ export default function StaffDashboard() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          maxWidth: deviceOrientation === 'landscape' ? '95vw' : '100vw',
-          maxHeight: deviceOrientation === 'landscape' ? '90vh' : '100vh',
-          aspectRatio: '16/9',
+          maxWidth: previewFullscreen ? '100vw' : (deviceOrientation === 'landscape' ? '95vw' : '100vw'),
+          maxHeight: previewFullscreen ? '100vh' : (deviceOrientation === 'landscape' ? '90vh' : '100vh'),
+          aspectRatio: previewFullscreen ? 'auto' : '16/9',
           position: 'relative',
           backgroundColor: '#1a1a1a',
-          borderRadius: deviceOrientation === 'landscape' ? '12px' : '0px'
-        }}>
+          borderRadius: previewFullscreen ? '0px' : (deviceOrientation === 'landscape' ? '12px' : '0px')
+        }} data-preview-video-container>
           {/* Main video/content */}
           {previewingOverlay.videoId && videos.find(v => v.id === previewingOverlay.videoId) && (
             <video
               src={videos.find(v => v.id === previewingOverlay.videoId)?.videoUrl}
               autoPlay
               controls
+              data-preview-video-container
               style={{
                 width: '100%',
                 height: '100%',
@@ -5740,8 +5811,9 @@ export default function StaffDashboard() {
             />
           )}
 
-          {/* Overlay on top */}
+          {/* Overlay on top - Draggable and Resizable */}
           <div
+            data-preview-overlay
             style={{
               position: 'absolute',
               left: `${previewingOverlay.x}%`,
@@ -5749,20 +5821,66 @@ export default function StaffDashboard() {
               width: `${previewingOverlay.width}%`,
               height: `${previewingOverlay.height}%`,
               transform: 'translate(-50%, -50%)',
-              cursor: previewingOverlay.clickUrl ? 'pointer' : 'default',
+              cursor: 'grab',
               borderRadius: '8px',
               overflow: 'hidden',
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
               transition: 'all 0.2s ease',
-              border: '2px solid rgba(245, 158, 11, 0.5)'
+              border: '2px solid rgba(245, 158, 11, 0.7)',
+              userSelect: 'none'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1.05)';
-              e.currentTarget.style.boxShadow = '0 12px 32px rgba(245, 158, 11, 0.3)';
+              e.currentTarget.style.boxShadow = '0 12px 32px rgba(245, 158, 11, 0.4)';
+              e.currentTarget.style.border = '2px solid rgba(245, 158, 11, 0.9)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translate(-50%, -50%)';
-              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.4)';
+              if (!e.currentTarget.dataset.dragging) {
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.4)';
+                e.currentTarget.style.border = '2px solid rgba(245, 158, 11, 0.7)';
+              }
+            }}
+            onMouseDown={(e) => {
+              // Only drag if not clicking on resize handle
+              if (e.target.closest('[data-resize-handle]')) return;
+              
+              e.preventDefault();
+              const containerRect = document.querySelector('[data-preview-video-container]')?.getBoundingClientRect();
+              if (!containerRect) return;
+              
+              const startX = e.clientX;
+              const startY = e.clientY;
+              const startPosX = previewingOverlay.x;
+              const startPosY = previewingOverlay.y;
+              const overlayEl = e.currentTarget;
+              overlayEl.dataset.dragging = 'true';
+              overlayEl.style.cursor = 'grabbing';
+              
+              const handleMouseMove = (moveEvent) => {
+                moveEvent.preventDefault();
+                const deltaX = moveEvent.clientX - startX;
+                const deltaY = moveEvent.clientY - startY;
+                const deltaXPercent = (deltaX / containerRect.width) * 100;
+                const deltaYPercent = (deltaY / containerRect.height) * 100;
+                
+                const newX = Math.max(0, Math.min(100, startPosX + deltaXPercent));
+                const newY = Math.max(0, Math.min(100, startPosY + deltaYPercent));
+                
+                setPreviewingOverlay(prev => ({
+                  ...prev,
+                  x: newX,
+                  y: newY
+                }));
+              };
+              
+              const handleMouseUp = () => {
+                overlayEl.dataset.dragging = 'false';
+                overlayEl.style.cursor = 'grab';
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+              
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
             }}
             onClick={() => {
               if (previewingOverlay.clickUrl) {
@@ -5770,6 +5888,59 @@ export default function StaffDashboard() {
               }
             }}
           >
+            {/* Resize Handle - Bottom Right */}
+            <div
+              data-resize-handle
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const containerRect = document.querySelector('[data-preview-video-container]')?.getBoundingClientRect();
+                if (!containerRect) return;
+                
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const startWidth = previewingOverlay.width;
+                const startHeight = previewingOverlay.height;
+                
+                const handleMouseMove = (moveEvent) => {
+                  moveEvent.preventDefault();
+                  const deltaX = moveEvent.clientX - startX;
+                  const deltaY = moveEvent.clientY - startY;
+                  const widthPercent = (deltaX / containerRect.width) * 100;
+                  const heightPercent = (deltaY / containerRect.height) * 100;
+                  
+                  setPreviewingOverlay(prev => ({
+                    ...prev,
+                    width: Math.max(5, startWidth + widthPercent),
+                    height: Math.max(5, startHeight + heightPercent)
+                  }));
+                };
+                
+                const handleMouseUp = () => {
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
+              style={{
+                position: 'absolute',
+                bottom: '-6px',
+                right: '-6px',
+                width: '20px',
+                height: '20px',
+                backgroundColor: '#3b82f6',
+                cursor: 'nwse-resize',
+                borderRadius: '2px',
+                zIndex: 30,
+                pointerEvents: 'auto',
+                border: '2px solid white',
+                boxShadow: '0 0 6px rgba(59, 130, 246, 0.6)'
+              }}
+              title="Drag to resize"
+            />
+
             {previewingOverlay.assetType === 'image' ? (
               <img
                 src={previewingOverlay.assetUrl}
@@ -5778,7 +5949,8 @@ export default function StaffDashboard() {
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  display: 'block'
+                  display: 'block',
+                  pointerEvents: 'none'
                 }}
               />
             ) : previewingOverlay.assetType === 'video' ? (
@@ -5791,7 +5963,8 @@ export default function StaffDashboard() {
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  display: 'block'
+                  display: 'block',
+                  pointerEvents: 'none'
                 }}
               />
             ) : (
@@ -5799,17 +5972,18 @@ export default function StaffDashboard() {
                 style={{
                   width: '100%',
                   height: '100%',
-                  backgroundColor: previewingOverlay.color || '#000000',
+                  backgroundColor: previewingOverlay.color || previewingOverlay.overlayBgColor || '#000000',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white',
+                  color: previewingOverlay.overlayColor || 'white',
                   fontSize: '18px',
                   fontWeight: 'bold',
                   padding: '16px',
                   textAlign: 'center',
                   overflow: 'hidden',
-                  wordWrap: 'break-word'
+                  wordWrap: 'break-word',
+                  pointerEvents: 'none'
                 }}
               >
                 {previewingOverlay.text}
