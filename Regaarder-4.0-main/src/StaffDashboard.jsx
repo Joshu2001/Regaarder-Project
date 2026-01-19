@@ -2512,27 +2512,36 @@ export default function StaffDashboard() {
           {activeTab === 'ads' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0', color: '#1f2937' }}>Ad Management</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0', color: '#1f2937', letterSpacing: '-0.5px' }}>Ad Management</h2>
                 <button
                   onClick={() => document.getElementById('adAssetFileInput')?.click()}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    backgroundColor: '#3b82f6',
+                    gap: '8px',
+                    padding: '10px 20px',
+                    background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '6px',
+                    borderRadius: '8px',
                     cursor: 'pointer',
                     fontSize: '14px',
-                    fontWeight: '600',
-                    transition: 'all 0.2s'
+                    fontWeight: '700',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}
-                  onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                  onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  onMouseEnter={(e) => {
+                    e.target.style.boxShadow = '0 8px 20px rgba(79,70,229,0.4)';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.3)';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
                 >
-                  <Plus size={18} /> Upload Ad Asset
+                  <Plus size={19} strokeWidth={2.5} /> Upload Ad Asset
                 </button>
                 <input
                   id="adAssetFileInput"
@@ -2556,33 +2565,58 @@ export default function StaffDashboard() {
 
               {/* Ad Assets Section */}
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937', marginBottom: '12px' }}>Ad Assets (Images, Videos, Banners)</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1f2937', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>Ad Assets (Images, Videos, Banners)</h3>
                 {adAssets.length === 0 ? (
                   <div style={{
-                    padding: '32px',
+                    padding: '48px 32px',
                     textAlign: 'center',
-                    backgroundColor: '#f3f4f6',
-                    borderRadius: '8px',
-                    color: '#9ca3af'
+                    background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                    borderRadius: '10px',
+                    color: '#6b7280',
+                    border: '1px solid #d1d5db'
                   }}>
-                    <Image size={48} style={{ margin: '0 auto 16px' }} />
-                    <p>No ad assets uploaded. Upload images, videos, or banners to get started.</p>
+                    <div style={{ 
+                      width: '72px',
+                      height: '72px',
+                      backgroundColor: 'rgba(79,70,229,0.1)',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 16px'
+                    }}>
+                      <Image size={36} style={{ color: '#4f46e5' }} />
+                    </div>
+                    <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Ad Assets Yet</p>
+                    <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Upload images, videos, or banners to create engaging ads</p>
                   </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '12px' }}>
                     {adAssets.map((asset, idx) => (
                       <div key={idx} style={{
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '8px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '10px',
                         overflow: 'hidden',
-                        transition: 'all 0.2s',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         cursor: 'pointer',
-                        position: 'relative'
+                        position: 'relative',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                        backgroundColor: 'white'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.12)';
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.borderColor = '#4f46e5';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.borderColor = '#e5e7eb';
                       }}>
                         <div style={{
                           width: '100%',
                           height: '120px',
-                          backgroundColor: '#f3f4f6',
+                          backgroundColor: '#f9fafb',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -2614,11 +2648,11 @@ export default function StaffDashboard() {
                             />
                           )}
                         </div>
-                        <div style={{ padding: '8px', backgroundColor: 'white' }}>
-                          <p style={{ margin: '0', fontSize: '12px', fontWeight: '600', color: '#1f2937', wordBreak: 'break-word' }}>
+                        <div style={{ padding: '10px', backgroundColor: 'white', borderTop: '1px solid #f3f4f6' }}>
+                          <p style={{ margin: '0', fontSize: '13px', fontWeight: '600', color: '#1f2937', wordBreak: 'break-word' }}>
                             {asset.name}
                           </p>
-                          <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#9ca3af' }}>
+                          <p style={{ margin: '3px 0 0 0', fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.3px', fontWeight: '500' }}>
                             {asset.type}
                           </p>
                         </div>
@@ -2626,24 +2660,31 @@ export default function StaffDashboard() {
                           onClick={() => setAdAssets(adAssets.filter((_, i) => i !== idx))}
                           style={{
                             position: 'absolute',
-                            top: '4px',
-                            right: '4px',
-                            width: '24px',
-                            height: '24px',
-                            backgroundColor: '#ef4444',
+                            top: '6px',
+                            right: '6px',
+                            width: '28px',
+                            height: '28px',
+                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '4px',
+                            borderRadius: '6px',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            transition: 'all 0.2s'
+                            transition: 'all 0.3s ease',
+                            boxShadow: '0 2px 8px rgba(239,68,68,0.3)'
                           }}
-                          onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                          onMouseLeave={(e) => e.target.style.opacity = '1'}
+                          onMouseEnter={(e) => {
+                            e.target.style.boxShadow = '0 4px 12px rgba(239,68,68,0.4)';
+                            e.target.style.transform = 'scale(1.1)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.boxShadow = '0 2px 8px rgba(239,68,68,0.3)';
+                            e.target.style.transform = 'scale(1)';
+                          }}
                         >
-                          <Trash size={14} />
+                          <Trash size={15} strokeWidth={2} />
                         </button>
                       </div>
                     ))}
@@ -2652,18 +2693,31 @@ export default function StaffDashboard() {
               </div>
 
               {/* Video Overlays Section */}
-              <div>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937', marginBottom: '12px' }}>Video Ad Overlays & Banners</h3>
+              <div style={{ marginTop: '32px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1f2937', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>Video Ad Overlays & Banners</h3>
                 {videos.length === 0 ? (
                   <div style={{
-                    padding: '32px',
+                    padding: '48px 32px',
                     textAlign: 'center',
-                    backgroundColor: '#f3f4f6',
-                    borderRadius: '8px',
-                    color: '#9ca3af'
+                    background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                    borderRadius: '10px',
+                    color: '#6b7280',
+                    border: '1px solid #d1d5db'
                   }}>
-                    <Play size={48} style={{ margin: '0 auto 16px' }} />
-                    <p>No videos available. Upload videos first to add overlays.</p>
+                    <div style={{ 
+                      width: '72px',
+                      height: '72px',
+                      backgroundColor: 'rgba(79,70,229,0.1)',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 16px'
+                    }}>
+                      <Play size={36} style={{ color: '#4f46e5' }} />
+                    </div>
+                    <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Videos Available</p>
+                    <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Upload videos first to create and manage ad overlays</p>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -2822,19 +2876,24 @@ export default function StaffDashboard() {
                               position: 'relative',
                               width: '100%',
                               height: '40px',
-                              backgroundColor: '#374151',
-                              borderRadius: '6px',
-                              border: '1px solid #555',
+                              background: adOverlayModal.videoId === video.id 
+                                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                                : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                              borderRadius: '8px',
+                              border: '1px solid rgba(255,255,255,0.2)',
                               marginBottom: '12px',
                               overflow: 'hidden',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              color: '#9ca3af',
-                              fontSize: '12px'
+                              color: 'white',
+                              fontSize: '13px',
+                              fontWeight: '600',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                              transition: 'all 0.3s ease'
                             }}>
                               {adOverlayModal.videoId === video.id 
-                                ? `Start Time: ${formatTimeCompact(adOverlayModal.startTime)}`
+                                ? `✓ Start Time: ${formatTimeCompact(adOverlayModal.startTime)}`
                                 : 'Select asset to set start time'
                               }
                             </div>
@@ -2843,7 +2902,7 @@ export default function StaffDashboard() {
                             {/* Asset Selection - Custom Dropdown (for image/video) */}
                             {adOverlayModal.assetType !== 'text' && (
                             <div style={{ marginBottom: '12px' }}>
-                              <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'block' }}>
+                              <label style={{ fontSize: '12px', fontWeight: '700', color: '#1f2937', marginBottom: '8px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                 Select Ad Asset
                               </label>
                               <div style={{
@@ -2857,10 +2916,11 @@ export default function StaffDashboard() {
                                   })}
                                   style={{
                                     width: '100%',
-                                    padding: '8px 12px',
+                                    padding: '10px 14px',
                                     border: '1px solid #e5e7eb',
-                                    borderRadius: '6px',
+                                    borderRadius: '8px',
                                     fontSize: '14px',
+                                    fontWeight: '500',
                                     boxSizing: 'border-box',
                                     backgroundColor: 'white',
                                     color: adOverlayModal.assetUrl ? '#1f2937' : '#9ca3af',
@@ -2869,15 +2929,22 @@ export default function StaffDashboard() {
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    transition: 'all 0.2s'
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                                   }}
-                                  onMouseEnter={(e) => e.target.style.borderColor = '#3b82f6'}
-                                  onMouseLeave={(e) => e.target.style.borderColor = '#e5e7eb'}
+                                  onMouseEnter={(e) => {
+                                    e.target.style.borderColor = '#4f46e5';
+                                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.15)';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.style.borderColor = '#e5e7eb';
+                                    e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                                  }}
                                 >
                                   <span>
                                     {adAssets.find(a => a.url === adOverlayModal.assetUrl)?.name || 'Choose an asset...'}
                                   </span>
-                                  <span style={{ fontSize: '12px' }}>▼</span>
+                                  <span style={{ fontSize: '12px', transition: 'transform 0.3s', transform: adOverlayModal._dropdownOpen ? 'rotate(180deg)' : 'rotate(0)' }}>▼</span>
                                 </button>
 
                                 {adOverlayModal._dropdownOpen && (
@@ -2886,21 +2953,23 @@ export default function StaffDashboard() {
                                     top: '100%',
                                     left: 0,
                                     right: 0,
-                                    marginTop: '4px',
+                                    marginTop: '8px',
                                     backgroundColor: 'white',
                                     border: '1px solid #e5e7eb',
-                                    borderRadius: '6px',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
                                     zIndex: 1000,
                                     maxHeight: '300px',
-                                    overflow: 'auto'
+                                    overflow: 'auto',
+                                    animation: 'slideDown 0.2s ease'
                                   }}>
                                     {adAssets.length === 0 ? (
                                       <div style={{
-                                        padding: '12px',
+                                        padding: '16px',
                                         color: '#9ca3af',
                                         fontSize: '14px',
-                                        textAlign: 'center'
+                                        textAlign: 'center',
+                                        fontStyle: 'italic'
                                       }}>
                                         No assets available
                                       </div>
@@ -2918,24 +2987,27 @@ export default function StaffDashboard() {
                                           }}
                                           style={{
                                             width: '100%',
-                                            padding: '12px',
+                                            padding: '12px 14px',
                                             border: 'none',
-                                            backgroundColor: adOverlayModal.assetUrl === asset.url ? '#f0f9ff' : 'white',
+                                            backgroundColor: adOverlayModal.assetUrl === asset.url ? '#eef2ff' : 'white',
                                             color: '#1f2937',
                                             cursor: 'pointer',
                                             fontSize: '14px',
+                                            fontWeight: adOverlayModal.assetUrl === asset.url ? '600' : '500',
                                             textAlign: 'left',
                                             borderBottom: idx !== adAssets.length - 1 ? '1px solid #f3f4f6' : 'none',
-                                            transition: 'all 0.2s',
+                                            transition: 'all 0.2s ease',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '8px'
+                                            gap: '10px'
                                           }}
                                           onMouseEnter={(e) => {
-                                            e.target.style.backgroundColor = '#f9fafb';
+                                            if (adOverlayModal.assetUrl !== asset.url) {
+                                              e.target.style.backgroundColor = '#f9fafb';
+                                            }
                                           }}
                                           onMouseLeave={(e) => {
-                                            e.target.style.backgroundColor = adOverlayModal.assetUrl === asset.url ? '#f0f9ff' : 'white';
+                                            e.target.style.backgroundColor = adOverlayModal.assetUrl === asset.url ? '#eef2ff' : 'white';
                                           }}
                                         >
                                           {asset.type === 'image' ? (
@@ -3001,33 +3073,38 @@ export default function StaffDashboard() {
                             {/* Upload Custom Asset - Only for image/video */}
                             {adOverlayModal.assetType !== 'text' && (
                             <div style={{ marginBottom: '12px' }}>
-                              <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'block' }}>
+                              <label style={{ fontSize: '12px', fontWeight: '700', color: '#1f2937', marginBottom: '8px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                 Or Upload Custom Asset
                               </label>
                               <div 
                                 style={{
-                                  padding: '24px',
-                                  border: '2px dashed #3b82f6',
-                                  borderRadius: '8px',
+                                  padding: '32px 24px',
+                                  border: '2px dashed #4f46e5',
+                                  borderRadius: '10px',
                                   textAlign: 'center',
                                   cursor: 'pointer',
-                                  transition: 'all 0.2s',
-                                  backgroundColor: '#f0f9ff'
+                                  transition: 'all 0.3s ease',
+                                  backgroundColor: '#f0f4ff',
+                                  position: 'relative',
+                                  overflow: 'hidden'
                                 }}
                                 onDragEnter={(e) => {
                                   e.preventDefault();
-                                  e.currentTarget.style.borderColor = '#1e40af';
-                                  e.currentTarget.style.backgroundColor = '#e0f2fe';
+                                  e.currentTarget.style.borderColor = '#4338ca';
+                                  e.currentTarget.style.backgroundColor = '#e0e7ff';
+                                  e.currentTarget.style.transform = 'scale(1.02)';
                                 }}
                                 onDragLeave={(e) => {
-                                  e.currentTarget.style.borderColor = '#3b82f6';
-                                  e.currentTarget.style.backgroundColor = '#f0f9ff';
+                                  e.currentTarget.style.borderColor = '#4f46e5';
+                                  e.currentTarget.style.backgroundColor = '#f0f4ff';
+                                  e.currentTarget.style.transform = 'scale(1)';
                                 }}
                                 onDragOver={(e) => e.preventDefault()}
                                 onDrop={(e) => {
                                   e.preventDefault();
-                                  e.currentTarget.style.borderColor = '#3b82f6';
-                                  e.currentTarget.style.backgroundColor = '#f0f9ff';
+                                  e.currentTarget.style.borderColor = '#4f46e5';
+                                  e.currentTarget.style.backgroundColor = '#f0f4ff';
+                                  e.currentTarget.style.transform = 'scale(1)';
                                   if (e.dataTransfer.files?.[0]) {
                                     const file = e.dataTransfer.files[0];
                                     const type = file.type.startsWith('image') ? 'image' : 'video';
@@ -3040,11 +3117,11 @@ export default function StaffDashboard() {
                                 }}
                                 onClick={() => document.getElementById('customAssetInput')?.click()}
                               >
-                                <Upload size={28} style={{ color: '#3b82f6', margin: '0 auto 12px' }} />
-                                <p style={{ margin: '0', fontSize: '13px', fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>
+                                <Upload size={32} style={{ color: '#4f46e5', margin: '0 auto 14px', opacity: 0.8 }} />
+                                <p style={{ margin: '0', fontSize: '14px', fontWeight: '700', color: '#1f2937', marginBottom: '6px' }}>
                                   Upload Image or Video
                                 </p>
-                                <p style={{ margin: '0', fontSize: '12px', color: '#9ca3af' }}>
+                                <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>
                                   Drag and drop or click to browse
                                 </p>
                                 <input
