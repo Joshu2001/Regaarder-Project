@@ -4046,7 +4046,7 @@ export default function StaffDashboard() {
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'center',
-                                      overflow: 'hidden',
+                                      overflow: 'visible',
                                       userSelect: 'none',
                                       outline: 'none',
                                       touchAction: 'none',
