@@ -3630,7 +3630,7 @@ export default function StaffDashboard() {
                             {/* Text Input for Text Overlay */}
                             {adOverlayModal.assetType === 'text' && (
                             <div style={{ marginBottom: '12px' }}>
-                              <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'block' }}>
+                              <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'block' }}>
                                 Overlay Text
                               </label>
                               <input
@@ -3644,20 +3644,20 @@ export default function StaffDashboard() {
                                 })}
                                 style={{
                                   width: '100%',
-                                  padding: '10px',
+                                  padding: '7px',
                                   border: '1px solid #e5e7eb',
-                                  borderRadius: '6px',
-                                  fontSize: '14px',
+                                  borderRadius: '5px',
+                                  fontSize: '13px',
                                   boxSizing: 'border-box',
                                   marginBottom: '8px'
                                 }}
                               />
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                                 <div>
-                                  <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <Type size={14} /> Text Color
+                                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                    <Type size={12} /> Text
                                   </label>
-                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                  <div style={{ display: 'flex', gap: '4px' }}>
                                     <input
                                       type="color"
                                       value={adOverlayModal.overlayColor || '#ffffff'}
@@ -3666,11 +3666,12 @@ export default function StaffDashboard() {
                                         overlayColor: e.target.value
                                       })}
                                       style={{
-                                        width: '40px',
-                                        height: '36px',
+                                        width: '32px',
+                                        height: '32px',
                                         border: '1px solid #e5e7eb',
-                                        borderRadius: '6px',
-                                        cursor: 'pointer'
+                                        borderRadius: '5px',
+                                        cursor: 'pointer',
+                                        padding: '2px'
                                       }}
                                     />
                                     <input
@@ -3682,19 +3683,19 @@ export default function StaffDashboard() {
                                       })}
                                       style={{
                                         flex: 1,
-                                        padding: '8px',
+                                        padding: '6px',
                                         border: '1px solid #e5e7eb',
-                                        borderRadius: '6px',
-                                        fontSize: '12px'
+                                        borderRadius: '5px',
+                                        fontSize: '11px'
                                       }}
                                     />
                                   </div>
                                 </div>
                                 <div>
-                                  <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <div style={{ width: '14px', height: '14px', borderRadius: '2px', backgroundColor: adOverlayModal.overlayBgColor || 'rgba(0, 0, 0, 0.6)', border: '1px solid #ccc' }} /> BG Color
+                                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                    <div style={{ width: '12px', height: '12px', borderRadius: '2px', backgroundColor: adOverlayModal.overlayBgColor || 'rgba(0, 0, 0, 0.6)', border: '1px solid #ccc' }} /> BG
                                   </label>
-                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                  <div style={{ display: 'flex', gap: '4px' }}>
                                     <input
                                       type="color"
                                       value={adOverlayModal.overlayBgColor || '#000000'}
@@ -3703,11 +3704,12 @@ export default function StaffDashboard() {
                                         overlayBgColor: e.target.value
                                       })}
                                       style={{
-                                        width: '40px',
-                                        height: '36px',
+                                        width: '32px',
+                                        height: '32px',
                                         border: '1px solid #e5e7eb',
-                                        borderRadius: '6px',
-                                        cursor: 'pointer'
+                                        borderRadius: '5px',
+                                        cursor: 'pointer',
+                                        padding: '2px'
                                       }}
                                     />
                                     <input
@@ -3717,21 +3719,24 @@ export default function StaffDashboard() {
                                         ...adOverlayModal,
                                         overlayBgColor: e.target.value
                                       })}
-                                      placeholder="rgba(0,0,0,0.6)"
+                                      placeholder="rgba(0,0,0)"
                                       style={{
                                         flex: 1,
-                                        padding: '8px',
+                                        padding: '6px',
                                         border: '1px solid #e5e7eb',
-                                        borderRadius: '6px',
-                                        fontSize: '12px'
+                                        borderRadius: '5px',
+                                        fontSize: '11px'
                                       }}
                                     />
                                   </div>
                                 </div>
                               </div>
+                              <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px', marginTop: '8px' }}>
+                                <Link2 size={12} /> Link URL
+                              </label>
                               <input
                                 type="text"
-                                placeholder="Enter URL (optional)..."
+                                placeholder="https://example.com"
                                 value={adOverlayModal.overlayUrl || ''}
                                 onChange={(e) => setAdOverlayModal({
                                   ...adOverlayModal,
@@ -3739,11 +3744,12 @@ export default function StaffDashboard() {
                                 })}
                                 style={{
                                   width: '100%',
-                                  padding: '8px',
+                                  padding: '6px',
                                   border: '1px solid #e5e7eb',
-                                  borderRadius: '6px',
-                                  fontSize: '13px',
-                                  boxSizing: 'border-box'
+                                  borderRadius: '5px',
+                                  fontSize: '12px',
+                                  boxSizing: 'border-box',
+                                  marginBottom: '8px'
                                 }}
                               />
                               
@@ -3829,12 +3835,15 @@ export default function StaffDashboard() {
                             {(adOverlayModal.assetUrl || adOverlayModal.assetType === 'text') && (
                               <div style={{
                                 marginBottom: '12px',
-                                padding: '12px',
+                                padding: '10px',
                                 backgroundColor: '#f3f4f6',
                                 borderRadius: '6px',
                                 border: '1px solid #e5e7eb'
                               }}>
-                                <p style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', margin: '0 0 8px 0' }}>Overlay Preview - Drag & Resize</p>
+                                <p style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <span style={{ padding: '2px 6px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '3px', fontSize: '10px' }}>Interactive</span> 
+                                  Drag to move • Edges to resize
+                                </p>
                                 
                                 {/* Main Video Preview */}
                                 <div data-video-container style={{
@@ -3934,8 +3943,8 @@ export default function StaffDashboard() {
                                           setVideoPreviewState(prev => ({
                                             ...prev,
                                             overlayPosition: {
-                                              x: Math.max(0, Math.min(100, startPosX + deltaXPercent)),
-                                              y: Math.max(0, Math.min(100, startPosY + deltaYPercent))
+                                              x: startPosX + deltaXPercent,
+                                              y: startPosY + deltaYPercent
                                             }
                                           }));
                                         };
@@ -4169,7 +4178,8 @@ export default function StaffDashboard() {
                                       )}
                                     </div>
 
-                                    {/* Resize Handle - Bottom Right Corner */}
+                                    {/* Resize Handle - Corners and Edges */}
+                                    {/* Bottom Right Corner */}
                                     <div
                                       onMouseDown={(e) => {
                                         e.preventDefault();
@@ -4203,65 +4213,36 @@ export default function StaffDashboard() {
                                           document.removeEventListener('mouseup', handleMouseUp);
                                         };
 
-                                        document.addEventListener('mousemove', handleMouseMove, true);
-                                        document.addEventListener('mouseup', handleMouseUp, true);
-                                      }}
-                                      onTouchStart={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        if (!e.touches[0]) return;
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect) return;
-                                        
-                                        const startX = e.touches[0].clientX;
-                                        const startY = e.touches[0].clientY;
-                                        const startWidth = videoPreviewState.overlaySize.width;
-                                        const startHeight = videoPreviewState.overlaySize.height;
-
-                                        const handleTouchMove = (moveEvent) => {
-                                          moveEvent.preventDefault();
-                                          if (!moveEvent.touches[0]) return;
-                                          const deltaX = moveEvent.touches[0].clientX - startX;
-                                          const deltaY = moveEvent.touches[0].clientY - startY;
-                                          const widthPercent = (deltaX / containerRect.width) * 100;
-                                          const heightPercent = (deltaY / containerRect.height) * 100;
-                                          
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlaySize: {
-                                              width: Math.max(5, startWidth + widthPercent),
-                                              height: Math.max(5, startHeight + heightPercent)
-                                            }
-                                          }));
-                                        };
-
-                                        const handleTouchEnd = () => {
-                                          document.removeEventListener('touchmove', handleTouchMove);
-                                          document.removeEventListener('touchend', handleTouchEnd);
-                                        };
-
-                                        document.addEventListener('touchmove', handleTouchMove, true);
-                                        document.addEventListener('touchend', handleTouchEnd, true);
+                                        document.addEventListener('mousemove', handleMouseMove);
+                                        document.addEventListener('mouseup', handleMouseUp);
                                       }}
                                       style={{
                                         position: 'absolute',
-                                        bottom: '-4px',
-                                        right: '-4px',
-                                        width: '24px',
-                                        height: '24px',
+                                        bottom: '-5px',
+                                        right: '-5px',
+                                        width: '16px',
+                                        height: '16px',
                                         backgroundColor: '#3b82f6',
                                         cursor: 'nwse-resize',
-                                        borderRadius: '2px',
+                                        borderRadius: '50%',
                                         zIndex: 25,
                                         pointerEvents: 'auto',
-                                        touchAction: 'none',
                                         border: '2px solid white',
-                                        boxShadow: '0 0 4px rgba(0,0,0,0.3)'
+                                        boxShadow: '0 2px 8px rgba(59, 130, 246, 0.6)',
+                                        transition: 'all 0.2s'
                                       }}
-                                      title="Drag to resize"
+                                      onMouseEnter={(e) => {
+                                        e.target.style.transform = 'scale(1.3)';
+                                        e.target.style.boxShadow = '0 2px 12px rgba(59, 130, 246, 0.8)';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.target.style.transform = 'scale(1)';
+                                        e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.6)';
+                                      }}
+                                      title="Drag corner to resize"
                                     />
 
-                                    {/* Resize Handle - Right Edge */}
+                                    {/* Right Edge */}
                                     <div
                                       onMouseDown={(e) => {
                                         e.preventDefault();
@@ -4276,7 +4257,6 @@ export default function StaffDashboard() {
                                           moveEvent.preventDefault();
                                           const deltaX = moveEvent.clientX - startX;
                                           const widthPercent = (deltaX / containerRect.width) * 100;
-                                          
                                           setVideoPreviewState(prev => ({
                                             ...prev,
                                             overlaySize: {
@@ -4291,57 +4271,23 @@ export default function StaffDashboard() {
                                           document.removeEventListener('mouseup', handleMouseUp);
                                         };
 
-                                        document.addEventListener('mousemove', handleMouseMove, true);
-                                        document.addEventListener('mouseup', handleMouseUp, true);
-                                      }}
-                                      onTouchStart={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        if (!e.touches[0]) return;
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect) return;
-                                        
-                                        const startX = e.touches[0].clientX;
-                                        const startWidth = videoPreviewState.overlaySize.width;
-
-                                        const handleTouchMove = (moveEvent) => {
-                                          moveEvent.preventDefault();
-                                          if (!moveEvent.touches[0]) return;
-                                          const deltaX = moveEvent.touches[0].clientX - startX;
-                                          const widthPercent = (deltaX / containerRect.width) * 100;
-                                          
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlaySize: {
-                                              ...prev.overlaySize,
-                                              width: Math.max(5, startWidth + widthPercent)
-                                            }
-                                          }));
-                                        };
-
-                                        const handleTouchEnd = () => {
-                                          document.removeEventListener('touchmove', handleTouchMove);
-                                          document.removeEventListener('touchend', handleTouchEnd);
-                                        };
-
-                                        document.addEventListener('touchmove', handleTouchMove, true);
-                                        document.addEventListener('touchend', handleTouchEnd, true);
+                                        document.addEventListener('mousemove', handleMouseMove);
+                                        document.addEventListener('mouseup', handleMouseUp);
                                       }}
                                       style={{
                                         position: 'absolute',
                                         top: '0',
-                                        right: '-4px',
-                                        width: '8px',
+                                        right: '-3px',
+                                        width: '6px',
                                         height: '100%',
                                         cursor: 'ew-resize',
                                         zIndex: 20,
-                                        pointerEvents: 'auto',
-                                        touchAction: 'none'
+                                        pointerEvents: 'auto'
                                       }}
-                                      title="Drag right edge to resize"
+                                      title="Drag to resize width"
                                     />
 
-                                    {/* Resize Handle - Bottom Edge */}
+                                    {/* Bottom Edge */}
                                     <div
                                       onMouseDown={(e) => {
                                         e.preventDefault();
@@ -4356,7 +4302,6 @@ export default function StaffDashboard() {
                                           moveEvent.preventDefault();
                                           const deltaY = moveEvent.clientY - startY;
                                           const heightPercent = (deltaY / containerRect.height) * 100;
-                                          
                                           setVideoPreviewState(prev => ({
                                             ...prev,
                                             overlaySize: {
@@ -4371,55 +4316,24 @@ export default function StaffDashboard() {
                                           document.removeEventListener('mouseup', handleMouseUp);
                                         };
 
-                                        document.addEventListener('mousemove', handleMouseMove, true);
-                                        document.addEventListener('mouseup', handleMouseUp, true);
-                                      }}
-                                      onTouchStart={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        if (!e.touches[0]) return;
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect) return;
-                                        
-                                        const startY = e.touches[0].clientY;
-                                        const startHeight = videoPreviewState.overlaySize.height;
-
-                                        const handleTouchMove = (moveEvent) => {
-                                          moveEvent.preventDefault();
-                                          if (!moveEvent.touches[0]) return;
-                                          const deltaY = moveEvent.touches[0].clientY - startY;
-                                          const heightPercent = (deltaY / containerRect.height) * 100;
-                                          
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlaySize: {
-                                              ...prev.overlaySize,
-                                              height: Math.max(5, startHeight + heightPercent)
-                                            }
-                                          }));
-                                        };
-
-                                        const handleTouchEnd = () => {
-                                          document.removeEventListener('touchmove', handleTouchMove);
-                                          document.removeEventListener('touchend', handleTouchEnd);
-                                        };
-
-                                        document.addEventListener('touchmove', handleTouchMove, true);
-                                        document.addEventListener('touchend', handleTouchEnd, true);
+                                        document.addEventListener('mousemove', handleMouseMove);
+                                        document.addEventListener('mouseup', handleMouseUp);
                                       }}
                                       style={{
                                         position: 'absolute',
-                                        bottom: '-4px',
+                                        bottom: '-3px',
                                         left: '0',
                                         width: '100%',
-                                        height: '8px',
+                                        height: '6px',
                                         cursor: 'ns-resize',
                                         zIndex: 20,
-                                        pointerEvents: 'auto',
-                                        touchAction: 'none'
+                                        pointerEvents: 'auto'
                                       }}
-                                      title="Drag bottom edge to resize"
+                                      title="Drag to resize height"
                                     />
+
+                                    {/* Resize Handle - Right Edge */}
+                                    {/* Removed - using generic edges instead */}
                                   </div>
 
                                   {/* Timeline Control at bottom */}
@@ -4685,12 +4599,12 @@ export default function StaffDashboard() {
 
                                 {/* Make Overlay Clickable - For Image/Video/Text */}
                                 <div style={{ marginBottom: '12px' }}>
-                                  <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <Link2 size={14} /> Clickable URL (Optional)
+                                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                    <Link2 size={12} /> URL
                                   </label>
                                   <input
                                     type="text"
-                                    placeholder="Enter URL to make this overlay clickable..."
+                                    placeholder="https://example.com"
                                     value={adOverlayModal.overlayUrl || ''}
                                     onChange={(e) => setAdOverlayModal({
                                       ...adOverlayModal,
@@ -4698,19 +4612,16 @@ export default function StaffDashboard() {
                                     })}
                                     style={{
                                       width: '100%',
-                                      padding: '8px',
+                                      padding: '6px',
                                       border: '1px solid #e5e7eb',
-                                      borderRadius: '6px',
-                                      fontSize: '13px',
-                                      boxSizing: 'border-box',
-                                      overflow: 'hidden',
-                                      textOverflow: 'ellipsis',
-                                      whiteSpace: 'nowrap'
+                                      borderRadius: '5px',
+                                      fontSize: '12px',
+                                      boxSizing: 'border-box'
                                     }}
                                   />
                                   {adOverlayModal.overlayUrl && (
-                                    <div style={{ marginTop: '4px', fontSize: '11px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                      <CheckCircle size={12} /> Overlay will be clickable
+                                    <div style={{ marginTop: '3px', fontSize: '10px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                      <CheckCircle size={10} /> Clickable
                                     </div>
                                   )}
                                 </div>
