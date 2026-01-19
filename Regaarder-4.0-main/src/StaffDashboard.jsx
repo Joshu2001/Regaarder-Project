@@ -121,6 +121,26 @@ export default function StaffDashboard() {
       setTemplateName('');
     }
 
+    // Ensure overlay is added/updated in the editor's overlays list
+    setAdOverlays(prev => {
+      const idx = prev.findIndex(o => o.id === previewingOverlay.id);
+      if (idx !== -1) {
+        const copy = [...prev];
+        copy[idx] = { ...copy[idx], x: previewingOverlay.x, y: previewingOverlay.y, width: previewingOverlay.width, height: previewingOverlay.height };
+        return copy;
+      }
+      return [...prev, {
+        id: previewingOverlay.id || Date.now(),
+        videoId: previewingOverlay.videoId,
+        assetType: previewingOverlay.assetType,
+        x: previewingOverlay.x,
+        y: previewingOverlay.y,
+        width: previewingOverlay.width,
+        height: previewingOverlay.height,
+        ...(previewingOverlay.assetType === 'text' ? { text: previewingOverlay.text, color: previewingOverlay.overlayColor, clickUrl: previewingOverlay.clickUrl } : { assetUrl: previewingOverlay.assetUrl, clickUrl: previewingOverlay.clickUrl })
+      }];
+    });
+
     // Close the preview modal and the save dialog
     setShowOverlayPreview(false);
     setShowPreviewSaveModal(false);
@@ -5854,7 +5874,7 @@ export default function StaffDashboard() {
             <Maximize2 size={20} />
           </button>
           <button
-            onClick={() => setShowOverlayPreview(false)}
+            onClick={() => setShowPreviewSaveModal(true)}
             style={{
               width: '40px',
               height: '40px',
@@ -6008,6 +6028,46 @@ export default function StaffDashboard() {
               
               document.addEventListener('mousemove', handleMouseMove);
               document.addEventListener('mouseup', handleMouseUp);
+            }}
+            onPointerDown={(e) => {
+              // pointer events fallback for better touch/mouse handling
+              if (e.target.closest('[data-resize-handle]')) return;
+              e.preventDefault();
+              const containerRect = document.querySelector('[data-preview-video-container]')?.getBoundingClientRect();
+              if (!containerRect) return;
+
+              const startX = e.clientX;
+              const startY = e.clientY;
+              const startPosX = previewingOverlay.x;
+              const startPosY = previewingOverlay.y;
+              const overlayEl = e.currentTarget;
+              overlayEl.setPointerCapture && overlayEl.setPointerCapture(e.pointerId);
+              overlayEl.dataset.dragging = 'true';
+              overlayEl.style.cursor = 'grabbing';
+
+              const handlePointerMove = (moveEvent) => {
+                moveEvent.preventDefault();
+                const deltaX = moveEvent.clientX - startX;
+                const deltaY = moveEvent.clientY - startY;
+                const deltaXPercent = (deltaX / containerRect.width) * 100;
+                const deltaYPercent = (deltaY / containerRect.height) * 100;
+
+                const newX = Math.max(0, Math.min(100, startPosX + deltaXPercent));
+                const newY = Math.max(0, Math.min(100, startPosY + deltaYPercent));
+
+                setPreviewingOverlay(prev => ({ ...prev, x: newX, y: newY }));
+              };
+
+              const handlePointerUp = (upEvent) => {
+                overlayEl.releasePointerCapture && overlayEl.releasePointerCapture(upEvent.pointerId);
+                overlayEl.dataset.dragging = 'false';
+                overlayEl.style.cursor = 'grab';
+                document.removeEventListener('pointermove', handlePointerMove);
+                document.removeEventListener('pointerup', handlePointerUp);
+              };
+
+              document.addEventListener('pointermove', handlePointerMove);
+              document.addEventListener('pointerup', handlePointerUp);
             }}
             onClick={() => {
               if (previewingOverlay.clickUrl) {
