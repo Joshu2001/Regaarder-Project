@@ -2686,6 +2686,7 @@ export default function StaffDashboard() {
                                 <>
                                   <video 
                                     src={video.videoUrl}
+                                    crossOrigin="anonymous"
                                     style={{ 
                                       width: '100%', 
                                       height: '100%', 
@@ -2701,16 +2702,21 @@ export default function StaffDashboard() {
                                       }
                                     }}
                                     onSeeked={(e) => {
-                                      // Capture frame as thumbnail
-                                      const canvas = document.createElement('canvas');
-                                      canvas.width = e.target.videoWidth;
-                                      canvas.height = e.target.videoHeight;
-                                      const ctx = canvas.getContext('2d');
-                                      ctx.drawImage(e.target, 0, 0);
-                                      const thumbnail = canvas.toDataURL('image/jpeg', 0.7);
-                                      // Update the video object with thumbnail
-                                      const updatedVideos = videos.map(v => v.id === video.id ? {...v, thumbnail} : v);
-                                      setVideos(updatedVideos);
+                                      try {
+                                        // Capture frame as thumbnail
+                                        const canvas = document.createElement('canvas');
+                                        canvas.width = e.target.videoWidth;
+                                        canvas.height = e.target.videoHeight;
+                                        const ctx = canvas.getContext('2d');
+                                        ctx.drawImage(e.target, 0, 0);
+                                        const thumbnail = canvas.toDataURL('image/jpeg', 0.7);
+                                        // Update the video object with thumbnail
+                                        const updatedVideos = videos.map(v => v.id === video.id ? {...v, thumbnail} : v);
+                                        setVideos(updatedVideos);
+                                      } catch (err) {
+                                        // Silently fail if canvas is tainted (CORS issue)
+                                        console.warn('Could not generate thumbnail for', video.title, err);
+                                      }
                                     }}
                                   />
                                   <Film size={32} />
