@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Users, AlertTriangle, Crown, Search, ChevronUp, Home, Megaphone, Copy, Ban, Trash, Plus, Image, Play, Film, MessageCircle, ThumbsUp, Upload, Type, Link2, Pause } from 'lucide-react';
+import { ChevronDown, Home, Megaphone, Copy, Image as ImageIcon, Search, ChevronUp, Eye, EyeOff, Trash2, Plus } from 'lucide-react';
 
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
@@ -33,6 +33,7 @@ export default function StaffDashboard() {
   
   // Modal states
   const [actionModal, setActionModal] = useState({ isOpen: false, itemId: null, itemType: null });
+  const [undoModal, setUndoModal] = useState({ isOpen: false, action: null, itemId: null, itemType: null });
   const [reasonModal, setReasonModal] = useState({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
   const [userActionModal, setUserActionModal] = useState({ isOpen: false, userId: null, action: null });
   const [promotionModal, setPromotionModal] = useState({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer' });
@@ -46,6 +47,8 @@ export default function StaffDashboard() {
   
   // Search and scroll states
   const [videoSearch, setVideoSearch] = useState('');
+  const [requestSearch, setRequestSearch] = useState('');
+  const [commentSearch, setCommentSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
   const [savedScrollPositions, setSavedScrollPositions] = useState({});
   const [showOverlayPreview, setShowOverlayPreview] = useState(false);
@@ -187,7 +190,9 @@ export default function StaffDashboard() {
 
   // Persist templates to localStorage
   useEffect(() => {
-    try { localStorage.setItem('overlayTemplates', JSON.stringify(templates)); } catch (e) {}
+    try { localStorage.setItem('overlayTemplates', JSON.stringify(templates)); } catch (e) {
+      // Ignore localStorage errors
+    }
   }, [templates]);
 
   // Handle screen orientation changes
@@ -320,7 +325,7 @@ export default function StaffDashboard() {
 
     try {
       const res = await fetch(`http://localhost:4000/staff/delete-video/${videoId}`, {
-        method: 'DELETE',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           employeeId: staffSession.id,
@@ -329,7 +334,8 @@ export default function StaffDashboard() {
       });
 
       if (res.ok) {
-        setVideos(videos.filter(v => v.id !== videoId));
+        // Keep video in list but mark it as deleted for undo display
+        setVideos(videos.map(v => v.id === videoId ? { ...v, deleted: true, deletedReason: reason, deletedBy: staffSession.id, deletedAt: new Date().toISOString() } : v));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
         setToast({ type: 'success', message: 'Video deleted' });
@@ -361,7 +367,8 @@ export default function StaffDashboard() {
       });
 
       if (res.ok) {
-        setVideos(videos.filter(v => v.id !== videoId));
+        // Keep video in list but mark it as hidden for undo display
+        setVideos(videos.map(v => v.id === videoId ? { ...v, hidden: true, hiddenReason: reason, hiddenBy: staffSession.id, hiddenAt: new Date().toISOString() } : v));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
         setToast({ type: 'success', message: 'Video hidden' });
@@ -393,7 +400,8 @@ export default function StaffDashboard() {
       });
 
       if (res.ok) {
-        setRequests(requests.filter(r => r.id !== requestId));
+        // Keep request in list but mark it as deleted for undo display
+        setRequests(requests.map(r => r.id === requestId ? { ...r, deleted: true, deletedReason: reason, deletedBy: staffSession.id, deletedAt: new Date().toISOString() } : r));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
         setToast({ type: 'success', message: 'Request deleted' });
@@ -425,7 +433,8 @@ export default function StaffDashboard() {
       });
 
       if (res.ok) {
-        setRequests(requests.filter(r => r.id !== requestId));
+        // Keep request in list but mark it as hidden for undo display
+        setRequests(requests.map(r => r.id === requestId ? { ...r, hidden: true, hiddenReason: reason, hiddenBy: staffSession.id, hiddenAt: new Date().toISOString() } : r));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
         setToast({ type: 'success', message: 'Request hidden' });
@@ -457,7 +466,8 @@ export default function StaffDashboard() {
       });
 
       if (res.ok) {
-        setComments(comments.filter(c => c.id !== commentId));
+        // Keep comment in list but mark it as deleted for undo display
+        setComments(comments.map(c => c.id === commentId ? { ...c, deleted: true, deletedReason: reason, deletedBy: staffSession.id, deletedAt: new Date().toISOString() } : c));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
         setToast({ type: 'success', message: 'Comment deleted' });
@@ -489,7 +499,8 @@ export default function StaffDashboard() {
       });
 
       if (res.ok) {
-        setComments(comments.filter(c => c.id !== commentId));
+        // Keep comment in list but mark it as hidden for undo display
+        setComments(comments.map(c => c.id === commentId ? { ...c, hidden: true, hiddenReason: reason, hiddenBy: staffSession.id, hiddenAt: new Date().toISOString() } : c));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
         setToast({ type: 'success', message: 'Comment hidden' });
@@ -500,6 +511,159 @@ export default function StaffDashboard() {
     } catch (err) {
       console.error('Hide failed:', err);
       setError('Error hiding comment');
+    }
+  };
+
+  // Undo handlers
+  const handleUndoHideVideo = async (videoId) => {
+    try {
+      const res = await fetch(`http://localhost:4000/staff/undo-hide-video/${videoId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id
+        })
+      });
+
+      if (res.ok) {
+        setVideos(videos.map(v => v.id === videoId ? { ...v, hidden: false, hiddenReason: null, hiddenBy: null, hiddenAt: null } : v));
+        setUndoModal({ isOpen: false, action: null, itemId: null, itemType: null });
+        setError('');
+        setToast({ type: 'success', message: 'Video unhidden' });
+      } else {
+        setError('Failed to undo hide');
+        setToast({ type: 'error', message: 'Failed to undo hide' });
+      }
+    } catch (err) {
+      console.error('Undo hide failed:', err);
+      setError('Error undoing hide');
+    }
+  };
+
+  const handleUndoDeleteVideo = async (videoId) => {
+    try {
+      const res = await fetch(`http://localhost:4000/staff/undo-delete-video/${videoId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id
+        })
+      });
+
+      if (res.ok) {
+        setVideos(videos.map(v => v.id === videoId ? { ...v, deleted: false, deletedReason: null, deletedBy: null, deletedAt: null } : v));
+        setUndoModal({ isOpen: false, action: null, itemId: null, itemType: null });
+        setError('');
+        setToast({ type: 'success', message: 'Video restored' });
+      } else {
+        setError('Failed to undo delete');
+        setToast({ type: 'error', message: 'Failed to undo delete' });
+      }
+    } catch (err) {
+      console.error('Undo delete failed:', err);
+      setError('Error undoing delete');
+    }
+  };
+
+  // Request undo handlers
+  const handleUndoHideRequest = async (requestId) => {
+    try {
+      const res = await fetch(`http://localhost:4000/staff/undo-hide-request/${requestId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id
+        })
+      });
+
+      if (res.ok) {
+        setRequests(requests.map(r => r.id === requestId ? { ...r, hidden: false, hiddenReason: null, hiddenBy: null, hiddenAt: null } : r));
+        setUndoModal({ isOpen: false, action: null, itemId: null, itemType: null });
+        setError('');
+        setToast({ type: 'success', message: 'Request unhidden' });
+      } else {
+        setError('Failed to undo hide');
+        setToast({ type: 'error', message: 'Failed to undo hide' });
+      }
+    } catch (err) {
+      console.error('Undo hide failed:', err);
+      setError('Error undoing hide');
+    }
+  };
+
+  const handleUndoDeleteRequest = async (requestId) => {
+    try {
+      const res = await fetch(`http://localhost:4000/staff/undo-delete-request/${requestId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id
+        })
+      });
+
+      if (res.ok) {
+        setRequests(requests.map(r => r.id === requestId ? { ...r, deleted: false, deletedReason: null, deletedBy: null, deletedAt: null } : r));
+        setUndoModal({ isOpen: false, action: null, itemId: null, itemType: null });
+        setError('');
+        setToast({ type: 'success', message: 'Request restored' });
+      } else {
+        setError('Failed to undo delete');
+        setToast({ type: 'error', message: 'Failed to undo delete' });
+      }
+    } catch (err) {
+      console.error('Undo delete failed:', err);
+      setError('Error undoing delete');
+    }
+  };
+
+  // Comment undo handlers
+  const handleUndoHideComment = async (commentId) => {
+    try {
+      const res = await fetch(`http://localhost:4000/staff/undo-hide-comment/${commentId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id
+        })
+      });
+
+      if (res.ok) {
+        setComments(comments.map(c => c.id === commentId ? { ...c, hidden: false, hiddenReason: null, hiddenBy: null, hiddenAt: null } : c));
+        setUndoModal({ isOpen: false, action: null, itemId: null, itemType: null });
+        setError('');
+        setToast({ type: 'success', message: 'Comment unhidden' });
+      } else {
+        setError('Failed to undo hide');
+        setToast({ type: 'error', message: 'Failed to undo hide' });
+      }
+    } catch (err) {
+      console.error('Undo hide failed:', err);
+      setError('Error undoing hide');
+    }
+  };
+
+  const handleUndoDeleteComment = async (commentId) => {
+    try {
+      const res = await fetch(`http://localhost:4000/staff/undo-delete-comment/${commentId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id
+        })
+      });
+
+      if (res.ok) {
+        setComments(comments.map(c => c.id === commentId ? { ...c, deleted: false, deletedReason: null, deletedBy: null, deletedAt: null } : c));
+        setUndoModal({ isOpen: false, action: null, itemId: null, itemType: null });
+        setError('');
+        setToast({ type: 'success', message: 'Comment restored' });
+      } else {
+        setError('Failed to undo delete');
+        setToast({ type: 'error', message: 'Failed to undo delete' });
+      }
+    } catch (err) {
+      console.error('Undo delete failed:', err);
+      setError('Error undoing delete');
     }
   };
 
@@ -1090,10 +1254,47 @@ export default function StaffDashboard() {
                       {filteredVideos.map(video => (
                     <div key={video.id} style={{
                       padding: '16px',
-                      border: '1px solid #e5e7eb',
+                      border: video.hidden ? '2px solid #f59e0b' : video.deleted ? '2px solid #a855f7' : '1px solid #e5e7eb',
                       borderRadius: '8px',
-                      backgroundColor: '#fff'
+                      backgroundColor: video.hidden ? '#fef3c7' : video.deleted ? '#faf5ff' : '#fff',
+                      position: 'relative'
                     }}>
+                      {/* Status Tags */}
+                      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                        {video.hidden && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '4px 12px',
+                            backgroundColor: '#f59e0b',
+                            color: 'white',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            <EyeOff size={14} />
+                            Hidden
+                          </span>
+                        )}
+                        {video.deleted && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '4px 12px',
+                            backgroundColor: '#a855f7',
+                            color: 'white',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            <Trash2 size={14} />
+                            Deleted
+                          </span>
+                        )}
+                      </div>
+
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
                         <div>
                           <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold' }}>
@@ -1109,30 +1310,60 @@ export default function StaffDashboard() {
                             {new Date(video.timestamp).toLocaleString()}
                           </p>
                         </div>
-                        <button
-                          onClick={() => setActionModal({ isOpen: true, itemId: video.id, itemType: 'video' })}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: 'white',
-                            color: '#dc2626',
-                            border: '2px solid #dc2626',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = '#dc2626';
-                            e.target.style.color = 'white';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = 'white';
-                            e.target.style.color = '#dc2626';
-                          }}
-                        >
-                          Action
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', alignItems: 'flex-end' }}>
+                          {!video.hidden && !video.deleted && (
+                            <button
+                              onClick={() => setActionModal({ isOpen: true, itemId: video.id, itemType: 'video' })}
+                              style={{
+                                padding: '8px 16px',
+                                backgroundColor: 'white',
+                                color: '#dc2626',
+                                border: '2px solid #dc2626',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = '#dc2626';
+                                e.target.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = 'white';
+                                e.target.style.color = '#dc2626';
+                              }}
+                            >
+                              Action
+                            </button>
+                          )}
+                          {(video.hidden || video.deleted) && (
+                            <button
+                              onClick={() => setUndoModal({ isOpen: true, action: video.hidden ? 'unhide' : 'undelete', itemId: video.id, itemType: 'video' })}
+                              style={{
+                                padding: '8px 16px',
+                                backgroundColor: 'white',
+                                color: '#10b981',
+                                border: '2px solid #10b981',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = '#10b981';
+                                e.target.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = 'white';
+                                e.target.style.color = '#10b981';
+                              }}
+                            >
+                              Undo
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                       ))}
@@ -1146,39 +1377,128 @@ export default function StaffDashboard() {
           {/* Requests Tab */}
           {activeTab === 'requests' && (
             <div>
-              {requests.length === 0 ? (
-                <div style={{
-                  padding: '48px 32px',
-                  textAlign: 'center',
-                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                  borderRadius: '10px',
+              {/* Search Bar */}
+              <div style={{
+                marginBottom: '24px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <Search size={18} style={{
+                  position: 'absolute',
+                  left: '12px',
                   color: '#6b7280',
-                  border: '1px solid #d1d5db'
-                }}>
-                  <div style={{ 
-                    width: '72px',
-                    height: '72px',
-                    backgroundColor: 'rgba(79,70,229,0.1)',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px'
-                  }}>
-                    <Eye size={36} style={{ color: '#4f46e5' }} />
-                  </div>
-                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Requests Yet</p>
-                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Manage special requests from users here</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {requests.map(req => (
+                  pointerEvents: 'none'
+                }} />
+                <input
+                  type="text"
+                  placeholder="Search requests by title, company..."
+                  value={requestSearch}
+                  onChange={(e) => setRequestSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px 10px 40px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#4f46e5';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.15)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                  }}
+                />
+              </div>
+              
+              {
+                (() => {
+                  const filteredRequests = requests.filter(req =>
+                    req.title.toLowerCase().includes(requestSearch.toLowerCase()) ||
+                    (req.company && req.company.toLowerCase().includes(requestSearch.toLowerCase()))
+                  );
+                  
+                  return filteredRequests.length === 0 ? (
+                    <div style={{
+                      padding: '48px 32px',
+                      textAlign: 'center',
+                      background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                      borderRadius: '10px',
+                      color: '#6b7280',
+                      border: '1px solid #d1d5db'
+                    }}>
+                      <div style={{ 
+                        width: '72px',
+                        height: '72px',
+                        backgroundColor: 'rgba(79,70,229,0.1)',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 16px'
+                      }}>
+                        <Eye size={36} style={{ color: '#4f46e5' }} />
+                      </div>
+                      <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+                        {requestSearch ? 'No Requests Found' : 'No Requests Yet'}
+                      </p>
+                      <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>
+                        {requestSearch ? `No results for "${requestSearch}"` : 'Manage special requests from users here'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                        Showing {filteredRequests.length} of {requests.length} requests
+                      </p>
+                      {filteredRequests.map(req => (
                     <div key={req.id} style={{
                       padding: '16px',
-                      border: '1px solid #e5e7eb',
+                      border: req.hidden ? '2px solid #f59e0b' : req.deleted ? '2px solid #a855f7' : '1px solid #e5e7eb',
                       borderRadius: '8px',
-                      backgroundColor: '#fff'
+                      backgroundColor: req.hidden ? '#fef3c7' : req.deleted ? '#faf5ff' : '#fff',
+                      position: 'relative'
                     }}>
+                      {/* Status Tags */}
+                      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                        {req.hidden && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '4px 12px',
+                            backgroundColor: '#f59e0b',
+                            color: 'white',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            <EyeOff size={14} />
+                            Hidden
+                          </span>
+                        )}
+                        {req.deleted && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '4px 12px',
+                            backgroundColor: '#a855f7',
+                            color: 'white',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            <Trash2 size={14} />
+                            Deleted
+                          </span>
+                        )}
+                      </div>
+
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
                         <div>
                           <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold' }}>
@@ -1199,74 +1519,277 @@ export default function StaffDashboard() {
                             {new Date(req.createdAt).toLocaleString()}
                           </p>
                         </div>
-                        <button
-                          onClick={() => setActionModal({ isOpen: true, itemId: req.id, itemType: 'request' })}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: 'white',
-                            color: '#dc2626',
-                            border: '2px solid #dc2626',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = '#dc2626';
-                            e.target.style.color = 'white';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = 'white';
-                            e.target.style.color = '#dc2626';
-                          }}
-                        >
-                          Action
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', alignItems: 'flex-end' }}>
+                          {!req.hidden && !req.deleted && (
+                            <button
+                              onClick={() => setActionModal({ isOpen: true, itemId: req.id, itemType: 'request' })}
+                              style={{
+                                padding: '8px 16px',
+                                backgroundColor: 'white',
+                                color: '#dc2626',
+                                border: '2px solid #dc2626',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = '#dc2626';
+                                e.target.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = 'white';
+                                e.target.style.color = '#dc2626';
+                              }}
+                            >
+                              Action
+                            </button>
+                          )}
+                          {(req.hidden || req.deleted) && (
+                            <button
+                              onClick={() => setUndoModal({ isOpen: true, action: req.hidden ? 'unhide' : 'undelete', itemId: req.id, itemType: 'request' })}
+                              style={{
+                                padding: '8px 16px',
+                                backgroundColor: 'white',
+                                color: '#10b981',
+                                border: '2px solid #10b981',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = '#10b981';
+                                e.target.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = 'white';
+                                e.target.style.color = '#10b981';
+                              }}
+                            >
+                              Undo
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
-                </div>
-              )}
+                    </div>
+                  );
+                })()
+              }
+              
+              {/* Floating Navigation Buttons for Requests */}
+              <div style={{
+                position: 'fixed',
+                right: '20px',
+                bottom: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                zIndex: 40
+              }}>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  title="Go to top"
+                  style={{
+                    padding: '12px 12px',
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                    width: '44px',
+                    height: '44px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#4338ca';
+                    e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#4f46e5';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.3)';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <ChevronUp size={20} />
+                </button>
+                <button
+                  onClick={() => {
+                    const lastPos = savedScrollPositions['requests'] || 0;
+                    if (lastPos > 0) {
+                      window.scrollTo({ top: lastPos, behavior: 'smooth' });
+                    }
+                  }}
+                  title="Go back to last position"
+                  style={{
+                    padding: '12px 12px',
+                    backgroundColor: (savedScrollPositions['requests'] || 0) > 0 ? '#4f46e5' : '#d1d5db',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: (savedScrollPositions['requests'] || 0) > 0 ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    boxShadow: (savedScrollPositions['requests'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none',
+                    width: '44px',
+                    height: '44px',
+                    opacity: (savedScrollPositions['requests'] || 0) > 0 ? 1 : 0.6
+                  }}
+                  onMouseEnter={(e) => {
+                    if ((savedScrollPositions['requests'] || 0) > 0) {
+                      e.target.style.backgroundColor = '#4338ca';
+                      e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                      e.target.style.transform = 'translateY(-2px)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = (savedScrollPositions['requests'] || 0) > 0 ? '#4f46e5' : '#d1d5db';
+                    e.target.style.boxShadow = (savedScrollPositions['requests'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <ChevronDown size={20} />
+                </button>
+              </div>
             </div>
           )}
 
           {/* Comments Tab */}
           {activeTab === 'comments' && (
             <div>
-              {comments.length === 0 ? (
-                <div style={{
-                  padding: '48px 32px',
-                  textAlign: 'center',
-                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                  borderRadius: '10px',
+              {/* Search Bar */}
+              <div style={{
+                marginBottom: '24px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <Search size={18} style={{
+                  position: 'absolute',
+                  left: '12px',
                   color: '#6b7280',
-                  border: '1px solid #d1d5db'
-                }}>
-                  <div style={{ 
-                    width: '72px',
-                    height: '72px',
-                    backgroundColor: 'rgba(79,70,229,0.1)',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px'
-                  }}>
-                    <Eye size={36} style={{ color: '#4f46e5' }} />
-                  </div>
-                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Comments Yet</p>
-                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Manage and moderate comments here</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {comments.map(comment => (
+                  pointerEvents: 'none'
+                }} />
+                <input
+                  type="text"
+                  placeholder="Search comments by text, author..."
+                  value={commentSearch}
+                  onChange={(e) => setCommentSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px 10px 40px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#4f46e5';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.15)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                  }}
+                />
+              </div>
+              
+              {
+                (() => {
+                  const filteredComments = comments.filter(comment =>
+                    (comment.text || '').toLowerCase().includes(commentSearch.toLowerCase()) ||
+                    (comment.userName && comment.userName.toLowerCase().includes(commentSearch.toLowerCase()))
+                  );
+                  
+                  return filteredComments.length === 0 ? (
+                    <div style={{
+                      padding: '48px 32px',
+                      textAlign: 'center',
+                      background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                      borderRadius: '10px',
+                      color: '#6b7280',
+                      border: '1px solid #d1d5db'
+                    }}>
+                      <div style={{ 
+                        width: '72px',
+                        height: '72px',
+                        backgroundColor: 'rgba(79,70,229,0.1)',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 16px'
+                      }}>
+                        <Eye size={36} style={{ color: '#4f46e5' }} />
+                      </div>
+                      <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+                        {commentSearch ? 'No Comments Found' : 'No Comments Yet'}
+                      </p>
+                      <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>
+                        {commentSearch ? `No results for "${commentSearch}"` : 'Manage and moderate comments here'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                        Showing {filteredComments.length} of {comments.length} comments
+                      </p>
+                      {filteredComments.map(comment => (
                     <div key={comment.id} style={{
                       padding: '16px',
-                      border: '1px solid #e5e7eb',
+                      border: comment.hidden ? '2px solid #f59e0b' : comment.deleted ? '2px solid #a855f7' : '1px solid #e5e7eb',
                       borderRadius: '8px',
-                      backgroundColor: '#fff'
+                      backgroundColor: comment.hidden ? '#fef3c7' : comment.deleted ? '#faf5ff' : '#fff',
+                      position: 'relative'
                     }}>
+                      {/* Status Tags */}
+                      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                        {comment.hidden && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '4px 12px',
+                            backgroundColor: '#f59e0b',
+                            color: 'white',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            <EyeOff size={14} />
+                            Hidden
+                          </span>
+                        )}
+                        {comment.deleted && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '4px 12px',
+                            backgroundColor: '#a855f7',
+                            color: 'white',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            <Trash2 size={14} />
+                            Deleted
+                          </span>
+                        )}
+                      </div>
+
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
                         <div>
                           <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold' }}>
@@ -1285,35 +1808,149 @@ export default function StaffDashboard() {
                             {new Date(comment.createdAt).toLocaleString()}
                           </p>
                         </div>
-                        <button
-                          onClick={() => setActionModal({ isOpen: true, itemId: comment.id, itemType: 'comment' })}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: 'white',
-                            color: '#dc2626',
-                            border: '2px solid #dc2626',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = '#dc2626';
-                            e.target.style.color = 'white';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = 'white';
-                            e.target.style.color = '#dc2626';
-                          }}
-                        >
-                          Action
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', alignItems: 'flex-end' }}>
+                          {!comment.hidden && !comment.deleted && (
+                            <button
+                              onClick={() => setActionModal({ isOpen: true, itemId: comment.id, itemType: 'comment' })}
+                              style={{
+                                padding: '8px 16px',
+                                backgroundColor: 'white',
+                                color: '#dc2626',
+                                border: '2px solid #dc2626',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = '#dc2626';
+                                e.target.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = 'white';
+                                e.target.style.color = '#dc2626';
+                              }}
+                            >
+                              Action
+                            </button>
+                          )}
+                          {(comment.hidden || comment.deleted) && (
+                            <button
+                              onClick={() => setUndoModal({ isOpen: true, action: comment.hidden ? 'unhide' : 'undelete', itemId: comment.id, itemType: 'comment' })}
+                              style={{
+                                padding: '8px 16px',
+                                backgroundColor: 'white',
+                                color: '#10b981',
+                                border: '2px solid #10b981',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = '#10b981';
+                                e.target.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = 'white';
+                                e.target.style.color = '#10b981';
+                              }}
+                            >
+                              Undo
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
-                </div>
-              )}
+                    </div>
+                  );
+                })()
+              }
+              
+              {/* Floating Navigation Buttons for Comments */}
+              <div style={{
+                position: 'fixed',
+                right: '20px',
+                bottom: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                zIndex: 40
+              }}>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  title="Go to top"
+                  style={{
+                    padding: '12px 12px',
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                    width: '44px',
+                    height: '44px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#4338ca';
+                    e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#4f46e5';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.3)';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <ChevronUp size={20} />
+                </button>
+                <button
+                  onClick={() => {
+                    const lastPos = savedScrollPositions['comments'] || 0;
+                    if (lastPos > 0) {
+                      window.scrollTo({ top: lastPos, behavior: 'smooth' });
+                    }
+                  }}
+                  title="Go back to last position"
+                  style={{
+                    padding: '12px 12px',
+                    backgroundColor: (savedScrollPositions['comments'] || 0) > 0 ? '#4f46e5' : '#d1d5db',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: (savedScrollPositions['comments'] || 0) > 0 ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    boxShadow: (savedScrollPositions['comments'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none',
+                    width: '44px',
+                    height: '44px',
+                    opacity: (savedScrollPositions['comments'] || 0) > 0 ? 1 : 0.6
+                  }}
+                  onMouseEnter={(e) => {
+                    if ((savedScrollPositions['comments'] || 0) > 0) {
+                      e.target.style.backgroundColor = '#4338ca';
+                      e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                      e.target.style.transform = 'translateY(-2px)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = (savedScrollPositions['comments'] || 0) > 0 ? '#4f46e5' : '#d1d5db';
+                    e.target.style.boxShadow = (savedScrollPositions['comments'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <ChevronDown size={20} />
+                </button>
+              </div>
             </div>
           )}
 
@@ -2284,7 +2921,9 @@ export default function StaffDashboard() {
                   onClick={() => {
                     // close the modal then run quick hide
                     setActionModal({ isOpen: false, itemId: null, itemType: null });
-                    handleQuickHide(actionModal.itemType, actionModal.itemId);
+                    if (actionModal.itemType === 'video') handleHideVideo(actionModal.itemId);
+                    else if (actionModal.itemType === 'request') handleHideRequest(actionModal.itemId);
+                    else if (actionModal.itemType === 'comment') handleHideComment(actionModal.itemId);
                   }}
                   style={{
                     flex: 1,
@@ -2303,7 +2942,9 @@ export default function StaffDashboard() {
                 <button
                   onClick={() => {
                     setActionModal({ isOpen: false, itemId: null, itemType: null });
-                    handleQuickDelete(actionModal.itemType, actionModal.itemId);
+                    if (actionModal.itemType === 'video') handleDeleteVideo(actionModal.itemId);
+                    else if (actionModal.itemType === 'request') handleDeleteRequest(actionModal.itemId);
+                    else if (actionModal.itemType === 'comment') handleDeleteComment(actionModal.itemId);
                   }}
                   style={{
                     flex: 1,
@@ -2439,6 +3080,100 @@ export default function StaffDashboard() {
               </button>
               <button
                 onClick={() => setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' })}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  backgroundColor: '#e5e7eb',
+                  color: '#374151',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  transition: 'opacity 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+                onMouseLeave={(e) => e.target.style.opacity = '1'}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Undo Confirmation Modal */}
+      {undoModal.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(2px)',
+          WebkitBackdropFilter: 'blur(2px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '32px',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)'
+          }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 12px 0', color: '#1f2937' }}>
+              Confirm Undo
+            </h2>
+            <p style={{ fontSize: '14px', color: '#666', margin: '0 0 24px 0' }}>
+              {undoModal.action === 'unhide' 
+                ? `Are you sure you want to unhide this ${undoModal.itemType}? It will become visible again.` 
+                : `Are you sure you want to restore this ${undoModal.itemType}? It will be available again.`}
+            </p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => {
+                  if (undoModal.action === 'unhide') {
+                    if (undoModal.itemType === 'video') {
+                      handleUndoHideVideo(undoModal.itemId);
+                    } else if (undoModal.itemType === 'request') {
+                      handleUndoHideRequest(undoModal.itemId);
+                    } else if (undoModal.itemType === 'comment') {
+                      handleUndoHideComment(undoModal.itemId);
+                    }
+                  } else {
+                    if (undoModal.itemType === 'video') {
+                      handleUndoDeleteVideo(undoModal.itemId);
+                    } else if (undoModal.itemType === 'request') {
+                      handleUndoDeleteRequest(undoModal.itemId);
+                    } else if (undoModal.itemType === 'comment') {
+                      handleUndoDeleteComment(undoModal.itemId);
+                    }
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  transition: 'opacity 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                onMouseLeave={(e) => e.target.style.opacity = '1'}
+              >
+                {undoModal.action === 'unhide' ? 'Unhide' : 'Restore'}
+              </button>
+              <button
+                onClick={() => setUndoModal({ isOpen: false, action: null, itemId: null, itemType: null })}
                 style={{
                   flex: 1,
                   padding: '12px 16px',
@@ -3354,7 +4089,7 @@ export default function StaffDashboard() {
                       justifyContent: 'center',
                       margin: '0 auto 16px'
                     }}>
-                      <Image size={36} style={{ color: '#4f46e5' }} />
+                      <ImageIcon size={36} style={{ color: '#4f46e5' }} />
                     </div>
                     <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Ad Assets Yet</p>
                     <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Upload images, videos, or banners to create engaging ads</p>
@@ -6156,7 +6891,7 @@ export default function StaffDashboard() {
         }}
         title="Manage Ads"
       >
-        <Image size={24} />
+        <ImageIcon size={24} />
         <span>Ads</span>
       </button>
     </footer>

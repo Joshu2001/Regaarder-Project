@@ -3449,5 +3449,293 @@ app.post('/reports', (req, res) => {
   }
 });
 
+// Undo hide video
+app.post('/staff/undo-hide-video/:videoId', (req, res) => {
+  try {
+    const { employeeId } = req.body;
+    const videoId = req.params.videoId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
+    const video = videos.find(v => v.id === videoId);
+
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    video.hidden = false;
+    video.hiddenReason = null;
+    video.hiddenBy = null;
+    video.hiddenAt = null;
+    fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2));
+
+    // Log undo
+    const staff = readStaff();
+    if (!staff.undoLog) staff.undoLog = [];
+    staff.undoLog.push({
+      type: 'video_unhide',
+      id: videoId,
+      undoneBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Video unhidden', video });
+  } catch (err) {
+    console.error('Undo hide video error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete video permanently
+app.post('/staff/delete-video/:videoId', (req, res) => {
+  try {
+    const { employeeId, reason } = req.body;
+    const videoId = req.params.videoId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
+    const video = videos.find(v => v.id === videoId);
+
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    video.deleted = true;
+    video.deletedReason = reason;
+    video.deletedBy = parseInt(employeeId);
+    video.deletedAt = new Date().toISOString();
+    fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2));
+
+    // Log deletion
+    const staff = readStaff();
+    if (!staff.deletionLog) staff.deletionLog = [];
+    staff.deletionLog.push({
+      type: 'video',
+      id: videoId,
+      reason,
+      deletedBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Video deleted' });
+  } catch (err) {
+    console.error('Delete video error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Undo delete video
+app.post('/staff/undo-delete-video/:videoId', (req, res) => {
+  try {
+    const { employeeId } = req.body;
+    const videoId = req.params.videoId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
+    const video = videos.find(v => v.id === videoId);
+
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    video.deleted = false;
+    video.deletedReason = null;
+    video.deletedBy = null;
+    video.deletedAt = null;
+    fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2));
+
+    // Log undo
+    const staff = readStaff();
+    if (!staff.undoLog) staff.undoLog = [];
+    staff.undoLog.push({
+      type: 'video_undelete',
+      id: videoId,
+      undoneBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Video restored', video });
+  } catch (err) {
+    console.error('Undo delete video error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Undo hide request
+app.post('/staff/undo-hide-request/:requestId', (req, res) => {
+  try {
+    const { employeeId } = req.body;
+    const requestId = req.params.requestId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let requests = JSON.parse(fs.readFileSync(REQUESTS_FILE, 'utf8'));
+    const request = requests.find(r => r.id === requestId);
+
+    if (!request) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    request.hidden = false;
+    request.hiddenReason = null;
+    request.hiddenBy = null;
+    request.hiddenAt = null;
+    fs.writeFileSync(REQUESTS_FILE, JSON.stringify(requests, null, 2));
+
+    // Log undo
+    const staff = readStaff();
+    if (!staff.undoLog) staff.undoLog = [];
+    staff.undoLog.push({
+      type: 'request_unhide',
+      id: requestId,
+      undoneBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Request unhidden', request });
+  } catch (err) {
+    console.error('Undo hide request error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Undo delete request
+app.post('/staff/undo-delete-request/:requestId', (req, res) => {
+  try {
+    const { employeeId } = req.body;
+    const requestId = req.params.requestId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let requests = JSON.parse(fs.readFileSync(REQUESTS_FILE, 'utf8'));
+    const request = requests.find(r => r.id === requestId);
+
+    if (!request) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    request.deleted = false;
+    request.deletedReason = null;
+    request.deletedBy = null;
+    request.deletedAt = null;
+    fs.writeFileSync(REQUESTS_FILE, JSON.stringify(requests, null, 2));
+
+    // Log undo
+    const staff = readStaff();
+    if (!staff.undoLog) staff.undoLog = [];
+    staff.undoLog.push({
+      type: 'request_undelete',
+      id: requestId,
+      undoneBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Request restored', request });
+  } catch (err) {
+    console.error('Undo delete request error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Undo hide comment
+app.post('/staff/undo-hide-comment/:commentId', (req, res) => {
+  try {
+    const { employeeId } = req.body;
+    const commentId = req.params.commentId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let comments = JSON.parse(fs.readFileSync(COMMENTS_FILE, 'utf8'));
+    const comment = comments.find(c => c.id === commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    comment.hidden = false;
+    comment.hiddenReason = null;
+    comment.hiddenBy = null;
+    comment.hiddenAt = null;
+    fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
+
+    // Log undo
+    const staff = readStaff();
+    if (!staff.undoLog) staff.undoLog = [];
+    staff.undoLog.push({
+      type: 'comment_unhide',
+      id: commentId,
+      undoneBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Comment unhidden', comment });
+  } catch (err) {
+    console.error('Undo hide comment error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Undo delete comment
+app.post('/staff/undo-delete-comment/:commentId', (req, res) => {
+  try {
+    const { employeeId } = req.body;
+    const commentId = req.params.commentId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let comments = JSON.parse(fs.readFileSync(COMMENTS_FILE, 'utf8'));
+    const comment = comments.find(c => c.id === commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    comment.deleted = false;
+    comment.deletedReason = null;
+    comment.deletedBy = null;
+    comment.deletedAt = null;
+    fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
+
+    // Log undo
+    const staff = readStaff();
+    if (!staff.undoLog) staff.undoLog = [];
+    staff.undoLog.push({
+      type: 'comment_undelete',
+      id: commentId,
+      undoneBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: 'Comment restored', comment });
+  } catch (err) {
+    console.error('Undo delete comment error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.listen(PORT, () => console.log(`Regaarder backend listening on ${PORT}`));
 

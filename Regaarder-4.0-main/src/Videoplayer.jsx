@@ -3869,19 +3869,6 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					WebkitBackdropFilter: "blur(2px)"
 				}}
 			>
-				{/* Soft vignette to keep focus on the video */}
-				<div
-					aria-hidden="true"
-					style={{
-						position: 'fixed',
-						inset: 0,
-						pointerEvents: 'none',
-						zIndex: 60,
-						background: 'radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.42) 100%)',
-						mixBlendMode: 'overlay',
-						transition: 'opacity 420ms ease'
-					}}
-				/>
 				<button
 					className="p-1.5 rounded-full hover:bg-white/10"
 					style={{ color: darkMode ? "#fff" : "#111" }}

@@ -3249,6 +3249,9 @@ const App = ({ overrideMiniPlayerData = null }) => {
                         // Also filter to show only public videos on the home page
                         const uniqueVideos = data.videos
                             .filter(video => {
+                                // Exclude videos staff have hidden, deleted, or shadow-deleted so the
+                                // homepage reflects staff actions and the change survives refresh.
+                                if (video.hidden || video.deleted || video.shadowDeleted) return false;
                                 // Only show public videos on home page
                                 const isPublic = !video.appearance || video.appearance === 'public';
                                 // Filter out videos with blob URLs as they're invalid across sessions

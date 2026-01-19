@@ -627,7 +627,9 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
         ? { backgroundColor: '#4b5563', color: 'white' }
         : { backgroundColor: '#e5e7eb', color: '#9ca3af' };
 
-    const commentCount = comments.length;
+    // Filter out hidden and deleted comments
+    const visibleComments = comments.filter(c => !c.hidden && !c.deleted);
+    const commentCount = visibleComments.length;
 
     return (
         <div
@@ -673,7 +675,7 @@ const CommentsModal = ({ isOpen, onClose, requestId, selectedLanguage = 'English
                         </div>
                     ) : (
                         <div className="space-y-1 pt-2 pb-4">
-                            {comments.map(comment => (
+                            {visibleComments.map(comment => (
                                 <CommentItem
                                     key={comment.id}
                                     comment={comment}
@@ -3987,6 +3989,8 @@ export default function RequestsFeed() {
     // Base search filtering (re-using rankedRequests which now contains server-sorted data)
     let displayedRequests = rankedRequests.filter(req => {
         if (!req || !req.id) return false;
+        // Filter out hidden and deleted requests
+        if (req.hidden || req.deleted) return false;
         if (!searchQuery.trim()) return true;
         const q = searchQuery.trim().toLowerCase();
         return (
