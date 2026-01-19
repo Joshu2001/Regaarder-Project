@@ -2677,12 +2677,39 @@ export default function StaffDashboard() {
                               alignItems: 'center',
                               justifyContent: 'center',
                               color: '#9ca3af',
-                              fontSize: '24px'
+                              fontSize: '24px',
+                              position: 'relative'
                             }}>
                               {video.thumbnail ? (
                                 <img src={video.thumbnail} alt={video.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               ) : (
-                                <Film size={32} />
+                                <>
+                                  <video 
+                                    src={video.videoUrl}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', position: 'absolute' }}
+                                    onLoadedMetadata={(e) => {
+                                      // Generate thumbnail by seeking to middle of video
+                                      if (e.target.duration > 0) {
+                                        e.target.currentTime = Math.min(e.target.duration / 2, 5);
+                                      }
+                                    }}
+                                    onSeeked={(e) => {
+                                      // Capture frame as thumbnail
+                                      const canvas = document.createElement('canvas');
+                                      canvas.width = e.target.videoWidth;
+                                      canvas.height = e.target.videoHeight;
+                                      const ctx = canvas.getContext('2d');
+                                      ctx.drawImage(e.target, 0, 0);
+                                      const thumbnail = canvas.toDataURL('image/jpeg', 0.7);
+                                      // Update the video object with thumbnail
+                                      const updatedVideos = videos.map(v => v.id === video.id ? {...v, thumbnail} : v);
+                                      setVideos(updatedVideos);
+                                      // Hide video once thumbnail is captured
+                                      e.target.style.display = 'none';
+                                    }}
+                                  />
+                                  <Film size={32} style={{ position: 'relative', zIndex: 1 }} />
+                                </>
                               )}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
