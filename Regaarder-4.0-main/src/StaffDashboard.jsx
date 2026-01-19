@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Home, Users, Zap, X, AlertTriangle, Ban, EyeOff as EyeOffIcon, Trash, Send, Megaphone, Star, Gift, Bell, Crown, Mail, Calendar, Flame, Play, Settings, Share2, Check, Image, Upload, Plus, Pause, Trash as TrashIcon, Copy, Film, MessageCircle, ThumbsUp, Search, ChevronUp, ChevronDown as ChevronDownIcon, Filter, Maximize2, Link2, Type } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Users, AlertTriangle, Crown, Search, ChevronUp, Home, Megaphone, Copy, Ban, Trash, Plus, Image, Play, Film, MessageCircle, ThumbsUp, Upload, Type, Link2, Pause } from 'lucide-react';
 
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
@@ -11,7 +11,6 @@ export default function StaffDashboard() {
   const [adOverlayModal, setAdOverlayModal] = useState({ isOpen: false, assetUrl: '', assetType: 'image', videoId: null, startTime: 0, duration: null });
   const [videoPreviewState, setVideoPreviewState] = useState({ isPlaying: false, currentTime: 0, videoDuration: 100, overlayPosition: { x: 50, y: 50 }, overlaySize: { width: 80, height: 60 }, isDragging: false, dragStart: { x: 0, y: 0 } });
   const [previewFullscreen, setPreviewFullscreen] = useState(false);
-  const [showOverlayUrlInput, setShowOverlayUrlInput] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [reportCategory, setReportCategory] = useState('all'); // 'all', 'users', 'creators', 'requests', 'ads', 'videos'
   const [reports, setReports] = useState([]);
@@ -41,7 +40,6 @@ export default function StaffDashboard() {
   // Search and scroll states
   const [videoSearch, setVideoSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
-  const [scrollPosition, setScrollPosition] = useState(0);
   const [savedScrollPositions, setSavedScrollPositions] = useState({});
   const [showOverlayPreview, setShowOverlayPreview] = useState(false);
   const [previewingOverlay, setPreviewingOverlay] = useState(null);
@@ -284,33 +282,6 @@ export default function StaffDashboard() {
       return parseInt(parts[0]) * 60 + parseInt(parts[1]);
     }
     return 0;
-  };
-
-  const handleShadowDelete = async (videoId) => {
-    const reason = prompt('Enter reason for shadow deletion:');
-    if (!reason) return;
-
-    try {
-      const res = await fetch(`http://localhost:4000/staff/shadow-delete/${videoId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          employeeId: staffSession.id,
-          reason
-        })
-      });
-
-      if (res.ok) {
-        // Update UI
-        const deletedReport = reports.find(r => r.videoId === videoId);
-        if (deletedReport) {
-          setShadowDeleted([...shadowDeleted, { videoId, deletedBy: staffSession.id, reason, createdAt: new Date().toISOString() }]);
-          setReports(reports.filter(r => r.videoId !== videoId));
-        }
-      }
-    } catch (err) {
-      console.error('Shadow delete failed:', err);
-    }
   };
 
   const handleApproveAccount = async (pendingId, approve) => {
@@ -1053,7 +1024,7 @@ export default function StaffDashboard() {
                     }
                   }}
                 >
-                  <ChevronDownIcon size={18} />
+                  <ChevronDown size={18} />
                 </button>
               </div>
               
@@ -1433,7 +1404,7 @@ export default function StaffDashboard() {
                     }
                   }}
                 >
-                  <ChevronDownIcon size={18} />
+                  <ChevronDown size={18} />
                 </button>
               </div>
               
@@ -1842,96 +1813,195 @@ export default function StaffDashboard() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {reports.map(report => (
-                    <div key={report.id} style={{
-                      padding: '16px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      backgroundColor: '#fff'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-                        <div style={{ flex: 1 }}>
-                          {reportCategory === 'users' || report.type === 'user' ? (
-                            <>
-                              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold' }}>
-                                User Report: {report.userId}
-                              </h3>
-                              <p style={{ margin: '4px 0', color: '#666', fontSize: '14px' }}>
-                                Reason: {report.reason}
+                  {reports.map(report => {
+                    const reportedVideo = videos.find(v => v.id === report.videoId);
+                    return (
+                      <div key={report.id} style={{
+                        padding: '16px',
+                        border: '2px solid #fee2e2',
+                        borderRadius: '8px',
+                        backgroundColor: '#fef2f2',
+                        display: 'flex',
+                        gap: '16px'
+                      }}>
+                        {/* Video Thumbnail */}
+                        {reportedVideo && (
+                          <div style={{
+                            flexShrink: 0,
+                            width: '100px',
+                            height: '100px',
+                            backgroundColor: '#e5e7eb',
+                            borderRadius: '6px',
+                            overflow: 'hidden',
+                            border: '2px solid #ef4444'
+                          }}>
+                            <img 
+                              src={reportedVideo.imageUrl} 
+                              alt={reportedVideo.title}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Report Details */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ marginBottom: '12px' }}>
+                            <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold' }}>
+                              Report: {report.title || report.videoId}
+                            </h3>
+                            {reportedVideo && (
+                              <p style={{ margin: '4px 0', color: '#666', fontSize: '13px', fontWeight: '500' }}>
+                                📺 Video: {reportedVideo.title} by {reportedVideo.author}
                               </p>
-                              <p style={{ margin: '4px 0', color: '#666', fontSize: '14px' }}>
-                                Violation: {report.violationType}
+                            )}
+                          </div>
+
+                          {/* Reason */}
+                          <div style={{ marginBottom: '8px' }}>
+                            <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: '600', color: '#7f1d1d' }}>
+                              ⚠️ Reason:
+                            </p>
+                            <p style={{ margin: '0', color: '#666', fontSize: '13px', fontStyle: 'italic', paddingLeft: '8px' }}>
+                              {report.reason}
+                            </p>
+                          </div>
+
+                          {/* Reporter Info */}
+                          <div style={{ marginBottom: '8px', fontSize: '12px', color: '#666' }}>
+                            <p style={{ margin: '0' }}>
+                              👤 Reported by: <strong>{report.reporterEmail || report.reporterId || 'anonymous'}</strong>
+                            </p>
+                            <p style={{ margin: '0' }}>
+                              📅 {new Date(report.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+
+                          {/* Evidence Files */}
+                          {report.evidenceFiles && report.evidenceFiles.length > 0 && (
+                            <div style={{ marginBottom: '8px' }}>
+                              <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: '600', color: '#7f1d1d' }}>
+                                📎 Evidence ({report.evidenceFiles.length}):
                               </p>
-                            </>
-                          ) : (
-                            <>
-                              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold' }}>
-                                Report: {report.videoId || report.contentId}
-                              </h3>
-                              <p style={{ margin: '4px 0', color: '#666', fontSize: '14px' }}>
-                                Reason: {report.reason}
-                              </p>
-                            </>
+                              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingLeft: '8px' }}>
+                                {report.evidenceFiles.map((file, idx) => (
+                                  <a 
+                                    key={idx}
+                                    href={`http://localhost:4000/${file.path}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      padding: '4px 8px',
+                                      backgroundColor: '#fff',
+                                      border: '1px solid #ef4444',
+                                      borderRadius: '4px',
+                                      fontSize: '11px',
+                                      color: '#ef4444',
+                                      fontWeight: '600',
+                                      textDecoration: 'none',
+                                      transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.backgroundColor = '#ef4444';
+                                      e.currentTarget.style.color = 'white';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.backgroundColor = '#fff';
+                                      e.currentTarget.style.color = '#ef4444';
+                                    }}
+                                  >
+                                    📄 {file.originalName} ({(file.size / 1024).toFixed(1)}KB)
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
                           )}
-                          <p style={{ margin: '4px 0', color: '#999', fontSize: '12px' }}>
-                            Reported by: {report.reportedBy}
-                          </p>
-                          <p style={{ margin: '4px 0', color: '#999', fontSize: '12px' }}>
-                            {new Date(report.createdAt).toLocaleString()}
-                          </p>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                          {reportCategory === 'users' || report.type === 'user' ? (
-                            <button
-                              onClick={() => {
-                                setUserActionModal({ isOpen: true, userId: report.userId, action: null });
-                                setReasonModal({ isOpen: true, action: 'user', itemId: null, itemType: null, reason: '' });
-                              }}
-                              style={{
-                                padding: '8px 12px',
-                                backgroundColor: 'white',
-                                color: '#dc2626',
-                                border: '2px solid #dc2626',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                fontSize: '12px',
-                                fontWeight: 'bold',
-                                transition: 'all 0.2s',
-                                whiteSpace: 'nowrap'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.target.style.backgroundColor = '#dc2626';
-                                e.target.style.color = 'white';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.target.style.backgroundColor = 'white';
-                                e.target.style.color = '#dc2626';
-                              }}
-                            >
-                              Action
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleShadowDelete(report.videoId || report.contentId)}
-                              style={{
-                                padding: '8px 12px',
-                                backgroundColor: '#ef4444',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                fontSize: '12px',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              <EyeOff size={14} style={{ marginRight: '4px' }} />
-                              Shadow Delete
-                            </button>
+
+                        {/* Actions */}
+                        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', flexShrink: 0 }}>
+                          {reportedVideo && (
+                            <>
+                              <button
+                                onClick={() => setSelectedAdVideo(reportedVideo.id)}
+                                style={{
+                                  padding: '8px 12px',
+                                  backgroundColor: '#3b82f6',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '11px',
+                                  fontWeight: 'bold',
+                                  whiteSpace: 'nowrap',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = '#1e40af'}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
+                              >
+                                View Video
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setSelectedAdVideo(reportedVideo.id);
+                                  setActiveTab('ads');
+                                }}
+                                style={{
+                                  padding: '8px 12px',
+                                  backgroundColor: '#10b981',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '11px',
+                                  fontWeight: 'bold',
+                                  whiteSpace: 'nowrap',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = '#047857'}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
+                              >
+                                Edit Overlays
+                              </button>
+                              <button
+                                onClick={() => {
+                                  // Shadow delete the video
+                                  const deleteVideo = async () => {
+                                    try {
+                                      await fetch(`http://localhost:4000/staff/shadow-delete/${reportedVideo.id}`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ employeeId: staffSession?.id || 1000, reason: `Report action: ${report.reason}` })
+                                      });
+                                      setReports(reports.filter(r => r.id !== report.id));
+                                    } catch (err) {
+                                      console.error('Delete failed', err);
+                                    }
+                                  };
+                                  deleteVideo();
+                                }}
+                                style={{
+                                  padding: '8px 12px',
+                                  backgroundColor: '#ef4444',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '11px',
+                                  fontWeight: 'bold',
+                                  whiteSpace: 'nowrap',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
+                              >
+                                Shadow Delete
+                              </button>
+                            </>
                           )}
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -2134,8 +2204,10 @@ export default function StaffDashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <button
                 onClick={() => {
-                  setActionModal({ isOpen: false, itemId: null, itemType: null });
+                  // Open reason modal using current actionModal values (clear previous errors), then close the action modal
+                  setError('');
                   setReasonModal({ isOpen: true, action: 'hide', itemId: actionModal.itemId, itemType: actionModal.itemType, reason: '' });
+                  setActionModal({ isOpen: false, itemId: null, itemType: null });
                 }}
                 style={{
                   padding: '12px 16px',
@@ -2160,8 +2232,10 @@ export default function StaffDashboard() {
               </button>
               <button
                 onClick={() => {
-                  setActionModal({ isOpen: false, itemId: null, itemType: null });
+                  // Open reason modal using current actionModal values (clear previous errors), then close the action modal
+                  setError('');
                   setReasonModal({ isOpen: true, action: 'delete', itemId: actionModal.itemId, itemType: actionModal.itemType, reason: '' });
+                  setActionModal({ isOpen: false, itemId: null, itemType: null });
                 }}
                 style={{
                   padding: '12px 16px',
@@ -2239,6 +2313,8 @@ export default function StaffDashboard() {
               Please provide a reason for this action
             </p>
             <textarea
+              autoFocus
+              aria-label="Reason for action"
               value={reasonModal.reason}
               onChange={(e) => setReasonModal({ ...reasonModal, reason: e.target.value })}
               placeholder="Enter your reason here..."
@@ -3315,8 +3391,89 @@ export default function StaffDashboard() {
                 )}
               </div>
 
-              {/* Video Overlays Section */}
+              {/* Professional Ad Overlay Manager - NEW SYSTEM */}
               <div style={{ marginTop: '32px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1f2937', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Select Video to Edit Overlays</h3>
+                {videos.length === 0 ? (
+                  <div style={{
+                    padding: '48px 32px',
+                    textAlign: 'center',
+                    background: '#f3f4f6',
+                    borderRadius: '8px',
+                    color: '#6b7280'
+                  }}>
+                    No videos available to edit overlays
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px' }}>
+                    {videos.map(video => (
+                      <div
+                        key={video.id}
+                        onClick={() => setSelectedAdVideo(video.id)}
+                        style={{
+                          padding: '12px',
+                          border: selectedAdVideo === video.id ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                          background: selectedAdVideo === video.id ? '#dbeafe' : 'white',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          position: 'relative',
+                          boxShadow: selectedAdVideo === video.id ? '0 4px 12px rgba(59,130,246,0.3)' : 'none'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (selectedAdVideo !== video.id) {
+                            e.currentTarget.style.borderColor = '#3b82f6';
+                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(59,130,246,0.15)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (selectedAdVideo !== video.id) {
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }
+                        }}
+                      >
+                        {/* Reported Badge */}
+                        {video.reportCount > 0 && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            width: '32px',
+                            height: '32px',
+                            background: '#ef4444',
+                            color: 'white',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            boxShadow: '0 2px 8px rgba(239,68,68,0.3)',
+                            border: '2px solid white'
+                          }}>
+                            {video.reportCount}
+                          </div>
+                        )}
+                        <div style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', marginBottom: '4px' }}>
+                          {video.title}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
+                          By {video.author}
+                        </div>
+                        {video.reportCount > 0 && (
+                          <div style={{ fontSize: '10px', color: '#ef4444', fontWeight: '600', marginTop: '4px' }}>
+                            ⚠️ {video.reportCount} report{video.reportCount !== 1 ? 's' : ''}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Video Overlays Section - OLD (kept for reference) */}
+              <div style={{ marginTop: '32px', display: 'none' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1f2937', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>Video Ad Overlays & Banners</h3>
                 {videos.length === 0 ? (
                   <div style={{
