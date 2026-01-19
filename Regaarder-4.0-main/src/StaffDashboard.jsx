@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Home, Users, Zap, X, AlertTriangle, Ban, EyeOff as EyeOffIcon, Trash, Send, Megaphone, Star, Gift, Bell, Crown, Mail, Calendar, Flame, Play, Settings, Share2, Check, Image, Upload, Plus, Pause, Trash as TrashIcon, Copy, Film, MessageCircle, ThumbsUp } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Eye, EyeOff, Trash2, ChevronDown, Home, Users, Zap, X, AlertTriangle, Ban, EyeOff as EyeOffIcon, Trash, Send, Megaphone, Star, Gift, Bell, Crown, Mail, Calendar, Flame, Play, Settings, Share2, Check, Image, Upload, Plus, Pause, Trash as TrashIcon, Copy, Film, MessageCircle, ThumbsUp, Search, ChevronUp, ChevronDown as ChevronDownIcon, Filter } from 'lucide-react';
 
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
@@ -36,6 +36,28 @@ export default function StaffDashboard() {
   const [promotionTypeDropdown, setPromotionTypeDropdown] = useState(false);
   const [sendToDropdown, setSendToDropdown] = useState(false);
   const [previewColor, setPreviewColor] = useState('#f59e0b');
+  
+  // Search and scroll states
+  const [videoSearch, setVideoSearch] = useState('');
+  const [userSearch, setUserSearch] = useState('');
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [savedScrollPositions, setSavedScrollPositions] = useState({});
+  const [showOverlayPreview, setShowOverlayPreview] = useState(false);
+  const [previewingOverlay, setPreviewingOverlay] = useState(null);
+  const [deviceOrientation, setDeviceOrientation] = useState('portrait');
+
+  // Track scroll position per tab
+  useEffect(() => {
+    const handleScroll = () => {
+      setSavedScrollPositions(prev => ({
+        ...prev,
+        [activeTab]: window.scrollY
+      }));
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeTab]);
 
   useEffect(() => {
     const session = localStorage.getItem('staffSession');
@@ -78,6 +100,25 @@ export default function StaffDashboard() {
       }
     }
   }, [videoPreviewState.currentTime, videoPreviewState.isPlaying]);
+
+  // Handle screen orientation changes
+  useEffect(() => {
+    const handleOrientationChange = () => {
+      const isLandscape = window.innerWidth > window.innerHeight;
+      setDeviceOrientation(isLandscape ? 'landscape' : 'portrait');
+    };
+
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
+    
+    // Set initial orientation
+    handleOrientationChange();
+
+    return () => {
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('resize', handleOrientationChange);
+    };
+  }, []);
 
   const loadData = async (employee) => {
     try {
@@ -825,33 +866,154 @@ export default function StaffDashboard() {
           {/* Videos Tab */}
           {activeTab === 'videos' && (
             <div>
-              {videos.length === 0 ? (
+              {/* Search Bar */}
+              <div style={{
+                marginBottom: '24px',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center'
+              }}>
                 <div style={{
-                  padding: '48px 32px',
-                  textAlign: 'center',
-                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                  borderRadius: '10px',
-                  color: '#6b7280',
-                  border: '1px solid #d1d5db'
+                  flex: 1,
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}>
-                  <div style={{ 
-                    width: '72px',
-                    height: '72px',
-                    backgroundColor: 'rgba(79,70,229,0.1)',
-                    borderRadius: '12px',
+                  <Search size={18} style={{
+                    position: 'absolute',
+                    left: '12px',
+                    color: '#6b7280',
+                    pointerEvents: 'none'
+                  }} />
+                  <input
+                    type="text"
+                    placeholder="Search videos by title, author..."
+                    value={videoSearch}
+                    onChange={(e) => setVideoSearch(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px 10px 40px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#4f46e5';
+                      e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.15)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#e5e7eb';
+                      e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  title="Go to top"
+                  style={{
+                    padding: '10px 14px',
+                    backgroundColor: '#f3f4f6',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    margin: '0 auto 16px'
-                  }}>
-                    <Eye size={36} style={{ color: '#4f46e5' }} />
-                  </div>
-                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Videos Yet</p>
-                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Upload and manage videos to get started</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {videos.map(video => (
+                    transition: 'all 0.3s ease',
+                    color: '#4f46e5'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#e5e7eb';
+                    e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#f3f4f6';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  <ChevronUp size={18} />
+                </button>
+                <button
+                  onClick={() => {
+                    const lastPos = savedScrollPositions[activeTab] || 0;
+                    if (lastPos > 0) {
+                      window.scrollTo({ top: lastPos, behavior: 'smooth' });
+                    }
+                  }}
+                  title="Go back to last position"
+                  style={{
+                    padding: '10px 14px',
+                    backgroundColor: (savedScrollPositions[activeTab] || 0) > 0 ? '#f3f4f6' : '#e5e7eb',
+                    border: `1px solid ${(savedScrollPositions[activeTab] || 0) > 0 ? '#e5e7eb' : '#d1d5db'}`,
+                    borderRadius: '8px',
+                    cursor: (savedScrollPositions[activeTab] || 0) > 0 ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    color: (savedScrollPositions[activeTab] || 0) > 0 ? '#4f46e5' : '#9ca3af',
+                    opacity: (savedScrollPositions[activeTab] || 0) > 0 ? 1 : 0.6
+                  }}
+                  onMouseEnter={(e) => {
+                    if ((savedScrollPositions[activeTab] || 0) > 0) {
+                      e.target.style.backgroundColor = '#e5e7eb';
+                      e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if ((savedScrollPositions[activeTab] || 0) > 0) {
+                      e.target.style.backgroundColor = '#f3f4f6';
+                      e.target.style.boxShadow = 'none';
+                    }
+                  }}
+                >
+                  <ChevronDownIcon size={18} />
+                </button>
+              </div>
+              
+              {
+                (() => {
+                  const filteredVideos = videos.filter(video =>
+                    video.title.toLowerCase().includes(videoSearch.toLowerCase()) ||
+                    video.author.toLowerCase().includes(videoSearch.toLowerCase())
+                  );
+                  
+                  return filteredVideos.length === 0 ? (
+                    <div style={{
+                      padding: '48px 32px',
+                      textAlign: 'center',
+                      background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                      borderRadius: '10px',
+                      color: '#6b7280',
+                      border: '1px solid #d1d5db'
+                    }}>
+                      <div style={{ 
+                        width: '72px',
+                        height: '72px',
+                        backgroundColor: 'rgba(79,70,229,0.1)',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 16px'
+                      }}>
+                        <Eye size={36} style={{ color: '#4f46e5' }} />
+                      </div>
+                      <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+                        {videoSearch ? 'No Videos Found' : 'No Videos Yet'}
+                      </p>
+                      <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>
+                        {videoSearch ? `No results for "${videoSearch}"` : 'Upload and manage videos to get started'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                        Showing {filteredVideos.length} of {videos.length} videos
+                      </p>
+                      {filteredVideos.map(video => (
                     <div key={video.id} style={{
                       padding: '16px',
                       border: '1px solid #e5e7eb',
@@ -899,9 +1061,11 @@ export default function StaffDashboard() {
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                      ))}
+                      </div>
+                    );
+                  })()
+                }
             </div>
           )}
 
@@ -1082,33 +1246,154 @@ export default function StaffDashboard() {
           {/* Users Tab */}
           {activeTab === 'users' && (
             <div>
-              {users.length === 0 ? (
+              {/* Search Bar */}
+              <div style={{
+                marginBottom: '24px',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center'
+              }}>
                 <div style={{
-                  padding: '48px 32px',
-                  textAlign: 'center',
-                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                  borderRadius: '10px',
-                  color: '#6b7280',
-                  border: '1px solid #d1d5db'
+                  flex: 1,
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}>
-                  <div style={{ 
-                    width: '72px',
-                    height: '72px',
-                    backgroundColor: 'rgba(79,70,229,0.1)',
-                    borderRadius: '12px',
+                  <Search size={18} style={{
+                    position: 'absolute',
+                    left: '12px',
+                    color: '#6b7280',
+                    pointerEvents: 'none'
+                  }} />
+                  <input
+                    type="text"
+                    placeholder="Search users by name, email..."
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px 10px 40px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#4f46e5';
+                      e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.15)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#e5e7eb';
+                      e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  title="Go to top"
+                  style={{
+                    padding: '10px 14px',
+                    backgroundColor: '#f3f4f6',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    margin: '0 auto 16px'
-                  }}>
-                    <Users size={36} style={{ color: '#4f46e5' }} />
-                  </div>
-                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Users Yet</p>
-                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>User management and moderation tools</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {users.map(user => (
+                    transition: 'all 0.3s ease',
+                    color: '#4f46e5'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#e5e7eb';
+                    e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#f3f4f6';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  <ChevronUp size={18} />
+                </button>
+                <button
+                  onClick={() => {
+                    const lastPos = savedScrollPositions[activeTab] || 0;
+                    if (lastPos > 0) {
+                      window.scrollTo({ top: lastPos, behavior: 'smooth' });
+                    }
+                  }}
+                  title="Go back to last position"
+                  style={{
+                    padding: '10px 14px',
+                    backgroundColor: (savedScrollPositions[activeTab] || 0) > 0 ? '#f3f4f6' : '#e5e7eb',
+                    border: `1px solid ${(savedScrollPositions[activeTab] || 0) > 0 ? '#e5e7eb' : '#d1d5db'}`,
+                    borderRadius: '8px',
+                    cursor: (savedScrollPositions[activeTab] || 0) > 0 ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    color: (savedScrollPositions[activeTab] || 0) > 0 ? '#4f46e5' : '#9ca3af',
+                    opacity: (savedScrollPositions[activeTab] || 0) > 0 ? 1 : 0.6
+                  }}
+                  onMouseEnter={(e) => {
+                    if ((savedScrollPositions[activeTab] || 0) > 0) {
+                      e.target.style.backgroundColor = '#e5e7eb';
+                      e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if ((savedScrollPositions[activeTab] || 0) > 0) {
+                      e.target.style.backgroundColor = '#f3f4f6';
+                      e.target.style.boxShadow = 'none';
+                    }
+                  }}
+                >
+                  <ChevronDownIcon size={18} />
+                </button>
+              </div>
+              
+              {
+                (() => {
+                  const filteredUsers = users.filter(user =>
+                    user.name.toLowerCase().includes(userSearch.toLowerCase()) ||
+                    (user.email && user.email.toLowerCase().includes(userSearch.toLowerCase()))
+                  );
+                  
+                  return filteredUsers.length === 0 ? (
+                    <div style={{
+                      padding: '48px 32px',
+                      textAlign: 'center',
+                      background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                      borderRadius: '10px',
+                      color: '#6b7280',
+                      border: '1px solid #d1d5db'
+                    }}>
+                      <div style={{ 
+                        width: '72px',
+                        height: '72px',
+                        backgroundColor: 'rgba(79,70,229,0.1)',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 16px'
+                      }}>
+                        <Users size={36} style={{ color: '#4f46e5' }} />
+                      </div>
+                      <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+                        {userSearch ? 'No Users Found' : 'No Users Yet'}
+                      </p>
+                      <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>
+                        {userSearch ? `No results for "${userSearch}"` : 'User management and moderation tools'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                        Showing {filteredUsers.length} of {users.length} users
+                      </p>
+                      {filteredUsers.map(user => (
                     <div key={user.id} style={{
                       padding: '16px',
                       border: '1px solid #e5e7eb',
@@ -1229,9 +1514,11 @@ export default function StaffDashboard() {
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                      ))}
+                      </div>
+                    );
+                  })()
+                }
             </div>
           )}
 
@@ -4347,6 +4634,9 @@ export default function StaffDashboard() {
                                     })
                                   };
                                   setAdOverlays([...adOverlays, newOverlay]);
+                                  // Show preview of the overlay
+                                  setPreviewingOverlay(newOverlay);
+                                  setShowOverlayPreview(true);
                                   setAdOverlayModal({ isOpen: false, assetUrl: '', assetType: 'image', videoId: null, startTime: 0, duration: null, _dropdownOpen: false, overlayText: '', overlayColor: '#ffffff', overlayUrl: '' });
                                   setSelectedAdVideo(null);
                                   setVideoPreviewState({ isPlaying: false, currentTime: 0, overlayPosition: { x: 50, y: 50 }, overlaySize: { width: 80, height: 60 }, isDragging: false, dragStart: { x: 0, y: 0 } });
@@ -5275,6 +5565,257 @@ export default function StaffDashboard() {
         <span>Ads</span>
       </button>
     </footer>
+    
+    {/* Fullscreen Overlay Preview Modal */}
+    {showOverlayPreview && previewingOverlay && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        padding: deviceOrientation === 'landscape' ? '20px' : '40px 20px'
+      }}>
+        {/* Header with close button */}
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          zIndex: 10000
+        }}>
+          <button
+            onClick={() => setShowOverlayPreview(false)}
+            style={{
+              width: '40px',
+              height: '40px',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              border: '2px solid white',
+              borderRadius: '50%',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+              transition: 'all 0.3s ease',
+              fontWeight: 'bold'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+              e.target.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+              e.target.style.transform = 'scale(1)';
+            }}
+            title="Close preview (Escape to close)"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Confirmation Message */}
+        <div style={{
+          position: 'absolute',
+          top: '60px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          border: '2px solid #10b981',
+          borderRadius: '8px',
+          padding: '16px 24px',
+          color: '#10b981',
+          fontSize: '14px',
+          fontWeight: '600',
+          textAlign: 'center',
+          zIndex: 10001,
+          animation: 'slideDown 0.3s ease',
+          maxWidth: '90%'
+        }}>
+          ✓ Overlay created successfully! Displaying preview...
+        </div>
+
+        {/* Video container with responsive sizing */}
+        <div style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          maxWidth: deviceOrientation === 'landscape' ? '95vw' : '100vw',
+          maxHeight: deviceOrientation === 'landscape' ? '90vh' : '100vh',
+          aspectRatio: '16/9',
+          position: 'relative',
+          backgroundColor: '#1a1a1a',
+          borderRadius: deviceOrientation === 'landscape' ? '12px' : '0px'
+        }}>
+          {/* Main video/content */}
+          {previewingOverlay.videoId && videos.find(v => v.id === previewingOverlay.videoId) && (
+            <video
+              src={videos.find(v => v.id === previewingOverlay.videoId)?.videoUrl}
+              autoPlay
+              controls
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                backgroundColor: '#000'
+              }}
+            />
+          )}
+
+          {/* Overlay on top */}
+          <div
+            style={{
+              position: 'absolute',
+              left: `${previewingOverlay.x}%`,
+              top: `${previewingOverlay.y}%`,
+              width: `${previewingOverlay.width}%`,
+              height: `${previewingOverlay.height}%`,
+              transform: 'translate(-50%, -50%)',
+              cursor: previewingOverlay.clickUrl ? 'pointer' : 'default',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+              transition: 'all 0.2s ease',
+              border: '2px solid rgba(245, 158, 11, 0.5)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 12px 32px rgba(245, 158, 11, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translate(-50%, -50%)';
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.4)';
+            }}
+            onClick={() => {
+              if (previewingOverlay.clickUrl) {
+                window.open(previewingOverlay.clickUrl, '_blank');
+              }
+            }}
+          >
+            {previewingOverlay.assetType === 'image' ? (
+              <img
+                src={previewingOverlay.assetUrl}
+                alt="Ad Overlay"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+              />
+            ) : previewingOverlay.assetType === 'video' ? (
+              <video
+                src={previewingOverlay.assetUrl}
+                autoPlay
+                loop
+                muted
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: previewingOverlay.color || '#000000',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  padding: '16px',
+                  textAlign: 'center',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word'
+                }}
+              >
+                {previewingOverlay.text}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Info and controls at bottom */}
+        <div style={{
+          position: 'absolute',
+          bottom: '20px',
+          left: '20px',
+          right: '20px',
+          color: 'white',
+          fontSize: '14px',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            justifyContent: 'center',
+            marginBottom: '12px'
+          }}>
+            <button
+              onClick={() => setShowOverlayPreview(false)}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#1f2937',
+                color: 'white',
+                border: '2px solid #4b5563',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '600',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#374151';
+                e.target.style.borderColor = '#6b7280';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#1f2937';
+                e.target.style.borderColor = '#4b5563';
+              }}
+            >
+              Close Preview
+            </button>
+          </div>
+          <p style={{ margin: '0 0 8px 0', opacity: 0.8 }}>
+            {previewingOverlay.assetType === 'image' && '📸 Image Overlay'}
+            {previewingOverlay.assetType === 'video' && '🎬 Video Overlay'}
+            {previewingOverlay.assetType === 'text' && '📝 Text Overlay'}
+            {previewingOverlay.clickUrl && ' • 🔗 Clickable'}
+            {previewingOverlay.duration && ` • Duration: ${previewingOverlay.duration}s`}
+          </p>
+          <p style={{ margin: '0', fontSize: '12px', opacity: 0.6 }}>
+            {deviceOrientation === 'landscape' ? '📱 Landscape Mode' : '📱 Portrait Mode'} • This is how the ad will appear to users
+          </p>
+        </div>
+
+        <style>{`
+          @keyframes slideDown {
+            from {
+              opacity: 0;
+              transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(-50%) translateY(0);
+            }
+          }
+        `}</style>
+      </div>
+    )}
     </>
   );
 }
