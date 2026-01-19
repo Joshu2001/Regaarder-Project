@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, CheckCircle, Rocket, Trophy, ChevronLeft, Settings, ChevronRight, Home, FileText, Pencil, MoreHorizontal, MessageSquare, PlayCircle, Star, CornerUpRight, Send, X, Lightbulb, Trash2, Archive } from 'lucide-react';
 import { translations, getTranslation } from './translations.js';
+import RequestFeedbackModal from './RequestFeedbackModal.jsx';
 
 // Utility for relative time
 const timeAgo = (iso) => {
@@ -68,7 +69,7 @@ const StatusTracker = ({ currentStep, steps }) => {
 };
 
 // Notification Card Component
-const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId, selectedLanguage }) => {
+const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId, selectedLanguage, onFeedbackPrompt }) => {
   // Use the latest item for display logic, but render the full thread
   const latestItem = thread.items[thread.items.length - 1];
   const items = thread.items || [thread];
@@ -78,10 +79,12 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
 
   // Extract current step from metadata if available (default to 1)
   let currentStep = 1;
+  let hasFeedbackPrompt = false;
   // Iterate backwards to find the latest step update
   for (let i = items.length - 1; i >= 0; i--) {
     if (items[i].type === 'status_update' && items[i].metadata && items[i].metadata.step) {
       currentStep = parseInt(items[i].metadata.step, 10);
+      hasFeedbackPrompt = items[i].hasFeedbackPrompt === true;
       break;
     }
   }
@@ -99,6 +102,7 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
   // Local state for inline reply
   const [isReplying, setIsReplying] = React.useState(false);
   const [replyText, setReplyText] = React.useState('');
+  const [showFeedbackPrompt, setShowFeedbackPrompt] = React.useState(hasFeedbackPrompt && currentStep === 6);
 
   // Swipe State
   const [swipeOffset, setSwipeOffset] = React.useState(0);
@@ -257,17 +261,29 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
               })}
             </div>
 
-            <div className="flex justify-between items-center mt-2">
+            <div className="flex justify-between items-center mt-2 flex-wrap gap-2">
               <span className="text-xs text-gray-400">{timeAgo(latestItem.createdAt)}</span>
-              {actionLabel && !isReplying && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); setIsReplying(true); }}
-                  className="text-xs font-medium hover:opacity-80 flex items-center px-2 py-1 rounded-md transition-colors hover:bg-gray-50"
-                  style={{ color: 'var(--color-gold)' }}
-                >
-                  {actionLabel} <CornerUpRight className="w-3.5 h-3.5 ml-1" />
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                {showFeedbackPrompt && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowFeedbackPrompt(false); onFeedbackPrompt && onFeedbackPrompt(thread); }}
+                    className="text-xs font-medium hover:opacity-80 flex items-center px-2 py-1 rounded-md transition-colors"
+                    style={{ color: '#10b981', backgroundColor: '#ecfdf520' }}
+                    title="Share feedback about this request"
+                  >
+                    ⭐ Share Feedback
+                  </button>
+                )}
+                {actionLabel && !isReplying && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setIsReplying(true); }}
+                    className="text-xs font-medium hover:opacity-80 flex items-center px-2 py-1 rounded-md transition-colors hover:bg-gray-50"
+                    style={{ color: 'var(--color-gold)' }}
+                  >
+                    {actionLabel} <CornerUpRight className="w-3.5 h-3.5 ml-1" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -386,6 +402,7 @@ const App = ({ onClose }) => {
   const [hasNotifications, setHasNotifications] = React.useState(false);
   const [groupedSuggestions, setGroupedSuggestions] = React.useState([]);
   const [userId, setUserId] = React.useState(null);
+  const [feedbackModal, setFeedbackModal] = React.useState({ isOpen: false, requestId: null, requestTitle: null, userRole: 'requester' });
 
   // Helper to fetch and group notifications
   const fetchNotifications = async () => {
@@ -526,6 +543,20 @@ const App = ({ onClose }) => {
     } catch (e) {
       console.error('Failed to send reply', e);
     }
+  };
+
+  // Handler for opening feedback modal
+  const handleFeedbackPrompt = (thread) => {
+    const latestStatusUpdate = (thread.items || []).find(i => i.type === 'status_update');
+    const requestId = thread.requestId || (latestStatusUpdate && latestStatusUpdate.requestId);
+    const title = thread.text ? thread.text.split('"')[1] || 'Request' : 'Request';
+    
+    setFeedbackModal({
+      isOpen: true,
+      requestId: requestId,
+      requestTitle: title,
+      userRole: 'requester'
+    });
   };
 
   return (
@@ -725,6 +756,7 @@ const App = ({ onClose }) => {
                     onReply={handleReply}
                     onDelete={handleDelete}
                     onDismiss={handleDismiss}
+                    onFeedbackPrompt={handleFeedbackPrompt}
                     currentUserId={userId}
                     selectedLanguage={selectedLanguage}
                   />
@@ -789,6 +821,20 @@ const App = ({ onClose }) => {
               </div>
             </div>
           )}
+
+          {/* Feedback Modal */}
+          <RequestFeedbackModal
+            isOpen={feedbackModal.isOpen}
+            onClose={() => setFeedbackModal({ ...feedbackModal, isOpen: false })}
+            requestId={feedbackModal.requestId}
+            requestTitle={feedbackModal.requestTitle}
+            userRole={feedbackModal.userRole}
+            onSubmitSuccess={() => {
+              setToast({ message: 'Thank you for your feedback! 🙏' });
+              setTimeout(() => setToast(null), 3000);
+              fetchNotifications();
+            }}
+          />
 
         </div>
       </div>

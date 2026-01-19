@@ -2405,6 +2405,26 @@ app.post('/pay/create-session', (req, res) => {
   }
 });
 
+// Feedback storage for completed requests
+const FEEDBACK_FILE = path.join(__dirname, 'request_feedback.json');
+function readFeedback() {
+  try {
+    if (!fs.existsSync(FEEDBACK_FILE)) return [];
+    const raw = fs.readFileSync(FEEDBACK_FILE, 'utf8');
+    return JSON.parse(raw || '[]');
+  } catch (err) {
+    console.error('readFeedback error', err);
+    return [];
+  }
+}
+function writeFeedback(feedback) {
+  try {
+    fs.writeFileSync(FEEDBACK_FILE, JSON.stringify(feedback, null, 2), 'utf8');
+  } catch (err) {
+    console.error('writeFeedback error', err);
+  }
+}
+
 // Update request status and notify requester
 app.post('/requests/:id/status', authMiddleware, (req, res) => {
   try {
@@ -2444,7 +2464,8 @@ app.post('/requests/:id/status', authMiddleware, (req, res) => {
           to: { id: request.createdBy }, // Requester ID
           createdAt: new Date().toISOString(),
           type: 'status_update',
-          metadata: { step, message }
+          metadata: { step, message },
+          hasFeedbackPrompt: step === 6 // Add feedback prompt flag when marked as completed
         };
         
         const SUG_FILE = path.join(__dirname, 'suggestions.json');
@@ -2457,6 +2478,120 @@ app.post('/requests/:id/status', authMiddleware, (req, res) => {
     return res.json({ success: true, currentStep: request.currentStep });
   } catch (err) {
     console.error('update status error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Submit feedback for completed request (both requester and creator can submit)
+app.post('/requests/:id/feedback', authMiddleware, (req, res) => {
+  try {
+    const requestId = req.params.id;
+    const { rating, feedbackText, feedbackType } = req.body || {};
+    
+    if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Rating must be a number between 1-5' });
+    }
+    
+    const requests = readRequests();
+    const idx = requests.findIndex(r => String(r.id) === String(requestId));
+    if (idx === -1) return res.status(404).json({ error: 'Request not found' });
+    
+    const request = requests[idx];
+    const isRequester = request.createdBy === req.user.id;
+    const isCreator = request.claimed && request.claimedBy && request.claimedBy.id === req.user.id;
+    
+    if (!isRequester && !isCreator) {
+      return res.status(403).json({ error: 'Not authorized to provide feedback' });
+    }
+    
+    const feedback = {
+      id: `fb-${Date.now()}`,
+      requestId: request.id,
+      requestTitle: request.title,
+      userId: req.user.id,
+      userRole: isCreator ? 'creator' : 'requester',
+      rating: Number(rating),
+      feedbackText: String(feedbackText || '').trim(),
+      feedbackType: feedbackType || 'general',
+      createdAt: new Date().toISOString()
+    };
+    
+    const allFeedback = readFeedback();
+    allFeedback.unshift(feedback);
+    writeFeedback(allFeedback);
+    
+    // Notify the other party about feedback (if creator gave feedback, notify requester and vice versa)
+    const otherUserId = isCreator ? request.createdBy : request.claimedBy?.id;
+    if (otherUserId) {
+      const userRole = isCreator ? 'Creator' : 'Requester';
+      const ratingEmoji = ['😞', '😞', '😐', '😊', '😍'][Math.min(rating - 1, 4)];
+      const notifText = `${userRole} feedback for "${request.title}": ${ratingEmoji} ${rating}/5 ${feedbackText ? ' - ' + feedbackText.substring(0, 50) : ''}`;
+      
+      const suggestion = {
+        id: `fb-notify-${Date.now()}`,
+        requestId: request.id,
+        text: notifText,
+        from: { id: req.user.id, name: req.user.name || req.user.email },
+        to: { id: otherUserId },
+        createdAt: new Date().toISOString(),
+        type: 'feedback',
+        metadata: { rating, feedbackText }
+      };
+      
+      const SUG_FILE = path.join(__dirname, 'suggestions.json');
+      let arr = [];
+      try { if (fs.existsSync(SUG_FILE)) arr = JSON.parse(fs.readFileSync(SUG_FILE, 'utf8') || '[]'); } catch {}
+      arr.unshift(suggestion);
+      try { fs.writeFileSync(SUG_FILE, JSON.stringify(arr, null, 2), 'utf8'); } catch {}
+    }
+    
+    return res.json({ success: true, feedback });
+  } catch (err) {
+    console.error('submit feedback error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get feedback for a request (for admin dashboard)
+app.get('/requests/:id/feedback', (req, res) => {
+  try {
+    const requestId = req.params.id;
+    const allFeedback = readFeedback();
+    const requestFeedback = allFeedback.filter(f => String(f.requestId) === String(requestId));
+    return res.json({ success: true, feedback: requestFeedback });
+  } catch (err) {
+    console.error('get feedback error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get all feedback (admin only)
+app.get('/staff/feedback', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+    
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    const feedback = readFeedback();
+    const requests = readRequests();
+    
+    // Enrich feedback with request and user details
+    const enrichedFeedback = feedback.map(f => {
+      const request = requests.find(r => String(r.id) === String(f.requestId));
+      return {
+        ...f,
+        requestTitle: f.requestTitle,
+        completed: request && request.currentStep === 6,
+        creatorName: request?.claimedBy?.name || 'Unknown',
+        requesterName: request?.creator?.name || 'Unknown'
+      };
+    });
+    
+    return res.json({ success: true, feedback: enrichedFeedback });
+  } catch (err) {
+    console.error('get all feedback error', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });
@@ -2969,7 +3104,19 @@ app.get('/staff/videos', (req, res) => {
     }
 
     const videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
-    return res.json({ videos });
+    const staff = readStaff();
+
+    // Attach report counts to each video
+    const videosWithReports = videos.map(video => {
+      const videoReports = staff.reports ? staff.reports.filter(r => r.videoId === video.id) : [];
+      return {
+        ...video,
+        reportCount: videoReports.length,
+        reports: videoReports
+      };
+    });
+
+    return res.json({ videos: videosWithReports });
   } catch (err) {
     console.error('Get videos error:', err);
     return res.status(500).json({ error: 'Server error' });
@@ -3273,7 +3420,7 @@ app.post('/staff/hide-comment/:commentId', (req, res) => {
 // Update video metadata (admin only)
 app.put('/staff/videos/:videoId', (req, res) => {
   try {
-    const { employeeId, title, description, tags } = req.body;
+    const { employeeId, title, description, tags, overlays } = req.body;
     
     if (!employeeId) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -3289,6 +3436,7 @@ app.put('/staff/videos/:videoId', (req, res) => {
     if (title) video.title = title;
     if (description) video.description = description;
     if (tags) video.tags = tags;
+    if (Array.isArray(overlays)) video.overlays = overlays;
     video.modifiedBy = parseInt(employeeId);
     video.modifiedAt = new Date().toISOString();
 
@@ -3363,6 +3511,75 @@ app.post('/staff/user-action/:userId', (req, res) => {
     return res.json({ success: true, message: `User ${action} applied`, user });
   } catch (err) {
     console.error('User action error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /reports - Submit a video/content report with optional evidence files
+app.post('/reports', (req, res) => {
+  try {
+    const multer = require('multer');
+    const upload = multer({ 
+      storage: multer.diskStorage({
+        destination: 'uploads/evidence',
+        filename: (file, cb) => cb(null, `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.originalname}`)
+      }),
+      limits: { fileSize: 10 * 1024 * 1024 } // 10MB max
+    });
+
+    // Create uploads/evidence directory if it doesn't exist
+    const evPath = 'uploads/evidence';
+    if (!fs.existsSync(evPath)) {
+      fs.mkdirSync(evPath, { recursive: true });
+    }
+
+    // Handle file upload
+    upload.array('evidenceFiles', 5)(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ error: 'File upload failed: ' + err.message });
+      }
+
+      const { videoId, title, reason, reporterId, reporterEmail, time } = req.body;
+      
+      if (!videoId || !reason) {
+        return res.status(400).json({ error: 'Missing videoId or reason' });
+      }
+
+      try {
+        // Read current reports
+        const staff = readStaff();
+        if (!staff.reports) staff.reports = [];
+
+        // Create report entry with evidence files
+        const report = {
+          id: `report_${Date.now()}`,
+          videoId: videoId,
+          title: title || '',
+          reason: reason,
+          reporterId: reporterId || 'anonymous',
+          reporterEmail: reporterEmail || null,
+          createdAt: new Date().toISOString(),
+          status: 'pending',
+          evidenceFiles: (req.files || []).map(file => ({
+            filename: file.filename,
+            originalName: file.originalname,
+            size: file.size,
+            path: file.path,
+            uploadedAt: new Date().toISOString()
+          }))
+        };
+
+        staff.reports.push(report);
+        writeStaff(staff);
+
+        return res.json({ success: true, report });
+      } catch (innerErr) {
+        console.error('Report submission error:', innerErr);
+        return res.status(500).json({ error: 'Failed to save report' });
+      }
+    });
+  } catch (err) {
+    console.error('Reports endpoint error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });
