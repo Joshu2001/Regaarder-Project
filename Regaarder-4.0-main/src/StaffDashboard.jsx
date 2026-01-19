@@ -827,14 +827,27 @@ export default function StaffDashboard() {
             <div>
               {videos.length === 0 ? (
                 <div style={{
-                  padding: '32px',
+                  padding: '48px 32px',
                   textAlign: 'center',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  color: '#9ca3af'
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
                 }}>
-                  <Eye size={48} style={{ margin: '0 auto 16px' }} />
-                  <p>No videos to manage</p>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Eye size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Videos Yet</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Upload and manage videos to get started</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -897,14 +910,27 @@ export default function StaffDashboard() {
             <div>
               {requests.length === 0 ? (
                 <div style={{
-                  padding: '32px',
+                  padding: '48px 32px',
                   textAlign: 'center',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  color: '#9ca3af'
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
                 }}>
-                  <Eye size={48} style={{ margin: '0 auto 16px' }} />
-                  <p>No requests to manage</p>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Eye size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Requests Yet</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Manage special requests from users here</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -972,14 +998,27 @@ export default function StaffDashboard() {
             <div>
               {comments.length === 0 ? (
                 <div style={{
-                  padding: '32px',
+                  padding: '48px 32px',
                   textAlign: 'center',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  color: '#9ca3af'
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
                 }}>
-                  <Eye size={48} style={{ margin: '0 auto 16px' }} />
-                  <p>No comments to manage</p>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Eye size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Comments Yet</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Manage and moderate comments here</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1045,14 +1084,27 @@ export default function StaffDashboard() {
             <div>
               {users.length === 0 ? (
                 <div style={{
-                  padding: '32px',
+                  padding: '48px 32px',
                   textAlign: 'center',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  color: '#9ca3af'
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
                 }}>
-                  <Users size={48} style={{ margin: '0 auto 16px' }} />
-                  <p>No users to manage</p>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Users size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Users Yet</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>User management and moderation tools</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1188,14 +1240,27 @@ export default function StaffDashboard() {
             <div>
               {creators.length === 0 ? (
                 <div style={{
-                  padding: '32px',
+                  padding: '48px 32px',
                   textAlign: 'center',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  color: '#9ca3af'
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
                 }}>
-                  <Users size={48} style={{ margin: '0 auto 16px' }} />
-                  <p>No creators</p>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Users size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Creators Yet</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Creator accounts and dashboard tools</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1382,14 +1447,27 @@ export default function StaffDashboard() {
               {/* Filtered Reports */}
               {reports.length === 0 ? (
                 <div style={{
-                  padding: '32px',
+                  padding: '48px 32px',
                   textAlign: 'center',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  color: '#9ca3af'
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
                 }}>
-                  <CheckCircle size={48} style={{ margin: '0 auto 16px' }} />
-                  <p>No reports in queue</p>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <CheckCircle size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Reports in Queue</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>All reports have been processed</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1493,14 +1571,27 @@ export default function StaffDashboard() {
             <div>
               {shadowDeleted.length === 0 ? (
                 <div style={{
-                  padding: '32px',
+                  padding: '48px 32px',
                   textAlign: 'center',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  color: '#9ca3af'
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
                 }}>
-                  <Eye size={48} style={{ margin: '0 auto 16px' }} />
-                  <p>No shadow-deleted videos</p>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Eye size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Shadow-Deleted Videos</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Shadow-deleted content management</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1554,14 +1645,27 @@ export default function StaffDashboard() {
             <div>
               {pendingAccounts.length === 0 ? (
                 <div style={{
-                  padding: '32px',
+                  padding: '48px 32px',
                   textAlign: 'center',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  color: '#9ca3af'
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
                 }}>
-                  <Clock size={48} style={{ margin: '0 auto 16px' }} />
-                  <p>No pending account requests</p>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Clock size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Pending Requests</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>All account requests have been processed</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -2479,31 +2583,53 @@ export default function StaffDashboard() {
                 <button
                   onClick={() => setPromotionModal({ ...promotionModal, isOpen: true })}
                   style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#f59e0b',
+                    padding: '10px 20px',
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #f59e0b 100%)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
                     cursor: 'pointer',
                     fontSize: '14px',
-                    fontWeight: 'bold',
-                    transition: 'opacity 0.2s'
+                    fontWeight: '700',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(245,158,11,0.3)',
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}
-                  onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                  onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  onMouseEnter={(e) => {
+                    e.target.style.boxShadow = '0 8px 20px rgba(245,158,11,0.4)';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.boxShadow = '0 4px 12px rgba(245,158,11,0.3)';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
                 >
                   + Send New Promotion
                 </button>
               </div>
               <div style={{
-                padding: '32px',
+                padding: '48px 32px',
                 textAlign: 'center',
-                backgroundColor: '#f3f4f6',
-                borderRadius: '8px',
-                color: '#9ca3af'
+                background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                borderRadius: '10px',
+                color: '#6b7280',
+                border: '1px solid #d1d5db'
               }}>
-                <Megaphone size={48} style={{ margin: '0 auto 16px' }} />
-                <p>No promotions sent yet. Create one to engage users with special offers!</p>
+                <div style={{ 
+                  width: '72px',
+                  height: '72px',
+                  backgroundColor: 'rgba(79,70,229,0.1)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px'
+                }}>
+                  <Megaphone size={36} style={{ color: '#4f46e5' }} />
+                </div>
+                <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Promotions Yet</p>
+                <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Create promotions to engage users with special offers</p>
               </div>
             </div>
           )}
@@ -5037,13 +5163,13 @@ export default function StaffDashboard() {
       right: 0,
       height: '60px',
       borderTop: '1px solid #e5e7eb',
-      backgroundColor: 'white',
+      background: 'linear-gradient(to top, #fafafa, #ffffff)',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       gap: '24px',
       zIndex: 40,
-      boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.05)'
+      boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.08)'
     }}>
       <button
         onClick={() => window.location.href = '/'}
@@ -5055,23 +5181,23 @@ export default function StaffDashboard() {
           width: '50px',
           height: '50px',
           backgroundColor: 'transparent',
-          color: '#3b82f6',
+          color: '#4f46e5',
           border: 'none',
-          borderRadius: '8px',
+          borderRadius: '10px',
           cursor: 'pointer',
           fontSize: '12px',
-          fontWeight: 'bold',
-          transition: 'all 0.2s',
+          fontWeight: '600',
+          transition: 'all 0.3s ease',
           flexDirection: 'column',
           gap: '4px'
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#f0f4f8';
-          e.currentTarget.style.color = '#1d3a8a';
+          e.currentTarget.style.backgroundColor = 'rgba(79,70,229,0.1)';
+          e.currentTarget.style.color = '#4338ca';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.backgroundColor = 'transparent';
-          e.currentTarget.style.color = '#3b82f6';
+          e.currentTarget.style.color = '#4f46e5';
         }}
         title="Go to App"
       >
@@ -5087,25 +5213,25 @@ export default function StaffDashboard() {
           padding: '0',
           width: '50px',
           height: '50px',
-          backgroundColor: activeTab === 'promotions' ? '#f0f4f8' : 'transparent',
-          color: activeTab === 'promotions' ? '#f59e0b' : '#666',
+          backgroundColor: activeTab === 'promotions' ? 'rgba(245,158,11,0.1)' : 'transparent',
+          color: activeTab === 'promotions' ? '#f59e0b' : '#6b7280',
           border: 'none',
-          borderRadius: '8px',
+          borderRadius: '10px',
           cursor: 'pointer',
           fontSize: '12px',
-          fontWeight: 'bold',
-          transition: 'all 0.2s',
+          fontWeight: activeTab === 'promotions' ? '700' : '600',
+          transition: 'all 0.3s ease',
           flexDirection: 'column',
           gap: '4px'
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#f0f4f8';
+          e.currentTarget.style.backgroundColor = 'rgba(245,158,11,0.1)';
           e.currentTarget.style.color = '#f59e0b';
         }}
         onMouseLeave={(e) => {
           if (activeTab !== 'promotions') {
             e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = '#666';
+            e.currentTarget.style.color = '#6b7280';
           }
         }}
         title="Manage Promotions"
@@ -5122,25 +5248,25 @@ export default function StaffDashboard() {
           padding: '0',
           width: '50px',
           height: '50px',
-          backgroundColor: activeTab === 'ads' ? '#f0f4f8' : 'transparent',
-          color: activeTab === 'ads' ? '#10b981' : '#666',
+          backgroundColor: activeTab === 'ads' ? 'rgba(16,185,129,0.1)' : 'transparent',
+          color: activeTab === 'ads' ? '#10b981' : '#6b7280',
           border: 'none',
-          borderRadius: '8px',
+          borderRadius: '10px',
           cursor: 'pointer',
           fontSize: '12px',
-          fontWeight: 'bold',
-          transition: 'all 0.2s',
+          fontWeight: activeTab === 'ads' ? '700' : '600',
+          transition: 'all 0.3s ease',
           flexDirection: 'column',
           gap: '4px'
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#f0f4f8';
+          e.currentTarget.style.backgroundColor = 'rgba(16,185,129,0.1)';
           e.currentTarget.style.color = '#10b981';
         }}
         onMouseLeave={(e) => {
           if (activeTab !== 'ads') {
             e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = '#666';
+            e.currentTarget.style.color = '#6b7280';
           }
         }}
         title="Manage Ads"
