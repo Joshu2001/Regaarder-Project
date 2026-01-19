@@ -3921,8 +3921,10 @@ export default function StaffDashboard() {
                                   {/* Draggable & Resizable Overlay Asset */}
                                   <div 
                                     onMouseDown={(e) => {
-                                      // Only drag if clicking on the overlay content, not the resize handle
-                                      if (e.target === e.currentTarget || e.target.closest('[data-overlay-content]')) {
+                                      // Only drag if clicking on the overlay, not the resize handle or buttons
+                                      const isResizeHandle = e.target.closest('[data-resize-handle]');
+                                      const isButton = e.target.closest('button');
+                                      if (!isResizeHandle && !isButton) {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
@@ -3959,8 +3961,10 @@ export default function StaffDashboard() {
                                       }
                                     }}
                                     onTouchStart={(e) => {
-                                      // Only drag if touching the overlay content, not the resize handle
-                                      if (e.target === e.currentTarget || e.target.closest('[data-overlay-content]')) {
+                                      // Only drag if touching the overlay, not the resize handle or buttons
+                                      const isResizeHandle = e.target.closest('[data-resize-handle]');
+                                      const isButton = e.target.closest('button');
+                                      if (!isResizeHandle && !isButton) {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
@@ -4045,7 +4049,8 @@ export default function StaffDashboard() {
                                       overflow: 'hidden',
                                       userSelect: 'none',
                                       outline: 'none',
-                                      touchAction: 'none'
+                                      touchAction: 'none',
+                                      pointerEvents: 'auto'
                                     }}
                                   >
                                     {/* Overlay Content */}
@@ -4055,7 +4060,7 @@ export default function StaffDashboard() {
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'center',
-                                      pointerEvents: 'none'
+                                      pointerEvents: 'auto'
                                     }}>
                                       {adOverlayModal.assetType === 'text' ? (
                                         <div style={{
@@ -4181,6 +4186,7 @@ export default function StaffDashboard() {
                                     {/* Resize Handle - Corners and Edges */}
                                     {/* Bottom Right Corner */}
                                     <div
+                                      data-resize-handle
                                       onMouseDown={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
@@ -4244,6 +4250,7 @@ export default function StaffDashboard() {
 
                                     {/* Right Edge */}
                                     <div
+                                      data-resize-handle
                                       onMouseDown={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
@@ -4289,6 +4296,7 @@ export default function StaffDashboard() {
 
                                     {/* Bottom Edge */}
                                     <div
+                                      data-resize-handle
                                       onMouseDown={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
