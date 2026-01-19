@@ -2686,7 +2686,14 @@ export default function StaffDashboard() {
                                 <>
                                   <video 
                                     src={video.videoUrl}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', position: 'absolute' }}
+                                    style={{ 
+                                      width: '100%', 
+                                      height: '100%', 
+                                      objectFit: 'cover', 
+                                      position: 'absolute',
+                                      opacity: 0,
+                                      pointerEvents: 'none'
+                                    }}
                                     onLoadedMetadata={(e) => {
                                       // Generate thumbnail by seeking to middle of video
                                       if (e.target.duration > 0) {
@@ -2704,11 +2711,9 @@ export default function StaffDashboard() {
                                       // Update the video object with thumbnail
                                       const updatedVideos = videos.map(v => v.id === video.id ? {...v, thumbnail} : v);
                                       setVideos(updatedVideos);
-                                      // Hide video once thumbnail is captured
-                                      e.target.style.display = 'none';
                                     }}
                                   />
-                                  <Film size={32} style={{ position: 'relative', zIndex: 1 }} />
+                                  <Film size={32} />
                                 </>
                               )}
                             </div>
