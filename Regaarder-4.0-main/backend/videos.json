@@ -23,59 +23,17 @@
     "shares": "0",
     "retentionRate": "0",
     "retentionPercentage": "0%",
-    "overlays": [
-      {
-        "id": 1768716779403,
-        "timeSec": 4.1,
-        "durationSec": 13,
-        "type": "image",
-        "positionX": 20,
-        "positionY": 20,
-        "imageData": "data:image/jpeg;base64,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",
-        "imageName": "success toaster.jpg"
-      }
-    ],
+    "overlays": [],
     "hidden": true,
-    "hiddenReason": "nn",
+    "hiddenReason": "kn",
     "hiddenBy": 1000,
-    "hiddenAt": "2026-01-18T10:41:17.371Z"
-  },
-  {
-    "id": "1768715756202-nc0lst49m",
-    "title": "touup",
-    "author": "Joshuar",
-    "authorId": "jshsajous@gmail.com",
-    "requester": "Paul",
-    "time": "3:10",
-    "imageUrl": "http://localhost:4000/uploads/intro-1768715754019-763320.jfif",
-    "videoUrl": "http://localhost:4000/uploads/intro-1768715754225-972621.mp4",
-    "date": "Just now",
-    "category": "Education",
-    "format": "one-time",
-    "appearance": "public",
-    "pinned": false,
-    "pinnedDays": null,
-    "bookmarked": false,
-    "timestamp": 1768715756202,
-    "likes": "0",
-    "dislikes": "0",
-    "views": "0",
-    "comments": "0",
-    "shares": "0",
-    "retentionRate": "0",
-    "retentionPercentage": "0%",
-    "overlays": [
-      {
-        "id": 1768715741701,
-        "timeSec": 5.5,
-        "durationSec": 15.5,
-        "type": "image",
-        "positionX": 20,
-        "positionY": 20,
-        "imageData": "data:image/jpeg;base64,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",
-        "imageName": "success toaster.jpg"
-      }
-    ]
+    "hiddenAt": "2026-01-19T13:29:36.096Z",
+    "modifiedBy": 1000,
+    "modifiedAt": "2026-01-19T12:10:01.436Z",
+    "shadowDeleted": true,
+    "shadowDeletedBy": 1000,
+    "shadowDeletedAt": "2026-01-19T13:07:45.924Z",
+    "shadowDeleteReason": "Report action: Offensive language"
   },
   {
     "id": "1768710959607-g8v4uvc0n",
@@ -101,19 +59,13 @@
     "shares": "0",
     "retentionRate": "0",
     "retentionPercentage": "0%",
-    "overlays": [
-      {
-        "id": 1768710893556,
-        "timeSec": 12.7,
-        "durationSec": 23.5,
-        "type": "link",
-        "positionX": 20,
-        "positionY": 20,
-        "url": "https://lucide.dev/icons/chevron-left",
-        "linkText": "Visit Link",
-        "linkColor": "#bababa"
-      }
-    ]
+    "overlays": [],
+    "modifiedBy": 1000,
+    "modifiedAt": "2026-01-19T12:10:05.289Z",
+    "hidden": true,
+    "hiddenReason": "nd",
+    "hiddenBy": 1000,
+    "hiddenAt": "2026-01-19T13:36:38.018Z"
   },
   {
     "id": "1768708685919-ipj1letr7",
@@ -133,42 +85,28 @@
     "timestamp": 1768708685919,
     "likes": "0",
     "dislikes": "0",
-    "views": "1",
+    "views": "2",
     "comments": "0",
     "shares": "0",
     "retentionRate": "0",
     "retentionPercentage": "0%",
     "overlays": [
       {
-        "id": "overlay-1",
-        "type": "link",
-        "x": 50,
-        "y": 50,
-        "width": 120,
-        "height": 40,
-        "startTime": 2,
-        "endTime": 8,
-        "text": "Check this out!",
-        "url": "https://example.com",
-        "backgroundColor": "rgba(0, 0, 0, 0.7)",
-        "textColor": "white",
-        "borderRadius": 8
-      },
-      {
-        "id": "overlay-2",
-        "type": "link",
-        "x": 200,
-        "y": 100,
-        "width": 100,
-        "height": 100,
-        "startTime": 5,
-        "endTime": 12,
-        "text": "Image Overlay",
-        "imageUrl": "https://placehold.co/100x100",
-        "backgroundColor": "transparent",
-        "borderRadius": 8
+        "id": "overlay-1768824944392-dn6n9kwt7",
+        "type": "image",
+        "timeSec": 0,
+        "durationSec": 5,
+        "positionX": 81,
+        "positionY": 99,
+        "imageData": "blob:http://localhost:5173/0e1ffe69-c72b-47db-ba53-28f1275b14d9"
       }
-    ]
+    ],
+    "modifiedBy": 1000,
+    "modifiedAt": "2026-01-19T12:15:44.446Z",
+    "hidden": true,
+    "hiddenReason": "jjkj",
+    "hiddenBy": 1000,
+    "hiddenAt": "2026-01-19T13:30:04.222Z"
   },
   {
     "id": "1768705640199-5oejvnutu",
@@ -189,7 +127,7 @@
     "timestamp": 1768705640199,
     "likes": "0",
     "dislikes": "0",
-    "views": "1",
+    "views": "2",
     "comments": "0",
     "shares": "0",
     "retentionRate": "0",
@@ -213,11 +151,15 @@
     "timestamp": 1768702542243,
     "likes": "0",
     "dislikes": "0",
-    "views": "1",
+    "views": "2",
     "comments": "0",
     "shares": "0",
     "retentionRate": "0",
-    "retentionPercentage": "0%"
+    "retentionPercentage": "0%",
+    "hidden": true,
+    "hiddenReason": "nt",
+    "hiddenBy": 1000,
+    "hiddenAt": "2026-01-19T13:36:00.269Z"
   },
   {
     "id": "1768702267464-e4tjq9qru",

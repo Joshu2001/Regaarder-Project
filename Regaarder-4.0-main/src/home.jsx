@@ -1748,6 +1748,30 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
 // NEW COMPONENT: Report Video Dialog (Redesigned)
 const ReportVideoDialog = ({ video, videoTitle, onClose, selectedLanguage = 'English' }) => {
     const [reportText, setReportText] = useState('');
+    const [evidenceFiles, setEvidenceFiles] = useState([]);
+    const [uploadingFile, setUploadingFile] = useState(false);
+    const fileInputRef = React.useRef(null);
+
+    const handleFileSelect = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+            setUploadingFile(true);
+            const newFiles = files.map(file => ({
+                file,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                id: Math.random().toString(36).substr(2, 9)
+            }));
+            setEvidenceFiles([...evidenceFiles, ...newFiles]);
+            setUploadingFile(false);
+        }
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const removeFile = (id) => {
+        setEvidenceFiles(evidenceFiles.filter(f => f.id !== id));
+    };
 
     const handleSubmit = async () => {
         const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
@@ -1755,25 +1779,25 @@ const ReportVideoDialog = ({ video, videoTitle, onClose, selectedLanguage = 'Eng
         let reporter = null;
         try { reporter = JSON.parse(localStorage.getItem('regaarder_user') || '{}'); } catch (e) { }
 
-        const payload = {
-            videoId: (video && (video.id || video.videoId)) || null,
-            title: (video && video.title) || videoTitle || '',
-            reason: String(reportText || '').trim(),
-            reporterId: reporter && (reporter.id || reporter.email) || null,
-            reporterEmail: reporter && reporter.email || null,
-            time: new Date().toISOString(),
-            // Hint for backend to send an email alert
-            emailAlert: { to: 'regaarder@gmail.com' }
-        };
+        // Use FormData for file uploads
+        const formData = new FormData();
+        formData.append('videoId', (video && (video.id || video.videoId)) || '');
+        formData.append('title', (video && video.title) || videoTitle || '');
+        formData.append('reason', String(reportText || '').trim());
+        formData.append('reporterId', reporter && (reporter.id || reporter.email) || '');
+        formData.append('reporterEmail', reporter && reporter.email || '');
+        formData.append('time', new Date().toISOString());
+
+        // Append evidence files
+        evidenceFiles.forEach(fileObj => {
+            formData.append('evidenceFiles', fileObj.file);
+        });
 
         try {
             await fetch(`${BACKEND}/reports`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token ? { Authorization: `Bearer ${token}` } : {})
-                },
-                body: JSON.stringify(payload)
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                body: formData
             }).catch(() => { });
 
             // Best-effort email alert to admin; ignore failures
@@ -1824,12 +1848,55 @@ const ReportVideoDialog = ({ video, videoTitle, onClose, selectedLanguage = 'Eng
                     value={reportText}
                     onChange={(e) => setReportText(e.target.value)}
                     placeholder={getTranslation('Tell us why this content is inappropriate...', selectedLanguage)}
-                    className="w-full h-32 px-4 py-3 bg-gray-100 rounded-lg text-gray-800 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 mb-6"
+                    className="w-full h-32 px-4 py-3 bg-gray-100 rounded-lg text-gray-800 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 mb-4"
                 />
+
+                {/* File Upload Section */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {getTranslation('Add evidence (optional)', selectedLanguage)}
+                    </label>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        accept="image/*,.pdf"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                    />
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingFile}
+                        className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 transition-colors"
+                    >
+                        {uploadingFile ? '📤 Uploading...' : '📎 Add files'}
+                    </button>
+                </div>
+
+                {/* File List */}
+                {evidenceFiles.length > 0 && (
+                    <div className="mb-4 max-h-32 overflow-y-auto">
+                        {evidenceFiles.map(fileObj => (
+                            <div key={fileObj.id} className="flex items-center justify-between bg-gray-50 p-2 rounded mb-2">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium text-gray-700 truncate">{fileObj.name}</p>
+                                    <p className="text-xs text-gray-500">{(fileObj.size / 1024).toFixed(1)} KB</p>
+                                </div>
+                                <button
+                                    onClick={() => removeFile(fileObj.id)}
+                                    className="ml-2 text-gray-400 hover:text-red-500 transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 <button
                     onClick={handleSubmit}
-                    className="w-full py-3 rounded-lg text-white font-semibold transition-colors hover:opacity-90"
+                    disabled={!reportText.trim()}
+                    className="w-full py-3 rounded-lg text-white font-semibold transition-colors hover:opacity-90 disabled:opacity-50"
                     style={{ backgroundColor: '#E57373' }}
                 >
                     {getTranslation('Submit', selectedLanguage)}

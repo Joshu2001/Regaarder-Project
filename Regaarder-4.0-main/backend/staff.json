@@ -15,8 +15,38 @@
     }
   ],
   "pendingAccounts": [],
-  "reports": [],
-  "shadowDeleted": [],
+  "reports": [
+    {
+      "id": "report_1768824944392",
+      "videoId": "1768716793172-4lw88hmuz",
+      "reason": "Inappropriate content",
+      "reportedBy": "TestUser",
+      "createdAt": "2026-01-19T12:00:00.000Z",
+      "status": "pending"
+    },
+    {
+      "id": "report_1768824944393",
+      "videoId": "1768716793172-4lw88hmuz",
+      "reason": "Offensive language",
+      "reportedBy": "TestUser2",
+      "createdAt": "2026-01-19T12:05:00.000Z",
+      "status": "pending"
+    }
+  ],
+  "shadowDeleted": [
+    {
+      "videoId": "1768716793172-4lw88hmuz",
+      "deletedBy": 1000,
+      "reason": "Report action: Inappropriate content",
+      "createdAt": "2026-01-19T13:07:44.350Z"
+    },
+    {
+      "videoId": "1768716793172-4lw88hmuz",
+      "deletedBy": 1000,
+      "reason": "Report action: Offensive language",
+      "createdAt": "2026-01-19T13:07:45.926Z"
+    }
+  ],
   "notifications": [],
   "hiddenLog": [
     {
@@ -39,6 +69,50 @@
       "reason": "jjj",
       "hiddenBy": 1000,
       "createdAt": "2026-01-18T11:04:48.796Z"
+    },
+    {
+      "type": "video",
+      "id": "1768716793172-4lw88hmuz",
+      "reason": "inaapopriate content",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-19T13:08:29.455Z"
+    },
+    {
+      "type": "video",
+      "id": "1768716793172-4lw88hmuz",
+      "reason": "kn",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-19T13:29:36.099Z"
+    },
+    {
+      "type": "video",
+      "id": "1768708685919-ipj1letr7",
+      "reason": "jjkj",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-19T13:30:04.224Z"
+    },
+    {
+      "type": "video",
+      "id": "1768702542243-xc85fphys",
+      "reason": "nt",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-19T13:36:00.271Z"
+    },
+    {
+      "type": "video",
+      "id": "1768710959607-g8v4uvc0n",
+      "reason": "nd",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-19T13:36:38.020Z"
+    }
+  ],
+  "deletionLog": [
+    {
+      "type": "video",
+      "id": "1768715756202-nc0lst49m",
+      "reason": ",amf'l",
+      "deletedBy": 1000,
+      "createdAt": "2026-01-19T13:09:02.731Z"
     }
   ]
 }

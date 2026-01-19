@@ -23,6 +23,13 @@ export default function StaffDashboard() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(id);
+  }, [toast]);
   
   // Modal states
   const [actionModal, setActionModal] = useState({ isOpen: false, itemId: null, itemType: null });
@@ -325,8 +332,10 @@ export default function StaffDashboard() {
         setVideos(videos.filter(v => v.id !== videoId));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
+        setToast({ type: 'success', message: 'Video deleted' });
       } else {
         setError('Failed to delete video');
+        setToast({ type: 'error', message: 'Failed to delete video' });
       }
     } catch (err) {
       console.error('Delete failed:', err);
@@ -355,8 +364,10 @@ export default function StaffDashboard() {
         setVideos(videos.filter(v => v.id !== videoId));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
+        setToast({ type: 'success', message: 'Video hidden' });
       } else {
         setError('Failed to hide video');
+        setToast({ type: 'error', message: 'Failed to hide video' });
       }
     } catch (err) {
       console.error('Hide failed:', err);
@@ -385,8 +396,10 @@ export default function StaffDashboard() {
         setRequests(requests.filter(r => r.id !== requestId));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
+        setToast({ type: 'success', message: 'Request deleted' });
       } else {
         setError('Failed to delete request');
+        setToast({ type: 'error', message: 'Failed to delete request' });
       }
     } catch (err) {
       console.error('Delete failed:', err);
@@ -415,8 +428,10 @@ export default function StaffDashboard() {
         setRequests(requests.filter(r => r.id !== requestId));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
+        setToast({ type: 'success', message: 'Request hidden' });
       } else {
         setError('Failed to hide request');
+        setToast({ type: 'error', message: 'Failed to hide request' });
       }
     } catch (err) {
       console.error('Hide failed:', err);
@@ -445,8 +460,10 @@ export default function StaffDashboard() {
         setComments(comments.filter(c => c.id !== commentId));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
+        setToast({ type: 'success', message: 'Comment deleted' });
       } else {
         setError('Failed to delete comment');
+        setToast({ type: 'error', message: 'Failed to delete comment' });
       }
     } catch (err) {
       console.error('Delete failed:', err);
@@ -475,8 +492,10 @@ export default function StaffDashboard() {
         setComments(comments.filter(c => c.id !== commentId));
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setError('');
+        setToast({ type: 'success', message: 'Comment hidden' });
       } else {
         setError('Failed to hide comment');
+        setToast({ type: 'error', message: 'Failed to hide comment' });
       }
     } catch (err) {
       console.error('Hide failed:', err);
@@ -2258,6 +2277,50 @@ export default function StaffDashboard() {
                 <Trash2 size={18} />
                 Delete Permanently
               </button>
+
+              {/* Quick actions (one-click without reason) */}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <button
+                  onClick={() => {
+                    // close the modal then run quick hide
+                    setActionModal({ isOpen: false, itemId: null, itemType: null });
+                    handleQuickHide(actionModal.itemType, actionModal.itemId);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '8px 10px',
+                    backgroundColor: 'transparent',
+                    color: '#b45309',
+                    border: '1px dashed #f59e0b',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: '600'
+                  }}
+                >
+                  Quick Hide
+                </button>
+                <button
+                  onClick={() => {
+                    setActionModal({ isOpen: false, itemId: null, itemType: null });
+                    handleQuickDelete(actionModal.itemType, actionModal.itemId);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '8px 10px',
+                    backgroundColor: 'transparent',
+                    color: '#9f1239',
+                    border: '1px dashed #ef4444',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: '600'
+                  }}
+                >
+                  Quick Delete
+                </button>
+              </div>
+
               <button
                 onClick={() => setActionModal({ isOpen: false, itemId: null, itemType: null })}
                 style={{
@@ -2372,7 +2435,7 @@ export default function StaffDashboard() {
                 onMouseEnter={(e) => e.target.style.opacity = '0.9'}
                 onMouseLeave={(e) => e.target.style.opacity = '1'}
               >
-                Confirm
+                {reasonModal.action === 'hide' ? 'Hide ' : 'Delete '}
               </button>
               <button
                 onClick={() => setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' })}
@@ -2395,6 +2458,13 @@ export default function StaffDashboard() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast notification (global) */}
+      {toast && (
+        <div style={{ position: 'fixed', right: '20px', bottom: '20px', backgroundColor: toast.type === 'success' ? '#10b981' : '#ef4444', color: 'white', padding: '12px 16px', borderRadius: '8px', boxShadow: '0 6px 18px rgba(0,0,0,0.12)', zIndex: 2000 }}>
+          {toast.message}
         </div>
       )}
 

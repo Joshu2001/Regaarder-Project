@@ -2969,7 +2969,19 @@ app.get('/staff/videos', (req, res) => {
     }
 
     const videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
-    return res.json({ videos });
+    const staff = readStaff();
+
+    // Attach report counts to each video
+    const videosWithReports = videos.map(video => {
+      const videoReports = staff.reports ? staff.reports.filter(r => r.videoId === video.id) : [];
+      return {
+        ...video,
+        reportCount: videoReports.length,
+        reports: videoReports
+      };
+    });
+
+    return res.json({ videos: videosWithReports });
   } catch (err) {
     console.error('Get videos error:', err);
     return res.status(500).json({ error: 'Server error' });
@@ -3273,7 +3285,7 @@ app.post('/staff/hide-comment/:commentId', (req, res) => {
 // Update video metadata (admin only)
 app.put('/staff/videos/:videoId', (req, res) => {
   try {
-    const { employeeId, title, description, tags } = req.body;
+    const { employeeId, title, description, tags, overlays } = req.body;
     
     if (!employeeId) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -3289,6 +3301,7 @@ app.put('/staff/videos/:videoId', (req, res) => {
     if (title) video.title = title;
     if (description) video.description = description;
     if (tags) video.tags = tags;
+    if (Array.isArray(overlays)) video.overlays = overlays;
     video.modifiedBy = parseInt(employeeId);
     video.modifiedAt = new Date().toISOString();
 
@@ -3363,6 +3376,75 @@ app.post('/staff/user-action/:userId', (req, res) => {
     return res.json({ success: true, message: `User ${action} applied`, user });
   } catch (err) {
     console.error('User action error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /reports - Submit a video/content report with optional evidence files
+app.post('/reports', (req, res) => {
+  try {
+    const multer = require('multer');
+    const upload = multer({ 
+      storage: multer.diskStorage({
+        destination: 'uploads/evidence',
+        filename: (file, cb) => cb(null, `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.originalname}`)
+      }),
+      limits: { fileSize: 10 * 1024 * 1024 } // 10MB max
+    });
+
+    // Create uploads/evidence directory if it doesn't exist
+    const evPath = 'uploads/evidence';
+    if (!fs.existsSync(evPath)) {
+      fs.mkdirSync(evPath, { recursive: true });
+    }
+
+    // Handle file upload
+    upload.array('evidenceFiles', 5)(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ error: 'File upload failed: ' + err.message });
+      }
+
+      const { videoId, title, reason, reporterId, reporterEmail, time } = req.body;
+      
+      if (!videoId || !reason) {
+        return res.status(400).json({ error: 'Missing videoId or reason' });
+      }
+
+      try {
+        // Read current reports
+        const staff = readStaff();
+        if (!staff.reports) staff.reports = [];
+
+        // Create report entry with evidence files
+        const report = {
+          id: `report_${Date.now()}`,
+          videoId: videoId,
+          title: title || '',
+          reason: reason,
+          reporterId: reporterId || 'anonymous',
+          reporterEmail: reporterEmail || null,
+          createdAt: new Date().toISOString(),
+          status: 'pending',
+          evidenceFiles: (req.files || []).map(file => ({
+            filename: file.filename,
+            originalName: file.originalname,
+            size: file.size,
+            path: file.path,
+            uploadedAt: new Date().toISOString()
+          }))
+        };
+
+        staff.reports.push(report);
+        writeStaff(staff);
+
+        return res.json({ success: true, report });
+      } catch (innerErr) {
+        console.error('Report submission error:', innerErr);
+        return res.status(500).json({ error: 'Failed to save report' });
+      }
+    });
+  } catch (err) {
+    console.error('Reports endpoint error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });
