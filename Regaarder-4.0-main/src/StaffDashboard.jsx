@@ -3312,6 +3312,71 @@ export default function StaffDashboard() {
                             </div>
 
                             {/* Overlay Duration - MOVED BELOW FRAME STRIP */}
+                            {/* Overlay Type Toggle */}
+                            <div style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
+                              <button
+                                onClick={() => setAdOverlayModal({
+                                  ...adOverlayModal,
+                                  assetType: 'image'
+                                })}
+                                style={{
+                                  flex: 1,
+                                  padding: '8px 12px',
+                                  backgroundColor: adOverlayModal.assetType === 'image' ? '#4f46e5' : '#e5e7eb',
+                                  color: adOverlayModal.assetType === 'image' ? 'white' : '#6b7280',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '13px',
+                                  fontWeight: '600',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (adOverlayModal.assetType !== 'image') {
+                                    e.target.style.backgroundColor = '#d1d5db';
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  if (adOverlayModal.assetType !== 'image') {
+                                    e.target.style.backgroundColor = '#e5e7eb';
+                                  }
+                                }}
+                              >
+                                📸 Image/Video
+                              </button>
+                              <button
+                                onClick={() => setAdOverlayModal({
+                                  ...adOverlayModal,
+                                  assetType: 'text',
+                                  assetUrl: null
+                                })}
+                                style={{
+                                  flex: 1,
+                                  padding: '8px 12px',
+                                  backgroundColor: adOverlayModal.assetType === 'text' ? '#4f46e5' : '#e5e7eb',
+                                  color: adOverlayModal.assetType === 'text' ? 'white' : '#6b7280',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '13px',
+                                  fontWeight: '600',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (adOverlayModal.assetType !== 'text') {
+                                    e.target.style.backgroundColor = '#d1d5db';
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  if (adOverlayModal.assetType !== 'text') {
+                                    e.target.style.backgroundColor = '#e5e7eb';
+                                  }
+                                }}
+                              >
+                                📝 Text
+                              </button>
+                            </div>
+
                             {/* Asset Selection - Custom Dropdown (for image/video) */}
                             {adOverlayModal.assetType !== 'text' && (
                             <div style={{ marginBottom: '12px' }}>
@@ -3395,6 +3460,7 @@ export default function StaffDashboard() {
                                               ...adOverlayModal,
                                               assetUrl: asset.url,
                                               assetType: asset.type,
+                                              videoId: selectedAdVideo,
                                               _dropdownOpen: false
                                             });
                                           }}
@@ -3524,7 +3590,8 @@ export default function StaffDashboard() {
                                     setAdOverlayModal({
                                       ...adOverlayModal,
                                       assetUrl: URL.createObjectURL(file),
-                                      assetType: type
+                                      assetType: type,
+                                      videoId: selectedAdVideo
                                     });
                                   }
                                 }}
@@ -3549,7 +3616,8 @@ export default function StaffDashboard() {
                                       setAdOverlayModal({
                                         ...adOverlayModal,
                                         assetUrl: URL.createObjectURL(file),
-                                        assetType: type
+                                        assetType: type,
+                                        videoId: selectedAdVideo
                                       });
                                     }
                                   }}
@@ -3570,7 +3638,8 @@ export default function StaffDashboard() {
                                 value={adOverlayModal.overlayText || ''}
                                 onChange={(e) => setAdOverlayModal({
                                   ...adOverlayModal,
-                                  overlayText: e.target.value
+                                  overlayText: e.target.value,
+                                  videoId: selectedAdVideo
                                 })}
                                 style={{
                                   width: '100%',
