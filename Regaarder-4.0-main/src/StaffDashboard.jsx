@@ -46,6 +46,16 @@ export default function StaffDashboard() {
   const [showOverlayPreview, setShowOverlayPreview] = useState(false);
   const [previewingOverlay, setPreviewingOverlay] = useState(null);
   const [deviceOrientation, setDeviceOrientation] = useState('portrait');
+  const [showPreviewSaveModal, setShowPreviewSaveModal] = useState(false);
+  const [templates, setTemplates] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('overlayTemplates') || '[]');
+    } catch (e) { return []; }
+  });
+  const [templateName, setTemplateName] = useState('');
+  const [templatePanelOpen, setTemplatePanelOpen] = useState(null);
+  const [selectedVideosForApply, setSelectedVideosForApply] = useState([]);
+  const [applyPlacement, setApplyPlacement] = useState('beginning');
 
   // Track scroll position per tab
   useEffect(() => {
@@ -89,6 +99,54 @@ export default function StaffDashboard() {
     return () => clearInterval(interval);
   }, [videoPreviewState.isPlaying, selectedAdVideo, videos]);
 
+  // Apply preview overlay to editor and optionally save as template
+  const saveAndApplyPreview = (saveAsTemplate = true) => {
+    if (!previewingOverlay) return;
+
+    // Apply overlay values to the main editor preview state
+    setVideoPreviewState(prev => ({
+      ...prev,
+      overlayPosition: { x: previewingOverlay.x, y: previewingOverlay.y },
+      overlaySize: { width: previewingOverlay.width, height: previewingOverlay.height }
+    }));
+
+    // Optionally save template
+    if (saveAsTemplate) {
+      const newTemplate = {
+        id: Date.now(),
+        name: templateName && templateName.trim() ? templateName.trim() : `Template ${templates.length + 1}`,
+        overlay: { ...previewingOverlay }
+      };
+      setTemplates(prev => [newTemplate, ...prev]);
+      setTemplateName('');
+    }
+
+    // Close the preview modal and the save dialog
+    setShowOverlayPreview(false);
+    setShowPreviewSaveModal(false);
+  };
+
+  // Apply a saved template to one or more videos (UI-level only)
+  const applyTemplateToVideos = (templateId, videoIds = [], placement = 'beginning') => {
+    const tpl = templates.find(t => t.id === templateId);
+    if (!tpl) return;
+
+    // Ask about Google AdSense placement note
+    const ok = window.confirm('Applying overlays at specific positions (beginning/end) may affect monetization. Ensure Google AdSense/YouTube policies allow this. Proceed?');
+    if (!ok) return;
+
+    // Update local videos state to tag template application (frontend only)
+    setVideos(prev => prev.map(v => {
+      if (!videoIds.includes(v.id)) return v;
+      const applied = v.appliedTemplates ? [...v.appliedTemplates] : [];
+      applied.push({ templateId: tpl.id, placement });
+      return { ...v, appliedTemplates: applied };
+    }));
+
+    // Optionally you would POST to server here to persist across users
+    alert(`Applied template "${tpl.name}" to ${videoIds.length} video(s) at ${placement}.`);
+  };
+
   // Sync video element with current time
   useEffect(() => {
     const videoElement = document.querySelector('[data-video-preview]');
@@ -101,6 +159,11 @@ export default function StaffDashboard() {
       }
     }
   }, [videoPreviewState.currentTime, videoPreviewState.isPlaying]);
+
+  // Persist templates to localStorage
+  useEffect(() => {
+    try { localStorage.setItem('overlayTemplates', JSON.stringify(templates)); } catch (e) {}
+  }, [templates]);
 
   // Handle screen orientation changes
   useEffect(() => {
@@ -2919,6 +2982,52 @@ export default function StaffDashboard() {
                 <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Promotions Yet</p>
                 <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Create promotions to engage users with special offers</p>
               </div>
+              {/* Templates Section */}
+              <div style={{ marginTop: '18px' }}>
+                <h3 style={{ margin: '0 0 8px 0' }}>Overlay Templates</h3>
+                {templates.length === 0 ? (
+                  <p style={{ color: '#6b7280' }}>No templates yet. Save overlays from the preview to create reusable templates.</p>
+                ) : (
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {templates.map(t => (
+                      <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <div style={{ width: '10px', height: '10px', background: '#3b82f6', borderRadius: '2px' }} />
+                          <div style={{ fontWeight: '600' }}>{t.name}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <button onClick={() => setTemplatePanelOpen(templatePanelOpen === t.id ? null : t.id)} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #d1d5db', background: 'white' }}>{templatePanelOpen === t.id ? 'Close' : 'Apply'}</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {templatePanelOpen && (
+                  <div style={{ marginTop: '12px', padding: '12px', border: '1px dashed #d1d5db', borderRadius: '8px' }}>
+                    <div style={{ marginBottom: '8px', fontWeight: '600' }}>Select videos to apply</div>
+                    <div style={{ maxHeight: '160px', overflow: 'auto', border: '1px solid #f3f4f6', padding: '8px', borderRadius: '6px' }}>
+                      {videos.map(v => (
+                        <label key={v.id} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
+                          <input type="checkbox" checked={selectedVideosForApply.includes(v.id)} onChange={(e) => {
+                            if (e.target.checked) setSelectedVideosForApply(prev => [...prev, v.id]);
+                            else setSelectedVideosForApply(prev => prev.filter(id => id !== v.id));
+                          }} />
+                          <span style={{ fontSize: '13px' }}>{v.title || v.id}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <label style={{ display: 'flex', gap: '6px', alignItems: 'center' }}><input type="radio" name="placement" value="beginning" checked={applyPlacement === 'beginning'} onChange={() => setApplyPlacement('beginning')} /> Beginning</label>
+                      <label style={{ display: 'flex', gap: '6px', alignItems: 'center' }}><input type="radio" name="placement" value="end" checked={applyPlacement === 'end'} onChange={() => setApplyPlacement('end')} /> End</label>
+                      <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+                        <button onClick={() => { setTemplatePanelOpen(null); setSelectedVideosForApply([]); }} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #d1d5db', background: 'white' }}>Cancel</button>
+                        <button onClick={() => { applyTemplateToVideos(templatePanelOpen, selectedVideosForApply, applyPlacement); setTemplatePanelOpen(null); setSelectedVideosForApply([]); }} style={{ padding: '6px 10px', borderRadius: '6px', background: '#3b82f6', color: 'white', border: 'none' }}>Apply</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -4222,6 +4331,42 @@ export default function StaffDashboard() {
                                         document.addEventListener('mousemove', handleMouseMove);
                                         document.addEventListener('mouseup', handleMouseUp);
                                       }}
+                                      onTouchStart={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
+                                        if (!containerRect || !e.touches || !e.touches[0]) return;
+
+                                        const startX = e.touches[0].clientX;
+                                        const startY = e.touches[0].clientY;
+                                        const startWidth = videoPreviewState.overlaySize.width;
+                                        const startHeight = videoPreviewState.overlaySize.height;
+
+                                        const handleTouchMove = (moveEvent) => {
+                                          if (!moveEvent.touches || !moveEvent.touches[0]) return;
+                                          moveEvent.preventDefault();
+                                          const deltaX = moveEvent.touches[0].clientX - startX;
+                                          const deltaY = moveEvent.touches[0].clientY - startY;
+                                          const widthPercent = (deltaX / containerRect.width) * 100;
+                                          const heightPercent = (deltaY / containerRect.height) * 100;
+
+                                          setVideoPreviewState(prev => ({
+                                            ...prev,
+                                            overlaySize: {
+                                              width: Math.max(5, startWidth + widthPercent),
+                                              height: Math.max(5, startHeight + heightPercent)
+                                            }
+                                          }));
+                                        };
+
+                                        const handleTouchEnd = () => {
+                                          document.removeEventListener('touchmove', handleTouchMove);
+                                          document.removeEventListener('touchend', handleTouchEnd);
+                                        };
+
+                                        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                                        document.addEventListener('touchend', handleTouchEnd);
+                                      }}
                                       style={{
                                         position: 'absolute',
                                         bottom: '-5px',
@@ -4281,6 +4426,37 @@ export default function StaffDashboard() {
                                         document.addEventListener('mousemove', handleMouseMove);
                                         document.addEventListener('mouseup', handleMouseUp);
                                       }}
+                                      onTouchStart={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
+                                        if (!containerRect || !e.touches || !e.touches[0]) return;
+
+                                        const startX = e.touches[0].clientX;
+                                        const startWidth = videoPreviewState.overlaySize.width;
+
+                                        const handleTouchMove = (moveEvent) => {
+                                          if (!moveEvent.touches || !moveEvent.touches[0]) return;
+                                          moveEvent.preventDefault();
+                                          const deltaX = moveEvent.touches[0].clientX - startX;
+                                          const widthPercent = (deltaX / containerRect.width) * 100;
+                                          setVideoPreviewState(prev => ({
+                                            ...prev,
+                                            overlaySize: {
+                                              ...prev.overlaySize,
+                                              width: Math.max(5, startWidth + widthPercent)
+                                            }
+                                          }));
+                                        };
+
+                                        const handleTouchEnd = () => {
+                                          document.removeEventListener('touchmove', handleTouchMove);
+                                          document.removeEventListener('touchend', handleTouchEnd);
+                                        };
+
+                                        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                                        document.addEventListener('touchend', handleTouchEnd);
+                                      }}
                                       style={{
                                         position: 'absolute',
                                         top: '0',
@@ -4326,6 +4502,37 @@ export default function StaffDashboard() {
 
                                         document.addEventListener('mousemove', handleMouseMove);
                                         document.addEventListener('mouseup', handleMouseUp);
+                                      }}
+                                      onTouchStart={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
+                                        if (!containerRect || !e.touches || !e.touches[0]) return;
+
+                                        const startY = e.touches[0].clientY;
+                                        const startHeight = videoPreviewState.overlaySize.height;
+
+                                        const handleTouchMove = (moveEvent) => {
+                                          if (!moveEvent.touches || !moveEvent.touches[0]) return;
+                                          moveEvent.preventDefault();
+                                          const deltaY = moveEvent.touches[0].clientY - startY;
+                                          const heightPercent = (deltaY / containerRect.height) * 100;
+                                          setVideoPreviewState(prev => ({
+                                            ...prev,
+                                            overlaySize: {
+                                              ...prev.overlaySize,
+                                              height: Math.max(5, startHeight + heightPercent)
+                                            }
+                                          }));
+                                        };
+
+                                        const handleTouchEnd = () => {
+                                          document.removeEventListener('touchmove', handleTouchMove);
+                                          document.removeEventListener('touchend', handleTouchEnd);
+                                        };
+
+                                        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                                        document.addEventListener('touchend', handleTouchEnd);
                                       }}
                                       style={{
                                         position: 'absolute',
@@ -5963,7 +6170,7 @@ export default function StaffDashboard() {
             marginBottom: '12px'
           }}>
             <button
-              onClick={() => setShowOverlayPreview(false)}
+              onClick={() => setShowPreviewSaveModal(true)}
               style={{
                 padding: '10px 20px',
                 backgroundColor: '#1f2937',
@@ -5999,6 +6206,23 @@ export default function StaffDashboard() {
           </p>
         </div>
 
+        {/* Save / Apply Modal shown when closing preview */}
+        {showPreviewSaveModal && (
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '420px', background: 'white', borderRadius: '8px', padding: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.4)' }}>
+              <h3 style={{ margin: '0 0 8px 0' }}>Save changes?</h3>
+              <p style={{ margin: '0 0 12px 0', color: '#374151' }}>You can continue editing or save this overlay and apply it to the current video (and save as a reusable template).</p>
+              <div style={{ marginBottom: '10px' }}>
+                <input placeholder="Template name (optional)" value={templateName} onChange={(e) => setTemplateName(e.target.value)} style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #d1d5db' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                <button onClick={() => { setShowPreviewSaveModal(false); setShowOverlayPreview(false); }} style={{ padding: '8px 12px', background: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '6px', cursor: 'pointer' }}>Continue Editing</button>
+                <button onClick={() => saveAndApplyPreview(true)} style={{ padding: '8px 12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Save and Apply</button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <style>{`
           @keyframes slideDown {
             from {
