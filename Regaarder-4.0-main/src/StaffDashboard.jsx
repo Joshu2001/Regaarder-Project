@@ -5742,7 +5742,8 @@ export default function StaffDashboard() {
               transform: 'translate(-50%, -50%)',
               cursor: 'grab',
               borderRadius: '8px',
-              overflow: 'hidden',
+              overflow: 'visible',
+              pointerEvents: 'auto',
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
               transition: 'all 0.2s ease',
               border: '2px solid rgba(245, 158, 11, 0.7)',
@@ -5842,6 +5843,40 @@ export default function StaffDashboard() {
                 
                 document.addEventListener('mousemove', handleMouseMove);
                 document.addEventListener('mouseup', handleMouseUp);
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const containerRect = document.querySelector('[data-preview-video-container]')?.getBoundingClientRect();
+                if (!containerRect || !e.touches || !e.touches[0]) return;
+
+                const startX = e.touches[0].clientX;
+                const startY = e.touches[0].clientY;
+                const startWidth = previewingOverlay.width;
+                const startHeight = previewingOverlay.height;
+
+                const handleTouchMove = (moveEvent) => {
+                  if (!moveEvent.touches || !moveEvent.touches[0]) return;
+                  moveEvent.preventDefault();
+                  const deltaX = moveEvent.touches[0].clientX - startX;
+                  const deltaY = moveEvent.touches[0].clientY - startY;
+                  const widthPercent = (deltaX / containerRect.width) * 100;
+                  const heightPercent = (deltaY / containerRect.height) * 100;
+
+                  setPreviewingOverlay(prev => ({
+                    ...prev,
+                    width: Math.max(5, startWidth + widthPercent),
+                    height: Math.max(5, startHeight + heightPercent)
+                  }));
+                };
+
+                const handleTouchEnd = () => {
+                  document.removeEventListener('touchmove', handleTouchMove);
+                  document.removeEventListener('touchend', handleTouchEnd);
+                };
+
+                document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                document.addEventListener('touchend', handleTouchEnd);
               }}
               style={{
                 position: 'absolute',
