@@ -95,7 +95,12 @@ export default function StaffDashboard() {
       const videosRes = await fetch(`http://localhost:4000/staff/videos?employeeId=${employee.id}`);
       if (videosRes.ok) {
         const data = await videosRes.json();
-        setVideos(data.videos || []);
+        // Parse time string to duration in seconds
+        const videosWithDuration = (data.videos || []).map(v => ({
+          ...v,
+          duration: v.duration || parseDurationToSeconds(v.time)
+        }));
+        setVideos(videosWithDuration);
       }
 
       // Load users
@@ -138,11 +143,22 @@ export default function StaffDashboard() {
     }
   };
 
-  // Format time as M:SS.S (with 1 decimal place for seconds)
+  // Format time as M:SS or MM:SS
   const formatTimeCompact = (seconds) => {
+    if (!seconds || isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
-    const secs = (seconds % 60).toFixed(1);
-    return `${mins}:${secs.padStart(4, '0')}`;
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Parse time string like "3:10" to seconds
+  const parseDurationToSeconds = (timeStr) => {
+    if (!timeStr || typeof timeStr !== 'string') return 0;
+    const parts = timeStr.split(':');
+    if (parts.length === 2) {
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    }
+    return 0;
   };
 
   const handleShadowDelete = async (videoId) => {
