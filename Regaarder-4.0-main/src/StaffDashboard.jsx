@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronDown, Home, Megaphone, Copy, Image as ImageIcon, Search, ChevronUp, Eye, EyeOff, Trash2, Plus, Film, Clock } from 'lucide-react';
+import { ChevronDown, Home, Megaphone, Copy, Image as ImageIcon, Search, ChevronUp, Eye, EyeOff, Trash2, Plus, Film, Clock, Crown } from 'lucide-react';
 
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
