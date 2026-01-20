@@ -2352,74 +2352,85 @@ export default function StaffDashboard() {
                   })()
                 }
                 
-                {/* Floating Scroll Buttons */}
+                {/* Floating Navigation Buttons for Users */}
                 <div style={{
                   position: 'fixed',
-                  right: '24px',
-                  bottom: '100px',
+                  right: '20px',
+                  bottom: '90px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '8px',
-                  zIndex: 40,
-                  pointerEvents: 'auto'
+                  gap: '12px',
+                  zIndex: 40
                 }}>
                   <button
-                    onClick={() => window.scrollBy({ top: -300, behavior: 'smooth' })}
-                    title="Scroll up"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    title="Go to top"
                     style={{
-                      width: '48px',
-                      height: '48px',
-                      borderRadius: '50%',
-                      border: 'none',
+                      padding: '12px 12px',
                       backgroundColor: '#4f46e5',
                       color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       transition: 'all 0.3s ease',
-                      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                      padding: 0
+                      boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                      width: '44px',
+                      height: '44px'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'scale(1.1)';
-                      e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                      e.target.style.backgroundColor = '#4338ca';
+                      e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                      e.target.style.transform = 'translateY(-2px)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.transform = 'scale(1)';
-                      e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                      e.target.style.backgroundColor = '#4f46e5';
+                      e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.3)';
+                      e.target.style.transform = 'translateY(0)';
                     }}
                   >
-                    <ChevronDown size={24} style={{ transform: 'rotate(180deg)' }} />
+                    <ChevronUp size={20} />
                   </button>
                   <button
-                    onClick={() => window.scrollBy({ top: 300, behavior: 'smooth' })}
-                    title="Scroll down"
+                    onClick={() => {
+                      const lastPos = savedScrollPositions['users'] || 0;
+                      if (lastPos > 0) {
+                        window.scrollTo({ top: lastPos, behavior: 'smooth' });
+                      }
+                    }}
+                    title="Go back to last position"
                     style={{
-                      width: '48px',
-                      height: '48px',
-                      borderRadius: '50%',
-                      border: 'none',
-                      backgroundColor: '#4f46e5',
+                      padding: '12px 12px',
+                      backgroundColor: (savedScrollPositions['users'] || 0) > 0 ? '#4f46e5' : '#d1d5db',
                       color: 'white',
-                      cursor: 'pointer',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: (savedScrollPositions['users'] || 0) > 0 ? 'pointer' : 'not-allowed',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       transition: 'all 0.3s ease',
-                      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                      padding: 0
+                      boxShadow: (savedScrollPositions['users'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none',
+                      width: '44px',
+                      height: '44px',
+                      opacity: (savedScrollPositions['users'] || 0) > 0 ? 1 : 0.6
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'scale(1.1)';
-                      e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                      if ((savedScrollPositions['users'] || 0) > 0) {
+                        e.target.style.backgroundColor = '#4338ca';
+                        e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                        e.target.style.transform = 'translateY(-2px)';
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.transform = 'scale(1)';
-                      e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                      e.target.style.backgroundColor = (savedScrollPositions['users'] || 0) > 0 ? '#4f46e5' : '#d1d5db';
+                      e.target.style.boxShadow = (savedScrollPositions['users'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none';
+                      e.target.style.transform = 'translateY(0)';
                     }}
                   >
-                    <ChevronDown size={24} />
+                    <ChevronDown size={20} />
                   </button>
                 </div>
             </div>
@@ -2703,74 +2714,85 @@ export default function StaffDashboard() {
                 </div>
               )}
               
-              {/* Floating Scroll Buttons */}
+              {/* Floating Navigation Buttons for Creators */}
               <div style={{
                 position: 'fixed',
-                right: '24px',
-                bottom: '100px',
+                right: '20px',
+                bottom: '90px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '8px',
-                zIndex: 40,
-                pointerEvents: 'auto'
+                gap: '12px',
+                zIndex: 40
               }}>
                 <button
-                  onClick={() => window.scrollBy({ top: -300, behavior: 'smooth' })}
-                  title="Scroll up"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  title="Go to top"
                   style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '50%',
-                    border: 'none',
+                    padding: '12px 12px',
                     backgroundColor: '#4f46e5',
                     color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                    fontSize: '20px'
+                    boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                    width: '44px',
+                    height: '44px'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.transform = 'scale(1.1)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                    e.target.style.backgroundColor = '#4338ca';
+                    e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                    e.target.style.transform = 'translateY(-2px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.transform = 'scale(1)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                    e.target.style.backgroundColor = '#4f46e5';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.3)';
+                    e.target.style.transform = 'translateY(0)';
                   }}
                 >
-                  <ChevronDown size={24} style={{ transform: 'rotate(180deg)' }} />
+                  <ChevronUp size={20} />
                 </button>
                 <button
-                  onClick={() => window.scrollBy({ top: 300, behavior: 'smooth' })}
-                  title="Scroll down"
+                  onClick={() => {
+                    const lastPos = savedScrollPositions['creators'] || 0;
+                    if (lastPos > 0) {
+                      window.scrollTo({ top: lastPos, behavior: 'smooth' });
+                    }
+                  }}
+                  title="Go back to last position"
                   style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '50%',
-                    border: 'none',
-                    backgroundColor: '#4f46e5',
+                    padding: '12px 12px',
+                    backgroundColor: (savedScrollPositions['creators'] || 0) > 0 ? '#4f46e5' : '#d1d5db',
                     color: 'white',
-                    cursor: 'pointer',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: (savedScrollPositions['creators'] || 0) > 0 ? 'pointer' : 'not-allowed',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                    padding: 0
+                    boxShadow: (savedScrollPositions['creators'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none',
+                    width: '44px',
+                    height: '44px',
+                    opacity: (savedScrollPositions['creators'] || 0) > 0 ? 1 : 0.6
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.transform = 'scale(1.1)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                    if ((savedScrollPositions['creators'] || 0) > 0) {
+                      e.target.style.backgroundColor = '#4338ca';
+                      e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                      e.target.style.transform = 'translateY(-2px)';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.transform = 'scale(1)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                    e.target.style.backgroundColor = (savedScrollPositions['creators'] || 0) > 0 ? '#4f46e5' : '#d1d5db';
+                    e.target.style.boxShadow = (savedScrollPositions['creators'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none';
+                    e.target.style.transform = 'translateY(0)';
                   }}
                 >
-                  <ChevronDown size={24} />
+                  <ChevronDown size={20} />
                 </button>
               </div>
             </div>
@@ -3133,74 +3155,85 @@ export default function StaffDashboard() {
                 </div>
               )}
               
-              {/* Floating Scroll Buttons */}
+              {/* Floating Navigation Buttons for Reports */}
               <div style={{
                 position: 'fixed',
-                right: '24px',
-                bottom: '100px',
+                right: '20px',
+                bottom: '90px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '8px',
-                zIndex: 40,
-                pointerEvents: 'auto'
+                gap: '12px',
+                zIndex: 40
               }}>
                 <button
-                  onClick={() => window.scrollBy({ top: -300, behavior: 'smooth' })}
-                  title="Scroll up"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  title="Go to top"
                   style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '50%',
-                    border: 'none',
+                    padding: '12px 12px',
                     backgroundColor: '#4f46e5',
                     color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                    fontSize: '20px'
+                    boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                    width: '44px',
+                    height: '44px'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.transform = 'scale(1.1)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                    e.target.style.backgroundColor = '#4338ca';
+                    e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                    e.target.style.transform = 'translateY(-2px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.transform = 'scale(1)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                    e.target.style.backgroundColor = '#4f46e5';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.3)';
+                    e.target.style.transform = 'translateY(0)';
                   }}
                 >
-                  <ChevronDown size={24} style={{ transform: 'rotate(180deg)' }} />
+                  <ChevronUp size={20} />
                 </button>
                 <button
-                  onClick={() => window.scrollBy({ top: 300, behavior: 'smooth' })}
-                  title="Scroll down"
+                  onClick={() => {
+                    const lastPos = savedScrollPositions['reports'] || 0;
+                    if (lastPos > 0) {
+                      window.scrollTo({ top: lastPos, behavior: 'smooth' });
+                    }
+                  }}
+                  title="Go back to last position"
                   style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '50%',
-                    border: 'none',
-                    backgroundColor: '#4f46e5',
+                    padding: '12px 12px',
+                    backgroundColor: (savedScrollPositions['reports'] || 0) > 0 ? '#4f46e5' : '#d1d5db',
                     color: 'white',
-                    cursor: 'pointer',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: (savedScrollPositions['reports'] || 0) > 0 ? 'pointer' : 'not-allowed',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                    padding: 0
+                    boxShadow: (savedScrollPositions['reports'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none',
+                    width: '44px',
+                    height: '44px',
+                    opacity: (savedScrollPositions['reports'] || 0) > 0 ? 1 : 0.6
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.transform = 'scale(1.1)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                    if ((savedScrollPositions['reports'] || 0) > 0) {
+                      e.target.style.backgroundColor = '#4338ca';
+                      e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                      e.target.style.transform = 'translateY(-2px)';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.transform = 'scale(1)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                    e.target.style.backgroundColor = (savedScrollPositions['reports'] || 0) > 0 ? '#4f46e5' : '#d1d5db';
+                    e.target.style.boxShadow = (savedScrollPositions['reports'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none';
+                    e.target.style.transform = 'translateY(0)';
                   }}
                 >
-                  <ChevronDown size={24} />
+                  <ChevronDown size={20} />
                 </button>
               </div>
             </div>
