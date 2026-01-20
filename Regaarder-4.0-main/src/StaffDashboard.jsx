@@ -2379,7 +2379,7 @@ export default function StaffDashboard() {
                       justifyContent: 'center',
                       transition: 'all 0.3s ease',
                       boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                      fontSize: '20px'
+                      padding: 0
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.transform = 'scale(1.1)';
@@ -2390,7 +2390,7 @@ export default function StaffDashboard() {
                       e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
                     }}
                   >
-                    ↑
+                    <ChevronDown size={24} style={{ transform: 'rotate(180deg)' }} />
                   </button>
                   <button
                     onClick={() => window.scrollBy({ top: 300, behavior: 'smooth' })}
@@ -2408,7 +2408,7 @@ export default function StaffDashboard() {
                       justifyContent: 'center',
                       transition: 'all 0.3s ease',
                       boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                      fontSize: '20px'
+                      padding: 0
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.transform = 'scale(1.1)';
@@ -2419,7 +2419,7 @@ export default function StaffDashboard() {
                       e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
                     }}
                   >
-                    ↓
+                    <ChevronDown size={24} />
                   </button>
                 </div>
             </div>
@@ -2741,7 +2741,7 @@ export default function StaffDashboard() {
                     e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
                   }}
                 >
-                  ↑
+                  <ChevronDown size={24} style={{ transform: 'rotate(180deg)' }} />
                 </button>
                 <button
                   onClick={() => window.scrollBy({ top: 300, behavior: 'smooth' })}
@@ -2759,7 +2759,7 @@ export default function StaffDashboard() {
                     justifyContent: 'center',
                     transition: 'all 0.3s ease',
                     boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                    fontSize: '20px'
+                    padding: 0
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'scale(1.1)';
@@ -2770,7 +2770,7 @@ export default function StaffDashboard() {
                     e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
                   }}
                 >
-                  ↓
+                  <ChevronDown size={24} />
                 </button>
               </div>
             </div>
@@ -3171,7 +3171,7 @@ export default function StaffDashboard() {
                     e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
                   }}
                 >
-                  ↑
+                  <ChevronDown size={24} style={{ transform: 'rotate(180deg)' }} />
                 </button>
                 <button
                   onClick={() => window.scrollBy({ top: 300, behavior: 'smooth' })}
@@ -3189,7 +3189,7 @@ export default function StaffDashboard() {
                     justifyContent: 'center',
                     transition: 'all 0.3s ease',
                     boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                    fontSize: '20px'
+                    padding: 0
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'scale(1.1)';
@@ -3200,7 +3200,7 @@ export default function StaffDashboard() {
                     e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
                   }}
                 >
-                  ↓
+                  <ChevronDown size={24} />
                 </button>
               </div>
             </div>
