@@ -54,6 +54,9 @@ export default function StaffDashboard() {
   const [creatorSearch, setCreatorSearch] = useState('');
   const [shadowDeletedSearch, setShadowDeletedSearch] = useState('');
   const [approvalsSearch, setApprovalsSearch] = useState('');
+  const [collapsedCreators, setCollapsedCreators] = useState(new Set());
+  const [collapsedUsers, setCollapsedUsers] = useState(new Set());
+  const [collapsedReports, setCollapsedReports] = useState(new Set());
   const [savedScrollPositions, setSavedScrollPositions] = useState({});
   const [footerPosition, setFooterPosition] = useState({ x: 0, y: 0 });
   const [isDraggingFooter, setIsDraggingFooter] = useState(false);
@@ -2148,129 +2151,203 @@ export default function StaffDashboard() {
                       <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
                         Showing {filteredUsers.length} of {users.length} users
                       </p>
-                      {filteredUsers.map(user => (
-                    <div key={user.id} style={{
-                      padding: '16px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      backgroundColor: user.status === 'banned' ? '#fee2e2' : user.shadowBanned ? '#fef3c7' : '#fff',
-                      display: 'flex',
-                      gap: '16px',
-                      alignItems: 'flex-start'
-                    }}>
-                      {/* Profile Picture */}
-                      <div style={{
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '50%',
-                        backgroundColor: '#e5e7eb',
-                        overflow: 'hidden',
-                        flexShrink: 0
-                      }}>
-                        {user.image ? (
-                          <img src={user.image} alt={user.name} style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover'
-                          }} />
-                        ) : (
+                      {filteredUsers.map(user => {
+                        const isCollapsed = collapsedUsers.has(user.id);
+                        return (
+                        <div key={user.id} style={{
+                          padding: '16px',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          backgroundColor: user.status === 'banned' ? '#fee2e2' : user.shadowBanned ? '#fef3c7' : '#fff',
+                          transition: 'all 0.3s ease',
+                          boxShadow: isCollapsed ? '0 1px 3px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.1)'
+                        }}>
+                          {/* Header - Always Visible */}
                           <div style={{
-                            width: '100%',
-                            height: '100%',
                             display: 'flex',
+                            gap: '16px',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: '#d1d5db',
-                            color: '#fff',
-                            fontSize: '32px',
-                            fontWeight: 'bold'
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onClick={() => {
+                            setCollapsedUsers(prev => {
+                              const newSet = new Set(prev);
+                              if (newSet.has(user.id)) newSet.delete(user.id);
+                              else newSet.add(user.id);
+                              return newSet;
+                            });
                           }}>
-                            {(user.name || 'U')[0].toUpperCase()}
-                          </div>
-                        )}
-                      </div>
+                            {/* Profile Picture - Smaller in Collapsed */}
+                            <div style={{
+                              width: isCollapsed ? '60px' : '80px',
+                              height: isCollapsed ? '60px' : '80px',
+                              borderRadius: '50%',
+                              backgroundColor: '#e5e7eb',
+                              overflow: 'hidden',
+                              flexShrink: 0,
+                              transition: 'all 0.3s ease'
+                            }}>
+                              {user.image ? (
+                                <img src={user.image} alt={user.name} style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover'
+                                }} />
+                              ) : (
+                                <div style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  backgroundColor: '#d1d5db',
+                                  color: '#fff',
+                                  fontSize: '24px',
+                                  fontWeight: 'bold'
+                                }}>
+                                  {(user.name || 'U')[0].toUpperCase()}
+                                </div>
+                              )}
+                            </div>
 
-                      {/* User Info */}
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
-                          <div>
-                            <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold' }}>
-                              {user.name}
-                              {user.isCreator && <span style={{ marginLeft: '8px', color: '#f59e0b', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}><Crown size={12} /> Creator</span>}
-                            </h3>
-                            <p style={{ margin: '0', color: '#666', fontSize: '14px' }}>
-                              @{user.email.split('@')[0]}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setUserActionModal({ isOpen: true, userId: user.id, action: null });
-                              setReasonModal({ isOpen: true, action: 'user', itemId: null, itemType: null, reason: '' });
-                            }}
-                            style={{
-                              padding: '8px 16px',
-                              backgroundColor: 'white',
-                              color: '#dc2626',
-                              border: '2px solid #dc2626',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              fontSize: '12px',
-                              fontWeight: 'bold',
-                              transition: 'all 0.2s',
-                              whiteSpace: 'nowrap'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = '#dc2626';
-                              e.target.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = 'white';
-                              e.target.style.color = '#dc2626';
-                            }}
-                          >
-                            Action
-                          </button>
-                        </div>
+                            {/* Header Info */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ flex: 1 }}>
+                                  <h3 style={{ margin: '0 0 4px 0', fontSize: isCollapsed ? '15px' : '16px', fontWeight: 'bold', transition: 'font-size 0.3s' }}>
+                                    {user.name}
+                                    {user.isCreator && <span style={{ marginLeft: '6px', color: '#f59e0b', fontSize: '11px', fontWeight: 'bold' }}>👑</span>}
+                                  </h3>
+                                  <p style={{ margin: '0', color: '#666', fontSize: '13px' }}>
+                                    @{user.email.split('@')[0]}
+                                  </p>
+                                </div>
+                                <div style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  flexShrink: 0
+                                }}>
+                                  <span style={{
+                                    padding: '4px 8px',
+                                    backgroundColor: user.status === 'banned' ? '#dc2626' : user.shadowBanned ? '#f59e0b' : '#10b981',
+                                    color: 'white',
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    borderRadius: '4px'
+                                  }}>
+                                    {user.status === 'banned' ? '🚫 Banned' : user.shadowBanned ? '👁️ Shadow' : '✓ Active'}
+                                  </span>
+                                  <ChevronDown size={20} style={{
+                                    transform: isCollapsed ? 'rotate(0deg)' : 'rotate(-180deg)',
+                                    transition: 'transform 0.3s ease',
+                                    color: '#6b7280'
+                                  }} />
+                                </div>
+                              </div>
 
-                        {/* Bio */}
-                        {user.bio && (
-                          <p style={{ margin: '8px 0', color: '#666', fontSize: '13px', fontStyle: 'italic' }}>
-                            "{user.bio}"
-                          </p>
-                        )}
+                              {/* Joined Date in Collapsed Header */}
+                              {isCollapsed && (
+                                <p style={{ margin: '6px 0 0 0', color: '#666', fontSize: '12px' }}>
+                                  Joined {new Date(user.createdAt).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                          </div>
 
-                        {/* User Details */}
-                        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
-                          <div>
-                            <span style={{ color: '#999', fontSize: '12px' }}>Email:</span>
-                            <p style={{ margin: '0', color: '#666', fontSize: '13px' }}>{user.email}</p>
-                          </div>
-                          <div>
-                            <span style={{ color: '#999', fontSize: '12px' }}>Status:</span>
-                            <p style={{ margin: '0', color: user.status === 'banned' ? '#dc2626' : user.shadowBanned ? '#f59e0b' : '#10b981', fontSize: '13px', fontWeight: 'bold' }}>
-                              {user.status === 'banned' ? '🚫 Banned' : user.shadowBanned ? '👁️ Shadow Banned' : '✓ Active'}
-                              {user.warnings ? ` | ${user.warnings} warnings` : ''}
-                            </p>
-                          </div>
-                          {user.isCreator && (
-                            <div>
-                              <span style={{ color: '#999', fontSize: '12px' }}>Creator Since:</span>
-                              <p style={{ margin: '0', color: '#666', fontSize: '13px' }}>
-                                {new Date(user.creatorSince).toLocaleDateString()}
-                              </p>
+                          {/* Expandable Content */}
+                          {!isCollapsed && (
+                            <div style={{ 
+                              marginTop: '16px',
+                              paddingTop: '16px',
+                              borderTop: '1px solid rgba(229, 231, 235, 0.5)',
+                              animation: 'fadeIn 0.3s ease'
+                            }}>
+                              {/* Action Button */}
+                              <div style={{ marginBottom: '12px' }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setUserActionModal({ isOpen: true, userId: user.id, action: null });
+                                    setReasonModal({ isOpen: true, action: 'user', itemId: null, itemType: null, reason: '' });
+                                  }}
+                                  style={{
+                                    padding: '8px 16px',
+                                    backgroundColor: 'white',
+                                    color: '#dc2626',
+                                    border: '2px solid #dc2626',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    transition: 'all 0.2s'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.target.style.backgroundColor = '#dc2626';
+                                    e.target.style.color = 'white';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.style.backgroundColor = 'white';
+                                    e.target.style.color = '#dc2626';
+                                  }}
+                                >
+                                  Take Action
+                                </button>
+                              </div>
+
+                              {/* Bio */}
+                              {user.bio && (
+                                <p style={{ margin: '8px 0', color: '#666', fontSize: '13px', fontStyle: 'italic', paddingLeft: '8px', borderLeft: '3px solid #3b82f6' }}>
+                                  "{user.bio}"
+                                </p>
+                              )}
+
+                              {/* User Details Grid */}
+                              <div style={{ 
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(2, 1fr)',
+                                gap: '16px',
+                                marginTop: '12px'
+                              }}>
+                                <div style={{ padding: '10px', backgroundColor: 'rgba(59, 130, 246, 0.05)', borderRadius: '6px' }}>
+                                  <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>EMAIL</span>
+                                  <p style={{ margin: '4px 0 0', color: '#666', fontSize: '13px', wordBreak: 'break-all' }}>{user.email}</p>
+                                </div>
+                                <div style={{ padding: '10px', backgroundColor: 'rgba(59, 130, 246, 0.05)', borderRadius: '6px' }}>
+                                  <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>JOINED</span>
+                                  <p style={{ margin: '4px 0 0', color: '#666', fontSize: '13px' }}>
+                                    {new Date(user.createdAt).toLocaleDateString()}
+                                  </p>
+                                </div>
+                                {user.isCreator && (
+                                  <div style={{ padding: '10px', backgroundColor: 'rgba(245, 158, 11, 0.05)', borderRadius: '6px' }}>
+                                    <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>CREATOR SINCE</span>
+                                    <p style={{ margin: '4px 0 0', color: '#666', fontSize: '13px' }}>
+                                      {new Date(user.creatorSince).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {user.warnings > 0 && (
+                                <div style={{ 
+                                  marginTop: '12px',
+                                  padding: '10px',
+                                  backgroundColor: 'rgba(220, 38, 38, 0.05)',
+                                  border: '1px solid rgba(220, 38, 38, 0.2)',
+                                  borderRadius: '6px',
+                                  color: '#dc2626',
+                                  fontSize: '13px'
+                                }}>
+                                  ⚠️ {user.warnings} {user.warnings === 1 ? 'warning' : 'warnings'}
+                                </div>
+                              )}
                             </div>
                           )}
-                          <div>
-                            <span style={{ color: '#999', fontSize: '12px' }}>Joined:</span>
-                            <p style={{ margin: '0', color: '#666', fontSize: '13px' }}>
-                              {new Date(user.createdAt).toLocaleDateString()}
-                            </p>
-                          </div>
                         </div>
-                      </div>
-                    </div>
-                      ))}
-                      </div>
+                        );
+                      })}                      </div>
                     );
                   })()
                 }
@@ -2339,144 +2416,219 @@ export default function StaffDashboard() {
                   {creators.filter(c => 
                     (c.name || '').toLowerCase().includes(creatorSearch.toLowerCase()) ||
                     (c.email || '').toLowerCase().includes(creatorSearch.toLowerCase())
-                  ).map(creator => (
-                    <div key={creator.id} style={{
-                      padding: '16px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      backgroundColor: creator.status === 'banned' ? '#fee2e2' : creator.shadowBanned ? '#fef3c7' : '#fffbeb',
-                      display: 'flex',
-                      gap: '16px',
-                      alignItems: 'flex-start'
-                    }}>
-                      {/* Profile Picture */}
-                      <div style={{
-                        width: '100px',
-                        height: '100px',
-                        borderRadius: '50%',
-                        backgroundColor: '#e5e7eb',
-                        overflow: 'hidden',
-                        flexShrink: 0,
-                        border: '3px solid #f59e0b'
+                  ).map(creator => {
+                    const isCollapsed = collapsedCreators.has(creator.id);
+                    return (
+                      <div key={creator.id} style={{
+                        padding: '16px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        backgroundColor: creator.status === 'banned' ? '#fee2e2' : creator.shadowBanned ? '#fef3c7' : '#fffbeb',
+                        transition: 'all 0.3s ease',
+                        boxShadow: isCollapsed ? '0 1px 3px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.1)'
                       }}>
-                        {creator.image ? (
-                          <img src={creator.image} alt={creator.name} style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover'
-                          }} />
-                        ) : (
+                        {/* Header - Always Visible */}
+                        <div style={{
+                          display: 'flex',
+                          gap: '16px',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onClick={() => {
+                          setCollapsedCreators(prev => {
+                            const newSet = new Set(prev);
+                            if (newSet.has(creator.id)) newSet.delete(creator.id);
+                            else newSet.add(creator.id);
+                            return newSet;
+                          });
+                        }}>
+                          {/* Profile Picture - Smaller in Collapsed */}
                           <div style={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: '#d1d5db',
-                            color: '#fff',
-                            fontSize: '40px',
-                            fontWeight: 'bold'
+                            width: isCollapsed ? '64px' : '100px',
+                            height: isCollapsed ? '64px' : '100px',
+                            borderRadius: '50%',
+                            backgroundColor: '#e5e7eb',
+                            overflow: 'hidden',
+                            flexShrink: 0,
+                            border: '3px solid #f59e0b',
+                            transition: 'all 0.3s ease'
                           }}>
-                            {(creator.name || 'C')[0].toUpperCase()}
+                            {creator.image ? (
+                              <img src={creator.image} alt={creator.name} style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover'
+                              }} />
+                            ) : (
+                              <div style={{
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: '#d1d5db',
+                                color: '#fff',
+                                fontSize: '24px',
+                                fontWeight: 'bold'
+                              }}>
+                                {(creator.name || 'C')[0].toUpperCase()}
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
 
-                      {/* Creator Info */}
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
-                          <div>
-                            <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 'bold' }}>
-                              <Crown size={16} style={{ marginRight: '6px' }} /> {creator.name}
-                            </h3>
-                            <p style={{ margin: '0', color: '#666', fontSize: '14px' }}>
-                              @{creator.email.split('@')[0]}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setUserActionModal({ isOpen: true, userId: creator.id, action: null });
-                              setReasonModal({ isOpen: true, action: 'user', itemId: null, itemType: null, reason: '' });
-                            }}
-                            style={{
-                              padding: '8px 16px',
-                              backgroundColor: 'white',
-                              color: '#dc2626',
-                              border: '2px solid #dc2626',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              fontSize: '12px',
-                              fontWeight: 'bold',
-                              transition: 'all 0.2s',
-                              whiteSpace: 'nowrap'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = '#dc2626';
-                              e.target.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = 'white';
-                              e.target.style.color = '#dc2626';
-                            }}
-                          >
-                            Action
-                          </button>
-                        </div>
+                          {/* Header Info */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div style={{ flex: 1 }}>
+                                <h3 style={{ margin: '0 0 4px 0', fontSize: isCollapsed ? '16px' : '18px', fontWeight: 'bold', transition: 'font-size 0.3s' }}>
+                                  <Crown size={16} style={{ marginRight: '6px' }} /> {creator.name}
+                                </h3>
+                                <p style={{ margin: '0', color: '#666', fontSize: '13px' }}>
+                                  @{creator.email.split('@')[0]}
+                                </p>
+                              </div>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                flexShrink: 0
+                              }}>
+                                <span style={{
+                                  padding: '4px 8px',
+                                  backgroundColor: creator.status === 'banned' ? '#dc2626' : creator.shadowBanned ? '#f59e0b' : '#10b981',
+                                  color: 'white',
+                                  fontSize: '11px',
+                                  fontWeight: 'bold',
+                                  borderRadius: '4px'
+                                }}>
+                                  {creator.status === 'banned' ? '🚫 Banned' : creator.shadowBanned ? '👁️ Shadow' : '✓ Active'}
+                                </span>
+                                <ChevronDown size={20} style={{
+                                  transform: isCollapsed ? 'rotate(0deg)' : 'rotate(-180deg)',
+                                  transition: 'transform 0.3s ease',
+                                  color: '#6b7280'
+                                }} />
+                              </div>
+                            </div>
 
-                        {/* Bio */}
-                        {creator.bio && (
-                          <p style={{ margin: '8px 0', color: '#666', fontSize: '13px', fontStyle: 'italic' }}>
-                            "{creator.bio}"
-                          </p>
-                        )}
-
-                        {/* Creator Details */}
-                        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '8px' }}>
-                          <div>
-                            <span style={{ color: '#999', fontSize: '12px' }}>Email:</span>
-                            <p style={{ margin: '0', color: '#666', fontSize: '13px' }}>{creator.email}</p>
-                          </div>
-                          <div>
-                            <span style={{ color: '#999', fontSize: '12px' }}>Price:</span>
-                            <p style={{ margin: '0', color: '#f59e0b', fontSize: '13px', fontWeight: 'bold' }}>
-                              ${creator.price || '0'} / Request
-                            </p>
-                          </div>
-                          <div>
-                            <span style={{ color: '#999', fontSize: '12px' }}>Status:</span>
-                            <p style={{ margin: '0', color: creator.status === 'banned' ? '#dc2626' : creator.shadowBanned ? '#f59e0b' : '#10b981', fontSize: '13px', fontWeight: 'bold' }}>
-                              {creator.status === 'banned' ? '🚫 Banned' : creator.shadowBanned ? '👁️ Shadow Banned' : '✓ Active'}
-                              {creator.warnings ? ` | ${creator.warnings} warnings` : ''}
-                            </p>
-                          </div>
-                          <div>
-                            <span style={{ color: '#999', fontSize: '12px' }}>Creator Since:</span>
-                            <p style={{ margin: '0', color: '#666', fontSize: '13px' }}>
-                              {new Date(creator.creatorSince).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div>
-                            <span style={{ color: '#999', fontSize: '12px' }}>Streak:</span>
-                            <p style={{ margin: '0', color: '#f59e0b', fontSize: '13px', fontWeight: 'bold' }}>
-                              🔥 {creator.streak || 0}
-                            </p>
+                            {/* Price Display in Collapsed Header */}
+                            {isCollapsed && (
+                              <p style={{ margin: '6px 0 0 0', color: '#f59e0b', fontSize: '13px', fontWeight: 'bold' }}>
+                                ${creator.price || '0'} / Request
+                              </p>
+                            )}
                           </div>
                         </div>
 
-                        {/* Intro Video */}
-                        {creator.introVideo && (
-                          <div style={{ marginTop: '8px' }}>
-                            <span style={{ color: '#999', fontSize: '12px' }}>Intro Video:</span>
-                            <p style={{ margin: '4px 0', color: '#3b82f6', fontSize: '12px' }}>
-                              <a href={creator.introVideo} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
-                                View Video →
-                              </a>
-                            </p>
+                        {/* Expandable Content */}
+                        {!isCollapsed && (
+                          <div style={{ 
+                            marginTop: '16px',
+                            paddingTop: '16px',
+                            borderTop: '1px solid rgba(229, 231, 235, 0.5)',
+                            animation: 'fadeIn 0.3s ease'
+                          }}>
+                            {/* Action Button */}
+                            <div style={{ marginBottom: '12px' }}>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setUserActionModal({ isOpen: true, userId: creator.id, action: null });
+                                  setReasonModal({ isOpen: true, action: 'user', itemId: null, itemType: null, reason: '' });
+                                }}
+                                style={{
+                                  padding: '8px 16px',
+                                  backgroundColor: 'white',
+                                  color: '#dc2626',
+                                  border: '2px solid #dc2626',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.target.style.backgroundColor = '#dc2626';
+                                  e.target.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.backgroundColor = 'white';
+                                  e.target.style.color = '#dc2626';
+                                }}
+                              >
+                                Take Action
+                              </button>
+                            </div>
+
+                            {/* Bio */}
+                            {creator.bio && (
+                              <p style={{ margin: '8px 0', color: '#666', fontSize: '13px', fontStyle: 'italic', paddingLeft: '8px', borderLeft: '3px solid #f59e0b' }}>
+                                "{creator.bio}"
+                              </p>
+                            )}
+
+                            {/* Creator Details Grid */}
+                            <div style={{ 
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(2, 1fr)',
+                              gap: '16px',
+                              marginTop: '12px'
+                            }}>
+                              <div style={{ padding: '10px', backgroundColor: 'rgba(245, 158, 11, 0.05)', borderRadius: '6px' }}>
+                                <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>EMAIL</span>
+                                <p style={{ margin: '4px 0 0', color: '#666', fontSize: '13px' }}>{creator.email}</p>
+                              </div>
+                              <div style={{ padding: '10px', backgroundColor: 'rgba(245, 158, 11, 0.05)', borderRadius: '6px' }}>
+                                <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>PRICE PER REQUEST</span>
+                                <p style={{ margin: '4px 0 0', color: '#f59e0b', fontSize: '14px', fontWeight: 'bold' }}>
+                                  ${creator.price || '0'}
+                                </p>
+                              </div>
+                              <div style={{ padding: '10px', backgroundColor: 'rgba(245, 158, 11, 0.05)', borderRadius: '6px' }}>
+                                <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>CREATOR SINCE</span>
+                                <p style={{ margin: '4px 0 0', color: '#666', fontSize: '13px' }}>
+                                  {new Date(creator.creatorSince).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div style={{ padding: '10px', backgroundColor: 'rgba(245, 158, 11, 0.05)', borderRadius: '6px' }}>
+                                <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>STREAK</span>
+                                <p style={{ margin: '4px 0 0', color: '#f59e0b', fontSize: '14px', fontWeight: 'bold' }}>
+                                  🔥 {creator.streak || 0}
+                                </p>
+                              </div>
+                            </div>
+
+                            {creator.warnings > 0 && (
+                              <div style={{ 
+                                marginTop: '12px',
+                                padding: '10px',
+                                backgroundColor: 'rgba(220, 38, 38, 0.05)',
+                                border: '1px solid rgba(220, 38, 38, 0.2)',
+                                borderRadius: '6px',
+                                color: '#dc2626',
+                                fontSize: '13px'
+                              }}>
+                                ⚠️ {creator.warnings} {creator.warnings === 1 ? 'warning' : 'warnings'}
+                              </div>
+                            )}
+
+                            {/* Intro Video */}
+                            {creator.introVideo && (
+                              <div style={{ marginTop: '12px', padding: '10px', backgroundColor: 'rgba(59, 130, 246, 0.05)', borderRadius: '6px' }}>
+                                <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>INTRO VIDEO</span>
+                                <p style={{ margin: '4px 0 0', color: '#3b82f6', fontSize: '12px' }}>
+                                  <a href={creator.introVideo} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+                                    View Video →
+                                  </a>
+                                </p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -2580,190 +2732,259 @@ export default function StaffDashboard() {
                     (r.reason || '').toLowerCase().includes(reportSearch.toLowerCase())
                   ).map(report => {
                     const reportedVideo = videos.find(v => v.id === report.videoId);
+                    const isCollapsed = collapsedReports.has(report.id);
                     return (
                       <div key={report.id} style={{
                         padding: '16px',
                         border: '2px solid #fee2e2',
                         borderRadius: '8px',
                         backgroundColor: '#fef2f2',
-                        display: 'flex',
-                        gap: '16px'
+                        transition: 'all 0.3s ease',
+                        boxShadow: isCollapsed ? '0 1px 3px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.1)'
                       }}>
-                        {/* Video Thumbnail */}
-                        {reportedVideo && (
-                          <div style={{
-                            flexShrink: 0,
-                            width: '100px',
-                            height: '100px',
-                            backgroundColor: '#e5e7eb',
-                            borderRadius: '6px',
-                            overflow: 'hidden',
-                            border: '2px solid #ef4444'
-                          }}>
-                            <img 
-                              src={reportedVideo.imageUrl} 
-                              alt={reportedVideo.title}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                          </div>
-                        )}
-                        
-                        {/* Report Details */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ marginBottom: '12px' }}>
-                            <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold' }}>
-                              Report: {report.title || report.videoId}
-                            </h3>
-                            {reportedVideo && (
-                              <p style={{ margin: '4px 0', color: '#666', fontSize: '13px', fontWeight: '500' }}>
-                                📺 Video: {reportedVideo.title} by {reportedVideo.author}
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Reason */}
-                          <div style={{ marginBottom: '8px' }}>
-                            <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: '600', color: '#7f1d1d' }}>
-                              ⚠️ Reason:
-                            </p>
-                            <p style={{ margin: '0', color: '#666', fontSize: '13px', fontStyle: 'italic', paddingLeft: '8px' }}>
-                              {report.reason}
-                            </p>
-                          </div>
-
-                          {/* Reporter Info */}
-                          <div style={{ marginBottom: '8px', fontSize: '12px', color: '#666' }}>
-                            <p style={{ margin: '0' }}>
-                              👤 Reported by: <strong>{report.reporterEmail || report.reporterId || 'anonymous'}</strong>
-                            </p>
-                            <p style={{ margin: '0' }}>
-                              📅 {new Date(report.createdAt).toLocaleString()}
-                            </p>
-                          </div>
-
-                          {/* Evidence Files */}
-                          {report.evidenceFiles && report.evidenceFiles.length > 0 && (
-                            <div style={{ marginBottom: '8px' }}>
-                              <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: '600', color: '#7f1d1d' }}>
-                                📎 Evidence ({report.evidenceFiles.length}):
-                              </p>
-                              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingLeft: '8px' }}>
-                                {report.evidenceFiles.map((file, idx) => (
-                                  <a 
-                                    key={idx}
-                                    href={`http://localhost:4000/${file.path}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                      padding: '4px 8px',
-                                      backgroundColor: '#fff',
-                                      border: '1px solid #ef4444',
-                                      borderRadius: '4px',
-                                      fontSize: '11px',
-                                      color: '#ef4444',
-                                      fontWeight: '600',
-                                      textDecoration: 'none',
-                                      transition: 'all 0.2s'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#ef4444';
-                                      e.currentTarget.style.color = 'white';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#fff';
-                                      e.currentTarget.style.color = '#ef4444';
-                                    }}
-                                  >
-                                    📄 {file.originalName} ({(file.size / 1024).toFixed(1)}KB)
-                                  </a>
-                                ))}
-                              </div>
+                        {/* Header - Always Visible */}
+                        <div style={{
+                          display: 'flex',
+                          gap: '16px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          alignItems: 'flex-start'
+                        }}
+                        onClick={() => {
+                          setCollapsedReports(prev => {
+                            const newSet = new Set(prev);
+                            if (newSet.has(report.id)) newSet.delete(report.id);
+                            else newSet.add(report.id);
+                            return newSet;
+                          });
+                        }}>
+                          {/* Video Thumbnail */}
+                          {reportedVideo && (
+                            <div style={{
+                              flexShrink: 0,
+                              width: isCollapsed ? '70px' : '100px',
+                              height: isCollapsed ? '70px' : '100px',
+                              backgroundColor: '#e5e7eb',
+                              borderRadius: '6px',
+                              overflow: 'hidden',
+                              border: '2px solid #ef4444',
+                              transition: 'all 0.3s ease'
+                            }}>
+                              <img 
+                                src={reportedVideo.imageUrl} 
+                                alt={reportedVideo.title}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              />
                             </div>
                           )}
+                          
+                          {/* Report Summary */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <h3 style={{ margin: '0 0 4px 0', fontSize: isCollapsed ? '14px' : '16px', fontWeight: 'bold', transition: 'font-size 0.3s' }}>
+                                  {report.title || report.videoId}
+                                </h3>
+                                {reportedVideo && (
+                                  <p style={{ margin: '0', color: '#666', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    📺 {reportedVideo.title}
+                                  </p>
+                                )}
+                              </div>
+                              <ChevronDown size={20} style={{
+                                transform: isCollapsed ? 'rotate(0deg)' : 'rotate(-180deg)',
+                                transition: 'transform 0.3s ease',
+                                color: '#ef4444',
+                                flexShrink: 0,
+                                marginLeft: '8px'
+                              }} />
+                            </div>
+
+                            {/* Reason Preview (Always visible) */}
+                            <p style={{ margin: '6px 0 0', color: '#7f1d1d', fontSize: '12px', fontWeight: '600' }}>
+                              {report.reason.substring(0, isCollapsed ? 50 : 200)}{report.reason.length > (isCollapsed ? 50 : 200) ? '...' : ''}
+                            </p>
+                          </div>
                         </div>
 
-                        {/* Actions */}
-                        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', flexShrink: 0 }}>
-                          {reportedVideo && (
-                            <>
-                              <button
-                                onClick={() => setSelectedAdVideo(reportedVideo.id)}
-                                style={{
-                                  padding: '8px 12px',
-                                  backgroundColor: '#3b82f6',
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '6px',
-                                  cursor: 'pointer',
-                                  fontSize: '11px',
-                                  fontWeight: 'bold',
-                                  whiteSpace: 'nowrap',
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#1e40af'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
-                              >
-                                View Video
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setSelectedAdVideo(reportedVideo.id);
-                                  setActiveTab('ads');
-                                }}
-                                style={{
-                                  padding: '8px 12px',
-                                  backgroundColor: '#10b981',
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '6px',
-                                  cursor: 'pointer',
-                                  fontSize: '11px',
-                                  fontWeight: 'bold',
-                                  whiteSpace: 'nowrap',
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#047857'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
-                              >
-                                Edit Overlays
-                              </button>
-                              <button
-                                onClick={() => {
-                                  // Shadow delete the video
-                                  const deleteVideo = async () => {
-                                    try {
-                                      await fetch(`http://localhost:4000/staff/shadow-delete/${reportedVideo.id}`, {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ employeeId: staffSession?.id || 1000, reason: `Report action: ${report.reason}` })
-                                      });
-                                      setReports(reports.filter(r => r.id !== report.id));
-                                    } catch (err) {
-                                      console.error('Delete failed', err);
-                                    }
-                                  };
-                                  deleteVideo();
-                                }}
-                                style={{
-                                  padding: '8px 12px',
-                                  backgroundColor: '#ef4444',
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '6px',
-                                  cursor: 'pointer',
-                                  fontSize: '11px',
-                                  fontWeight: 'bold',
-                                  whiteSpace: 'nowrap',
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
-                              >
-                                Shadow Delete
-                              </button>
-                            </>
-                          )}
-                        </div>
+                        {/* Expandable Content */}
+                        {!isCollapsed && (
+                          <div style={{ 
+                            marginTop: '16px',
+                            paddingTop: '16px',
+                            borderTop: '1px solid rgba(239, 68, 68, 0.2)',
+                            animation: 'fadeIn 0.3s ease'
+                          }}>
+                            {/* Full Reason */}
+                            <div style={{ marginBottom: '12px' }}>
+                              <p style={{ margin: '0 0 6px 0', fontSize: '12px', fontWeight: '600', color: '#7f1d1d' }}>
+                                ⚠️ Full Reason:
+                              </p>
+                              <p style={{ margin: '0', color: '#666', fontSize: '13px', paddingLeft: '12px', borderLeft: '3px solid #ef4444', lineHeight: '1.5' }}>
+                                {report.reason}
+                              </p>
+                            </div>
+
+                            {/* Reporter & Video Info Grid */}
+                            <div style={{ 
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(2, 1fr)',
+                              gap: '12px',
+                              marginBottom: '12px'
+                            }}>
+                              <div style={{ padding: '10px', backgroundColor: 'rgba(239, 68, 68, 0.05)', borderRadius: '6px' }}>
+                                <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>REPORTED BY</span>
+                                <p style={{ margin: '4px 0 0', color: '#666', fontSize: '13px', wordBreak: 'break-all' }}>
+                                  {report.reporterEmail || report.reporterId || 'anonymous'}
+                                </p>
+                              </div>
+                              <div style={{ padding: '10px', backgroundColor: 'rgba(239, 68, 68, 0.05)', borderRadius: '6px' }}>
+                                <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>REPORT DATE</span>
+                                <p style={{ margin: '4px 0 0', color: '#666', fontSize: '13px' }}>
+                                  {new Date(report.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              {reportedVideo && (
+                                <>
+                                  <div style={{ padding: '10px', backgroundColor: 'rgba(239, 68, 68, 0.05)', borderRadius: '6px' }}>
+                                    <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>VIDEO AUTHOR</span>
+                                    <p style={{ margin: '4px 0 0', color: '#666', fontSize: '13px' }}>
+                                      {reportedVideo.author}
+                                    </p>
+                                  </div>
+                                  <div style={{ padding: '10px', backgroundColor: 'rgba(239, 68, 68, 0.05)', borderRadius: '6px' }}>
+                                    <span style={{ color: '#999', fontSize: '11px', fontWeight: '600' }}>VIDEO ID</span>
+                                    <p style={{ margin: '4px 0 0', color: '#666', fontSize: '13px', fontFamily: 'monospace' }}>
+                                      {reportedVideo.id}
+                                    </p>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Evidence Files */}
+                            {report.evidenceFiles && report.evidenceFiles.length > 0 && (
+                              <div style={{ marginBottom: '12px' }}>
+                                <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: '#7f1d1d' }}>
+                                  📎 Evidence Files ({report.evidenceFiles.length}):
+                                </p>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingLeft: '8px' }}>
+                                  {report.evidenceFiles.map((file, idx) => (
+                                    <a 
+                                      key={idx}
+                                      href={`http://localhost:4000/${file.path}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{
+                                        padding: '6px 10px',
+                                        backgroundColor: '#fff',
+                                        border: '1px solid #ef4444',
+                                        borderRadius: '4px',
+                                        fontSize: '11px',
+                                        color: '#ef4444',
+                                        fontWeight: '600',
+                                        textDecoration: 'none',
+                                        transition: 'all 0.2s'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#ef4444';
+                                        e.currentTarget.style.color = 'white';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#fff';
+                                        e.currentTarget.style.color = '#ef4444';
+                                      }}
+                                    >
+                                      📄 {file.originalName}
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Actions */}
+                            {reportedVideo && (
+                              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '12px', borderTop: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedAdVideo(reportedVideo.id);
+                                  }}
+                                  style={{
+                                    padding: '8px 14px',
+                                    backgroundColor: '#3b82f6',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    transition: 'all 0.2s'
+                                  }}
+                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#1e40af'}
+                                  onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
+                                >
+                                  View Video
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedAdVideo(reportedVideo.id);
+                                    setActiveTab('ads');
+                                  }}
+                                  style={{
+                                    padding: '8px 14px',
+                                    backgroundColor: '#10b981',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    transition: 'all 0.2s'
+                                  }}
+                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#047857'}
+                                  onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
+                                >
+                                  Edit Overlays
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const deleteVideo = async () => {
+                                      try {
+                                        await fetch(`http://localhost:4000/staff/shadow-delete/${reportedVideo.id}`, {
+                                          method: 'POST',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({ employeeId: staffSession?.id || 1000, reason: `Report action: ${report.reason}` })
+                                        });
+                                        setReports(reports.filter(r => r.id !== report.id));
+                                      } catch (err) {
+                                        console.error('Delete failed', err);
+                                      }
+                                    };
+                                    deleteVideo();
+                                  }}
+                                  style={{
+                                    padding: '8px 14px',
+                                    backgroundColor: '#ef4444',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    transition: 'all 0.2s'
+                                  }}
+                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+                                  onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
+                                >
+                                  Shadow Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
