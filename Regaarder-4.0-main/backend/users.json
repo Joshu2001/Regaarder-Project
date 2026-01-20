@@ -1190,7 +1190,10 @@
     "dailyClaimEarnings": 133,
     "referralCode": "F874FD7C",
     "warnings": 7,
-    "lastWarning": "2026-01-20T04:53:02.875Z"
+    "lastWarning": "2026-01-20T04:53:02.875Z",
+    "shadowBanned": true,
+    "shadowBannedAt": "2026-01-20T05:47:04.855Z",
+    "shadowBanReason": "Low-quality or repetitive content"
   },
   {
     "id": "user-1768222892161",

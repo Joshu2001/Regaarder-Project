@@ -3570,9 +3570,9 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                 fontSize: '36px',
                                 backgroundColor:
                                     staffActionNotification.action === 'warn' ? '#fef3c7' :
-                                    staffActionNotification.action === 'ban' ? '#fee2e2' :
-                                    staffActionNotification.action === 'shadowban' ? '#fef3c7' :
-                                    staffActionNotification.action === 'delete' ? '#fecaca' : '#f0fdf4'
+                                    staffActionNotification.action === 'ban' ? '#fecaca' :
+                                    staffActionNotification.action === 'shadowban' ? '#d1d5db' :
+                                    staffActionNotification.action === 'delete' ? '#ddd6fe' : '#f0fdf4'
                             }}>
                                 {staffActionNotification.action === 'warn' && '⚠️'}
                                 {staffActionNotification.action === 'ban' && '🚫'}

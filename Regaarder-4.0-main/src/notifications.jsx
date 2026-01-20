@@ -1,7 +1,7 @@
 /* eslint-disable no-empty */
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Bell, CheckCircle, Rocket, Trophy, ChevronLeft, Settings, ChevronRight, Home, FileText, Pencil, MoreHorizontal, MessageSquare, PlayCircle, Star, CornerUpRight, Send, X, Lightbulb, Trash2, Archive } from 'lucide-react';
+import { Bell, CheckCircle, Rocket, Trophy, ChevronLeft, Settings, ChevronRight, Home, FileText, Pencil, MoreHorizontal, MessageSquare, PlayCircle, Star, CornerUpRight, Send, X, Lightbulb, Trash2, Archive, Filter } from 'lucide-react';
 import { translations, getTranslation } from './translations.js';
 
 // Utility for relative time
@@ -117,6 +117,32 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
   // Use the 'from' of the thread (the other person)
   const otherPerson = (thread.from && thread.from.id !== currentUserId) ? thread.from : (thread.to && thread.to.id !== currentUserId ? thread.to : { name: 'Unknown' });
 
+  // Fetch profile picture if not already in the thread
+  const [profilePic, setProfilePic] = React.useState(otherPerson.avatar || null);
+
+  React.useEffect(() => {
+    if (!profilePic && otherPerson && otherPerson.id) {
+      // Fetch profile picture from backend
+      const fetchProfilePic = async () => {
+        try {
+          const token = localStorage.getItem('regaarder_token');
+          if (!token) return;
+          const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+          const res = await fetch(`${BACKEND}/user/${otherPerson.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.user && data.user.profilePicture) {
+              setProfilePic(data.user.profilePicture);
+            }
+          }
+        } catch (e) { }
+      };
+      fetchProfilePic();
+    }
+  }, [otherPerson.id, profilePic]);
+
   if (isStaffAction) {
     // Staff action notifications: show title directly
     title = thread.title || 'Moderation Notice';
@@ -125,9 +151,9 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
         style={{
           backgroundColor:
             thread.action === 'warn' ? '#fef3c7' :
-            thread.action === 'ban' ? '#fee2e2' :
-            thread.action === 'shadowban' ? '#fef3c7' :
-            thread.action === 'delete' ? '#fecaca' : '#f0fdf4'
+            thread.action === 'ban' ? '#fecaca' :
+            thread.action === 'shadowban' ? '#d1d5db' :
+            thread.action === 'delete' ? '#ddd6fe' : '#f0fdf4'
         }}>
         {thread.action === 'warn' && '⚠️'}
         {thread.action === 'ban' && '🚫'}
@@ -140,11 +166,11 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
     title = getTranslation('Status Update from Creator', selectedLanguage);
     if (currentStep === 5) title = getTranslation('Request Fulfilled!', selectedLanguage);
 
-    // Use creator avatar
+    // Use creator avatar with fetched profile picture
     Avatar = (
       <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-        {otherPerson.avatar ? (
-          <img src={otherPerson.avatar} alt={otherPerson.name} className="w-full h-full object-cover" />
+        {profilePic ? (
+          <img src={profilePic} alt={otherPerson.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-bold text-sm">
             {(otherPerson.name && otherPerson.name[0]) || 'C'}
@@ -159,8 +185,8 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
     title = getTranslation('New Message', selectedLanguage);
     Avatar = (
       <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-        {otherPerson.avatar ? (
-          <img src={otherPerson.avatar} alt={otherPerson.name} className="w-full h-full object-cover" />
+        {profilePic ? (
+          <img src={profilePic} alt={otherPerson.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-bold text-sm">
             {(otherPerson.name && otherPerson.name[0]) || 'C'}
@@ -414,18 +440,36 @@ const App = ({ onClose }) => {
       const from = params.get('from');
       if (from) {
         // Normalize and navigate to the originating route
-        navigate(from.startsWith('/') ? from : `/${from}`);
+        navigate(from.startsWith('/') ? from : `/${from}`, { replace: true });
         return;
       }
     } catch (e) {
       // fall through to default
     }
-    navigate('/home');
+    // Try an app-level quick switch if available (faster than routing)
+    try {
+      if (typeof window !== 'undefined' && typeof window.__setAppPage === 'function') {
+        window.__setAppPage('home');
+        return;
+      }
+    } catch (e) { }
+
+    // Fallback to router replace navigation for a snappier transition
+    navigate('/home', { replace: true });
   };
 
+  const [loading, setLoading] = React.useState(true);
   const [hasNotifications, setHasNotifications] = React.useState(false);
   const [groupedSuggestions, setGroupedSuggestions] = React.useState([]);
   const [userId, setUserId] = React.useState(null);
+  const [showFilterModal, setShowFilterModal] = React.useState(true);
+  const [filters, setFilters] = React.useState({
+    dateRange: 'all', // 'all', 'today', 'week', 'month'
+    category: 'all', // 'all', 'status_update', 'staff_action', 'message'
+    importance: 'all', // 'all', 'high', 'medium', 'low'
+    sortBy: 'newest' // 'newest', 'oldest'
+  });
+  const [filteredSuggestions, setFilteredSuggestions] = React.useState([]);
 
   // Helper to fetch and group notifications
   const fetchNotifications = async () => {
@@ -476,6 +520,9 @@ const App = ({ onClose }) => {
         setHasNotifications(sortedThreads.length > 0);
       }
     } catch (e) { }
+    finally {
+      setLoading(false);
+    }
   };
 
   React.useEffect(() => {
@@ -485,8 +532,64 @@ const App = ({ onClose }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Toggle display of the settings panel when user taps the settings icon
-  const [settingsActive, setSettingsActive] = React.useState(false);
+  // Filter notifications based on active filters
+  React.useEffect(() => {
+    let filtered = [...groupedSuggestions];
+
+    // Filter by date range
+    if (filters.dateRange !== 'all') {
+      const now = new Date();
+      let cutoffDate = new Date();
+      
+      if (filters.dateRange === 'today') {
+        cutoffDate.setHours(0, 0, 0, 0);
+      } else if (filters.dateRange === 'week') {
+        cutoffDate.setDate(cutoffDate.getDate() - 7);
+      } else if (filters.dateRange === 'month') {
+        cutoffDate.setDate(cutoffDate.getDate() - 30);
+      }
+      
+      filtered = filtered.filter(thread => new Date(thread.lastTime) >= cutoffDate);
+    }
+
+    // Filter by category
+    if (filters.category !== 'all') {
+      filtered = filtered.filter(thread => {
+        if (filters.category === 'status_update') {
+          return thread.items && thread.items.some(i => i.type === 'status_update');
+        } else if (filters.category === 'staff_action') {
+          return thread.type === 'staff_action';
+        } else if (filters.category === 'message') {
+          return !thread.type || thread.type !== 'staff_action';
+        }
+        return true;
+      });
+    }
+
+    // Filter by importance
+    if (filters.importance !== 'all') {
+      filtered = filtered.filter(thread => {
+        if (filters.importance === 'high') {
+          return thread.type === 'staff_action' || (thread.items && thread.items.some(i => i.type === 'status_update'));
+        } else if (filters.importance === 'medium') {
+          return true; // All regular notifications
+        } else if (filters.importance === 'low') {
+          return thread.items && !thread.items.some(i => i.type === 'status_update') && thread.type !== 'staff_action';
+        }
+        return true;
+      });
+    }
+
+    // Sort by date
+    if (filters.sortBy === 'oldest') {
+      filtered = filtered.sort((a, b) => new Date(a.lastTime) - new Date(b.lastTime));
+    } else {
+      // newest (default)
+      filtered = filtered.sort((a, b) => new Date(b.lastTime) - new Date(a.lastTime));
+    }
+
+    setFilteredSuggestions(filtered);
+  }, [groupedSuggestions, filters]);
 
 
   const [toast, setToast] = React.useState(null);
@@ -670,6 +773,18 @@ const App = ({ onClose }) => {
           .icon-press:active svg {
             transform: translateY(1px) scale(0.92);
           }
+
+          /* Custom radio button styling with accent color */
+          input[type="radio"] {
+            accent-color: var(--color-gold, #ca8a04);
+            cursor: pointer;
+          }
+          .icon-press svg {
+            transition: transform 160ms cubic-bezier(.2,.8,.2,1);
+          }
+          .icon-press:active svg {
+            transform: translateY(1px) scale(0.92);
+          }
         `}
       </style>
 
@@ -690,67 +805,177 @@ const App = ({ onClose }) => {
               style={{ color: 'var(--color-gold, #ca8a04)' }}
             />
 
-            {/* Centered title with icon */}
-            <div className="flex items-center">
-              <Bell className="w-6 h-6 mr-3" strokeWidth={1.5} style={{ color: 'var(--color-gold, #ca8a04)' }} />
-              <h1 className="text-xl font-bold text-gray-800">{getTranslation('Notifications', selectedLanguage)}</h1>
-            </div>
+            {/* Title on the left */}
+            <h1 className="text-xl font-bold text-gray-800">{getTranslation('Notifications', selectedLanguage)}</h1>
 
-            {/* Settings button - positioned absolute right */}
+            {/* Filter button - positioned absolute right */}
             <button
-              onClick={() => setSettingsActive(!settingsActive)}
-              aria-pressed={settingsActive ? "true" : "false"}
-              className="absolute right-4 w-9 h-9 rounded-full flex items-center justify-center bg-white border border-gray-100 shadow-sm"
+              onClick={() => setShowFilterModal(!showFilterModal)}
+              className="absolute right-4 w-9 h-9 rounded-full flex items-center justify-center bg-white border border-gray-100 shadow-sm hover:shadow-md transition"
             >
-              <Settings className="w-5 h-5" style={{ color: settingsActive ? 'var(--color-gold)' : 'rgb(107 114 128)' }} />
+              <Filter className="w-5 h-5" style={{ color: 'rgb(107 114 128)' }} />
             </button>
 
           </header>
 
-          {/* Content Area */}
-          {settingsActive && (
-            <div className="fixed inset-0 z-30 flex items-start justify-center pt-20 px-4">
-              <div className="bg-white w-full max-w-md rounded-2xl shadow-lg border border-gray-100">
-                <header className="p-6 border-b">
-                  <div className="flex items-center">
-                    <ChevronLeft onClick={() => setSettingsActive(false)} className="w-6 h-6 mr-3 cursor-pointer" />
-                    <div>
-                      <h2 className="text-xl font-semibold text-gray-900">Profile Settings</h2>
-                      <p className="text-sm text-gray-500 mt-1">Manage your account settings and preferences</p>
-                    </div>
+          {/* Filter Modal */}
+          {showFilterModal && (
+            <div
+              className="fixed inset-0 z-30 flex items-start justify-center pt-20 px-4"
+              onClick={() => setShowFilterModal(false)}
+            >
+              <div
+                className="bg-white w-full max-w-md rounded-2xl shadow-lg border border-gray-100 max-h-[45vh] flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <header className="p-6 border-b flex-shrink-0">
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowFilterModal(false)}
+                      aria-label="Close filters"
+                      className="absolute right-0 top-0 -mr-2 -mt-2 w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                    <h2 className="text-lg font-semibold text-gray-900">Filter Notifications</h2>
+                    <p className="text-xs text-gray-500 mt-1">Customize what you see</p>
                   </div>
                 </header>
-                <div className="p-6 space-y-4">
-                  <div className="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <CheckCircle className="w-6 h-6 text-gray-500" />
-                      <div>
-                        <div className="font-medium text-gray-800">Export Your Data</div>
-                        <div className="text-sm text-gray-500">Download all your information</div>
-                      </div>
+                <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                  {/* Date Range Filter */}
+                  <div>
+                    <h3 className="font-semibold text-gray-800 mb-3">Date Range</h3>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'all', label: 'All Time' },
+                        { value: 'today', label: 'Today' },
+                        { value: 'week', label: 'Last 7 Days' },
+                        { value: 'month', label: 'Last 30 Days' }
+                      ].map(option => (
+                        <label key={option.value} className="flex items-center space-x-3 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="dateRange"
+                            value={option.value}
+                            checked={filters.dateRange === option.value}
+                            onChange={(e) => setFilters({ ...filters, dateRange: e.target.value })}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                          <span className="text-gray-700">{option.label}</span>
+                        </label>
+                      ))}
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-300" />
                   </div>
 
-                  <div className="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Rocket className="w-6 h-6 text-red-500" />
-                      <div>
-                        <div className="font-medium text-red-600">Delete Account</div>
-                        <div className="text-sm text-gray-500">Permanently delete your account</div>
-                      </div>
+                  {/* Category Filter */}
+                  <div>
+                    <h3 className="font-semibold text-gray-800 mb-3">Category</h3>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'all', label: 'All Categories' },
+                        { value: 'status_update', label: 'Status Updates' },
+                        { value: 'staff_action', label: 'Moderation Notices' },
+                        { value: 'message', label: 'Messages' }
+                      ].map(option => (
+                        <label key={option.value} className="flex items-center space-x-3 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="category"
+                            value={option.value}
+                            checked={filters.category === option.value}
+                            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                          <span className="text-gray-700">{option.label}</span>
+                        </label>
+                      ))}
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-300" />
+                  </div>
+
+                  {/* Importance Filter */}
+                  <div>
+                    <h3 className="font-semibold text-gray-800 mb-3">Importance</h3>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'all', label: 'All Importance Levels' },
+                        { value: 'high', label: 'High (Status & Moderation)' },
+                        { value: 'medium', label: 'Medium (All Notifications)' },
+                        { value: 'low', label: 'Low (Messages Only)' }
+                      ].map(option => (
+                        <label key={option.value} className="flex items-center space-x-3 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="importance"
+                            value={option.value}
+                            checked={filters.importance === option.value}
+                            onChange={(e) => setFilters({ ...filters, importance: e.target.value })}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                          <span className="text-gray-700">{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Sort Filter */}
+                  <div>
+                    <h3 className="font-semibold text-gray-800 mb-3">Sort By</h3>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'newest', label: 'Newest First' },
+                        { value: 'oldest', label: 'Oldest First' }
+                      ].map(option => (
+                        <label key={option.value} className="flex items-center space-x-3 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="sortBy"
+                            value={option.value}
+                            checked={filters.sortBy === option.value}
+                            onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                          <span className="text-gray-700">{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
+                <footer className="p-6 border-t flex-shrink-0 bg-white">
+                  {/* Reset Filters Button */}
+                  <button
+                    onClick={() => setFilters({ dateRange: 'all', category: 'all', importance: 'all', sortBy: 'newest' })}
+                    className="w-full py-2 px-4 rounded-lg font-medium text-white transition hover:shadow-md"
+                    style={{ backgroundColor: 'var(--color-gold, #ca8a04)' }}
+                  >
+                    Reset All Filters
+                  </button>
+                </footer>
               </div>
             </div>
           )}
-
           <main className="p-6 flex-grow overflow-y-auto">
 
-            {/* Suggestions list or empty state */}
-            {hasNotifications ? (
+            {/* Loading state - show skeleton placeholders */}
+            {loading ? (
+              <div className="pb-20">
+                {/* Tip Bar Skeleton */}
+                <div className="w-full px-4 py-3 mb-4 bg-gray-200 rounded-xl animate-pulse" style={{ height: '50px' }}></div>
+
+                {/* Notification Card Skeletons */}
+                {[...Array(3)].map((_, idx) => (
+                  <div key={idx} className="mb-4 p-4 bg-white rounded-xl shadow-sm border border-gray-200 animate-pulse">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0"></div>
+                      <div className="flex-grow">
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : hasNotifications ? (
               <div className="pb-20">
                 {/* Tip Bar */}
                 <div className="w-full px-4 py-3 mb-4 bg-[#F5F5DC] text-gray-700 rounded-xl flex items-start space-x-2" style={{ borderColor: 'var(--color-gold-light)', borderStyle: 'solid', boxShadow: '0 6px 16px rgba(var(--color-gold-rgb,203,138,0),0.06)' }}>
@@ -758,17 +983,29 @@ const App = ({ onClose }) => {
                   <p className="text-xs leading-relaxed font-medium">{getTranslation('Swipe left to delete • Swipe right to dismiss temporarily', selectedLanguage)}</p>
                 </div>
 
-                {groupedSuggestions.map((thread) => (
-                  <NotificationCard
-                    key={thread.id}
-                    thread={thread}
-                    onReply={handleReply}
-                    onDelete={handleDelete}
-                    onDismiss={handleDismiss}
-                    currentUserId={userId}
-                    selectedLanguage={selectedLanguage}
-                  />
-                ))}
+                {filteredSuggestions.length > 0 ? (
+                  filteredSuggestions.map((thread) => (
+                    <NotificationCard
+                      key={thread.id}
+                      thread={thread}
+                      onReply={handleReply}
+                      onDelete={handleDelete}
+                      onDismiss={handleDismiss}
+                      currentUserId={userId}
+                      selectedLanguage={selectedLanguage}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center pt-12 pb-8">
+                    <p className="text-gray-500">{getTranslation('No notifications match your filters', selectedLanguage)}</p>
+                    <button
+                      onClick={() => setFilters({ dateRange: 'all', category: 'all', importance: 'all' })}
+                      className="mt-4 text-sm text-blue-600 hover:underline"
+                    >
+                      {getTranslation('Reset filters', selectedLanguage)}
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center pt-8 pb-12">
@@ -781,7 +1018,7 @@ const App = ({ onClose }) => {
             )}
 
             {/* Feature Cards Section - The settings/milestone links */}
-            {!hasNotifications && (
+            {!loading && !hasNotifications && (
               <div className="space-y-4 pt-4">
                 <FeatureCard
                   icon={CheckCircle}
