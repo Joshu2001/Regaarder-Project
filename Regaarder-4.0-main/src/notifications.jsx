@@ -75,6 +75,7 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
 
   // Determine style and content based on item type
   const isStatusUpdate = items.some(i => i.type === 'status_update');
+  const isStaffAction = thread.type === 'staff_action';
 
   // Extract current step from metadata if available (default to 1)
   let currentStep = 1;
@@ -116,7 +117,26 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
   // Use the 'from' of the thread (the other person)
   const otherPerson = (thread.from && thread.from.id !== currentUserId) ? thread.from : (thread.to && thread.to.id !== currentUserId ? thread.to : { name: 'Unknown' });
 
-  if (isStatusUpdate) {
+  if (isStaffAction) {
+    // Staff action notifications: show title directly
+    title = thread.title || 'Moderation Notice';
+    Avatar = (
+      <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-lg"
+        style={{
+          backgroundColor:
+            thread.action === 'warn' ? '#fef3c7' :
+            thread.action === 'ban' ? '#fee2e2' :
+            thread.action === 'shadowban' ? '#fef3c7' :
+            thread.action === 'delete' ? '#fecaca' : '#f0fdf4'
+        }}>
+        {thread.action === 'warn' && '⚠️'}
+        {thread.action === 'ban' && '🚫'}
+        {thread.action === 'shadowban' && '👁️'}
+        {thread.action === 'delete' && '🗑️'}
+      </div>
+    );
+    actionLabel = null; // No reply for staff actions
+  } else if (isStatusUpdate) {
     title = getTranslation('Status Update from Creator', selectedLanguage);
     if (currentStep === 5) title = getTranslation('Request Fulfilled!', selectedLanguage);
 
@@ -186,8 +206,8 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
       // Swipe Left -> Delete
       if (onDelete) onDelete(thread);
       setSwipeOffset(0); // Reset for visual if undo happens, but normally component unmounts
-    } else if (swipeOffset > 100) {
-      // Swipe Right -> Dismiss
+    } else if (!isStaffAction && swipeOffset > 100) {
+      // Swipe Right -> Dismiss (only for non-staff-action notifications)
       if (onDismiss) onDismiss(thread);
       setSwipeOffset(0);
     } else {
@@ -200,11 +220,13 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
     <div className="relative mb-3 select-none overflow-hidden rounded-2xl">
       {/* Swipe Backgrounds */}
       <div className="absolute inset-0 flex justify-between items-center rounded-2xl">
-        {/* Left Background (revealed when swiping right) - Dismiss */}
-        <div className={`flex items-center justify-start pl-6 w-full h-full bg-blue-500 rounded-2xl transition-opacity duration-200 ${swipeOffset > 0 ? 'opacity-100' : 'opacity-0'}`}>
-          <Archive className="w-6 h-6 text-white" />
-          <span className="text-white font-medium ml-2">Dismiss</span>
-        </div>
+        {/* Left Background (revealed when swiping right) - Dismiss (only for non-staff-actions) */}
+        {!isStaffAction && (
+          <div className={`flex items-center justify-start pl-6 w-full h-full bg-blue-500 rounded-2xl transition-opacity duration-200 ${swipeOffset > 0 ? 'opacity-100' : 'opacity-0'}`}>
+            <Archive className="w-6 h-6 text-white" />
+            <span className="text-white font-medium ml-2">Dismiss</span>
+          </div>
+        )}
         {/* Right Background (revealed when swiping left) - Delete */}
         <div className={`absolute inset-0 flex items-center justify-end pr-6 w-full h-full bg-red-500 rounded-2xl transition-opacity duration-200 ${swipeOffset < 0 ? 'opacity-100' : 'opacity-0'}`}>
           <span className="text-white font-medium mr-2">Delete</span>
@@ -231,34 +253,52 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 leading-tight mb-0.5">{title}</h3>
-                <p className="text-xs font-medium text-gray-500 mb-1">{otherPerson.name}</p>
+                {isStaffAction ? (
+                  <p className="text-xs font-medium text-gray-500 mb-1">Moderation Team</p>
+                ) : (
+                  <p className="text-xs font-medium text-gray-500 mb-1">{otherPerson.name}</p>
+                )}
               </div>
-              <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1" style={{ backgroundColor: 'var(--color-gold)' }}></div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onDelete) onDelete(thread);
+                }}
+                className="p-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                title="Delete notification"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Message Thread */}
-            <div className="space-y-2 mt-1 max-h-60 overflow-y-auto">
-              {/* Status Tracker: Show only if this is a status update thread */}
-              {isStatusUpdate && (
-                <div className="mb-4 bg-gray-50 rounded-xl p-3 border border-gray-100">
-                  <StatusTracker currentStep={currentStep} steps={steps} />
-                </div>
-              )}
-
-              {items.map((msg, idx) => {
-                const isMe = msg.from && msg.from.id === currentUserId;
-                return (
-                  <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`text-sm leading-snug px-3 py-2 rounded-lg max-w-[90%] ${isMe ? 'bg-indigo-50 text-indigo-900 rounded-br-none' : 'bg-gray-50 text-gray-800 rounded-bl-none'}`}>
-                      {msg.text}
-                    </div>
+            {/* For staff actions, show message directly instead of threaded format */}
+            {isStaffAction ? (
+              <p className="text-sm text-gray-700 mt-2 leading-relaxed whitespace-pre-wrap">{thread.message}</p>
+            ) : (
+              // Message Thread for regular notifications
+              <div className="space-y-2 mt-1 max-h-60 overflow-y-auto">
+                {/* Status Tracker: Show only if this is a status update thread */}
+                {isStatusUpdate && (
+                  <div className="mb-4 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                    <StatusTracker currentStep={currentStep} steps={steps} />
                   </div>
-                );
-              })}
-            </div>
+                )}
+
+                {items.map((msg, idx) => {
+                  const isMe = msg.from && msg.from.id === currentUserId;
+                  return (
+                    <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`text-sm leading-snug px-3 py-2 rounded-lg max-w-[90%] ${isMe ? 'bg-indigo-50 text-indigo-900 rounded-br-none' : 'bg-gray-50 text-gray-800 rounded-bl-none'}`}>
+                        {msg.text}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="flex justify-between items-center mt-2">
-              <span className="text-xs text-gray-400">{timeAgo(latestItem.createdAt)}</span>
+              <span className="text-xs text-gray-400">{timeAgo(latestItem.createdAt || thread.createdAt)}</span>
               {actionLabel && !isReplying && (
                 <button
                   onClick={(e) => { e.stopPropagation(); setIsReplying(true); }}

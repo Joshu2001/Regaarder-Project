@@ -3403,17 +3403,17 @@ app.post('/staff/user-action/:userId', (req, res) => {
         break;
       case 'ban':
         notificationTitle = 'Account Banned';
-        notificationMessage = `Your account has been permanently banned.\n\nReason: ${reason}`;
+        notificationMessage = `Your account has been permanently banned for violating community guidelines.\n\nReason: ${reason}`;
         notificationIcon = 'ban';
         break;
       case 'shadowban':
         notificationTitle = 'Shadow Ban Applied';
-        notificationMessage = `Your account has been shadow banned.\n\nReason: ${reason}`;
+        notificationMessage = `Your account visibility has been restricted due to community guideline violations.\n\nReason: ${reason}`;
         notificationIcon = 'shadowban';
         break;
       case 'delete':
         notificationTitle = 'Account Deleted';
-        notificationMessage = `Your account has been deleted.\n\nReason: ${reason}`;
+        notificationMessage = `Your account has been permanently deleted due to severe community guideline violations.\n\nReason: ${reason}`;
         notificationIcon = 'delete';
         break;
     }

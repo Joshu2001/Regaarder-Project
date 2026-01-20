@@ -2822,6 +2822,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                             // Check if this is a staff action notification (requires acknowledgment)
                             if (newest.type === 'staff_action' && newest.requiresAcknowledgment) {
                                 // Show as modal instead of toast
+                                // NOTE: Do NOT remove from list - keep persisted until user manually deletes
                                 setStaffActionNotification(newest);
                             } else {
                                 setToast({
