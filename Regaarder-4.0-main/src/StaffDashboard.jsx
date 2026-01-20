@@ -721,19 +721,28 @@ export default function StaffDashboard() {
     }
 
     try {
+      const payload = {
+        employeeId: staffSession.id,
+        action: action,
+        reason,
+        ...(action === 'ban' && {
+          banType: banType,
+          banDuration: banType === 'temporary' ? banDuration : null
+        })
+      };
+      
+      console.log('Sending user action request:', {
+        url: `http://localhost:4000/staff/user-action/${userActionModal.userId}`,
+        payload
+      });
+
       const res = await fetch(`http://localhost:4000/staff/user-action/${userActionModal.userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          employeeId: staffSession.id,
-          action: action,
-          reason,
-          ...(action === 'ban' && {
-            banType: banType,
-            banDuration: banType === 'temporary' ? banDuration : null
-          })
-        })
+        body: JSON.stringify(payload)
       });
+
+      console.log('User action response status:', res.status);
 
       if (res.ok) {
         const responseData = await res.json();
@@ -766,6 +775,8 @@ export default function StaffDashboard() {
           setUserActionFeedback({ isVisible: false, userId: null, userName: null, action: null, reason: null, timestamp: null });
         }, 8000);
       } else {
+        const errorData = await res.json();
+        console.error('User action error response:', errorData);
         setError('Failed to apply user action');
         setToast({ type: 'error', message: 'Failed to apply user action' });
       }

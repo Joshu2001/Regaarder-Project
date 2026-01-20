@@ -3320,6 +3320,8 @@ app.post('/staff/user-action/:userId', (req, res) => {
     const { employeeId, action, reason } = req.body;
     const userId = req.params.userId;
 
+    console.log(`User action request: userId=${userId}, action=${action}, employeeId=${employeeId}`);
+
     if (parseInt(employeeId) !== 1000) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
@@ -3328,6 +3330,7 @@ app.post('/staff/user-action/:userId', (req, res) => {
     const userIndex = users.findIndex(u => u.id === userId);
 
     if (userIndex === -1) {
+      console.log(`User not found: ${userId}`);
       return res.status(404).json({ error: 'User not found' });
     }
 
@@ -3355,6 +3358,9 @@ app.post('/staff/user-action/:userId', (req, res) => {
         user.deletedAt = new Date().toISOString();
         user.deletedReason = reason;
         break;
+      default:
+        console.log(`Unknown action: ${action}`);
+        return res.status(400).json({ error: 'Invalid action type' });
     }
 
     users[userIndex] = user;
@@ -3373,10 +3379,11 @@ app.post('/staff/user-action/:userId', (req, res) => {
     });
     writeStaff(staff);
 
+    console.log(`User action applied: ${action} on user ${userId}`);
     return res.json({ success: true, message: `User ${action} applied`, user });
   } catch (err) {
     console.error('User action error:', err);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error', details: err.message });
   }
 });
 
