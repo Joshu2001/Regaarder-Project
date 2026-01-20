@@ -2757,6 +2757,9 @@ const App = ({ overrideMiniPlayerData = null }) => {
     const miniPlayerClosedTimestampRef = useRef(0); // Track when miniplayer was explicitly closed
     const skipNextSwitchToHomeRef = useRef(false); // Skip next switchToHome event if user just closed miniplayer
 
+    // Staff action notification modal state
+    const [staffActionNotification, setStaffActionNotification] = useState(null);
+
     // Navigation helper to convert .jsx paths to routes - DEFINED AFTER STATE
     const navigateTo = useCallback((path) => {
         if (!path) return;
@@ -2816,14 +2819,20 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     if (lastNotifCount !== -1 && count > lastNotifCount) {
                         const newest = list[0];
                         if (newest) {
-                            setToast({
-                                show: true,
-                                type: 'info',
-                                title: 'New Notification',
-                                message: newest.text || 'You have a new update'
-                            });
-                            // Auto-hide after 4 seconds
-                            setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
+                            // Check if this is a staff action notification (requires acknowledgment)
+                            if (newest.type === 'staff_action' && newest.requiresAcknowledgment) {
+                                // Show as modal instead of toast
+                                setStaffActionNotification(newest);
+                            } else {
+                                setToast({
+                                    show: true,
+                                    type: 'info',
+                                    title: 'New Notification',
+                                    message: newest.text || 'You have a new update'
+                                });
+                                // Auto-hide after 4 seconds
+                                setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
+                            }
                         }
                     }
                     lastNotifCount = count;
@@ -3525,6 +3534,85 @@ const App = ({ overrideMiniPlayerData = null }) => {
     return (
         // Main mobile container
         <div className="max-w-md mx-auto min-h-screen bg-gray-50 pb-40 font-sans shadow-2xl relative">
+            {/* Staff Action Notification Modal */}
+            {staffActionNotification && (
+                <div
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    onClick={() => setStaffActionNotification(null)}
+                >
+                    <div
+                        className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-lg"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="text-center">
+                            {/* Icon */}
+                            <div style={{
+                                width: '80px',
+                                height: '80px',
+                                borderRadius: '50%',
+                                margin: '0 auto 16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '36px',
+                                backgroundColor:
+                                    staffActionNotification.action === 'warn' ? '#fef3c7' :
+                                    staffActionNotification.action === 'ban' ? '#fee2e2' :
+                                    staffActionNotification.action === 'shadowban' ? '#fef3c7' :
+                                    staffActionNotification.action === 'delete' ? '#fecaca' : '#f0fdf4'
+                            }}>
+                                {staffActionNotification.action === 'warn' && '⚠️'}
+                                {staffActionNotification.action === 'ban' && '🚫'}
+                                {staffActionNotification.action === 'shadowban' && '👁️'}
+                                {staffActionNotification.action === 'delete' && '🗑️'}
+                            </div>
+
+                            {/* Title */}
+                            <h3 style={{
+                                margin: '0 0 12px',
+                                fontSize: '18px',
+                                fontWeight: '700',
+                                color: '#1f2937'
+                            }}>
+                                {staffActionNotification.title}
+                            </h3>
+
+                            {/* Message */}
+                            <p style={{
+                                margin: '0 0 24px',
+                                fontSize: '14px',
+                                color: '#666',
+                                lineHeight: '1.5',
+                                whiteSpace: 'pre-wrap'
+                            }}>
+                                {staffActionNotification.message}
+                            </p>
+
+                            {/* Acknowledge Button */}
+                            <button
+                                onClick={() => setStaffActionNotification(null)}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    backgroundColor: '#f59e0b',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    transition: 'background-color 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = '#d97706'}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = '#f59e0b'}
+                            >
+                                Acknowledge
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Blurred overlay to draw focus to the Requests tooltip when shown */}
             {showRequestsTooltip && (
                 <div

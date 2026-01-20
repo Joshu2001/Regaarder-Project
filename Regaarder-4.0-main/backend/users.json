@@ -21,7 +21,9 @@
     "lastClaimReset": "2026-01-15",
     "dailyClaimCount": 1,
     "dailyClaimEarnings": 25,
-    "referralCode": "8FFF9AD7"
+    "referralCode": "8FFF9AD7",
+    "warnings": 1,
+    "lastWarning": "2026-01-20T04:14:21.492Z"
   },
   {
     "id": "user-1767159330204",
@@ -49,7 +51,7 @@
     "name": "Paul",
     "passwordHash": "$2a$10$3scbR.60iq4sY22opnPw8O8Ar0GvjkLI7i2GdYaWLhH0PbLyVLKnS",
     "createdAt": "2026-01-05T03:56:39.609Z",
-    "token": "b39e33b786bea2014495b109fd5c5409",
+    "token": "64e741630c9e393f02c2f07adea5568a",
     "isCreator": true,
     "creatorSince": "2026-01-12T08:24:51.780Z",
     "image": "http://localhost:4000/uploads/intro-1768318495477-184494.png",
@@ -1186,7 +1188,9 @@
     "lastClaimReset": "2026-01-14",
     "dailyClaimCount": 1,
     "dailyClaimEarnings": 133,
-    "referralCode": "F874FD7C"
+    "referralCode": "F874FD7C",
+    "warnings": 1,
+    "lastWarning": "2026-01-20T04:16:04.504Z"
   },
   {
     "id": "user-1768222892161",

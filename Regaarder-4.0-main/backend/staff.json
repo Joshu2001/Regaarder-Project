@@ -383,5 +383,23 @@
       "undoneBy": 1000,
       "createdAt": "2026-01-20T02:56:22.404Z"
     }
+  ],
+  "userActions": [
+    {
+      "type": "user",
+      "userId": "user-1766857658728",
+      "action": "warn",
+      "reason": "Misleading or false information",
+      "actionBy": 1000,
+      "createdAt": "2026-01-20T04:14:21.496Z"
+    },
+    {
+      "type": "user",
+      "userId": "user-1767585399609",
+      "action": "warn",
+      "reason": "Inappropriate language or behavior",
+      "actionBy": 1000,
+      "createdAt": "2026-01-20T04:16:04.507Z"
+    }
   ]
 }

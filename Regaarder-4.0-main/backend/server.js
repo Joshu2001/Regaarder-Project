@@ -3379,6 +3379,63 @@ app.post('/staff/user-action/:userId', (req, res) => {
     });
     writeStaff(staff);
 
+    // Create a notification for the user who received the action
+    const SUG_FILE = path.join(__dirname, 'suggestions.json');
+    let notifications = [];
+    try { 
+      if (fs.existsSync(SUG_FILE)) {
+        notifications = JSON.parse(fs.readFileSync(SUG_FILE, 'utf8') || '[]'); 
+      }
+    } catch (e) { 
+      console.error('Error reading notifications:', e);
+    }
+
+    // Build notification message based on action type
+    let notificationMessage = '';
+    let notificationTitle = '';
+    let notificationIcon = '';
+
+    switch(action) {
+      case 'warn':
+        notificationTitle = 'Warning Notice';
+        notificationMessage = `Your account has received a warning for violating community guidelines.\n\nReason: ${reason}`;
+        notificationIcon = 'warn';
+        break;
+      case 'ban':
+        notificationTitle = 'Account Banned';
+        notificationMessage = `Your account has been permanently banned.\n\nReason: ${reason}`;
+        notificationIcon = 'ban';
+        break;
+      case 'shadowban':
+        notificationTitle = 'Shadow Ban Applied';
+        notificationMessage = `Your account has been shadow banned.\n\nReason: ${reason}`;
+        notificationIcon = 'shadowban';
+        break;
+      case 'delete':
+        notificationTitle = 'Account Deleted';
+        notificationMessage = `Your account has been deleted.\n\nReason: ${reason}`;
+        notificationIcon = 'delete';
+        break;
+    }
+
+    // Add notification
+    notifications.push({
+      id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      to: { id: userId, name: user.name },
+      from: { id: 'staff', name: 'Moderation Team' },
+      type: 'staff_action',
+      action: action,
+      title: notificationTitle,
+      message: notificationMessage,
+      icon: notificationIcon,
+      reason: reason,
+      createdAt: new Date().toISOString(),
+      read: false,
+      requiresAcknowledgment: true
+    });
+
+    fs.writeFileSync(SUG_FILE, JSON.stringify(notifications, null, 2));
+
     console.log(`User action applied: ${action} on user ${userId}`);
     return res.json({ success: true, message: `User ${action} applied`, user });
   } catch (err) {
@@ -3445,6 +3502,24 @@ app.post('/staff/undo-user-action/:userId', (req, res) => {
       createdAt: new Date().toISOString()
     });
     writeStaff(staff);
+
+    // Remove the notification for the user
+    const SUG_FILE = path.join(__dirname, 'suggestions.json');
+    let notifications = [];
+    try { 
+      if (fs.existsSync(SUG_FILE)) {
+        notifications = JSON.parse(fs.readFileSync(SUG_FILE, 'utf8') || '[]'); 
+      }
+    } catch (e) { 
+      console.error('Error reading notifications:', e);
+    }
+
+    // Remove notifications for this user action
+    notifications = notifications.filter(n => 
+      !(n.to && n.to.id === userId && n.action === action && n.type === 'staff_action')
+    );
+
+    fs.writeFileSync(SUG_FILE, JSON.stringify(notifications, null, 2));
 
     return res.json({ success: true, message: `User ${action} undone`, user });
   } catch (err) {
