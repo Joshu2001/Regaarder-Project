@@ -299,7 +299,36 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
 
             {/* For staff actions, show message directly instead of threaded format */}
             {isStaffAction ? (
-              <p className="text-sm text-gray-700 mt-2 leading-relaxed whitespace-pre-wrap">{thread.message}</p>
+              <div>
+                <p className="text-sm text-gray-700 mt-2 leading-relaxed whitespace-pre-wrap">{thread.message}</p>
+                
+                {/* CTA Button if URL is provided */}
+                {thread.ctaUrl && (
+                  <a
+                    href={thread.ctaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-block',
+                      marginTop: '12px',
+                      padding: '10px 16px',
+                      backgroundColor: thread.ctaColor || '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      transition: 'all 0.2s',
+                      textDecoration: 'none'
+                    }}
+                    onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  >
+                    {thread.ctaText || 'Learn More'}
+                  </a>
+                )}
+              </div>
             ) : (
               // Message Thread for regular notifications
               <div className="space-y-2 mt-1 max-h-60 overflow-y-auto">

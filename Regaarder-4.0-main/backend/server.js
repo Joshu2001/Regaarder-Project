@@ -1027,7 +1027,7 @@ app.delete('/bookmarks/requests', (req, res) => {
 app.post('/staff/send-promotion', (req, res) => {
   try {
     const body = req.body || {};
-    const { employeeId, title, message, promotionType, recipientType, selectedUsers, ctaText, ctaIcon, ctaColor } = body;
+    const { employeeId, title, message, promotionType, recipientType, selectedUsers, ctaText, ctaIcon, ctaColor, ctaUrl } = body;
 
     // Simple staff check for demo
     if (parseInt(employeeId) !== 1000) return res.status(403).json({ error: 'Unauthorized' });
@@ -1062,10 +1062,11 @@ app.post('/staff/send-promotion', (req, res) => {
         createdAt: new Date().toISOString(),
         read: false,
         requiresAcknowledgment: true,
-        meta: { promotionType, ctaText: ctaText || null, ctaIcon: ctaIcon || null, ctaColor: ctaColor || null },
+        meta: { promotionType, ctaText: ctaText || null, ctaIcon: ctaIcon || null, ctaColor: ctaColor || null, ctaUrl: ctaUrl || null },
         ctaText: ctaText || null,
         ctaIcon: ctaIcon || null,
-        ctaColor: ctaColor || null
+        ctaColor: ctaColor || null,
+        ctaUrl: ctaUrl || null
       };
       arr.unshift(notif);
       created.push(notif);
@@ -3988,34 +3989,13 @@ app.get('/staff/user-metrics', (req, res) => {
 
     const userMetrics = users.map(user => {
       // Count requests created by user
-      const userCreatedRequests = requests.filter(r => r.createdBy === user.id);
-      const createdRequests = userCreatedRequests.length;
+      const createdRequests = requests.filter(r => r.createdBy === user.id).length;
       
       // Count requests claimed/fulfilled by user
-      const userFulfilledRequests = requests.filter(r => r.claimedBy?.id === user.id && r.currentStep === 6);
-      const fulfilledRequests = userFulfilledRequests.length;
+      const fulfilledRequests = requests.filter(r => r.claimedBy?.id === user.id && r.currentStep === 6).length;
       
-      // Count free requests created by user (amount = 0)
-      const freeRequestsCreated = userCreatedRequests.filter(r => r.amount === 0 || r.amount === '0').length;
-      
-      // Count paid requests created by user
-      const paidRequestsCreated = userCreatedRequests.filter(r => r.amount > 0).length;
-      
-      // Calculate total amount spent on requests
-      const totalSpentOnRequests = userCreatedRequests.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-      
-      // Calculate average per request
-      const avgPerRequest = createdRequests > 0 ? totalSpentOnRequests / createdRequests : 0;
-      
-      // For creators: track what they fulfilled
-      const fulfilledFreeRequests = userFulfilledRequests.filter(r => r.amount === 0 || r.amount === '0').length;
-      const fulfilledPaidRequests = userFulfilledRequests.filter(r => r.amount > 0).length;
-      const totalEarnedFromFulfilled = userFulfilledRequests.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-      const avgEarnedPerFulfilled = fulfilledRequests > 0 ? totalEarnedFromFulfilled / fulfilledRequests : 0;
-      
-      // Track categories of requests
-      const requestCategories = userCreatedRequests.map(r => r.category).filter(Boolean);
-      const fulfilledCategories = userFulfilledRequests.map(r => r.category).filter(Boolean);
+      // Count free requests (amount = 0)
+      const freeRequests = requests.filter(r => r.createdBy === user.id && (r.amount === 0 || r.amount === '0')).length;
       
       // Check if user has an active subscription/plan
       const hasPlan = !!user.subscriptionPlan && user.subscriptionPlan !== 'none' && user.subscriptionPlan !== 'free';
@@ -4041,21 +4021,9 @@ app.get('/staff/user-metrics', (req, res) => {
         name: user.name,
         email: user.email,
         isCreator: user.isCreator || false,
-        // Request submission metrics
         createdRequestsCount: createdRequests,
-        freeRequestsCreated,
-        paidRequestsCreated,
-        totalSpentOnRequests,
-        avgPerRequest,
-        requestCategories,
-        // Request fulfillment metrics (for creators)
         fulfilledRequestsCount: fulfilledRequests,
-        fulfilledFreeRequests,
-        fulfilledPaidRequests,
-        totalEarnedFromFulfilled,
-        avgEarnedPerFulfilled,
-        fulfilledCategories,
-        // General metrics
+        freeRequestsCount: freeRequests,
         totalRequestsEngagement: createdRequests + fulfilledRequests,
         hasPlan,
         subscriptionPlan: user.subscriptionPlan || 'none',
