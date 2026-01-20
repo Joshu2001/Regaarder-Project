@@ -45,6 +45,16 @@ export default function StaffDashboard() {
   const [sendToDropdown, setSendToDropdown] = useState(false);
   const [previewColor, setPreviewColor] = useState('#f59e0b');
   
+  // User action feedback state - tracks last action applied to users
+  const [userActionFeedback, setUserActionFeedback] = useState({
+    isVisible: false,
+    userId: null,
+    userName: null,
+    action: null,
+    reason: null,
+    timestamp: null
+  });
+  
   // Search and scroll states
   const [videoSearch, setVideoSearch] = useState('');
   const [requestSearch, setRequestSearch] = useState('');
@@ -726,8 +736,20 @@ export default function StaffDashboard() {
       });
 
       if (res.ok) {
-        // Reload reports to reflect changes
-        if (staffSession) loadData(staffSession);
+        const responseData = await res.json();
+        const actionedUser = responseData.user;
+        
+        // Show immediate feedback card
+        setUserActionFeedback({
+          isVisible: true,
+          userId: userActionModal.userId,
+          userName: actionedUser.name,
+          action: action,
+          reason: reason,
+          timestamp: new Date()
+        });
+
+        // Close modals
         setUserActionModal({ isOpen: false, userId: null, action: null });
         setReasonModal({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
         setSelectedActionType(null);
@@ -735,12 +757,49 @@ export default function StaffDashboard() {
         setBanType('permanent');
         setBanDuration({ value: 7, unit: 'days' });
         setError('');
+
+        // Reload data to reflect changes
+        if (staffSession) loadData(staffSession);
+
+        // Auto-hide feedback after 8 seconds (allows time for undo)
+        setTimeout(() => {
+          setUserActionFeedback({ isVisible: false, userId: null, userName: null, action: null, reason: null, timestamp: null });
+        }, 8000);
       } else {
         setError('Failed to apply user action');
+        setToast({ type: 'error', message: 'Failed to apply user action' });
       }
     } catch (err) {
       console.error('User action failed:', err);
       setError('Error applying user action');
+      setToast({ type: 'error', message: 'Error applying user action' });
+    }
+  };
+
+  const handleUndoUserAction = async () => {
+    try {
+      const res = await fetch(`http://localhost:4000/staff/undo-user-action/${userActionFeedback.userId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id,
+          action: userActionFeedback.action
+        })
+      });
+
+      if (res.ok) {
+        // Hide feedback card and reload data
+        setUserActionFeedback({ isVisible: false, userId: null, userName: null, action: null, reason: null, timestamp: null });
+        setToast({ type: 'success', message: `${userActionFeedback.action} action undone` });
+        
+        // Reload data to reflect changes
+        if (staffSession) loadData(staffSession);
+      } else {
+        setToast({ type: 'error', message: 'Failed to undo action' });
+      }
+    } catch (err) {
+      console.error('Undo user action failed:', err);
+      setToast({ type: 'error', message: 'Error undoing action' });
     }
   };
 
@@ -2004,6 +2063,78 @@ export default function StaffDashboard() {
           {/* Users Tab */}
           {activeTab === 'users' && (
             <div>
+              {/* User Action Feedback Card */}
+              {userActionFeedback.isVisible && (
+                <div style={{
+                  marginBottom: '24px',
+                  padding: '16px',
+                  backgroundColor: '#eff6ff',
+                  border: '2px solid #3b82f6',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  animation: 'slideIn 0.3s ease',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)'
+                }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    backgroundColor: 
+                      userActionFeedback.action === 'warn' ? '#f59e0b' :
+                      userActionFeedback.action === 'ban' ? '#ef4444' :
+                      userActionFeedback.action === 'shadowban' ? '#8b5cf6' :
+                      userActionFeedback.action === 'delete' ? '#dc2626' : '#10b981',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '20px',
+                    flexShrink: 0
+                  }}>
+                    {userActionFeedback.action === 'warn' && '⚠️'}
+                    {userActionFeedback.action === 'ban' && '🚫'}
+                    {userActionFeedback.action === 'shadowban' && '👁️'}
+                    {userActionFeedback.action === 'delete' && '🗑️'}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ margin: '0 0 4px 0', color: '#1e40af', fontSize: '14px', fontWeight: 'bold' }}>
+                      Action Applied: {userActionFeedback.action.toUpperCase()}
+                    </h4>
+                    <p style={{ margin: '0', color: '#1e3a8a', fontSize: '13px' }}>
+                      <strong>{userActionFeedback.userName}</strong> - {userActionFeedback.reason}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleUndoUserAction}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#10b981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.2s',
+                      flexShrink: 0
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = '#059669';
+                      e.target.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = '#10b981';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  >
+                    ↶ Undo
+                  </button>
+                </div>
+              )}
+
               {/* Search Bar */}
               <div style={{
                 marginBottom: '24px',
@@ -2264,8 +2395,64 @@ export default function StaffDashboard() {
                               borderTop: '1px solid rgba(229, 231, 235, 0.5)',
                               animation: 'fadeIn 0.3s ease'
                             }}>
-                              {/* Action Button */}
-                              <div style={{ marginBottom: '12px' }}>
+                              {/* Status Tags & Action Button */}
+                              <div style={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                marginBottom: '12px',
+                                flexWrap: 'wrap'
+                              }}>
+                                {(user.status === 'banned' || user.shadowBanned || user.warnings > 0) && (
+                                  <>
+                                    {user.status === 'banned' && (
+                                      <span style={{
+                                        padding: '4px 10px',
+                                        backgroundColor: '#fee2e2',
+                                        color: '#dc2626',
+                                        fontSize: '11px',
+                                        fontWeight: '600',
+                                        borderRadius: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                      }}>
+                                        🚫 Banned
+                                      </span>
+                                    )}
+                                    {user.shadowBanned && (
+                                      <span style={{
+                                        padding: '4px 10px',
+                                        backgroundColor: '#fef3c7',
+                                        color: '#92400e',
+                                        fontSize: '11px',
+                                        fontWeight: '600',
+                                        borderRadius: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                      }}>
+                                        👁️ Shadowbanned
+                                      </span>
+                                    )}
+                                    {user.warnings > 0 && (
+                                      <span style={{
+                                        padding: '4px 10px',
+                                        backgroundColor: '#fef08a',
+                                        color: '#b45309',
+                                        fontSize: '11px',
+                                        fontWeight: '600',
+                                        borderRadius: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                      }}>
+                                        ⚠️ {user.warnings} Warning{user.warnings > 1 ? 's' : ''}
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                                
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -2281,7 +2468,8 @@ export default function StaffDashboard() {
                                     cursor: 'pointer',
                                     fontSize: '12px',
                                     fontWeight: 'bold',
-                                    transition: 'all 0.2s'
+                                    transition: 'all 0.2s',
+                                    marginLeft: 'auto'
                                   }}
                                   onMouseEnter={(e) => {
                                     e.target.style.backgroundColor = '#dc2626';
@@ -2612,8 +2800,64 @@ export default function StaffDashboard() {
                             borderTop: '1px solid rgba(229, 231, 235, 0.5)',
                             animation: 'fadeIn 0.3s ease'
                           }}>
-                            {/* Action Button */}
-                            <div style={{ marginBottom: '12px' }}>
+                            {/* Status Tags & Action Button */}
+                            <div style={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              marginBottom: '12px',
+                              flexWrap: 'wrap'
+                            }}>
+                              {(creator.status === 'banned' || creator.shadowBanned || creator.warnings > 0) && (
+                                <>
+                                  {creator.status === 'banned' && (
+                                    <span style={{
+                                      padding: '4px 10px',
+                                      backgroundColor: '#fee2e2',
+                                      color: '#dc2626',
+                                      fontSize: '11px',
+                                      fontWeight: '600',
+                                      borderRadius: '4px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}>
+                                      🚫 Banned
+                                    </span>
+                                  )}
+                                  {creator.shadowBanned && (
+                                    <span style={{
+                                      padding: '4px 10px',
+                                      backgroundColor: '#fef3c7',
+                                      color: '#92400e',
+                                      fontSize: '11px',
+                                      fontWeight: '600',
+                                      borderRadius: '4px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}>
+                                      👁️ Shadowbanned
+                                    </span>
+                                  )}
+                                  {creator.warnings > 0 && (
+                                    <span style={{
+                                      padding: '4px 10px',
+                                      backgroundColor: '#fef08a',
+                                      color: '#b45309',
+                                      fontSize: '11px',
+                                      fontWeight: '600',
+                                      borderRadius: '4px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}>
+                                      ⚠️ {creator.warnings} Warning{creator.warnings > 1 ? 's' : ''}
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                              
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -2629,7 +2873,8 @@ export default function StaffDashboard() {
                                   cursor: 'pointer',
                                   fontSize: '12px',
                                   fontWeight: 'bold',
-                                  transition: 'all 0.2s'
+                                  transition: 'all 0.2s',
+                                  marginLeft: 'auto'
                                 }}
                                 onMouseEnter={(e) => {
                                   e.target.style.backgroundColor = '#dc2626';

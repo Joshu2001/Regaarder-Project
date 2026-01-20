@@ -3380,6 +3380,72 @@ app.post('/staff/user-action/:userId', (req, res) => {
   }
 });
 
+// POST /staff/undo-user-action/:userId - Undo a user action
+app.post('/staff/undo-user-action/:userId', (req, res) => {
+  try {
+    const { employeeId, action } = req.body;
+    const userId = req.params.userId;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    let users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    const userIndex = users.findIndex(u => u.id === userId);
+
+    if (userIndex === -1) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = users[userIndex];
+
+    // Undo action based on type
+    switch(action) {
+      case 'warn':
+        user.warnings = Math.max(0, (user.warnings || 0) - 1);
+        if (user.warnings === 0) {
+          user.lastWarning = null;
+        }
+        break;
+      case 'ban':
+        user.status = 'active';
+        user.bannedAt = null;
+        user.bannedReason = null;
+        break;
+      case 'shadowban':
+        user.shadowBanned = false;
+        user.shadowBannedAt = null;
+        user.shadowBanReason = null;
+        break;
+      case 'delete':
+        user.status = 'active';
+        user.deletedAt = null;
+        user.deletedReason = null;
+        break;
+    }
+
+    users[userIndex] = user;
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+
+    // Log undo action
+    const staff = readStaff();
+    if (!staff.userActions) staff.userActions = [];
+    staff.userActions.push({
+      type: 'user_undo',
+      userId: userId,
+      action: action,
+      undoneBy: parseInt(employeeId),
+      createdAt: new Date().toISOString()
+    });
+    writeStaff(staff);
+
+    return res.json({ success: true, message: `User ${action} undone`, user });
+  } catch (err) {
+    console.error('Undo user action error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // POST /reports - Submit a video/content report with optional evidence files
 app.post('/reports', (req, res) => {
   try {
