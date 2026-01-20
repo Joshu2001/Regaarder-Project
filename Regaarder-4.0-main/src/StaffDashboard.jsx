@@ -1141,18 +1141,6 @@ export default function StaffDashboard() {
                   }}
                 />
               </div>
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if ((savedScrollPositions[activeTab] || 0) > 0) {
-                      e.target.style.backgroundColor = '#f3f4f6';
-                      e.target.style.boxShadow = 'none';
-                    }
-                  }}
-                >
-                  <ChevronDown size={18} />
-                </button>
-              </div>
               
               {
                 (() => {
