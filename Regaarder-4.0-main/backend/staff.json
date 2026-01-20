@@ -335,6 +335,13 @@
       "reason": "mm",
       "hiddenBy": 1000,
       "createdAt": "2026-01-20T02:56:34.449Z"
+    },
+    {
+      "type": "request",
+      "id": "req_1768383731267",
+      "reason": "jjjj",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-20T06:15:26.487Z"
     }
   ],
   "deletionLog": [
@@ -382,6 +389,12 @@
       "id": "req_1768657702084",
       "undoneBy": 1000,
       "createdAt": "2026-01-20T02:56:22.404Z"
+    },
+    {
+      "type": "request_unhide",
+      "id": "req_1768383731267",
+      "undoneBy": 1000,
+      "createdAt": "2026-01-20T06:16:24.441Z"
     }
   ],
   "userActions": [

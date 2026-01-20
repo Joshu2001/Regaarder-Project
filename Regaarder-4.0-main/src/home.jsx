@@ -1497,8 +1497,7 @@ const CollapsibleSectionHeader = ({ title, isExpanded, onToggle, collapsed }) =>
             className="w-full flex items-center justify-between px-6 pt-4 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors"
             onClick={onToggle}
             style={{
-                borderBottom: isExpanded ? 'none' : '2px solid var(--color-accent, #CA8A04)',
-                paddingBottom: isExpanded ? '0.5rem' : '0.75rem'
+                paddingBottom: '0.5rem'
             }}
         >
             {!collapsed && <span>{title}</span>}
@@ -3551,7 +3550,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
             {staffActionNotification && (
                 <div
                     className="fixed inset-0 flex items-center justify-center z-50"
-                    style={{ backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}
+                    style={{ backgroundColor: 'rgba(0,0,0,0.64)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', transition: 'backdrop-filter 200ms ease, -webkit-backdrop-filter 200ms ease, background 200ms ease' }}
                     onClick={() => setStaffActionNotification(null)}
                     role="dialog"
                     aria-modal="true"
@@ -3575,12 +3574,28 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     staffActionNotification.action === 'warn' ? '#fef3c7' :
                                     staffActionNotification.action === 'ban' ? '#fecaca' :
                                     staffActionNotification.action === 'shadowban' ? '#d1d5db' :
-                                    staffActionNotification.action === 'delete' ? '#ddd6fe' : '#f0fdf4'
+                                    staffActionNotification.action === 'delete' ? '#ddd6fe' :
+                                    staffActionNotification.action === 'promotion' ? '#eef2ff' : '#f0fdf4'
                             }}>
                                 {staffActionNotification.action === 'warn' && '⚠️'}
                                 {staffActionNotification.action === 'ban' && '🚫'}
                                 {staffActionNotification.action === 'shadowban' && '👁️'}
                                 {staffActionNotification.action === 'delete' && '🗑️'}
+                                {/* Use custom CTA icon when available for promotions */}
+                                {staffActionNotification.action === 'promotion' && (
+                                    (() => {
+                                        const ico = staffActionNotification.ctaIcon || (staffActionNotification.meta && staffActionNotification.meta.ctaIcon) || 'gift';
+                                        return (
+                                            ico === 'gift' ? '🎁' :
+                                            ico === 'star' ? '⭐' :
+                                            ico === 'megaphone' ? '📢' :
+                                            ico === 'heart' ? '❤️' :
+                                            ico === 'fire' ? '🔥' :
+                                            ico === 'check' ? '✅' :
+                                            ico === 'arrow' ? '→' : '🎁'
+                                        );
+                                    })()
+                                )}
                             </div>
 
                             {/* Title */}
@@ -3627,6 +3642,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     width: '100%',
                                     padding: '12px 16px',
                                     backgroundColor:
+                                        staffActionNotification.action === 'promotion' ? (staffActionNotification.ctaColor || staffActionNotification.meta?.ctaColor || '#f59e0b') :
                                         staffActionNotification.action === 'warn' ? '#f59e0b' :
                                         staffActionNotification.action === 'ban' ? '#ef4444' :
                                         staffActionNotification.action === 'shadowban' ? '#6b7280' :
@@ -3640,21 +3656,31 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     transition: 'background-color 0.2s'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.target.style.backgroundColor =
+                                    const color = staffActionNotification.action === 'promotion' ? (staffActionNotification.ctaColor || staffActionNotification.meta?.ctaColor || '#f59e0b') : null;
+                                    const darkerColor = color ? (
+                                        color === '#f59e0b' ? '#d97706' :
+                                        color === '#ef4444' ? '#dc2626' :
+                                        color === '#3b82f6' ? '#1d4ed8' :
+                                        color === '#10b981' ? '#059669' :
+                                        color === '#8b5cf6' ? '#7c3aed' : '#d97706'
+                                    ) : (
                                         staffActionNotification.action === 'warn' ? '#d97706' :
                                         staffActionNotification.action === 'ban' ? '#dc2626' :
                                         staffActionNotification.action === 'shadowban' ? '#4b5563' :
-                                        staffActionNotification.action === 'delete' ? '#7c3aed' : '#d97706';
+                                        staffActionNotification.action === 'delete' ? '#7c3aed' : '#d97706'
+                                    );
+                                    e.target.style.backgroundColor = darkerColor;
                                 }}
                                 onMouseLeave={(e) => {
                                     e.target.style.backgroundColor =
+                                        staffActionNotification.action === 'promotion' ? (staffActionNotification.ctaColor || staffActionNotification.meta?.ctaColor || '#f59e0b') :
                                         staffActionNotification.action === 'warn' ? '#f59e0b' :
                                         staffActionNotification.action === 'ban' ? '#ef4444' :
                                         staffActionNotification.action === 'shadowban' ? '#6b7280' :
                                         staffActionNotification.action === 'delete' ? '#8b5cf6' : '#f59e0b';
                                 }}
                             >
-                                Acknowledge
+                                {staffActionNotification.ctaText || (staffActionNotification.meta && staffActionNotification.meta.ctaText) || (staffActionNotification.action === 'shadowban' ? 'Learn More' : 'Acknowledge')}
                             </button>
                         </div>
                     </div>

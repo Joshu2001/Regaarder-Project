@@ -1,5 +1,390 @@
 [
   {
+    "id": "notif-1768902839379-otqii888w",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "k k hps yhs; ;ky;s y k s",
+    "message": "y, js js k kj jnde fvj weof cjj  j ; fj fj fs  m djwpoejwebf  v w fd w;f ;sd fsd; s;v dv/",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T09:53:59.379Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Keep quet",
+      "ctaIcon": "fire",
+      "ctaColor": "#f59e0b"
+    },
+    "ctaText": "Keep quet",
+    "ctaIcon": "fire",
+    "ctaColor": "#f59e0b"
+  },
+  {
+    "id": "notif-1768902716773-44wjedcmi",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "mmm",
+    "message": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T09:51:56.773Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "megaphone",
+      "ctaColor": "#8b5cf6"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "megaphone",
+    "ctaColor": "#8b5cf6"
+  },
+  {
+    "id": "notif-1768902716666-w5thrpj31",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "mmm",
+    "message": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T09:51:56.666Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "megaphone",
+      "ctaColor": "#8b5cf6"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "megaphone",
+    "ctaColor": "#8b5cf6"
+  },
+  {
+    "id": "notif-1768902679460-37cqxukr5",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "mmm",
+    "message": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T09:51:19.461Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "gift",
+      "ctaColor": "#f59e0b"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "gift",
+    "ctaColor": "#f59e0b"
+  },
+  {
+    "id": "notif-1768899290957-6agiq67oy",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "mnf kwnrgnar'",
+    "message": "ptngeing rn pirni g knwepk' 'jfw'oj j'wefwj'efwe 'jjwfo 'wjeo' wof whfwefbwbefo wfj bwebfw'fbw efjwe'fjjergjrwlg'er gb",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T08:54:50.957Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "heart"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "heart"
+  },
+  {
+    "id": "notif-1768898905494-0fofmwan2",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "mnf kwnrgnar'",
+    "message": "ptngeing rn pirni g knwepk' 'jfw'oj j'wefwj'efwe 'jjwfo 'wjeo' wof whfwefbwbefo wfj bwebfw'fbw efjwe'fjjergjrwlg'er gb",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T08:48:25.494Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Tag now",
+      "ctaIcon": "star"
+    },
+    "ctaText": "Tag now",
+    "ctaIcon": "star"
+  },
+  {
+    "id": "notif-1768898447221-3jxnct7er",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "mnf kwnrgnar'",
+    "message": "ptngeing rn pirni g knwepk' 'jfw'oj j'wefwj'efwe 'jjwfo 'wjeo' wof whfwefbwbefo wfj bwebfw'fbw efjwe'fjjergjrwlg'er gb",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T08:40:47.221Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Tag now",
+      "ctaIcon": "star"
+    },
+    "ctaText": "Tag now",
+    "ctaIcon": "star"
+  },
+  {
+    "id": "notif-1768896539685-2osi0xrgs",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "mnf kwnrgnar'",
+    "message": "ptngeing rn pirni g knwepk' 'jfw'oj j'wefwj'efwe 'jjwfo 'wjeo' wof whfwefbwbefo wfj bwebfw'fbw efjwe'fjjergjrwlg'er gb",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T08:08:59.685Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Tag now",
+      "ctaIcon": "star"
+    },
+    "ctaText": "Tag now",
+    "ctaIcon": "star"
+  },
+  {
+    "id": "notif-1768896142667-tg7ffcwyl",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "mnf kwnrgnar'",
+    "message": "ptngeing rn pirni g knwepk' 'jfw'oj j'wefwj'efwe 'jjwfo 'wjeo' wof whfwefbwbefo wfj bwebfw'fbw efjwe'fjjergjrwlg'er gb",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T08:02:22.667Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer"
+    }
+  },
+  {
+    "id": "notif-1768895811071-l685g55l0",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "klng'perngpn",
+    "message": " g;nnj nejn wjo; jefojwo ;wfnwwje wefoe;fb  wk' nwewe efjn wef [woef ejr fjfj  jrn nnwol    wnewen wfj wejjef wfwj fj ojwefoj wbe jwe jwebf;obef ; wwejf wef ;wj fjw;fwef je wjfejfbfo",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T07:56:51.071Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer"
+    }
+  },
+  {
+    "id": "notif-1768895811071-9k5fps23e",
+    "to": {
+      "id": "user-1768222892161",
+      "name": "Alle"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "klng'perngpn",
+    "message": " g;nnj nejn wjo; jefojwo ;wfnwwje wefoe;fb  wk' nwewe efjn wef [woef ejr fjfj  jrn nnwol    wnewen wfj wejjef wfwj fj ojwefoj wbe jwe jwebf;obef ; wwejf wef ;wj fjw;fwef je wjfejfbfo",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T07:56:51.071Z",
+    "read": false,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer"
+    }
+  },
+  {
+    "id": "notif-1768893803389-l79s3qyex",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "kjj",
+    "message": "kngerg jgreogrugno rbprubreb jner[rnn[ r igrnernnern erkngngjn  ergnerngnreg ongrengnerg jer fjrgje owenrnfnngerg eorogerign vojrejoerojgjrgb",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T07:23:23.389Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer"
+    }
+  },
+  {
+    "id": "notif-1768893740679-6t7dic56q",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "kgkngwngwin",
+    "message": "kwknfnwenpwe;nii",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T07:22:20.679Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer"
+    }
+  },
+  {
+    "id": "notif-1768892596288-zkdylau89",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "np'erngierpgnrieg",
+    "message": "fk'gkergnergnenipg'pwigtwggpwtg",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T07:03:16.289Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer"
+    }
+  },
+  {
+    "id": "notif-1768892297838-92uv2dys5",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "sgsnn",
+    "message": "jrffpgbrg'pubegrgbejr",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T06:58:17.838Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer"
+    }
+  },
+  {
     "id": "n-1768752219757",
     "requestId": "req_1768386652237",
     "text": "Update for \"je ne suis\": Published ",
@@ -1389,26 +1774,6 @@
     "createdAt": "2026-01-06T06:13:40.587Z"
   },
   {
-    "id": "notif-1768888024864-yyt8ux6ux",
-    "to": {
-      "id": "user-1767585399609",
-      "name": "Paul"
-    },
-    "from": {
-      "id": "staff",
-      "name": "Moderation Team"
-    },
-    "type": "staff_action",
-    "action": "shadowban",
-    "title": "Shadow Ban Applied",
-    "message": "Your account visibility has been restricted due to community guideline violations.\n\nReason: Low-quality or repetitive content",
-    "icon": "shadowban",
-    "reason": "Low-quality or repetitive content",
-    "createdAt": "2026-01-20T05:47:04.864Z",
-    "read": false,
-    "requiresAcknowledgment": true
-  },
-  {
     "id": "notif-1768888537126-lfz2rl1qd",
     "to": {
       "id": "user-1766857658728",
@@ -1425,26 +1790,6 @@
     "icon": "shadowban",
     "reason": "Low-quality or repetitive content",
     "createdAt": "2026-01-20T05:55:37.126Z",
-    "read": false,
-    "requiresAcknowledgment": true
-  },
-  {
-    "id": "notif-1768888558365-614l654rd",
-    "to": {
-      "id": "user-1767585399609",
-      "name": "Paul"
-    },
-    "from": {
-      "id": "staff",
-      "name": "Moderation Team"
-    },
-    "type": "staff_action",
-    "action": "shadowban",
-    "title": "Shadow Ban Applied",
-    "message": "Your account visibility has been restricted due to community guideline violations.\n\nReason: Low-quality or repetitive content",
-    "icon": "shadowban",
-    "reason": "Low-quality or repetitive content",
-    "createdAt": "2026-01-20T05:55:58.365Z",
     "read": false,
     "requiresAcknowledgment": true
   }

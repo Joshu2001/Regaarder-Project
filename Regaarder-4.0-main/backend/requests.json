@@ -437,7 +437,11 @@
       "id": "user-1767585399609",
       "name": "Paul"
     },
-    "claimedAt": "2026-01-14T09:43:21.000Z"
+    "claimedAt": "2026-01-14T09:43:21.000Z",
+    "hidden": false,
+    "hiddenReason": null,
+    "hiddenBy": null,
+    "hiddenAt": null
   },
   {
     "id": "req_1768383351250",
