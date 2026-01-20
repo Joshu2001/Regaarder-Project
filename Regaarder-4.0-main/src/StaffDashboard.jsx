@@ -1107,97 +1107,40 @@ export default function StaffDashboard() {
               {/* Search Bar */}
               <div style={{
                 marginBottom: '24px',
+                position: 'relative',
                 display: 'flex',
-                gap: '12px',
                 alignItems: 'center'
               }}>
-                <div style={{
-                  flex: 1,
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}>
-                  <Search size={18} style={{
-                    position: 'absolute',
-                    left: '12px',
-                    color: '#6b7280',
-                    pointerEvents: 'none'
-                  }} />
-                  <input
-                    type="text"
-                    placeholder="Search videos by title, author..."
-                    value={videoSearch}
-                    onChange={(e) => setVideoSearch(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px 10px 40px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      transition: 'all 0.3s ease',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#4f46e5';
-                      e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.15)';
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = '#e5e7eb';
-                      e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
-                    }}
-                  />
-                </div>
-                <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  title="Go to top"
+                <Search size={18} style={{
+                  position: 'absolute',
+                  left: '12px',
+                  color: '#6b7280',
+                  pointerEvents: 'none'
+                }} />
+                <input
+                  type="text"
+                  placeholder="Search videos by title, author..."
+                  value={videoSearch}
+                  onChange={(e) => setVideoSearch(e.target.value)}
                   style={{
-                    padding: '10px 14px',
-                    backgroundColor: '#f3f4f6',
+                    width: '100%',
+                    padding: '10px 12px 10px 40px',
                     border: '1px solid #e5e7eb',
                     borderRadius: '8px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    fontSize: '14px',
                     transition: 'all 0.3s ease',
-                    color: '#4f46e5'
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                   }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#e5e7eb';
-                    e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#4f46e5';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.15)';
                   }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = '#f3f4f6';
-                    e.target.style.boxShadow = 'none';
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
                   }}
-                >
-                  <ChevronUp size={18} />
-                </button>
-                <button
-                  onClick={() => {
-                    const lastPos = savedScrollPositions[activeTab] || 0;
-                    if (lastPos > 0) {
-                      window.scrollTo({ top: lastPos, behavior: 'smooth' });
-                    }
-                  }}
-                  title="Go back to last position"
-                  style={{
-                    padding: '10px 14px',
-                    backgroundColor: (savedScrollPositions[activeTab] || 0) > 0 ? '#f3f4f6' : '#e5e7eb',
-                    border: `1px solid ${(savedScrollPositions[activeTab] || 0) > 0 ? '#e5e7eb' : '#d1d5db'}`,
-                    borderRadius: '8px',
-                    cursor: (savedScrollPositions[activeTab] || 0) > 0 ? 'pointer' : 'not-allowed',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s ease',
-                    color: (savedScrollPositions[activeTab] || 0) > 0 ? '#4f46e5' : '#9ca3af',
-                    opacity: (savedScrollPositions[activeTab] || 0) > 0 ? 1 : 0.6
-                  }}
-                  onMouseEnter={(e) => {
-                    if ((savedScrollPositions[activeTab] || 0) > 0) {
-                      e.target.style.backgroundColor = '#e5e7eb';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                />
+              </div>
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -1371,10 +1314,90 @@ export default function StaffDashboard() {
                     );
                   })()
                 }
+                
+                {/* Floating Navigation Buttons for Videos */}
+                <div style={{
+                  position: 'fixed',
+                  right: '20px',
+                  bottom: '90px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  zIndex: 40
+                }}>
+                  <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    title="Go to top"
+                    style={{
+                      padding: '12px 12px',
+                      backgroundColor: '#4f46e5',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                      width: '44px',
+                      height: '44px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = '#4338ca';
+                      e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                      e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = '#4f46e5';
+                      e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.3)';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <ChevronUp size={20} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const lastPos = savedScrollPositions['videos'] || 0;
+                      if (lastPos > 0) {
+                        window.scrollTo({ top: lastPos, behavior: 'smooth' });
+                      }
+                    }}
+                    title="Go back to last position"
+                    style={{
+                      padding: '12px 12px',
+                      backgroundColor: (savedScrollPositions['videos'] || 0) > 0 ? '#4f46e5' : '#d1d5db',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: (savedScrollPositions['videos'] || 0) > 0 ? 'pointer' : 'not-allowed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s ease',
+                      boxShadow: (savedScrollPositions['videos'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none',
+                      width: '44px',
+                      height: '44px',
+                      opacity: (savedScrollPositions['videos'] || 0) > 0 ? 1 : 0.6
+                    }}
+                    onMouseEnter={(e) => {
+                      if ((savedScrollPositions['videos'] || 0) > 0) {
+                        e.target.style.backgroundColor = '#4338ca';
+                        e.target.style.boxShadow = '0 6px 20px rgba(79,70,229,0.4)';
+                        e.target.style.transform = 'translateY(-2px)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = (savedScrollPositions['videos'] || 0) > 0 ? '#4f46e5' : '#d1d5db';
+                      e.target.style.boxShadow = (savedScrollPositions['videos'] || 0) > 0 ? '0 4px 12px rgba(79,70,229,0.3)' : 'none';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <ChevronDown size={20} />
+                  </button>
+                </div>
             </div>
           )}
-
-          {/* Requests Tab */}
           {activeTab === 'requests' && (
             <div>
               {/* Search Bar */}
@@ -1585,7 +1608,7 @@ export default function StaffDashboard() {
               <div style={{
                 position: 'fixed',
                 right: '20px',
-                bottom: '20px',
+                bottom: '90px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '12px',
@@ -1874,7 +1897,7 @@ export default function StaffDashboard() {
               <div style={{
                 position: 'fixed',
                 right: '20px',
-                bottom: '20px',
+                bottom: '90px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '12px',
