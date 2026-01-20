@@ -424,6 +424,22 @@
       "reason": "Misleading or false information",
       "actionBy": 1000,
       "createdAt": "2026-01-20T04:34:26.945Z"
+    },
+    {
+      "type": "user",
+      "userId": "user-1767585399609",
+      "action": "warn",
+      "reason": "Spam or repetitive posting",
+      "actionBy": 1000,
+      "createdAt": "2026-01-20T04:45:39.737Z"
+    },
+    {
+      "type": "user",
+      "userId": "user-1767585399609",
+      "action": "warn",
+      "reason": "Inappropriate language or behavior",
+      "actionBy": 1000,
+      "createdAt": "2026-01-20T04:46:51.499Z"
     }
   ]
 }

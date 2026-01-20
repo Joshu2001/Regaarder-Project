@@ -2652,6 +2652,10 @@ const Toast = ({ show, type = 'info', title, message, onClose }) => {
         error: { border: 'bg-red-500', iconBg: 'bg-red-500', icon: X },
         info: { border: 'bg-blue-500', iconBg: 'bg-blue-500', icon: Info },
         warning: { border: 'bg-yellow-400', iconBg: 'bg-yellow-400', icon: AlertTriangle },
+        warn: { border: 'bg-yellow-400', iconBg: 'bg-yellow-400', icon: AlertTriangle },
+        ban: { border: 'bg-red-500', iconBg: 'bg-red-500', icon: X },
+        shadowban: { border: 'bg-yellow-400', iconBg: 'bg-yellow-400', icon: AlertTriangle },
+        delete: { border: 'bg-red-600', iconBg: 'bg-red-600', icon: AlertTriangle },
     };
 
     const currentStyle = styles[type] || styles.info;
@@ -2814,6 +2818,14 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     const list = data.notifications || [];
                     const count = list.length;
 
+                    // Check for unread staff action notifications
+                    const unreadStaffAction = list.find(n => n.type === 'staff_action' && n.requiresAcknowledgment && !n.read);
+                    
+                    // Show modal if there's an unread staff action (even on first load)
+                    if (unreadStaffAction && !staffActionNotification) {
+                        setStaffActionNotification(unreadStaffAction);
+                    }
+
                     // If we have more notifications than before, assume the top one is new
                     // and show a toaster for it.
                     if (lastNotifCount !== -1 && count > lastNotifCount) {
@@ -2821,7 +2833,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                         if (newest) {
                             // Check if this is a staff action notification (requires acknowledgment)
                             if (newest.type === 'staff_action' && newest.requiresAcknowledgment) {
-                                // Show as modal instead of toast
+                                // Show as modal popup in center of screen - NOT as toast
                                 // NOTE: Do NOT remove from list - keep persisted until user manually deletes
                                 setStaffActionNotification(newest);
                             } else {
