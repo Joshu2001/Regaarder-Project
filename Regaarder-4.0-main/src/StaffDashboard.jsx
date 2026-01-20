@@ -76,12 +76,15 @@ export default function StaffDashboard() {
   const [planFilter, setPlanFilter] = useState('all'); // all, hasplan, noplan
   const [requestActivityFilter, setRequestActivityFilter] = useState('all'); // all, created, fulfilled, free, none
   const [daysActiveFilter, setDaysActiveFilter] = useState(''); // min days since last activity
+  const [userMetrics, setUserMetrics] = useState({});
+  // New filters for request quality
   const [submittedRequestsFilter, setSubmittedRequestsFilter] = useState('all'); // all, free, paid, mixed
   const [fulfilledRequestsFilter, setFulfilledRequestsFilter] = useState('all'); // all, free, paid, mixed
-  const [userMetrics, setUserMetrics] = useState({});
+  const [minAvgRequestAmount, setMinAvgRequestAmount] = useState('');
+  const [maxAvgRequestAmount, setMaxAvgRequestAmount] = useState('');
   
-  // Category tabs from home page
-  const CATEGORY_TABS = ['Recommended', 'Trending Now', 'New', 'Travel', 'Education', 'Entertainment', 'Music', 'Sports'];
+  // Category tabs matching home page
+  const CATEGORY_TABS = ['Travel', 'Education', 'Entertainment', 'Music', 'Sports', 'Gaming', 'Tech', 'Lifestyle', 'Food', 'Fashion', 'Art', 'Science', 'Health', 'Business', 'Comedy', 'News', 'Other'];
 
   // Derived lists for promotion modal filtering
   const promotionAvailableCategories = Array.from(new Set(users.map(u => u.creatorCategory).filter(Boolean)));
@@ -101,20 +104,10 @@ export default function StaffDashboard() {
       
       if (requestActivityFilter === 'created' && metrics.createdRequestsCount === 0) return false;
       if (requestActivityFilter === 'fulfilled' && metrics.fulfilledRequestsCount === 0) return false;
-      if (requestActivityFilter === 'free' && metrics.freeRequestsCreated === 0) return false;
+      if (requestActivityFilter === 'free' && metrics.freeRequestsCount === 0) return false;
       if (requestActivityFilter === 'none' && metrics.totalRequestsEngagement > 0) return false;
       
       if (daysActiveFilter && metrics.daysSinceLastActivity > Number(daysActiveFilter)) return false;
-      
-      // Submitted requests filter (for users)
-      if (submittedRequestsFilter === 'free' && metrics.freeRequestsCreated === 0) return false;
-      if (submittedRequestsFilter === 'paid' && metrics.paidRequestsCreated === 0) return false;
-      if (submittedRequestsFilter === 'mixed' && (metrics.freeRequestsCreated === 0 || metrics.paidRequestsCreated === 0)) return false;
-      
-      // Fulfilled requests filter (for creators)
-      if (fulfilledRequestsFilter === 'free' && metrics.fulfilledFreeRequests === 0) return false;
-      if (fulfilledRequestsFilter === 'paid' && metrics.fulfilledPaidRequests === 0) return false;
-      if (fulfilledRequestsFilter === 'mixed' && (metrics.fulfilledFreeRequests === 0 || metrics.fulfilledPaidRequests === 0)) return false;
     }
     
     if (!s) return true;
@@ -7524,13 +7517,314 @@ export default function StaffDashboard() {
                       {/* Row 1: Checkboxes */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '16px' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: '500', color: '#374151', padding: '8px 12px', background: 'white', borderRadius: '8px', border: '1.5px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}>
-                          <input type=\"checkbox\" checked={creatorOnlyFilter} onChange={(e) => setCreatorOnlyFilter(e.target.checked)} style={{ accentColor: '#3b82f6' }} />
+                          <input type="checkbox" checked={creatorOnlyFilter} onChange={(e) => { setCreatorOnlyFilter(e.target.checked); if (e.target.checked) setUsersOnlyFilter(false); }} style={{ accentColor: '#3b82f6' }} />
                           Creators only
-                        </label>\n\n                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: '500', color: '#374151', padding: '8px 12px', background: 'white', borderRadius: '8px', border: '1.5px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}>
-                          <input type=\"checkbox\" checked={usersOnlyFilter} onChange={(e) => setUsersOnlyFilter(e.target.checked)} style={{ accentColor: '#3b82f6' }} />
+                        </label>
+
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: '500', color: '#374151', padding: '8px 12px', background: 'white', borderRadius: '8px', border: '1.5px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}>
+                          <input type="checkbox" checked={usersOnlyFilter} onChange={(e) => { setUsersOnlyFilter(e.target.checked); if (e.target.checked) setCreatorOnlyFilter(false); }} style={{ accentColor: '#3b82f6' }} />
                           Users only
                         </label>
-                      </div>\n\n                      {/* Row 2: Category Tabs */}\n                      <div style={{ marginBottom: '16px' }}>\n                        <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</label>\n                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', padding: '8px', background: 'white', borderRadius: '8px', border: '1.5px solid #e5e7eb' }}>\n                          <button\n                            onClick={() => setCategoryFilter('all')}\n                            style={{\n                              padding: '6px 12px',\n                              borderRadius: '6px',\n                              border: categoryFilter === 'all' ? '2px solid #3b82f6' : '1px solid #e5e7eb',\n                              background: categoryFilter === 'all' ? '#dbeafe' : 'white',\n                              color: categoryFilter === 'all' ? '#1e40af' : '#6b7280',\n                              fontSize: '12px',\n                              fontWeight: categoryFilter === 'all' ? '600' : '500',\n                              cursor: 'pointer',\n                              transition: 'all 0.2s'\n                            }}\n                            onMouseEnter={(e) => { if (categoryFilter !== 'all') { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.borderColor = '#d1d5db'; } }}\n                            onMouseLeave={(e) => { if (categoryFilter !== 'all') { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e5e7eb'; } }}\n                          >\n                            All\n                          </button>\n                          {CATEGORY_TABS.map((tab) => (\n                            <button\n                              key={tab}\n                              onClick={() => setCategoryFilter(tab)}\n                              style={{\n                                padding: '6px 12px',\n                                borderRadius: '6px',\n                                border: categoryFilter === tab ? '2px solid #3b82f6' : '1px solid #e5e7eb',\n                                background: categoryFilter === tab ? '#dbeafe' : 'white',\n                                color: categoryFilter === tab ? '#1e40af' : '#6b7280',\n                                fontSize: '12px',\n                                fontWeight: categoryFilter === tab ? '600' : '500',\n                                cursor: 'pointer',\n                                transition: 'all 0.2s'\n                              }}\n                              onMouseEnter={(e) => { if (categoryFilter !== tab) { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.borderColor = '#d1d5db'; } }}\n                              onMouseLeave={(e) => { if (categoryFilter !== tab) { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e5e7eb'; } }}\n                            >\n                              {tab}\n                            </button>\n                          ))}\n                        </div>\n                      </div>\n\n                      {/* Row 3: Dropdowns with beautiful UI */}\n                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '16px' }}>\n                        {/* Subscription Dropdown */}\n                        <div>\n                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Subscription</label>\n                          <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} style={{\n                            width: '100%',\n                            padding: '10px 12px',\n                            borderRadius: '8px',\n                            border: '1.5px solid #e5e7eb',\n                            fontSize: '13px',\n                            fontWeight: '500',\n                            background: 'white',\n                            color: '#374151',\n                            cursor: 'pointer',\n                            appearance: 'none',\n                            backgroundImage: `url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E\")`,\n                            backgroundRepeat: 'no-repeat',\n                            backgroundPosition: 'right 10px center',\n                            paddingRight: '32px',\n                            transition: 'all 0.2s'\n                          }}\n                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          >\n                            <option value=\"all\">All Plans</option>\n                            <option value=\"hasplan\">Has Plan</option>\n                            <option value=\"noplan\">No Plan</option>\n                          </select>\n                        </div>\n\n                        {/* Request Activity Dropdown */}\n                        <div>\n                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Request Activity</label>\n                          <select value={requestActivityFilter} onChange={(e) => setRequestActivityFilter(e.target.value)} style={{\n                            width: '100%',\n                            padding: '10px 12px',\n                            borderRadius: '8px',\n                            border: '1.5px solid #e5e7eb',\n                            fontSize: '13px',\n                            fontWeight: '500',\n                            background: 'white',\n                            color: '#374151',\n                            cursor: 'pointer',\n                            appearance: 'none',\n                            backgroundImage: `url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E\")`,\n                            backgroundRepeat: 'no-repeat',\n                            backgroundPosition: 'right 10px center',\n                            paddingRight: '32px',\n                            transition: 'all 0.2s'\n                          }}\n                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          >\n                            <option value=\"all\">All Activity</option>\n                            <option value=\"created\">Created Requests</option>\n                            <option value=\"fulfilled\">Fulfilled Requests</option>\n                            <option value=\"free\">Made Free Requests</option>\n                            <option value=\"none\">No Request Activity</option>\n                          </select>\n                        </div>\n\n                        {/* Submitted Requests Filter */}\n                        <div>\n                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Submitted Requests</label>\n                          <select value={submittedRequestsFilter} onChange={(e) => setSubmittedRequestsFilter(e.target.value)} style={{\n                            width: '100%',\n                            padding: '10px 12px',\n                            borderRadius: '8px',\n                            border: '1.5px solid #e5e7eb',\n                            fontSize: '13px',\n                            fontWeight: '500',\n                            background: 'white',\n                            color: '#374151',\n                            cursor: 'pointer',\n                            appearance: 'none',\n                            backgroundImage: `url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E\")`,\n                            backgroundRepeat: 'no-repeat',\n                            backgroundPosition: 'right 10px center',\n                            paddingRight: '32px',\n                            transition: 'all 0.2s'\n                          }}\n                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          >\n                            <option value=\"all\">All Requests</option>\n                            <option value=\"free\">Free Requests Only</option>\n                            <option value=\"paid\">Paid Requests Only</option>\n                            <option value=\"mixed\">Both Free & Paid</option>\n                          </select>\n                        </div>\n\n                        {/* Fulfilled Requests Filter */}\n                        <div>\n                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fulfilled Requests</label>\n                          <select value={fulfilledRequestsFilter} onChange={(e) => setFulfilledRequestsFilter(e.target.value)} style={{\n                            width: '100%',\n                            padding: '10px 12px',\n                            borderRadius: '8px',\n                            border: '1.5px solid #e5e7eb',\n                            fontSize: '13px',\n                            fontWeight: '500',\n                            background: 'white',\n                            color: '#374151',\n                            cursor: 'pointer',\n                            appearance: 'none',\n                            backgroundImage: `url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E\")`,\n                            backgroundRepeat: 'no-repeat',\n                            backgroundPosition: 'right 10px center',\n                            paddingRight: '32px',\n                            transition: 'all 0.2s'\n                          }}\n                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          >\n                            <option value=\"all\">All Fulfillments</option>\n                            <option value=\"free\">Free Requests</option>\n                            <option value=\"paid\">Paid Requests</option>\n                            <option value=\"mixed\">Both Free & Paid</option>\n                          </select>\n                        </div>\n\n                        {/* Min Requests */}\n                        <div>\n                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Min Requests</label>\n                          <input value={minRequestsFilter} onChange={(e) => setMinRequestsFilter(e.target.value)} placeholder=\"0\" type=\"number\" style={{\n                            width: '100%',\n                            padding: '10px 12px',\n                            borderRadius: '8px',\n                            border: '1.5px solid #e5e7eb',\n                            fontSize: '13px',\n                            fontWeight: '500',\n                            background: 'white',\n                            color: '#374151',\n                            transition: 'all 0.2s',\n                            boxSizing: 'border-box'\n                          }}\n                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          />\n                        </div>\n\n                        {/* Min $/request */}\n                        <div>\n                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Min $/request</label>\n                          <input value={minPerRequestFilter} onChange={(e) => setMinPerRequestFilter(e.target.value)} placeholder=\"0\" type=\"number\" style={{\n                            width: '100%',\n                            padding: '10px 12px',\n                            borderRadius: '8px',\n                            border: '1.5px solid #e5e7eb',\n                            fontSize: '13px',\n                            fontWeight: '500',\n                            background: 'white',\n                            color: '#374151',\n                            transition: 'all 0.2s',\n                            boxSizing: 'border-box'\n                          }}\n                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          />\n                        </div>\n\n                        {/* Days Active */}\n                        <div>\n                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Days Active (max)</label>\n                          <input value={daysActiveFilter} onChange={(e) => setDaysActiveFilter(e.target.value)} placeholder=\"30\" type=\"number\" style={{\n                            width: '100%',\n                            padding: '10px 12px',\n                            borderRadius: '8px',\n                            border: '1.5px solid #e5e7eb',\n                            fontSize: '13px',\n                            fontWeight: '500',\n                            background: 'white',\n                            color: '#374151',\n                            transition: 'all 0.2s',\n                            boxSizing: 'border-box'\n                          }}\n                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}\n                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}\n                          />\n                        </div>\n                      </div>\n\n                      <button\n                        onClick={() => {\n                          setCreatorOnlyFilter(false);\n                          setUsersOnlyFilter(false);\n                          setCategoryFilter('all');\n                          setPlanFilter('all');\n                          setRequestActivityFilter('all');\n                          setSubmittedRequestsFilter('all');\n                          setFulfilledRequestsFilter('all');\n                          setMinRequestsFilter('');\n                          setMinPerRequestFilter('');\n                          setDaysActiveFilter('');\n                          setPromotionSearch('');\n                        }}\n                        style={{\n                          padding: '10px 16px',\n                          fontSize: '13px',\n                          fontWeight: '600',\n                          backgroundColor: '#ef4444',\n                          color: 'white',\n                          border: 'none',\n                          borderRadius: '8px',\n                          cursor: 'pointer',\n                          transition: 'all 0.2s',\n                          boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'\n                        }}\n                        onMouseEnter={(e) => { e.currentTarget.style.background = '#dc2626'; e.currentTarget.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.3)'; }}\n                        onMouseLeave={(e) => { e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.boxShadow = '0 2px 4px rgba(239, 68, 68, 0.2)'; }}\n                      >\n                        Reset All Filters\n                      </button>\n                    </div>\n                  )}
+                      </div>
+
+                      {/* Row 2: Category Tabs */}
+                      <div style={{ marginBottom: '16px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</label>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', padding: '8px', background: 'white', borderRadius: '8px', border: '1.5px solid #e5e7eb' }}>
+                          <button
+                            onClick={() => setCategoryFilter('all')}
+                            style={{
+                              padding: '6px 12px',
+                              borderRadius: '6px',
+                              border: categoryFilter === 'all' ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                              background: categoryFilter === 'all' ? '#dbeafe' : 'white',
+                              color: categoryFilter === 'all' ? '#1e40af' : '#6b7280',
+                              fontSize: '12px',
+                              fontWeight: categoryFilter === 'all' ? '600' : '500',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => { if (categoryFilter !== 'all') { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.borderColor = '#d1d5db'; } }}
+                            onMouseLeave={(e) => { if (categoryFilter !== 'all') { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e5e7eb'; } }}
+                          >
+                            All
+                          </button>
+                          {CATEGORY_TABS.map((tab) => (
+                            <button
+                              key={tab}
+                              onClick={() => setCategoryFilter(tab)}
+                              style={{
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                border: categoryFilter === tab ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                                background: categoryFilter === tab ? '#dbeafe' : 'white',
+                                color: categoryFilter === tab ? '#1e40af' : '#6b7280',
+                                fontSize: '12px',
+                                fontWeight: categoryFilter === tab ? '600' : '500',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => { if (categoryFilter !== tab) { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.borderColor = '#d1d5db'; } }}
+                              onMouseLeave={(e) => { if (categoryFilter !== tab) { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e5e7eb'; } }}
+                            >
+                              {tab}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Row 3: Dropdowns with beautiful UI */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                        {/* Subscription Dropdown */}
+                        <div>
+                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Subscription</label>
+                          <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1.5px solid #e5e7eb',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            background: 'white',
+                            color: '#374151',
+                            cursor: 'pointer',
+                            appearance: 'none',
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 10px center',
+                            paddingRight: '32px',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          >
+                            <option value="all">All Plans</option>
+                            <option value="hasplan">Has Plan</option>
+                            <option value="noplan">No Plan</option>
+                          </select>
+                        </div>
+
+                        {/* Request Activity Dropdown */}
+                        <div>
+                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Request Activity</label>
+                          <select value={requestActivityFilter} onChange={(e) => setRequestActivityFilter(e.target.value)} style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1.5px solid #e5e7eb',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            background: 'white',
+                            color: '#374151',
+                            cursor: 'pointer',
+                            appearance: 'none',
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 10px center',
+                            paddingRight: '32px',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          >
+                            <option value="all">All Activity</option>
+                            <option value="created">Created Requests</option>
+                            <option value="fulfilled">Fulfilled Requests</option>
+                            <option value="free">Made Free Requests</option>
+                            <option value="none">No Request Activity</option>
+                          </select>
+                        </div>
+
+                        {/* Submitted Requests Filter */}
+                        <div>
+                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Submitted Requests</label>
+                          <select value={submittedRequestsFilter} onChange={(e) => setSubmittedRequestsFilter(e.target.value)} style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1.5px solid #e5e7eb',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            background: 'white',
+                            color: '#374151',
+                            cursor: 'pointer',
+                            appearance: 'none',
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 10px center',
+                            paddingRight: '32px',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          >
+                            <option value="all">All Requests</option>
+                            <option value="free">Free Requests Only</option>
+                            <option value="paid">Paid Requests Only</option>
+                            <option value="mixed">Both Free & Paid</option>
+                          </select>
+                        </div>
+
+                        {/* Fulfilled Requests Filter */}
+                        <div>
+                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fulfilled Requests</label>
+                          <select value={fulfilledRequestsFilter} onChange={(e) => setFulfilledRequestsFilter(e.target.value)} style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1.5px solid #e5e7eb',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            background: 'white',
+                            color: '#374151',
+                            cursor: 'pointer',
+                            appearance: 'none',
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 10px center',
+                            paddingRight: '32px',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          >
+                            <option value="all">All Fulfillments</option>
+                            <option value="free">Free Requests</option>
+                            <option value="paid">Paid Requests</option>
+                            <option value="mixed">Both Free & Paid</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Row 4: Number inputs */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                        <div>
+                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Min Requests</label>
+                          <input value={minRequestsFilter} onChange={(e) => setMinRequestsFilter(e.target.value)} placeholder="0" type="number" style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1.5px solid #e5e7eb',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            background: 'white',
+                            color: '#374151',
+                            transition: 'all 0.2s',
+                            boxSizing: 'border-box'
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Min $/Request (Avg)</label>
+                          <input value={minPerRequestFilter} onChange={(e) => setMinPerRequestFilter(e.target.value)} placeholder="0" type="number" style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1.5px solid #e5e7eb',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            background: 'white',
+                            color: '#374151',
+                            transition: 'all 0.2s',
+                            boxSizing: 'border-box'
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Max $/Request (Avg)</label>
+                          <input value={maxAvgRequestAmount} onChange={(e) => setMaxAvgRequestAmount(e.target.value)} placeholder="Any" type="number" style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1.5px solid #e5e7eb',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            background: 'white',
+                            color: '#374151',
+                            transition: 'all 0.2s',
+                            boxSizing: 'border-box'
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Days Active (max)</label>
+                          <input value={daysActiveFilter} onChange={(e) => setDaysActiveFilter(e.target.value)} placeholder="30" type="number" style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: '1.5px solid #e5e7eb',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                            background: 'white',
+                            color: '#374151',
+                            transition: 'all 0.2s',
+                            boxSizing: 'border-box'
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.boxShadow = 'none'; }}
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setCreatorOnlyFilter(false);
+                          setUsersOnlyFilter(false);
+                          setCategoryFilter('all');
+                          setPlanFilter('all');
+                          setRequestActivityFilter('all');
+                          setSubmittedRequestsFilter('all');
+                          setFulfilledRequestsFilter('all');
+                          setMinRequestsFilter('');
+                          setMinPerRequestFilter('');
+                          setMaxAvgRequestAmount('');
+                          setDaysActiveFilter('');
+                          setPromotionSearch('');
+                        }}
+                        style={{
+                          padding: '10px 16px',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          backgroundColor: '#ef4444',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = '#dc2626'; e.currentTarget.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.3)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.boxShadow = '0 2px 4px rgba(239, 68, 68, 0.2)'; }}
+                      >
+                        Reset All Filters
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div style={{
                   border: '2px solid #e5e7eb',
