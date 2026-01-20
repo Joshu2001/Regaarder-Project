@@ -3623,7 +3623,11 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                 style={{
                                     width: '100%',
                                     padding: '12px 16px',
-                                    backgroundColor: '#f59e0b',
+                                    backgroundColor:
+                                        staffActionNotification.action === 'warn' ? '#f59e0b' :
+                                        staffActionNotification.action === 'ban' ? '#ef4444' :
+                                        staffActionNotification.action === 'shadowban' ? '#6b7280' :
+                                        staffActionNotification.action === 'delete' ? '#8b5cf6' : '#f59e0b',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '6px',
@@ -3632,8 +3636,20 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     fontWeight: '600',
                                     transition: 'background-color 0.2s'
                                 }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#d97706'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#f59e0b'}
+                                onMouseEnter={(e) => {
+                                    e.target.style.backgroundColor =
+                                        staffActionNotification.action === 'warn' ? '#d97706' :
+                                        staffActionNotification.action === 'ban' ? '#dc2626' :
+                                        staffActionNotification.action === 'shadowban' ? '#4b5563' :
+                                        staffActionNotification.action === 'delete' ? '#7c3aed' : '#d97706';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.backgroundColor =
+                                        staffActionNotification.action === 'warn' ? '#f59e0b' :
+                                        staffActionNotification.action === 'ban' ? '#ef4444' :
+                                        staffActionNotification.action === 'shadowban' ? '#6b7280' :
+                                        staffActionNotification.action === 'delete' ? '#8b5cf6' : '#f59e0b';
+                                }}
                             >
                                 Acknowledge
                             </button>

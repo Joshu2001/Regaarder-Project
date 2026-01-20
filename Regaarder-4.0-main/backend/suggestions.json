@@ -1407,5 +1407,45 @@
     "createdAt": "2026-01-20T05:47:04.864Z",
     "read": false,
     "requiresAcknowledgment": true
+  },
+  {
+    "id": "notif-1768888537126-lfz2rl1qd",
+    "to": {
+      "id": "user-1766857658728",
+      "name": "Joshuar"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "shadowban",
+    "title": "Shadow Ban Applied",
+    "message": "Your account visibility has been restricted due to community guideline violations.\n\nReason: Low-quality or repetitive content",
+    "icon": "shadowban",
+    "reason": "Low-quality or repetitive content",
+    "createdAt": "2026-01-20T05:55:37.126Z",
+    "read": false,
+    "requiresAcknowledgment": true
+  },
+  {
+    "id": "notif-1768888558365-614l654rd",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "shadowban",
+    "title": "Shadow Ban Applied",
+    "message": "Your account visibility has been restricted due to community guideline violations.\n\nReason: Low-quality or repetitive content",
+    "icon": "shadowban",
+    "reason": "Low-quality or repetitive content",
+    "createdAt": "2026-01-20T05:55:58.365Z",
+    "read": false,
+    "requiresAcknowledgment": true
   }
 ]

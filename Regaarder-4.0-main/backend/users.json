@@ -23,7 +23,10 @@
     "dailyClaimEarnings": 25,
     "referralCode": "8FFF9AD7",
     "warnings": 1,
-    "lastWarning": "2026-01-20T04:14:21.492Z"
+    "lastWarning": "2026-01-20T04:14:21.492Z",
+    "shadowBanned": true,
+    "shadowBannedAt": "2026-01-20T05:55:37.115Z",
+    "shadowBanReason": "Low-quality or repetitive content"
   },
   {
     "id": "user-1767159330204",
@@ -1192,7 +1195,7 @@
     "warnings": 7,
     "lastWarning": "2026-01-20T04:53:02.875Z",
     "shadowBanned": true,
-    "shadowBannedAt": "2026-01-20T05:47:04.855Z",
+    "shadowBannedAt": "2026-01-20T05:55:58.358Z",
     "shadowBanReason": "Low-quality or repetitive content"
   },
   {

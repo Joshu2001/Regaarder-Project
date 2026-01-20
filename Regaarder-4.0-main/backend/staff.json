@@ -456,6 +456,22 @@
       "reason": "Low-quality or repetitive content",
       "actionBy": 1000,
       "createdAt": "2026-01-20T05:47:04.861Z"
+    },
+    {
+      "type": "user",
+      "userId": "user-1766857658728",
+      "action": "shadowban",
+      "reason": "Low-quality or repetitive content",
+      "actionBy": 1000,
+      "createdAt": "2026-01-20T05:55:37.124Z"
+    },
+    {
+      "type": "user",
+      "userId": "user-1767585399609",
+      "action": "shadowban",
+      "reason": "Low-quality or repetitive content",
+      "actionBy": 1000,
+      "createdAt": "2026-01-20T05:55:58.363Z"
     }
   ]
 }
