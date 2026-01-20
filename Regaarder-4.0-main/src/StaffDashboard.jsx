@@ -2351,6 +2351,77 @@ export default function StaffDashboard() {
                     );
                   })()
                 }
+                
+                {/* Floating Scroll Buttons */}
+                <div style={{
+                  position: 'fixed',
+                  right: '24px',
+                  bottom: '100px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  zIndex: 40,
+                  pointerEvents: 'auto'
+                }}>
+                  <button
+                    onClick={() => window.scrollBy({ top: -300, behavior: 'smooth' })}
+                    title="Scroll up"
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      border: 'none',
+                      backgroundColor: '#4f46e5',
+                      color: 'white',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                      fontSize: '20px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'scale(1.1)';
+                      e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'scale(1)';
+                      e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                    }}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    onClick={() => window.scrollBy({ top: 300, behavior: 'smooth' })}
+                    title="Scroll down"
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      border: 'none',
+                      backgroundColor: '#4f46e5',
+                      color: 'white',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                      fontSize: '20px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'scale(1.1)';
+                      e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'scale(1)';
+                      e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                    }}
+                  >
+                    ↓
+                  </button>
+                </div>
             </div>
           )}
 
@@ -2631,6 +2702,77 @@ export default function StaffDashboard() {
                   })}
                 </div>
               )}
+              
+              {/* Floating Scroll Buttons */}
+              <div style={{
+                position: 'fixed',
+                right: '24px',
+                bottom: '100px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                zIndex: 40,
+                pointerEvents: 'auto'
+              }}>
+                <button
+                  onClick={() => window.scrollBy({ top: -300, behavior: 'smooth' })}
+                  title="Scroll up"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                    fontSize: '20px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.1)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                  }}
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => window.scrollBy({ top: 300, behavior: 'smooth' })}
+                  title="Scroll down"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                    fontSize: '20px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.1)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                  }}
+                >
+                  ↓
+                </button>
+              </div>
             </div>
           )}
           {activeTab === 'reports' && (
@@ -2990,6 +3132,77 @@ export default function StaffDashboard() {
                   })}
                 </div>
               )}
+              
+              {/* Floating Scroll Buttons */}
+              <div style={{
+                position: 'fixed',
+                right: '24px',
+                bottom: '100px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                zIndex: 40,
+                pointerEvents: 'auto'
+              }}>
+                <button
+                  onClick={() => window.scrollBy({ top: -300, behavior: 'smooth' })}
+                  title="Scroll up"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                    fontSize: '20px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.1)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                  }}
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => window.scrollBy({ top: 300, behavior: 'smooth' })}
+                  title="Scroll down"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                    fontSize: '20px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.1)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
+                  }}
+                >
+                  ↓
+                </button>
+              </div>
             </div>
           )}
 
