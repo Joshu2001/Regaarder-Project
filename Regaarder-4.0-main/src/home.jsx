@@ -3550,8 +3550,11 @@ const App = ({ overrideMiniPlayerData = null }) => {
             {/* Staff Action Notification Modal */}
             {staffActionNotification && (
                 <div
-                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    className="fixed inset-0 flex items-center justify-center z-50"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}
                     onClick={() => setStaffActionNotification(null)}
+                    role="dialog"
+                    aria-modal="true"
                 >
                     <div
                         className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-lg"
