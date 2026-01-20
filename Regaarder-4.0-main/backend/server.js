@@ -3326,7 +3326,7 @@ app.post('/staff/user-action/:userId', (req, res) => {
       return res.status(403).json({ error: 'Unauthorized' });
     }
 
-    let users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    let users = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
     const userIndex = users.findIndex(u => u.id === userId);
 
     if (userIndex === -1) {
@@ -3364,7 +3364,7 @@ app.post('/staff/user-action/:userId', (req, res) => {
     }
 
     users[userIndex] = user;
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
 
     // Log action
     const staff = readStaff();
@@ -3397,7 +3397,7 @@ app.post('/staff/undo-user-action/:userId', (req, res) => {
       return res.status(403).json({ error: 'Unauthorized' });
     }
 
-    let users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    let users = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
     const userIndex = users.findIndex(u => u.id === userId);
 
     if (userIndex === -1) {
@@ -3432,7 +3432,7 @@ app.post('/staff/undo-user-action/:userId', (req, res) => {
     }
 
     users[userIndex] = user;
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
 
     // Log undo action
     const staff = readStaff();
