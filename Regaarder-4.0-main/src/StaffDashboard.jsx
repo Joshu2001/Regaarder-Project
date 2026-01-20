@@ -50,7 +50,14 @@ export default function StaffDashboard() {
   const [requestSearch, setRequestSearch] = useState('');
   const [commentSearch, setCommentSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
+  const [reportSearch, setReportSearch] = useState('');
+  const [creatorSearch, setCreatorSearch] = useState('');
+  const [shadowDeletedSearch, setShadowDeletedSearch] = useState('');
+  const [approvalsSearch, setApprovalsSearch] = useState('');
   const [savedScrollPositions, setSavedScrollPositions] = useState({});
+  const [footerPosition, setFooterPosition] = useState({ x: 0, y: 0 });
+  const [isDraggingFooter, setIsDraggingFooter] = useState(false);
+  const [footerDragStart, setFooterDragStart] = useState({ x: 0, y: 0 });
   const [showOverlayPreview, setShowOverlayPreview] = useState(false);
   const [previewingOverlay, setPreviewingOverlay] = useState(null);
   const [deviceOrientation, setDeviceOrientation] = useState('portrait');
@@ -77,6 +84,32 @@ export default function StaffDashboard() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [activeTab]);
+
+  // Footer drag handling
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (isDraggingFooter) {
+        setFooterPosition({
+          x: e.clientX - footerDragStart.x,
+          y: e.clientY - footerDragStart.y
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingFooter(false);
+    };
+
+    if (isDraggingFooter) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingFooter, footerDragStart]);
 
   useEffect(() => {
     const session = localStorage.getItem('staffSession');
@@ -2245,8 +2278,38 @@ export default function StaffDashboard() {
           )}
 
           {/* Creators Tab */}
+          {/* Creators Tab */}
           {activeTab === 'creators' && (
             <div>
+              {/* Search Bar */}
+              <div style={{
+                marginBottom: '12px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <Search size={18} style={{
+                  position: 'absolute',
+                  left: '12px',
+                  color: '#6b7280',
+                  pointerEvents: 'none'
+                }} />
+                <input
+                  type="text"
+                  placeholder="Search creators..."
+                  value={creatorSearch}
+                  onChange={(e) => setCreatorSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px 10px 40px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    marginBottom: '12px'
+                  }}
+                />
+              </div>
+
               {creators.length === 0 ? (
                 <div style={{
                   padding: '48px 32px',
@@ -2273,7 +2336,10 @@ export default function StaffDashboard() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {creators.map(creator => (
+                  {creators.filter(c => 
+                    (c.name || '').toLowerCase().includes(creatorSearch.toLowerCase()) ||
+                    (c.email || '').toLowerCase().includes(creatorSearch.toLowerCase())
+                  ).map(creator => (
                     <div key={creator.id} style={{
                       padding: '16px',
                       border: '1px solid #e5e7eb',
@@ -2417,6 +2483,35 @@ export default function StaffDashboard() {
           )}
           {activeTab === 'reports' && (
             <div>
+              {/* Search Bar */}
+              <div style={{
+                marginBottom: '12px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <Search size={18} style={{
+                  position: 'absolute',
+                  left: '12px',
+                  color: '#6b7280',
+                  pointerEvents: 'none'
+                }} />
+                <input
+                  type="text"
+                  placeholder="Search reports..."
+                  value={reportSearch}
+                  onChange={(e) => setReportSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px 10px 40px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    marginBottom: '12px'
+                  }}
+                />
+              </div>
+
               {/* Report Category Tabs */}
               <div style={{
                 display: 'flex',
@@ -2480,7 +2575,10 @@ export default function StaffDashboard() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {reports.map(report => {
+                  {reports.filter(r => 
+                    (r.title || '').toLowerCase().includes(reportSearch.toLowerCase()) ||
+                    (r.reason || '').toLowerCase().includes(reportSearch.toLowerCase())
+                  ).map(report => {
                     const reportedVideo = videos.find(v => v.id === report.videoId);
                     return (
                       <div key={report.id} style={{
@@ -2677,6 +2775,35 @@ export default function StaffDashboard() {
           {/* Shadow Deleted Tab */}
           {activeTab === 'shadowDeleted' && (
             <div>
+              {/* Search Bar */}
+              <div style={{
+                marginBottom: '12px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <Search size={18} style={{
+                  position: 'absolute',
+                  left: '12px',
+                  color: '#6b7280',
+                  pointerEvents: 'none'
+                }} />
+                <input
+                  type="text"
+                  placeholder="Search shadow-deleted..."
+                  value={shadowDeletedSearch}
+                  onChange={(e) => setShadowDeletedSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px 10px 40px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    marginBottom: '12px'
+                  }}
+                />
+              </div>
+
               {shadowDeleted.length === 0 ? (
                 <div style={{
                   padding: '48px 32px',
@@ -2703,7 +2830,10 @@ export default function StaffDashboard() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {shadowDeleted.map((item, idx) => (
+                  {shadowDeleted.filter(item =>
+                    (item.videoId || '').toLowerCase().includes(shadowDeletedSearch.toLowerCase()) ||
+                    (item.reason || '').toLowerCase().includes(shadowDeletedSearch.toLowerCase())
+                  ).map((item, idx) => (
                     <div key={idx} style={{
                       padding: '16px',
                       border: '1px solid #e5e7eb',
@@ -2751,6 +2881,12 @@ export default function StaffDashboard() {
           {/* Account Approvals Tab (Admin Only) */}
           {activeTab === 'approvals' && staffSession.role === 'administrator' && (
             <div>
+              {/* Search Bar */}
+              <div style={{marginBottom: '12px', position: 'relative', display: 'flex', alignItems: 'center'}}>
+                <Search size={18} style={{position: 'absolute', left: '12px', color: '#6b7280', pointerEvents: 'none'}} />
+                <input type="text" placeholder="Search pending accounts..." value={approvalsSearch} onChange={(e) => setApprovalsSearch(e.target.value)} 
+                  style={{width: '100%', padding: '10px 12px 10px 40px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', marginBottom: '12px'}} />
+              </div>
               {pendingAccounts.length === 0 ? (
                 <div style={{
                   padding: '48px 32px',
@@ -2777,7 +2913,7 @@ export default function StaffDashboard() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {pendingAccounts.map(account => (
+                  {pendingAccounts.filter(account => (account.name || '').toLowerCase().includes(approvalsSearch.toLowerCase()) || (account.email || '').toLowerCase().includes(approvalsSearch.toLowerCase())).map(account => (
                     <div key={account.employeeId} style={{
                       padding: '16px',
                       border: '1px solid #fbbf24',
@@ -6754,9 +6890,8 @@ export default function StaffDashboard() {
         )}
     <footer style={{
       position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
+      bottom: footerPosition.y,
+      left: footerPosition.x,
       height: '60px',
       borderTop: '1px solid #e5e7eb',
       background: 'linear-gradient(to top, #fafafa, #ffffff)',
@@ -6765,7 +6900,16 @@ export default function StaffDashboard() {
       alignItems: 'center',
       gap: '24px',
       zIndex: 40,
-      boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.08)'
+      boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.08)',
+      cursor: isDraggingFooter ? 'grabbing' : 'grab',
+      userSelect: 'none',
+      minWidth: '300px'
+    }}
+    onMouseDown={(e) => {
+      if (e.button === 0) {
+        setIsDraggingFooter(true);
+        setFooterDragStart({ x: e.clientX - footerPosition.x, y: e.clientY - footerPosition.y });
+      }
     }}>
       <button
         onClick={() => window.location.href = '/'}
