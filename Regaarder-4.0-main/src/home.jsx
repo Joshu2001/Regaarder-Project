@@ -2831,8 +2831,8 @@ const App = ({ overrideMiniPlayerData = null }) => {
                     if (lastNotifCount !== -1 && count > lastNotifCount) {
                         const newest = list[0];
                         if (newest) {
-                            // Check if this is a staff action notification (requires acknowledgment)
-                            if (newest.type === 'staff_action' && newest.requiresAcknowledgment) {
+                            // Check if this is an unread staff action notification
+                            if (newest.type === 'staff_action' && newest.requiresAcknowledgment && !newest.read) {
                                 // Show as modal popup in center of screen - NOT as toast
                                 // NOTE: Do NOT remove from list - keep persisted until user manually deletes
                                 setStaffActionNotification(newest);
@@ -3603,7 +3603,23 @@ const App = ({ overrideMiniPlayerData = null }) => {
 
                             {/* Acknowledge Button */}
                             <button
-                                onClick={() => setStaffActionNotification(null)}
+                                onClick={async () => {
+                                    // Mark notification as read on backend
+                                    try {
+                                        const token = localStorage.getItem('regaarder_token');
+                                        if (token && staffActionNotification.id) {
+                                            const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                                            await fetch(`${BACKEND}/notifications/${staffActionNotification.id}/read`, {
+                                                method: 'POST',
+                                                headers: { 'Authorization': `Bearer ${token}` }
+                                            });
+                                        }
+                                    } catch (e) {
+                                        console.warn('Failed to mark notification as read', e);
+                                    }
+                                    // Close modal
+                                    setStaffActionNotification(null);
+                                }}
                                 style={{
                                     width: '100%',
                                     padding: '12px 16px',

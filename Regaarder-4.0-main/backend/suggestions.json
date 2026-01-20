@@ -1387,5 +1387,25 @@
       "title": null
     },
     "createdAt": "2026-01-06T06:13:40.587Z"
+  },
+  {
+    "id": "notif-1768884782882-3j3w682a0",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "warn",
+    "title": "Warning Notice",
+    "message": "Your account has received a warning for violating community guidelines.\n\nReason: Misleading or false information",
+    "icon": "warn",
+    "reason": "Misleading or false information",
+    "createdAt": "2026-01-20T04:53:02.882Z",
+    "read": false,
+    "requiresAcknowledgment": true
   }
 ]

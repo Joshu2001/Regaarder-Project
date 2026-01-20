@@ -992,6 +992,37 @@ app.delete('/bookmarks/requests', (req, res) => {
       }
     });
 
+    // Mark notification as read
+    app.post('/notifications/:id/read', authMiddleware, (req, res) => {
+      try {
+        const id = req.params.id;
+        const SUG_FILE = path.join(__dirname, 'suggestions.json');
+        let arr = [];
+        try { if (fs.existsSync(SUG_FILE)) arr = JSON.parse(fs.readFileSync(SUG_FILE, 'utf8') || '[]'); } catch {}
+        
+        // Find and mark notification as read
+        let found = false;
+        arr = arr.map(s => {
+          if (String(s.id) === String(id)) {
+            // Check ownership - only mark as read if recipient
+            if (s.to && s.to.id === req.user.id) {
+              s.read = true;
+              found = true;
+            }
+          }
+          return s;
+        });
+        
+        if (found) {
+          try { fs.writeFileSync(SUG_FILE, JSON.stringify(arr, null, 2), 'utf8'); } catch {}
+        }
+        
+        return res.json({ success: true, marked: found });
+      } catch (e) {
+        return res.status(500).json({ error: 'Server error' });
+      }
+    });
+
 // Boost endpoint: requires authentication
 app.post('/boost', authMiddleware, (req, res) => {
   const { requestId, amount, provider } = req.body || {};
