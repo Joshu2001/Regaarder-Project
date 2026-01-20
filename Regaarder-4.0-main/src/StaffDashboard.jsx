@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react';
-import { ChevronDown, Home, Megaphone, Copy, Image as ImageIcon, Search, ChevronUp, Eye, EyeOff, Trash2, Plus, Film, Clock, Crown, AlertTriangle, Ban, Trash, AlertCircle } from 'lucide-react';
+import { ChevronDown, Home, Megaphone, Copy, Image as ImageIcon, Search, ChevronUp, Eye, EyeOff, Trash2, Plus, Film, Clock, Crown, AlertTriangle, Ban, Trash, AlertCircle, Gift, Filter, Users } from 'lucide-react';
+
+// Utility: convert hex color to rgba string
+function hexToRgba(hex, alpha = 1) {
+  if (!hex) return `rgba(0,0,0,${alpha})`;
+  const h = hex.replace('#', '');
+  const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
@@ -31,14 +42,67 @@ export default function StaffDashboard() {
     return () => clearTimeout(id);
   }, [toast]);
   
+  
   // Modal states
   const [actionModal, setActionModal] = useState({ isOpen: false, itemId: null, itemType: null });
   const [undoModal, setUndoModal] = useState({ isOpen: false, action: null, itemId: null, itemType: null });
   const [reasonModal, setReasonModal] = useState({ isOpen: false, action: null, itemId: null, itemType: null, reason: '' });
   const [userActionModal, setUserActionModal] = useState({ isOpen: false, userId: null, action: null });
-  const [promotionModal, setPromotionModal] = useState({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer' });
+  const [promotionModal, setPromotionModal] = useState({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer', ctaText: 'Learn More', ctaIcon: 'gift', ctaColor: '#f59e0b', ctaUrl: '' });
+  const [ctaPickerOpen, setCtaPickerOpen] = useState(false);
+  const [promoTemplates, setPromoTemplates] = useState(() => {
+    try {
+      const raw = localStorage.getItem('promoTemplates');
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  });
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  // Persist templates when changed
+  useEffect(() => {
+    try {
+      localStorage.setItem('promoTemplates', JSON.stringify(promoTemplates || []));
+    } catch (e) { }
+  }, [promoTemplates]);
   const [selectedActionType, setSelectedActionType] = useState(null);
   const [notificationPreview, setNotificationPreview] = useState(null);
+  const [promotionSearch, setPromotionSearch] = useState('');
+  const [showPromotionFilters, setShowPromotionFilters] = useState(false);
+  const [creatorOnlyFilter, setCreatorOnlyFilter] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [minRequestsFilter, setMinRequestsFilter] = useState('');
+  const [minPerRequestFilter, setMinPerRequestFilter] = useState('');
+  const [planFilter, setPlanFilter] = useState('all'); // all, hasplan, noplan
+  const [requestActivityFilter, setRequestActivityFilter] = useState('all'); // all, created, fulfilled, free, none
+  const [daysActiveFilter, setDaysActiveFilter] = useState(''); // min days since last activity
+  const [userMetrics, setUserMetrics] = useState({});
+
+  // Derived lists for promotion modal filtering
+  const promotionAvailableCategories = Array.from(new Set(users.map(u => u.creatorCategory).filter(Boolean)));
+  const filteredUsersForPromotion = users.filter((u) => {
+    const s = (promotionSearch || '').trim().toLowerCase();
+    if (creatorOnlyFilter && !u.isCreator) return false;
+    if (categoryFilter !== 'all' && u.creatorCategory !== categoryFilter) return false;
+    if (minRequestsFilter && Number(u.requestCount || 0) < Number(minRequestsFilter)) return false;
+    if (minPerRequestFilter && Number(u.avgPerRequest || 0) < Number(minPerRequestFilter)) return false;
+    
+    // Advanced filters using metrics
+    const metrics = userMetrics[u.id];
+    if (metrics) {
+      if (planFilter === 'hasplan' && !metrics.hasPlan) return false;
+      if (planFilter === 'noplan' && metrics.hasPlan) return false;
+      
+      if (requestActivityFilter === 'created' && metrics.createdRequestsCount === 0) return false;
+      if (requestActivityFilter === 'fulfilled' && metrics.fulfilledRequestsCount === 0) return false;
+      if (requestActivityFilter === 'free' && metrics.freeRequestsCount === 0) return false;
+      if (requestActivityFilter === 'none' && metrics.totalRequestsEngagement > 0) return false;
+      
+      if (daysActiveFilter && metrics.daysSinceLastActivity > Number(daysActiveFilter)) return false;
+    }
+    
+    if (!s) return true;
+    return ((u.name || '').toLowerCase().includes(s) || (u.email || '').toLowerCase().includes(s) || (String(u.id) || '').toLowerCase().includes(s));
+  });
   const [banType, setBanType] = useState('permanent');
   const [banDuration, setBanDuration] = useState({ value: 7, unit: 'days' });
   const [promotionTypeDropdown, setPromotionTypeDropdown] = useState(false);
@@ -131,6 +195,7 @@ export default function StaffDashboard() {
       loadData(JSON.parse(session));
     }
   }, []);
+
 
   // Video playback animation
   useEffect(() => {
@@ -292,6 +357,17 @@ export default function StaffDashboard() {
         // Also extract creators from users
         const creatorsOnly = (data.users || []).filter(u => u.isCreator);
         setCreators(creatorsOnly);
+      }
+
+      // Load user activity metrics for promotion filtering
+      const metricsRes = await fetch(`http://localhost:4000/staff/user-metrics?employeeId=${employee.id}`);
+      if (metricsRes.ok) {
+        const data = await metricsRes.json();
+        const metricsMap = {};
+        (data.metrics || []).forEach(m => {
+          metricsMap[m.id] = m;
+        });
+        setUserMetrics(metricsMap);
       }
 
       // Load requests
@@ -830,16 +906,35 @@ export default function StaffDashboard() {
           message: promotionModal.message,
           promotionType: promotionModal.promotionType,
           recipientType: promotionModal.recipientType,
-          selectedUsers: promotionModal.recipientType === 'individual' ? promotionModal.selectedUsers : null
+          selectedUsers: promotionModal.recipientType === 'individual' ? promotionModal.selectedUsers : null,
+          ctaText: promotionModal.ctaText,
+          ctaIcon: promotionModal.ctaIcon,
+          ctaColor: promotionModal.ctaColor,
+          ctaUrl: promotionModal.ctaUrl
         })
       });
 
       if (res.ok) {
-        setPromotionModal({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer' });
+        const data = await res.json();
         setError('');
-        alert('Promotion sent successfully!');
+        // Save this promotion as a template (avoid exact duplicates)
+        try {
+          const candidate = { id: Date.now(), title: promotionModal.title.trim(), message: promotionModal.message.trim() };
+          const exists = promoTemplates.some(t => t.title === candidate.title && t.message === candidate.message);
+          if (!exists) setPromoTemplates(prev => [candidate, ...(prev || [])].slice(0, 25));
+        } catch (e) { }
+        // Keep the modal open (do not auto-close) so staff can send more or edit
+        // Provide success toast and keep current fields
+        setToast({
+          type: 'success',
+          title: 'Promotion Sent',
+          message: `Delivered to ${data.created || (promotionModal.selectedUsers ? promotionModal.selectedUsers.length : 0)} recipient(s)`,
+          icon: 'gift',
+          position: 'top'
+        });
       } else {
         setError('Failed to send promotion');
+        setToast({ type: 'error', title: 'Promotion Failed', message: 'Unable to deliver promotion' });
       }
     } catch (err) {
       console.error('Promotion send failed:', err);
@@ -1196,6 +1291,48 @@ export default function StaffDashboard() {
             >
               Promotions
             </button>
+          </div>
+        )}
+        {/* Template Picker Modal */}
+        {templatePickerOpen && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setTemplatePickerOpen(false)}>
+            <div style={{ background: 'white', borderRadius: '12px', padding: '20px', width: '90%', maxWidth: '520px', boxShadow: '0 12px 30px rgba(0,0,0,0.2)' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>Message Templates</h3>
+              </div>
+              <style>{`
+                .templates-no-scroll::-webkit-scrollbar { display: none; }
+                .templates-no-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+              `}</style>
+              <div className="templates-no-scroll" style={{ maxHeight: '70vh', overflowY: 'scroll', position: 'relative' }}>
+                {(!promoTemplates || promoTemplates.length === 0) && <div style={{ color: '#6b7280' }}>No templates yet — send a promotion to auto-save one.</div>}
+                {promoTemplates.map(t => (
+                  <div key={t.id} style={{ padding: '12px', marginBottom: '12px', background: '#ffffff', borderRadius: '10px', boxShadow: '0 6px 16px rgba(15,23,42,0.06)', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'flex-start' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: '14px', color: '#111827', marginBottom: '6px' }}>{t.title}</div>
+                        <div style={{ fontSize: '13px', color: '#6b7280', whiteSpace: 'pre-wrap', lineHeight: 1.45, overflowWrap: 'break-word' }}>{t.message}</div>
+                      </div>
+                    </div>
+                    <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                      <button onClick={() => { setPromotionModal({ ...promotionModal, title: t.title, message: t.message }); setTemplatePickerOpen(false); }} style={{ padding: '8px 12px', background: '#eef2ff', border: 'none', borderRadius: '8px', cursor: 'pointer', minWidth: '72px', fontWeight: 600 }}>Apply</button>
+                      <button onClick={() => setEditingTemplate(t)} style={{ padding: '8px 12px', background: '#fff7ed', border: 'none', borderRadius: '8px', cursor: 'pointer', minWidth: '72px', fontWeight: 600 }}>Edit</button>
+                      <button onClick={() => setPromoTemplates(prev => prev.filter(x => x.id !== t.id))} style={{ padding: '8px 12px', background: '#fee2e2', border: 'none', borderRadius: '8px', cursor: 'pointer', minWidth: '72px', fontWeight: 600 }}>Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {editingTemplate && (
+                <div style={{ marginTop: '12px', borderTop: '1px solid #eef2f6', paddingTop: '12px' }}>
+                  <input value={editingTemplate.title} onChange={(e) => setEditingTemplate({ ...editingTemplate, title: e.target.value })} style={{ width: '100%', padding: '8px', marginBottom: '8px', border: '1px solid #e5e7eb', borderRadius: '6px' }} />
+                  <textarea value={editingTemplate.message} onChange={(e) => setEditingTemplate({ ...editingTemplate, message: e.target.value })} style={{ width: '100%', padding: '8px', minHeight: '80px', border: '1px solid #e5e7eb', borderRadius: '6px' }} />
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                    <button onClick={() => { setPromoTemplates(prev => prev.map(p => p.id === editingTemplate.id ? editingTemplate : p)); setEditingTemplate(null); }} style={{ padding: '8px 12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px' }}>Save</button>
+                    <button onClick={() => setEditingTemplate(null)} style={{ padding: '8px 12px', background: '#e5e7eb', border: 'none', borderRadius: '8px' }}>Cancel</button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -4069,11 +4206,25 @@ export default function StaffDashboard() {
 
       {/* Toast notification (global) */}
       {toast && (
-        <div style={{ position: 'fixed', right: '20px', bottom: '20px', backgroundColor: toast.type === 'success' ? '#10b981' : '#ef4444', color: 'white', padding: '12px 16px', borderRadius: '8px', boxShadow: '0 6px 18px rgba(0,0,0,0.12)', zIndex: 2000 }}>
-          {toast.message}
+        <div style={toast.position === 'top' ? { position: 'fixed', left: '50%', transform: 'translateX(-50%)', top: '20px', zIndex: 3000, minWidth: '320px' } : { position: 'fixed', right: '20px', bottom: '20px', zIndex: 2000, minWidth: '260px' }}>
+          {toast.type === 'success' ? (
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: 'linear-gradient(90deg,#16a34a,#10b981)', padding: '12px', borderRadius: '8px', color: 'white', boxShadow: '0 6px 18px rgba(0,0,0,0.12)' }}>
+              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Gift size={20} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '14px', fontWeight: 700 }}>{toast.title || 'Success'}</div>
+                <div style={{ fontSize: '13px', opacity: 0.95 }}>{toast.message}</div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ background: 'linear-gradient(90deg,#ef4444,#f97316)', padding: '12px', borderRadius: '8px', color: 'white', boxShadow: '0 6px 18px rgba(0,0,0,0.12)' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700 }}>{toast.title || 'Error'}</div>
+              <div style={{ fontSize: '13px', opacity: 0.95 }}>{toast.message}</div>
+            </div>
+          )}
         </div>
       )}
-
       {/* User Action Modal (for reports - warn/ban/shadow ban/delete users) */}
       {userActionModal.isOpen && (
         <div style={{
@@ -6905,29 +7056,56 @@ export default function StaffDashboard() {
             backgroundColor: 'white',
             borderRadius: '12px',
             padding: '32px',
+            position: 'relative',
             maxWidth: '600px',
             width: '90%',
             boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)',
             maxHeight: '90vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column'
           }}>
+            {/* Small absolute close button in top-right */}
+            <button onClick={() => setPromotionModal({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer', ctaText: 'Learn More', ctaIcon: 'gift', ctaUrl: '' })} title="Close" style={{ position: 'absolute', top: '12px', right: '12px', width: '28px', height: '28px', borderRadius: '6px', border: 'none', background: '#fff', boxShadow: '0 2px 6px rgba(0,0,0,0.08)', cursor: 'pointer', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>✕</button>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0', color: '#1f2937' }}>
                 Create Promotion
               </h2>
-              <button
-                onClick={() => setPromotionModal({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer' })}
-                style={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#9ca3af',
-                  padding: '0'
-                }}
-              >
-                ✕
-              </button>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button
+                  title="Templates"
+                  onClick={() => setTemplatePickerOpen(true)}
+                  style={{
+                    backgroundColor: '#eef2ff',
+                    border: 'none',
+                    padding: '6px 8px',
+                    fontSize: '13px',
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Templates
+                </button>
+                <button
+                  title="Clear all fields"
+                  onClick={() => {
+                    setPromotionModal({ ...promotionModal, title: '', message: '', selectedUsers: [], recipientType: 'individual' });
+                    setPromotionSearch('');
+                    setError('');
+                  }}
+                  style={{
+                    backgroundColor: '#f3f4f6',
+                    border: 'none',
+                    padding: '6px 8px',
+                    fontSize: '13px',
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
@@ -7198,7 +7376,7 @@ export default function StaffDashboard() {
                     </button>
                     <button
                       onClick={() => {
-                        setPromotionModal({ ...promotionModal, recipientType: 'individual' });
+                        setPromotionModal({ ...promotionModal, recipientType: 'individual', selectedUsers: [] });
                         setSendToDropdown(false);
                       }}
                       style={{
@@ -7230,30 +7408,180 @@ export default function StaffDashboard() {
             {/* User Selection for Individual Promotions */}
             {promotionModal.recipientType === 'individual' && (
               <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', margin: '0' }}>SELECT USERS</p>
-                  <button
-                    onClick={() => {
-                      if (promotionModal.selectedUsers.length === users.length) {
-                        setPromotionModal({ ...promotionModal, selectedUsers: [] });
-                      } else {
-                        setPromotionModal({ ...promotionModal, selectedUsers: users.map(u => u.id) });
-                      }
-                    }}
-                    style={{
-                      padding: '4px 12px',
-                      backgroundColor: promotionModal.selectedUsers.length === users.length ? '#3b82f6' : '#e5e7eb',
-                      color: promotionModal.selectedUsers.length === users.length ? 'white' : '#374151',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    {promotionModal.selectedUsers.length === users.length ? 'Deselect All' : 'Select All'}
-                  </button>
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        
+                        <label style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <input
+                            type="checkbox"
+                            checked={promotionModal.recipientType === 'all'}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setPromotionModal({ ...promotionModal, recipientType: 'all', selectedUsers: users.map(u => u.id) });
+                              } else {
+                                setPromotionModal({ ...promotionModal, recipientType: 'individual', selectedUsers: [] });
+                              }
+                            }}
+                          />
+                          All users
+                        </label>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <button
+                        onClick={() => setShowPromotionFilters(!showPromotionFilters)}
+                        style={{
+                          padding: '6px 10px',
+                          backgroundColor: showPromotionFilters ? '#3b82f6' : '#e5e7eb',
+                          color: showPromotionFilters ? 'white' : '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Filters
+                      </button>
+                      <button
+                        onClick={() => {
+                          const visibleIds = filteredUsersForPromotion.map(u => u.id);
+                          const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => promotionModal.selectedUsers.includes(id));
+                          if (allVisibleSelected) {
+                            setPromotionModal({ ...promotionModal, selectedUsers: promotionModal.selectedUsers.filter(id => !visibleIds.includes(id)) });
+                          } else {
+                            // Union current selection with visible ids
+                            const union = Array.from(new Set([...promotionModal.selectedUsers, ...visibleIds]));
+                            setPromotionModal({ ...promotionModal, selectedUsers: union });
+                          }
+                        }}
+                        style={{
+                          padding: '6px 10px',
+                          backgroundColor: '#e5e7eb',
+                          color: '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Select Visible
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                    <input
+                      value={promotionSearch}
+                      onChange={(e) => setPromotionSearch(e.target.value)}
+                      placeholder="Search users or creators..."
+                      style={{
+                        flex: 1,
+                        padding: '8px 10px',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '6px',
+                        fontSize: '13px'
+                      }}
+                    />
+                    <button
+                      onClick={() => setShowPromotionFilters(!showPromotionFilters)}
+                      aria-label="Toggle filters"
+                      style={{
+                        padding: '8px 10px',
+                        borderRadius: '6px',
+                        border: '2px solid #e5e7eb',
+                        background: '#eef2ff',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Filter size={16} />
+                    </button>
+                  </div>
+
+                  {showPromotionFilters && (
+                    <div style={{ marginTop: '8px', padding: '12px', border: '1px solid #e5e7eb', borderRadius: '8px', background: '#f3f4f6' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                        {/* Tier 1 Filters */}
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                          <input type="checkbox" checked={creatorOnlyFilter} onChange={(e) => setCreatorOnlyFilter(e.target.checked)} />
+                          Creators only
+                        </label>
+
+                        <label style={{ fontSize: '13px' }}>
+                          Category
+                          <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} style={{ marginLeft: '8px', padding: '6px', borderRadius: '6px', border: '1px solid #e5e7eb', fontSize: '12px' }}>
+                            <option value="all">All</option>
+                            {promotionAvailableCategories.map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label style={{ fontSize: '13px' }}>
+                          Subscription
+                          <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} style={{ marginLeft: '8px', padding: '6px', borderRadius: '6px', border: '1px solid #e5e7eb', fontSize: '12px' }}>
+                            <option value="all">All Plans</option>
+                            <option value="hasplan">Has Plan</option>
+                            <option value="noplan">No Plan</option>
+                          </select>
+                        </label>
+
+                        <label style={{ fontSize: '13px' }}>
+                          Request Activity
+                          <select value={requestActivityFilter} onChange={(e) => setRequestActivityFilter(e.target.value)} style={{ marginLeft: '8px', padding: '6px', borderRadius: '6px', border: '1px solid #e5e7eb', fontSize: '12px' }}>
+                            <option value="all">All Activity</option>
+                            <option value="created">Created Requests</option>
+                            <option value="fulfilled">Fulfilled Requests</option>
+                            <option value="free">Made Free Requests</option>
+                            <option value="none">No Request Activity</option>
+                          </select>
+                        </label>
+
+                        <label style={{ fontSize: '13px' }}>
+                          Min Requests
+                          <input value={minRequestsFilter} onChange={(e) => setMinRequestsFilter(e.target.value)} placeholder="0" style={{ width: '70px', marginLeft: '8px', padding: '6px', borderRadius: '6px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                        </label>
+
+                        <label style={{ fontSize: '13px' }}>
+                          Min $/request
+                          <input value={minPerRequestFilter} onChange={(e) => setMinPerRequestFilter(e.target.value)} placeholder="0" style={{ width: '70px', marginLeft: '8px', padding: '6px', borderRadius: '6px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                        </label>
+
+                        <label style={{ fontSize: '13px' }}>
+                          Days Active (max)
+                          <input value={daysActiveFilter} onChange={(e) => setDaysActiveFilter(e.target.value)} placeholder="30" style={{ width: '70px', marginLeft: '8px', padding: '6px', borderRadius: '6px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                        </label>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setCreatorOnlyFilter(false);
+                          setCategoryFilter('all');
+                          setPlanFilter('all');
+                          setRequestActivityFilter('all');
+                          setMinRequestsFilter('');
+                          setMinPerRequestFilter('');
+                          setDaysActiveFilter('');
+                          setPromotionSearch('');
+                        }}
+                        style={{
+                          marginTop: '12px',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          backgroundColor: '#f3f4f6',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          color: '#666'
+                        }}
+                      >
+                        Reset Filters
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div style={{
                   border: '2px solid #e5e7eb',
@@ -7262,17 +7590,19 @@ export default function StaffDashboard() {
                   overflowY: 'auto',
                   backgroundColor: '#f9fafb'
                 }}>
-                  {users.length === 0 ? (
+                  {promotionModal.recipientType === 'all' ? (
+                    <div style={{ padding: '16px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>All users will receive this promotion</div>
+                  ) : filteredUsersForPromotion.length === 0 ? (
                     <div style={{
                       padding: '16px',
                       textAlign: 'center',
                       color: '#9ca3af',
                       fontSize: '13px'
                     }}>
-                      No users available
+                      {users.length === 0 ? 'No users available' : 'No users match filters'}
                     </div>
                   ) : (
-                    users.map((user) => (
+                    filteredUsersForPromotion.map((user) => (
                       <div
                         key={user.id}
                         style={{
@@ -7332,6 +7662,35 @@ export default function StaffDashboard() {
                           }}>
                             {user.email}
                           </p>
+                          {userMetrics[user.id] && (
+                            <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                              {userMetrics[user.id].hasPlan && (
+                                <span style={{ fontSize: '10px', backgroundColor: '#dbeafe', color: '#0369a1', padding: '2px 6px', borderRadius: '3px' }}>
+                                  💳 Has Plan
+                                </span>
+                              )}
+                              {userMetrics[user.id].createdRequestsCount > 0 && (
+                                <span style={{ fontSize: '10px', backgroundColor: '#fef3c7', color: '#92400e', padding: '2px 6px', borderRadius: '3px' }}>
+                                  📋 {userMetrics[user.id].createdRequestsCount} Created
+                                </span>
+                              )}
+                              {userMetrics[user.id].fulfilledRequestsCount > 0 && (
+                                <span style={{ fontSize: '10px', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '3px' }}>
+                                  ✅ {userMetrics[user.id].fulfilledRequestsCount} Fulfilled
+                                </span>
+                              )}
+                              {userMetrics[user.id].freeRequestsCount > 0 && (
+                                <span style={{ fontSize: '10px', backgroundColor: '#fce7f3', color: '#831843', padding: '2px 6px', borderRadius: '3px' }}>
+                                  🎁 {userMetrics[user.id].freeRequestsCount} Free
+                                </span>
+                              )}
+                              {userMetrics[user.id].daysSinceLastActivity <= 7 && (
+                                <span style={{ fontSize: '10px', backgroundColor: '#d1d5db', color: '#111', padding: '2px 6px', borderRadius: '3px' }}>
+                                  🔥 Active
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                         {user.isCreator && (
                           <span style={{
@@ -7379,6 +7738,107 @@ export default function StaffDashboard() {
               </div>
             )}
 
+            {/* CTA Customization */}
+            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f3f4f6', borderRadius: '8px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#1f2937', display: 'block', marginBottom: '8px' }}>
+                Customize Call-to-Action
+              </label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '8px', overflow: 'visible' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <input
+                    value={promotionModal.ctaText}
+                    onChange={(e) => setPromotionModal({ ...promotionModal, ctaText: e.target.value.slice(0, 30) })}
+                    placeholder="e.g., Learn More"
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px',
+                      fontSize: '13px'
+                    }}
+                  />
+                  <input
+                    value={promotionModal.ctaUrl}
+                    onChange={(e) => setPromotionModal({ ...promotionModal, ctaUrl: e.target.value })}
+                    placeholder="CTA URL/Link (e.g., https://example.com)"
+                    type="url"
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px',
+                      fontSize: '13px'
+                    }}
+                  />
+                </div>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCtaPickerOpen(!ctaPickerOpen)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '8px 10px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px',
+                      background: 'white',
+                      cursor: 'pointer',
+                      minWidth: '72px',
+                      maxWidth: '120px',
+                      flex: '0 0 auto',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    <span style={{ fontSize: '16px', lineHeight: 1 }}>
+                      {promotionModal.ctaIcon === 'gift' ? '🎁' :
+                       promotionModal.ctaIcon === 'star' ? '⭐' :
+                       promotionModal.ctaIcon === 'megaphone' ? '📢' :
+                       promotionModal.ctaIcon === 'heart' ? '❤️' :
+                       promotionModal.ctaIcon === 'fire' ? '🔥' :
+                       promotionModal.ctaIcon === 'check' ? '✅' :
+                       promotionModal.ctaIcon === 'arrow' ? '→' : '🎁'}
+                    </span>
+                    <span style={{ fontSize: '13px', color: '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '64px', display: 'inline-block' }}>
+                      {promotionModal.ctaIcon === 'gift' ? 'Gift' :
+                       promotionModal.ctaIcon === 'star' ? 'Star' :
+                       promotionModal.ctaIcon === 'megaphone' ? 'Megaphone' :
+                       promotionModal.ctaIcon === 'heart' ? 'Heart' :
+                       promotionModal.ctaIcon === 'fire' ? 'Fire' :
+                       promotionModal.ctaIcon === 'check' ? 'Check' :
+                       promotionModal.ctaIcon === 'arrow' ? 'Arrow' : 'Gift'}
+                    </span>
+                    <ChevronDown size={14} style={{ marginLeft: '4px', color: '#9ca3af' }} />
+                  </button>
+
+                  {ctaPickerOpen && (
+                    <div style={{ position: 'absolute', right: 0, top: '44px', background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.14)', padding: '8px', zIndex: 60, minWidth: '180px' }}>
+                      {[
+                        { value: 'gift', label: 'Gift', emoji: '🎁' },
+                        { value: 'star', label: 'Star', emoji: '⭐' },
+                        { value: 'megaphone', label: 'Megaphone', emoji: '📢' },
+                        { value: 'heart', label: 'Heart', emoji: '❤️' },
+                        { value: 'fire', label: 'Fire', emoji: '🔥' },
+                        { value: 'check', label: 'Check', emoji: '✅' },
+                        { value: 'arrow', label: 'Arrow', emoji: '→' }
+                      ].map(opt => (
+                        <button
+                          key={opt.value}
+                          onClick={() => { setPromotionModal({ ...promotionModal, ctaIcon: opt.value }); setCtaPickerOpen(false); }}
+                          style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '8px 10px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left' }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          <span style={{ fontSize: '16px' }}>{opt.emoji}</span>
+                          <span style={{ fontSize: '14px', color: '#111' }}>{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Promotion Preview */}
             {promotionModal.title && (
               <div style={{
@@ -7392,65 +7852,65 @@ export default function StaffDashboard() {
                   <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#666', margin: '0', textTransform: 'uppercase' }}>Preview - How Users Will See It</p>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button
-                      onClick={() => setPreviewColor('#f59e0b')}
+                      onClick={() => setPromotionModal({ ...promotionModal, ctaColor: '#f59e0b' })}
                       style={{
                         width: '24px',
                         height: '24px',
                         borderRadius: '50%',
                         backgroundColor: '#f59e0b',
-                        border: previewColor === '#f59e0b' ? '3px solid #1f2937' : '2px solid #e5e7eb',
+                        border: promotionModal.ctaColor === '#f59e0b' ? '3px solid #1f2937' : '2px solid #e5e7eb',
                         cursor: 'pointer',
                         transition: 'all 0.2s'
                       }}
                       title="Orange"
                     />
                     <button
-                      onClick={() => setPreviewColor('#ef4444')}
+                      onClick={() => setPromotionModal({ ...promotionModal, ctaColor: '#ef4444' })}
                       style={{
                         width: '24px',
                         height: '24px',
                         borderRadius: '50%',
                         backgroundColor: '#ef4444',
-                        border: previewColor === '#ef4444' ? '3px solid #1f2937' : '2px solid #e5e7eb',
+                        border: promotionModal.ctaColor === '#ef4444' ? '3px solid #1f2937' : '2px solid #e5e7eb',
                         cursor: 'pointer',
                         transition: 'all 0.2s'
                       }}
                       title="Red"
                     />
                     <button
-                      onClick={() => setPreviewColor('#3b82f6')}
+                      onClick={() => setPromotionModal({ ...promotionModal, ctaColor: '#3b82f6' })}
                       style={{
                         width: '24px',
                         height: '24px',
                         borderRadius: '50%',
                         backgroundColor: '#3b82f6',
-                        border: previewColor === '#3b82f6' ? '3px solid #1f2937' : '2px solid #e5e7eb',
+                        border: promotionModal.ctaColor === '#3b82f6' ? '3px solid #1f2937' : '2px solid #e5e7eb',
                         cursor: 'pointer',
                         transition: 'all 0.2s'
                       }}
                       title="Blue"
                     />
                     <button
-                      onClick={() => setPreviewColor('#10b981')}
+                      onClick={() => setPromotionModal({ ...promotionModal, ctaColor: '#10b981' })}
                       style={{
                         width: '24px',
                         height: '24px',
                         borderRadius: '50%',
                         backgroundColor: '#10b981',
-                        border: previewColor === '#10b981' ? '3px solid #1f2937' : '2px solid #e5e7eb',
+                        border: promotionModal.ctaColor === '#10b981' ? '3px solid #1f2937' : '2px solid #e5e7eb',
                         cursor: 'pointer',
                         transition: 'all 0.2s'
                       }}
                       title="Green"
                     />
                     <button
-                      onClick={() => setPreviewColor('#8b5cf6')}
+                      onClick={() => setPromotionModal({ ...promotionModal, ctaColor: '#8b5cf6' })}
                       style={{
                         width: '24px',
                         height: '24px',
                         borderRadius: '50%',
                         backgroundColor: '#8b5cf6',
-                        border: previewColor === '#8b5cf6' ? '3px solid #1f2937' : '2px solid #e5e7eb',
+                        border: promotionModal.ctaColor === '#8b5cf6' ? '3px solid #1f2937' : '2px solid #e5e7eb',
                         cursor: 'pointer',
                         transition: 'all 0.2s'
                       }}
@@ -7464,10 +7924,11 @@ export default function StaffDashboard() {
                   backgroundColor: 'white',
                   border: '1px solid #e5e7eb',
                   borderRadius: '12px',
-                  padding: '24px 20px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  padding: '28px 24px',
+                  boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
                   textAlign: 'center',
-                  maxWidth: '320px',
+                  maxWidth: '440px',
+                  width: '100%',
                   margin: '0 auto'
                 }}>
                   {/* Icon Circle */}
@@ -7479,11 +7940,16 @@ export default function StaffDashboard() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     margin: '0 auto 16px',
-                    backgroundColor: previewColor + '20'
+                    backgroundColor: hexToRgba(promotionModal.ctaColor, 0.12),
+                    fontSize: '32px'
                   }}>
-                    {promotionModal.promotionType === 'offer' && <Gift size={32} style={{ color: previewColor }} />}
-                    {promotionModal.promotionType === 'announcement' && <Megaphone size={32} style={{ color: previewColor }} />}
-                    {promotionModal.promotionType === 'feature' && <Star size={32} style={{ color: previewColor }} />}
+                    {promotionModal.ctaIcon === 'gift' && '🎁'}
+                    {promotionModal.ctaIcon === 'star' && '⭐'}
+                    {promotionModal.ctaIcon === 'megaphone' && '📢'}
+                    {promotionModal.ctaIcon === 'heart' && '❤️'}
+                    {promotionModal.ctaIcon === 'fire' && '🔥'}
+                    {promotionModal.ctaIcon === 'check' && '✅'}
+                    {promotionModal.ctaIcon === 'arrow' && '→'}
                   </div>
 
                   {/* Header/Title */}
@@ -7549,32 +8015,62 @@ export default function StaffDashboard() {
                     {promotionModal.message}
                   </p>
 
-                  {/* Action Button */}
-                  <button style={{
-                    padding: '12px 24px',
-                    backgroundColor: previewColor,
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    width: '100%',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                  onMouseLeave={(e) => e.target.style.opacity = '1'}
-                  >
-                    Learn More
-                  </button>
+                  {/* Action Button - Hyperlinked if URL provided */}
+                  {promotionModal.ctaUrl ? (
+                    <a
+                      href={promotionModal.ctaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-block',
+                        width: '100%',
+                        padding: '12px 24px',
+                        backgroundColor: promotionModal.ctaColor,
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        transition: 'all 0.2s',
+                        textDecoration: 'none',
+                        textAlign: 'center',
+                        opacity: 1
+                      }}
+                      onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                      onMouseLeave={(e) => e.target.style.opacity = '1'}
+                    >
+                      {promotionModal.ctaText}
+                    </a>
+                  ) : (
+                    <button style={{
+                      padding: '12px 24px',
+                      backgroundColor: promotionModal.ctaColor,
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'not-allowed',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      width: '100%',
+                      transition: 'all 0.2s',
+                      opacity: 0.6
+                    }}>
+                      {promotionModal.ctaText}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {/* CTA buttons at bottom of modal */}
+            <div style={{ display: 'flex', gap: '12px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
               <button
                 onClick={handleSendPromotion}
+                draggable={false}
+                onMouseDown={(e) => e.stopPropagation()}
                 style={{
+                  flex: 1,
                   padding: '12px 16px',
                   backgroundColor: '#f59e0b',
                   color: 'white',
@@ -7591,7 +8087,9 @@ export default function StaffDashboard() {
                 Send Promotion
               </button>
               <button
-                onClick={() => setPromotionModal({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer' })}
+                onClick={() => setPromotionModal({ isOpen: false, title: '', message: '', recipientType: 'individual', selectedUsers: [], promotionType: 'offer', ctaText: 'Learn More', ctaIcon: 'gift', ctaColor: '#f59e0b', ctaUrl: '' })}
+                draggable={false}
+                onMouseDown={(e) => e.stopPropagation()}
                 style={{
                   padding: '12px 16px',
                   backgroundColor: '#e5e7eb',

@@ -1023,6 +1023,63 @@ app.delete('/bookmarks/requests', (req, res) => {
       }
     });
 
+// POST /staff/send-promotion - send promotion and create notifications for recipients
+app.post('/staff/send-promotion', (req, res) => {
+  try {
+    const body = req.body || {};
+    const { employeeId, title, message, promotionType, recipientType, selectedUsers, ctaText, ctaIcon, ctaColor } = body;
+
+    // Simple staff check for demo
+    if (parseInt(employeeId) !== 1000) return res.status(403).json({ error: 'Unauthorized' });
+
+    const SUG_FILE = path.join(__dirname, 'suggestions.json');
+    let arr = [];
+    try { if (fs.existsSync(SUG_FILE)) arr = JSON.parse(fs.readFileSync(SUG_FILE, 'utf8') || '[]'); } catch (e) { arr = []; }
+
+    const users = readUsers();
+    let targets = [];
+    if (recipientType === 'all') {
+      targets = users.map(u => u.id);
+    } else if (recipientType === 'creators') {
+      targets = users.filter(u => u.isCreator).map(u => u.id);
+    } else if (recipientType === 'individual' && Array.isArray(selectedUsers)) {
+      targets = selectedUsers;
+    }
+
+    const created = [];
+    targets.forEach(tid => {
+      const toUser = users.find(u => u.id === tid);
+      const notif = {
+        id: `notif-${Date.now()}-${Math.random().toString(36).substr(2,9)}`,
+        to: toUser ? { id: toUser.id, name: toUser.name } : { id: tid },
+        from: { id: 'staff', name: 'Moderation Team' },
+        type: 'staff_action',
+        action: 'promotion',
+        title: title || 'Promotion',
+        message: message || '',
+        icon: 'gift',
+        reason: '',
+        createdAt: new Date().toISOString(),
+        read: false,
+        requiresAcknowledgment: true,
+        meta: { promotionType, ctaText: ctaText || null, ctaIcon: ctaIcon || null, ctaColor: ctaColor || null },
+        ctaText: ctaText || null,
+        ctaIcon: ctaIcon || null,
+        ctaColor: ctaColor || null
+      };
+      arr.unshift(notif);
+      created.push(notif);
+    });
+
+    try { fs.writeFileSync(SUG_FILE, JSON.stringify(arr, null, 2), 'utf8'); } catch (e) { console.error('write promotion notifications error', e); }
+
+    return res.json({ success: true, created: created.length, notifications: created });
+  } catch (err) {
+    console.error('send-promotion error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Boost endpoint: requires authentication
 app.post('/boost', authMiddleware, (req, res) => {
   const { requestId, amount, provider } = req.body || {};
@@ -3912,6 +3969,76 @@ app.post('/staff/undo-delete-comment/:commentId', (req, res) => {
     return res.json({ success: true, message: 'Comment restored', comment });
   } catch (err) {
     console.error('Undo delete comment error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get user activity metrics for staff (for filtering and insights)
+app.get('/staff/user-metrics', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const users = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const requests = JSON.parse(fs.readFileSync(REQUESTS_FILE, 'utf8'));
+    const videos = JSON.parse(fs.readFileSync(VIDEOS_FILE, 'utf8'));
+
+    const userMetrics = users.map(user => {
+      // Count requests created by user
+      const createdRequests = requests.filter(r => r.createdBy === user.id).length;
+      
+      // Count requests claimed/fulfilled by user
+      const fulfilledRequests = requests.filter(r => r.claimedBy?.id === user.id && r.currentStep === 6).length;
+      
+      // Count free requests (amount = 0)
+      const freeRequests = requests.filter(r => r.createdBy === user.id && (r.amount === 0 || r.amount === '0')).length;
+      
+      // Check if user has an active subscription/plan
+      const hasPlan = !!user.subscriptionPlan && user.subscriptionPlan !== 'none' && user.subscriptionPlan !== 'free';
+      
+      // Calculate days since account creation
+      const createdDate = new Date(user.createdAt);
+      const today = new Date();
+      const daysSinceCreation = Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));
+      
+      // Count videos created
+      const videosCreated = videos.filter(v => v.creatorId === user.id).length;
+      
+      // Count videos from profile views (estimate from engagement)
+      const profileViews = user.profileViews || 0;
+      
+      // Last activity tracking (use lastClaimReset or other recent activity)
+      const lastActivity = user.lastWarning || user.lastStreakDate || user.createdAt;
+      const lastActivityDate = new Date(lastActivity);
+      const daysSinceLastActivity = Math.floor((today - lastActivityDate) / (1000 * 60 * 60 * 24));
+
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isCreator: user.isCreator || false,
+        createdRequestsCount: createdRequests,
+        fulfilledRequestsCount: fulfilledRequests,
+        freeRequestsCount: freeRequests,
+        totalRequestsEngagement: createdRequests + fulfilledRequests,
+        hasPlan,
+        subscriptionPlan: user.subscriptionPlan || 'none',
+        daysSinceCreation,
+        daysSinceLastActivity,
+        videosCreated,
+        profileViews,
+        streak: user.streak || 0,
+        warnings: user.warnings || 0,
+        isShadowBanned: user.shadowBanned || false
+      };
+    });
+
+    return res.json({ metrics: userMetrics });
+  } catch (err) {
+    console.error('Get user metrics error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });
