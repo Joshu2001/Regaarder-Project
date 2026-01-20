@@ -328,6 +328,13 @@
       "reason": "hh",
       "hiddenBy": 1000,
       "createdAt": "2026-01-19T17:05:50.315Z"
+    },
+    {
+      "type": "comment",
+      "id": "c_1767694791207",
+      "reason": "mm",
+      "hiddenBy": 1000,
+      "createdAt": "2026-01-20T02:56:34.449Z"
     }
   ],
   "deletionLog": [
@@ -369,6 +376,12 @@
       "id": "1768835100749-34tq5nn1u",
       "undoneBy": 1000,
       "createdAt": "2026-01-19T16:50:45.062Z"
+    },
+    {
+      "type": "request_unhide",
+      "id": "req_1768657702084",
+      "undoneBy": 1000,
+      "createdAt": "2026-01-20T02:56:22.404Z"
     }
   ]
 }

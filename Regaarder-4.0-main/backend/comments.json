@@ -8,7 +8,11 @@
     "parentId": null,
     "likesCount": 0,
     "dislikesCount": 1,
-    "createdAt": "2026-01-06T10:19:51.207Z"
+    "createdAt": "2026-01-06T10:19:51.207Z",
+    "hidden": true,
+    "hiddenReason": "mm",
+    "hiddenBy": 1000,
+    "hiddenAt": "2026-01-20T02:56:34.444Z"
   },
   {
     "id": "c_1767695157206",

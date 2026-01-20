@@ -36,10 +36,10 @@
     "claimedAt": "2026-01-18T02:07:39.334Z",
     "currentStep": 6,
     "updatedAt": "2026-01-18T05:40:19.475Z",
-    "hidden": true,
-    "hiddenReason": "nn",
-    "hiddenBy": 1000,
-    "hiddenAt": "2026-01-19T16:51:00.887Z"
+    "hidden": false,
+    "hiddenReason": null,
+    "hiddenBy": null,
+    "hiddenAt": null
   },
   {
     "id": "req_1768657708836",
