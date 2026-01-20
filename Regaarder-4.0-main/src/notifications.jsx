@@ -233,8 +233,9 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
       if (onDelete) onDelete(thread);
       setSwipeOffset(0); // Reset for visual if undo happens, but normally component unmounts
     } else if (!isStaffAction && swipeOffset > 100) {
-      // Swipe Right -> Dismiss (only for non-staff-action notifications)
-      if (onDismiss) onDismiss(thread);
+      // Swipe Right -> Dismiss (only for non-staff-action notifications without CTA URL)
+      // Don't dismiss if this is a promotion with a CTA URL - user should click the link instead
+      if (!thread.ctaUrl && onDismiss) onDismiss(thread);
       setSwipeOffset(0);
     } else {
       // Snap back
@@ -308,6 +309,10 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
                     href={thread.ctaUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(e) => {
+                      // Prevent any parent handlers from triggering (like dismiss/delete)
+                      e.stopPropagation();
+                    }}
                     style={{
                       display: 'inline-block',
                       marginTop: '12px',
