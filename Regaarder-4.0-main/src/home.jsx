@@ -3550,14 +3550,43 @@ const App = ({ overrideMiniPlayerData = null }) => {
             {staffActionNotification && (
                 <div
                     className="fixed inset-0 flex items-center justify-center z-50"
-                    style={{ backgroundColor: 'rgba(0,0,0,0.64)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', transition: 'backdrop-filter 200ms ease, -webkit-backdrop-filter 200ms ease, background 200ms ease' }}
-                    onClick={() => setStaffActionNotification(null)}
+                    style={{ backgroundColor: 'rgba(0,0,0,0.64)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', transition: 'backdrop-filter 200ms ease, -webkit-backdrop-filter 200ms ease, background 200ms ease', cursor: 'pointer' }}
+                    onClick={async () => {
+                        // Get the ctaUrl if available
+                        const ctaUrl = staffActionNotification.ctaUrl || (staffActionNotification.meta && staffActionNotification.meta.ctaUrl);
+                        
+                        // Mark notification as read on backend
+                        try {
+                            const token = localStorage.getItem('regaarder_token');
+                            if (token && staffActionNotification.id) {
+                                const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                                await fetch(`${BACKEND}/notifications/${staffActionNotification.id}/read`, {
+                                    method: 'POST',
+                                    headers: { 'Authorization': `Bearer ${token}` }
+                                });
+                            }
+                        } catch (e) {
+                            console.warn('Failed to mark notification as read', e);
+                        }
+                        
+                        // Redirect to URL if available (for promotions)
+                        if (ctaUrl && staffActionNotification.action === 'promotion') {
+                            const url = ctaUrl.startsWith('http') ? ctaUrl : `https://${ctaUrl}`;
+                            window.open(url, '_blank', 'noopener,noreferrer');
+                        }
+                        
+                        // Close modal
+                        setStaffActionNotification(null);
+                    }}
                     role="dialog"
                     aria-modal="true"
                 >
                     <div
                         className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-lg"
-                        onClick={(e) => e.stopPropagation()}
+                        style={{ cursor: 'pointer' }}
+                        onClick={(e) => {
+                            // Don't stop propagation - let the click bubble to parent which handles everything
+                        }}
                     >
                         <div className="text-center">
                             {/* Icon */}
@@ -3619,25 +3648,8 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                 {staffActionNotification.message}
                             </p>
 
-                            {/* Acknowledge Button */}
-                            <button
-                                onClick={async () => {
-                                    // Mark notification as read on backend
-                                    try {
-                                        const token = localStorage.getItem('regaarder_token');
-                                        if (token && staffActionNotification.id) {
-                                            const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
-                                            await fetch(`${BACKEND}/notifications/${staffActionNotification.id}/read`, {
-                                                method: 'POST',
-                                                headers: { 'Authorization': `Bearer ${token}` }
-                                            });
-                                        }
-                                    } catch (e) {
-                                        console.warn('Failed to mark notification as read', e);
-                                    }
-                                    // Close modal
-                                    setStaffActionNotification(null);
-                                }}
+                            {/* CTA Button - Shows URL hint for promotions with URL */}
+                            <div
                                 style={{
                                     width: '100%',
                                     padding: '12px 16px',
@@ -3653,35 +3665,24 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                     cursor: 'pointer',
                                     fontSize: '14px',
                                     fontWeight: '600',
-                                    transition: 'background-color 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                    const color = staffActionNotification.action === 'promotion' ? (staffActionNotification.ctaColor || staffActionNotification.meta?.ctaColor || '#f59e0b') : null;
-                                    const darkerColor = color ? (
-                                        color === '#f59e0b' ? '#d97706' :
-                                        color === '#ef4444' ? '#dc2626' :
-                                        color === '#3b82f6' ? '#1d4ed8' :
-                                        color === '#10b981' ? '#059669' :
-                                        color === '#8b5cf6' ? '#7c3aed' : '#d97706'
-                                    ) : (
-                                        staffActionNotification.action === 'warn' ? '#d97706' :
-                                        staffActionNotification.action === 'ban' ? '#dc2626' :
-                                        staffActionNotification.action === 'shadowban' ? '#4b5563' :
-                                        staffActionNotification.action === 'delete' ? '#7c3aed' : '#d97706'
-                                    );
-                                    e.target.style.backgroundColor = darkerColor;
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.backgroundColor =
-                                        staffActionNotification.action === 'promotion' ? (staffActionNotification.ctaColor || staffActionNotification.meta?.ctaColor || '#f59e0b') :
-                                        staffActionNotification.action === 'warn' ? '#f59e0b' :
-                                        staffActionNotification.action === 'ban' ? '#ef4444' :
-                                        staffActionNotification.action === 'shadowban' ? '#6b7280' :
-                                        staffActionNotification.action === 'delete' ? '#8b5cf6' : '#f59e0b';
+                                    transition: 'background-color 0.2s',
+                                    textAlign: 'center'
                                 }}
                             >
                                 {staffActionNotification.ctaText || (staffActionNotification.meta && staffActionNotification.meta.ctaText) || (staffActionNotification.action === 'shadowban' ? 'Learn More' : 'Acknowledge')}
-                            </button>
+                            </div>
+                            
+                            {/* Tap hint for promotions with URL */}
+                            {staffActionNotification.action === 'promotion' && (staffActionNotification.ctaUrl || (staffActionNotification.meta && staffActionNotification.meta.ctaUrl)) && (
+                                <p style={{
+                                    margin: '12px 0 0',
+                                    fontSize: '11px',
+                                    color: '#9ca3af',
+                                    textAlign: 'center'
+                                }}>
+                                    Tap anywhere to dismiss
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>

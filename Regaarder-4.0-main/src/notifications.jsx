@@ -264,10 +264,20 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
       {/* Foreground Card */}
       <div
         className="relative p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col space-y-3 transition-transform duration-200 ease-out"
-        style={{ transform: `translateX(${swipeOffset}px)` }}
+        style={{ 
+          transform: `translateX(${swipeOffset}px)`,
+          cursor: (isStaffAction && thread.ctaUrl) ? 'pointer' : 'default'
+        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onClick={() => {
+          // For staff action promotions with URL, clicking anywhere opens the URL
+          if (isStaffAction && thread.ctaUrl) {
+            const url = thread.ctaUrl.startsWith('http') ? thread.ctaUrl : `https://${thread.ctaUrl}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+          }
+        }}
       >
         <div className="flex items-start space-x-3">
           {Avatar ? Avatar : (
@@ -303,35 +313,35 @@ const NotificationCard = ({ thread, onReply, onDelete, onDismiss, currentUserId,
               <div>
                 <p className="text-sm text-gray-700 mt-2 leading-relaxed whitespace-pre-wrap">{thread.message}</p>
                 
-                {/* CTA Button if URL is provided */}
+                {/* CTA Button - clicking anywhere on card also opens URL */}
                 {thread.ctaUrl && (
-                  <a
-                    href={thread.ctaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => {
-                      // Prevent any parent handlers from triggering (like dismiss/delete)
-                      e.stopPropagation();
-                    }}
-                    style={{
-                      display: 'inline-block',
-                      marginTop: '12px',
-                      padding: '10px 16px',
-                      backgroundColor: thread.ctaColor || '#3b82f6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      transition: 'all 0.2s',
-                      textDecoration: 'none'
-                    }}
-                    onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                    onMouseLeave={(e) => e.target.style.opacity = '1'}
-                  >
-                    {thread.ctaText || 'Learn More'}
-                  </a>
+                  <div>
+                    <div
+                      style={{
+                        display: 'inline-block',
+                        marginTop: '12px',
+                        padding: '10px 16px',
+                        backgroundColor: thread.ctaColor || '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        transition: 'all 0.2s',
+                        position: 'relative',
+                        zIndex: 50,
+                        cursor: 'pointer',
+                        pointerEvents: 'auto'
+                      }}
+                    >
+                      {thread.ctaText || 'Learn More'}
+                    </div>
+                    <p style={{ margin: '8px 0 0', fontSize: '10px', color: '#9ca3af' }}>
+                      Tap anywhere to open link
+                    </p>
+                  </div>
                 )}
               </div>
             ) : (

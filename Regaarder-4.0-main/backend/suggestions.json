@@ -1,5 +1,499 @@
 [
   {
+    "id": "notif-1768927983091-hadik0h3o",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:53:03.091Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "star",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "star",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768927529293-9w1tgsc4v",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:45:29.293Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "star",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "star",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768926958397-0v1f6u6nq",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:35:58.397Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "star",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "star",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768926950604-2zfm40be6",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:35:50.604Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "star",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "star",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768926662634-tkuitb8ur",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:31:02.634Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "gift",
+      "ctaColor": "#f59e0b",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "gift",
+    "ctaColor": "#f59e0b",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768926662450-gwv7wi3wm",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:31:02.450Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "gift",
+      "ctaColor": "#f59e0b",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "gift",
+    "ctaColor": "#f59e0b",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768926527422-2eilgvgv6",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:28:47.422Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "gift",
+      "ctaColor": "#f59e0b",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "gift",
+    "ctaColor": "#f59e0b",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768926150074-c7saajryo",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:22:30.074Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "gift",
+      "ctaColor": "#f59e0b",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "gift",
+    "ctaColor": "#f59e0b",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768926089854-0yttlbk17",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:21:29.854Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "gift",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "gift",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768925988440-1qerk8xtt",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:19:48.441Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "gift",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "gift",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768925828116-iwi5al0g0",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:17:08.116Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "gift",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "gift",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768925713930-15l0oikum",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:15:13.930Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "gift",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "gift",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768925644959-tka2o6tzz",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:14:04.959Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "the bubble",
+      "ctaIcon": "megaphone",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "the bubble",
+    "ctaIcon": "megaphone",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768925440397-1vrt8wwgf",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:10:40.397Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "the bubble",
+      "ctaIcon": "megaphone",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+    },
+    "ctaText": "the bubble",
+    "ctaIcon": "megaphone",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "https://www.google.com/search?q=pattern+in+french&oq=pattern+in+french&gs_lcrp=EgZjaHJvbWUyCQgAEEUYORiABDIHCAEQABiABDIHCAIQABiABDIICAMQABgWGB4yCAgEEAAYFhgeMggIBRAAGBYYHjIICAYQABgWGB4yCAgHEAAYFhgeMggICBAAGBYYHjIICAkQABgWGB7SAQg2NTE4ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+  },
+  {
+    "id": "notif-1768925396307-slj558ggv",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:09:56.307Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "the bubble",
+      "ctaIcon": "megaphone",
+      "ctaColor": "#8b5cf6",
+      "ctaUrl": "google.com"
+    },
+    "ctaText": "the bubble",
+    "ctaIcon": "megaphone",
+    "ctaColor": "#8b5cf6",
+    "ctaUrl": "google.com"
+  },
+  {
+    "id": "notif-1768925078156-seg0kxhhr",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "krg;nrginekrgqnrlgn",
+    "message": "j;fnbafn j forng'wf ;f mwe ;we f;jowewfje woejweojfnwe[fwoje weojwewe'fjweofwjefow",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-20T16:04:38.156Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "the bubble",
+      "ctaIcon": "megaphone",
+      "ctaColor": "#8b5cf6"
+    },
+    "ctaText": "the bubble",
+    "ctaIcon": "megaphone",
+    "ctaColor": "#8b5cf6"
+  },
+  {
     "id": "notif-1768902839379-otqii888w",
     "to": {
       "id": "user-1767585399609",

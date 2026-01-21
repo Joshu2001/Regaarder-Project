@@ -257,6 +257,75 @@ app.get('/products', (req, res) => {
   }
 });
 
+// Bottom ad templates persistence
+const BOTTOM_TEMPLATES_FILE = path.join(__dirname, 'bottom_ad_templates.json');
+function readBottomTemplates() {
+  try {
+    if (!fs.existsSync(BOTTOM_TEMPLATES_FILE)) return [];
+    const raw = fs.readFileSync(BOTTOM_TEMPLATES_FILE, 'utf8');
+    return JSON.parse(raw || '[]');
+  } catch (err) { console.error('readBottomTemplates error', err); return []; }
+}
+function writeBottomTemplates(list) {
+  try { fs.writeFileSync(BOTTOM_TEMPLATES_FILE, JSON.stringify(list, null, 2), 'utf8'); } catch (err) { console.error('writeBottomTemplates error', err); }
+}
+
+app.get('/templates/bottom', (req, res) => {
+  try {
+    const templates = readBottomTemplates();
+    return res.json({ success: true, templates });
+  } catch (err) {
+    console.error('get bottom templates error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/templates/bottom', (req, res) => {
+  try {
+    const { name, avatar, text, link, assets } = req.body || {};
+    if (!name || !text) return res.status(400).json({ error: 'Missing fields' });
+    const list = readBottomTemplates();
+    const id = Date.now();
+    const tpl = { id, name, avatar: avatar || '', text: text || '', link: link || '', assets: assets || [] };
+    list.unshift(tpl);
+    writeBottomTemplates(list);
+    return res.json({ success: true, template: tpl });
+  } catch (err) {
+    console.error('post bottom template error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/templates/bottom/:id', (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const body = req.body || {};
+    const list = readBottomTemplates();
+    const idx = list.findIndex(t => Number(t.id) === id);
+    if (idx === -1) return res.status(404).json({ error: 'Not found' });
+    const updated = { ...list[idx], ...body, id: list[idx].id };
+    list[idx] = updated;
+    writeBottomTemplates(list);
+    return res.json({ success: true, template: updated });
+  } catch (err) {
+    console.error('put bottom template error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.delete('/templates/bottom/:id', (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const list = readBottomTemplates();
+    const newList = list.filter(t => Number(t.id) !== id);
+    writeBottomTemplates(newList);
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('delete bottom template error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Add a new product to marketplace
 app.post('/products', authMiddleware, (req, res) => {
   try {

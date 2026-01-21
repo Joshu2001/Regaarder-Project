@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronDown, Home, Megaphone, Copy, Image as ImageIcon, Search, ChevronUp, Eye, EyeOff, Trash2, Plus, Film, Clock, Crown, AlertTriangle, Ban, Trash, AlertCircle, Gift, Filter, Users } from 'lucide-react';
+import { ChevronDown, ChevronUp, Eye, EyeOff, Search, Users, Clock, Trash, Trash2, Ban, Crown, Gift, Megaphone, Filter, Plus, Copy, Home, Image as ImageIcon, AlertCircle, Maximize2, CheckCircle, AlertTriangle, Star } from 'lucide-react';
 
 // Utility: convert hex color to rgba string
 function hexToRgba(hex, alpha = 1) {
@@ -16,10 +16,7 @@ export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
   const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'requests', 'comments', 'reports', 'users', 'creators', 'shadowDeleted', 'approvals', 'promotions', 'templates', 'ads'
   const [adAssets, setAdAssets] = useState([]);
-  const [adOverlays, setAdOverlays] = useState([]);
   const [selectedAdVideo, setSelectedAdVideo] = useState(null);
-  const [expandedVideoCardId, setExpandedVideoCardId] = useState(null); // Track which video card is showing full stats
-  const [adOverlayModal, setAdOverlayModal] = useState({ isOpen: false, assetUrl: '', assetType: 'image', videoId: null, startTime: 0, duration: null });
   const [videoPreviewState, setVideoPreviewState] = useState({ isPlaying: false, currentTime: 0, videoDuration: 100, overlayPosition: { x: 50, y: 50 }, overlaySize: { width: 80, height: 60 }, isDragging: false, dragStart: { x: 0, y: 0 } });
   const [previewFullscreen, setPreviewFullscreen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -27,7 +24,7 @@ export default function StaffDashboard() {
   const [reports, setReports] = useState([]);
   const [users, setUsers] = useState([]);
   const [creators, setCreators] = useState([]);
-  const [shadowDeleted, setShadowDeleted] = useState([]);
+  const [shadowDeleted] = useState([]);
   const [pendingAccounts, setPendingAccounts] = useState([]);
   const [videos, setVideos] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -35,6 +32,142 @@ export default function StaffDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
+
+  // Ads UI state: show chooser and selected mode
+  const [showAdsOptions, setShowAdsOptions] = useState(false);
+  const [adsMode, setAdsMode] = useState(null); // 'video' | 'overlay' | 'bottom'
+  // Bottom ad config state
+  const [bottomAdProfileName, setBottomAdProfileName] = useState('');
+  const [bottomAdProfileAvatar, setBottomAdProfileAvatar] = useState('');
+  const [bottomAdText, setBottomAdText] = useState('');
+  const [bottomAdLink, setBottomAdLink] = useState('');
+  const [showBottomPreview, setShowBottomPreview] = useState(false);
+  // Overlay ads state
+  const [overlayAdCompanyName, setOverlayAdCompanyName] = useState('');
+  const [overlayAdText, setOverlayAdText] = useState('');
+  const [overlayAdEmoji, setOverlayAdEmoji] = useState('⚡');
+  const [overlayAdTextItems, setOverlayAdTextItems] = useState([]);
+  const [overlayAdBgColor, setOverlayAdBgColor] = useState('#E41E24');
+  const [overlayAdTextColor, setOverlayAdTextColor] = useState('#fff');
+  const [overlayAdPosition, setOverlayAdPosition] = useState('bottom');
+  const [showOverlayPreview, setShowOverlayPreview] = useState(false);
+  const [overlayPositionOpen, setOverlayPositionOpen] = useState(false);
+  const [overlayEmojiOpen, setOverlayEmojiOpen] = useState(false);
+  // Preview display toggles
+  const [previewShowAdBar, setPreviewShowAdBar] = useState(true);
+  const [previewLandscape, setPreviewLandscape] = useState(true);
+  const [bottomAdTemplates, setBottomAdTemplates] = useState([]);
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+  const [editingBottomTemplate, setEditingBottomTemplate] = useState(null);
+
+  // Fetch templates from backend (with localStorage fallback)
+  const fetchBottomAdTemplates = async () => {
+    try {
+      const res = await fetch('http://localhost:4000/templates/bottom');
+      if (res.ok) {
+        const data = await res.json();
+        setBottomAdTemplates(data.templates || []);
+        localStorage.setItem('bottomAdTemplates', JSON.stringify(data.templates || []));
+        return;
+      }
+    } catch (e) {
+      // ignore
+    }
+    try {
+      const raw = localStorage.getItem('bottomAdTemplates');
+      const list = raw ? JSON.parse(raw) : [];
+      setBottomAdTemplates(list);
+    } catch (e) { setBottomAdTemplates([]); }
+  };
+
+  useEffect(() => { fetchBottomAdTemplates(); }, []);
+
+  // Save template locally and to backend
+  const saveBottomAdTemplate = async () => {
+    if (!bottomAdProfileName || !bottomAdText) {
+      setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and ad text.' });
+      return;
+    }
+    const tpl = { name: bottomAdProfileName, avatar: bottomAdProfileAvatar, text: bottomAdText, link: bottomAdLink, assets: adAssets };
+    try {
+      const res = await fetch('http://localhost:4000/templates/bottom', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(tpl) });
+      if (res.ok) {
+        const saved = await res.json();
+        const list = [saved.template, ...(bottomAdTemplates || [])];
+        setBottomAdTemplates(list);
+        localStorage.setItem('bottomAdTemplates', JSON.stringify(list));
+        setToast({ type: 'success', title: 'Saved', message: 'Template saved.' });
+        return;
+      }
+    } catch (e) {
+      // fallthrough to local save
+    }
+    // fallback to local-only save
+    try {
+      const raw = localStorage.getItem('bottomAdTemplates');
+      const list = raw ? JSON.parse(raw) : [];
+      const localTpl = { id: Date.now(), ...tpl };
+      list.unshift(localTpl);
+      localStorage.setItem('bottomAdTemplates', JSON.stringify(list));
+      setBottomAdTemplates(list);
+      setToast({ type: 'success', title: 'Saved', message: 'Template saved locally.' });
+    } catch (e) {
+      setToast({ type: 'error', title: 'Save failed', message: 'Could not save template.' });
+    }
+  };
+
+  const updateBottomAdTemplate = async (id, updated) => {
+    try {
+      const res = await fetch(`http://localhost:4000/templates/bottom/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
+      if (res.ok) {
+        const j = await res.json();
+        const list = (bottomAdTemplates || []).map(t => t.id === id ? j.template : t);
+        setBottomAdTemplates(list);
+        localStorage.setItem('bottomAdTemplates', JSON.stringify(list));
+        setToast({ type: 'success', title: 'Updated', message: 'Template updated.' });
+        setEditingBottomTemplate(null);
+        return;
+      }
+    } catch (e) {
+      // ignore
+    }
+    // local update fallback
+    const list = (bottomAdTemplates || []).map(t => t.id === id ? { ...t, ...updated } : t);
+    setBottomAdTemplates(list);
+    localStorage.setItem('bottomAdTemplates', JSON.stringify(list));
+    setToast({ type: 'success', title: 'Updated', message: 'Template updated locally.' });
+    setEditingBottomTemplate(null);
+  };
+
+  const deleteBottomAdTemplate = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:4000/templates/bottom/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        const list = (bottomAdTemplates || []).filter(t => t.id !== id);
+        setBottomAdTemplates(list);
+        localStorage.setItem('bottomAdTemplates', JSON.stringify(list));
+        setToast({ type: 'success', title: 'Deleted', message: 'Template deleted.' });
+        return;
+      }
+    } catch (e) {
+      // ignore
+    }
+    const list = (bottomAdTemplates || []).filter(t => t.id !== id);
+    setBottomAdTemplates(list);
+    localStorage.setItem('bottomAdTemplates', JSON.stringify(list));
+    setToast({ type: 'success', title: 'Deleted', message: 'Template deleted locally.' });
+  };
+
+  const applyTemplate = (tpl) => {
+    if (!tpl) return;
+    setBottomAdProfileName(tpl.name || '');
+    setBottomAdProfileAvatar(tpl.avatar || '');
+    setBottomAdText(tpl.text || '');
+    setBottomAdLink(tpl.link || '');
+    setAdAssets(tpl.assets || []);
+    setShowTemplatesModal(false);
+    setShowBottomPreview(true);
+  };
 
   useEffect(() => {
     if (!toast) return;
@@ -62,7 +195,7 @@ export default function StaffDashboard() {
   useEffect(() => {
     try {
       localStorage.setItem('promoTemplates', JSON.stringify(promoTemplates || []));
-    } catch (e) { }
+    } catch (e) { /* Ignore storage errors */ }
   }, [promoTemplates]);
   const [selectedActionType, setSelectedActionType] = useState(null);
   const [notificationPreview, setNotificationPreview] = useState(null);
@@ -80,14 +213,12 @@ export default function StaffDashboard() {
   // New filters for request quality
   const [submittedRequestsFilter, setSubmittedRequestsFilter] = useState('all'); // all, free, paid, mixed
   const [fulfilledRequestsFilter, setFulfilledRequestsFilter] = useState('all'); // all, free, paid, mixed
-  const [minAvgRequestAmount, setMinAvgRequestAmount] = useState('');
   const [maxAvgRequestAmount, setMaxAvgRequestAmount] = useState('');
   
   // Category tabs matching home page
   const CATEGORY_TABS = ['Travel', 'Education', 'Entertainment', 'Music', 'Sports', 'Gaming', 'Tech', 'Lifestyle', 'Food', 'Fashion', 'Art', 'Science', 'Health', 'Business', 'Comedy', 'News', 'Other'];
 
   // Derived lists for promotion modal filtering
-  const promotionAvailableCategories = Array.from(new Set(users.map(u => u.creatorCategory).filter(Boolean)));
   const filteredUsersForPromotion = users.filter((u) => {
     const s = (promotionSearch || '').trim().toLowerCase();
     if (creatorOnlyFilter && !u.isCreator) return false;
@@ -117,7 +248,6 @@ export default function StaffDashboard() {
   const [banDuration, setBanDuration] = useState({ value: 7, unit: 'days' });
   const [promotionTypeDropdown, setPromotionTypeDropdown] = useState(false);
   const [sendToDropdown, setSendToDropdown] = useState(false);
-  const [previewColor, setPreviewColor] = useState('#f59e0b');
   
   // User action feedback state - tracks last action applied to users
   const [userActionFeedback, setUserActionFeedback] = useState({
@@ -145,7 +275,6 @@ export default function StaffDashboard() {
   const [footerPosition, setFooterPosition] = useState({ x: 0, y: 0 });
   const [isDraggingFooter, setIsDraggingFooter] = useState(false);
   const [footerDragStart, setFooterDragStart] = useState({ x: 0, y: 0 });
-  const [showOverlayPreview, setShowOverlayPreview] = useState(false);
   const [previewingOverlay, setPreviewingOverlay] = useState(null);
   const [deviceOrientation, setDeviceOrientation] = useState('portrait');
   const [showPreviewSaveModal, setShowPreviewSaveModal] = useState(false);
@@ -249,26 +378,6 @@ export default function StaffDashboard() {
       setTemplates(prev => [newTemplate, ...prev]);
       setTemplateName('');
     }
-
-    // Ensure overlay is added/updated in the editor's overlays list
-    setAdOverlays(prev => {
-      const idx = prev.findIndex(o => o.id === previewingOverlay.id);
-      if (idx !== -1) {
-        const copy = [...prev];
-        copy[idx] = { ...copy[idx], x: previewingOverlay.x, y: previewingOverlay.y, width: previewingOverlay.width, height: previewingOverlay.height };
-        return copy;
-      }
-      return [...prev, {
-        id: previewingOverlay.id || Date.now(),
-        videoId: previewingOverlay.videoId,
-        assetType: previewingOverlay.assetType,
-        x: previewingOverlay.x,
-        y: previewingOverlay.y,
-        width: previewingOverlay.width,
-        height: previewingOverlay.height,
-        ...(previewingOverlay.assetType === 'text' ? { text: previewingOverlay.text, color: previewingOverlay.overlayColor, clickUrl: previewingOverlay.clickUrl } : { assetUrl: previewingOverlay.assetUrl, clickUrl: previewingOverlay.clickUrl })
-      }];
-    });
 
     // Close the preview modal and the save dialog
     setShowOverlayPreview(false);
@@ -408,14 +517,6 @@ export default function StaffDashboard() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Format time as M:SS or MM:SS
-  const formatTimeCompact = (seconds) => {
-    if (!seconds || isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Parse time string like "3:10" to seconds
@@ -932,7 +1033,7 @@ export default function StaffDashboard() {
           const candidate = { id: Date.now(), title: promotionModal.title.trim(), message: promotionModal.message.trim() };
           const exists = promoTemplates.some(t => t.title === candidate.title && t.message === candidate.message);
           if (!exists) setPromoTemplates(prev => [candidate, ...(prev || [])].slice(0, 25));
-        } catch (e) { }
+        } catch (e) { /* Ignore template save errors */ }
         // Keep the modal open (do not auto-close) so staff can send more or edit
         // Provide success toast and keep current fields
         setToast({
@@ -4892,6 +4993,35 @@ export default function StaffDashboard() {
                   + Send New Promotion
                 </button>
               </div>
+              <div style={{ marginTop: '8px' }}>
+                <button
+                  onClick={() => { setActiveTab('ads'); setShowAdsOptions(true); }}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(59,130,246,0.25)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.boxShadow = '0 8px 20px rgba(59,130,246,0.35)';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.boxShadow = '0 4px 12px rgba(59,130,246,0.25)';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Serve Advertisements
+                </button>
+              </div>
               <div style={{
                 padding: '48px 32px',
                 textAlign: 'center',
@@ -5047,6 +5177,21 @@ export default function StaffDashboard() {
           {/* Ads Tab */}
           {activeTab === 'ads' && (
             <div>
+              {showAdsOptions && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'white', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 460, maxWidth: '94%', padding: 24, borderRadius: 12, boxShadow: '0 20px 60px rgba(2,6,23,0.2)' }}>
+                    <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#0f172a' }}>Serve Advertisements</h3>
+                    <p style={{ color: '#6b7280', marginTop: 8 }}>Choose the ad format to configure and serve.</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
+                      <button onClick={() => { setAdsMode('video'); setShowAdsOptions(false); }} style={{ padding: '12px 16px', background: '#111827', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>1 — Video Ads</button>
+                      <button onClick={() => { setAdsMode('overlay'); setShowAdsOptions(false); }} style={{ padding: '12px 16px', background: '#06b6d4', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>2 — Overlay Ads</button>
+                      <button onClick={() => { setAdsMode('bottom'); setShowAdsOptions(false); }} style={{ padding: '12px 16px', background: '#10b981', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>3 — Bottom Video Ads (text running ads + link)</button>
+                      <button onClick={() => setShowAdsOptions(false)} style={{ padding: '10px 12px', background: 'transparent', color: '#374151', border: '1px solid #e5e7eb', borderRadius: 8, cursor: 'pointer' }}>Cancel</button>
+                      <button onClick={() => { setShowTemplatesModal(true); }} style={{ padding: '10px 12px', background: '#2563eb', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer' }}>Saved Templates</button>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0', color: '#1f2937', letterSpacing: '-0.5px' }}>Ad Management</h2>
                 <button
@@ -5100,6 +5245,142 @@ export default function StaffDashboard() {
               </div>
 
               {/* Ad Assets Section */}
+              {/* Ads Mode: Bottom ad configuration */}
+              {adsMode === 'bottom' && (
+                <div style={{ marginBottom: '20px', padding: '16px', borderRadius: 10, border: '1px solid #e6edf3', background: '#fff' }}>
+                  <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Configure Bottom Video Ad</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Profile Name</label>
+                      <input value={bottomAdProfileName} onChange={(e) => setBottomAdProfileName(e.target.value)} placeholder="Advertiser name" style={{ width: '100%', padding: '8px', marginTop: 6, borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Profile Avatar URL</label>
+                      <input value={bottomAdProfileAvatar} onChange={(e) => setBottomAdProfileAvatar(e.target.value)} placeholder="https://...jpg" style={{ width: '100%', padding: '8px', marginTop: 6, borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Ad Text</label>
+                      <textarea value={bottomAdText} onChange={(e) => setBottomAdText(e.target.value)} placeholder="Write the ad text shown in the bottom bar" rows={3} style={{ width: '100%', padding: '8px', marginTop: 6, borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Target Link</label>
+                      <input value={bottomAdLink} onChange={(e) => setBottomAdLink(e.target.value)} placeholder="https://example.com" style={{ width: '100%', padding: '8px', marginTop: 6, borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
+                    <button onClick={() => { setAdsMode(null); }} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer' }}>Close</button>
+                    <button onClick={(e) => { e.preventDefault(); saveBottomAdTemplate(); }} style={{ padding: '8px 12px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer' }}>Save Template</button>
+                    <button onClick={() => {
+                      if (!bottomAdProfileName || !bottomAdText) { setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and ad text.' }); return; }
+                      setShowBottomPreview(true);
+                    }} style={{ padding: '8px 12px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer' }}>Preview</button>
+                  </div>
+                </div>
+              )}
+
+              {/* Ads Mode: Overlay ad configuration (news ticker style) */}
+              {adsMode === 'overlay' && (
+                <div style={{ marginBottom: '20px', padding: '16px', borderRadius: 12, border: '1px solid #e6edf3', background: '#fff', maxWidth: '100%', overflowX: 'hidden' }}>
+                  <h4 style={{ margin: 0, fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Configure Overlay Ad (News Ticker)</h4>
+                  
+                  {/* Company Name as Badge Button */}
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 8 }}>COMPANY NAME</label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input value={overlayAdCompanyName} onChange={(e) => setOverlayAdCompanyName(e.target.value)} placeholder="Enter company..." style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13, minWidth: 0 }} />
+                      <div style={{ padding: '8px 12px', borderRadius: 8, background: overlayAdBgColor, color: overlayAdTextColor, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center' }}>
+                        {overlayAdCompanyName || 'Preview'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Colors and Position - 2 column */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BACKGROUND COLOR</label>
+                      <input type="color" value={overlayAdBgColor} onChange={(e) => setOverlayAdBgColor(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', height: 38, cursor: 'pointer' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>TEXT COLOR</label>
+                      <input type="color" value={overlayAdTextColor} onChange={(e) => setOverlayAdTextColor(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', height: 38, cursor: 'pointer' }} />
+                    </div>
+                  </div>
+
+                  {/* Position Dropdown */}
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>POSITION</label>
+                      <div tabIndex={0} onBlur={() => setOverlayPositionOpen(false)} style={{ position: 'relative' }}>
+                        <button onClick={() => setOverlayPositionOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, border: '2px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s ease', borderColor: overlayPositionOpen ? '#0b74de' : '#e5e7eb', backgroundColor: overlayPositionOpen ? '#f0f9ff' : 'white' }}>
+                          <span>{overlayAdPosition === 'bottom' ? '📍 Bottom Ticker' : overlayAdPosition === 'top' ? '📍 Top Ticker' : '📺 Full Screen Banner'}</span>
+                          <ChevronDown size={16} style={{ transition: 'transform 0.2s ease', transform: overlayPositionOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                        </button>
+                        {overlayPositionOpen && (
+                          <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(100% + 8px)', background: 'white', borderRadius: 8, boxShadow: '0 12px 32px rgba(0,0,0,0.15)', border: '1px solid #0b74de', zIndex: 1000, overflow: 'hidden', maxHeight: '280px', overflowY: 'auto' }}>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('bottom'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'bottom' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'bottom' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'bottom' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'bottom' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'bottom' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'bottom' ? '#dbeafe' : 'transparent'; }}>📍 Bottom Ticker</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('top'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'top' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'top' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'top' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'top' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'top' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'top' ? '#dbeafe' : 'transparent'; }}>📍 Top Ticker</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('fullscreen'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'fullscreen' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'fullscreen' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'fullscreen' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'fullscreen' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'fullscreen' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'fullscreen' ? '#dbeafe' : 'transparent'; }}>📺 Full Screen Banner</div>
+
+                    {/* Emoji Selector Dropdown */}
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>TICKER EMOJI</label>
+                      <div tabIndex={0} onBlur={() => setOverlayEmojiOpen(false)} style={{ position: 'relative' }}>
+                        <button onClick={() => setOverlayEmojiOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, border: '2px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 14, transition: 'all 0.2s ease', borderColor: overlayEmojiOpen ? '#0b74de' : '#e5e7eb', backgroundColor: overlayEmojiOpen ? '#f0f9ff' : 'white' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>{overlayAdEmoji} <span style={{ color: '#6b7280', fontSize: 12 }}>{overlayAdEmoji === '⚡' ? 'Lightning' : overlayAdEmoji === '🔴' ? 'Red Circle' : overlayAdEmoji === '📢' ? 'Megaphone' : overlayAdEmoji === '🚨' ? 'Alarm' : overlayAdEmoji === '💥' ? 'Explosion' : overlayAdEmoji === '⭐' ? 'Star' : overlayAdEmoji === '🎯' ? 'Target' : overlayAdEmoji === '📰' ? 'Newspaper' : overlayAdEmoji === '📺' ? 'TV' : 'Fire'}</span></span>
+                          <ChevronDown size={16} style={{ transition: 'transform 0.2s ease', transform: overlayEmojiOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                        </button>
+                        {overlayEmojiOpen && (
+                          <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(100% + 8px)', background: 'white', borderRadius: 8, boxShadow: '0 12px 32px rgba(0,0,0,0.15)', border: '1px solid #0b74de', zIndex: 1000, overflow: 'hidden', maxHeight: '320px', overflowY: 'auto' }}>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('⚡'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '⚡' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '⚡' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '⚡' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '⚡' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '⚡' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '⚡' ? '#dbeafe' : 'transparent'; }}>⚡ Lightning</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('🔴'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '🔴' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '🔴' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '🔴' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '🔴' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '🔴' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '🔴' ? '#dbeafe' : 'transparent'; }}>🔴 Red Circle</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('📢'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '📢' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '📢' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '📢' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '📢' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '📢' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '📢' ? '#dbeafe' : 'transparent'; }}>📢 Megaphone</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('🚨'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '🚨' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '🚨' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '🚨' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '🚨' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '🚨' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '🚨' ? '#dbeafe' : 'transparent'; }}>🚨 Alarm</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('💥'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '💥' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '💥' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '💥' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '💥' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '💥' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '💥' ? '#dbeafe' : 'transparent'; }}>💥 Explosion</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('⭐'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '⭐' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '⭐' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '⭐' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '⭐' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '⭐' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '⭐' ? '#dbeafe' : 'transparent'; }}>⭐ Star</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('🎯'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '🎯' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '🎯' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '🎯' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '🎯' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '🎯' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '🎯' ? '#dbeafe' : 'transparent'; }}>🎯 Target</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('📰'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '📰' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '📰' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '📰' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '📰' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '📰' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '📰' ? '#dbeafe' : 'transparent'; }}>📰 Newspaper</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('📺'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '📺' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '📺' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '📺' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '📺' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '📺' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '📺' ? '#dbeafe' : 'transparent'; }}>📺 TV</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdEmoji('🔥'); setOverlayEmojiOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdEmoji === '🔥' ? '#dbeafe' : 'transparent', color: overlayAdEmoji === '🔥' ? '#0b74de' : '#1f2937', borderLeft: overlayAdEmoji === '🔥' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdEmoji === '🔥' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '🔥' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdEmoji === '🔥' ? '#dbeafe' : 'transparent'; }}>🔥 Fire</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                  {/* Multiple Text Items */}
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600 }}>TICKER MESSAGES</label>
+                      <button onClick={() => setOverlayAdTextItems([...overlayAdTextItems, { id: Date.now(), text: '', duration: 5 }])} style={{ padding: '6px 10px', borderRadius: 6, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>+ Add Message</button>
+                    </div>
+                    {overlayAdTextItems.length === 0 ? (
+                      <div style={{ padding: 10, background: '#f9fafb', borderRadius: 8, color: '#9ca3af', fontSize: 12 }}>No messages yet. Click "Add Message" to get started.</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {overlayAdTextItems.map((item, idx) => (
+                          <div key={item.id} style={{ padding: 10, background: '#f9fafb', borderRadius: 8, display: 'grid', gridTemplateColumns: '1fr 70px 60px', gap: 8, alignItems: 'center' }}>
+                            <input value={item.text} onChange={(e) => setOverlayAdTextItems(overlayAdTextItems.map((i, ii) => ii === idx ? { ...i, text: e.target.value } : i))} placeholder="Message..." style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #e5e7eb', fontSize: 12, minWidth: 0 }} />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <input type="number" min="1" max="30" value={item.duration} onChange={(e) => setOverlayAdTextItems(overlayAdTextItems.map((i, ii) => ii === idx ? { ...i, duration: Number(e.target.value) } : i))} style={{ width: '100%', padding: '5px', borderRadius: 6, border: '1px solid #e5e7eb', fontSize: 11 }} />
+                              <span style={{ fontSize: 10, color: '#9ca3af', whiteSpace: 'nowrap' }}>s</span>
+                            </div>
+                            <button onClick={() => setOverlayAdTextItems(overlayAdTextItems.filter((_, ii) => ii !== idx))} style={{ padding: '5px 8px', borderRadius: 6, background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>Remove</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                    <button onClick={() => { setAdsMode(null); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Close</button>
+                    <button onClick={() => {
+                      if (!overlayAdCompanyName || (overlayAdTextItems.length === 0 && !overlayAdText)) { 
+                        setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name and at least one message.' }); 
+                        return; 
+                      }
+                      setShowOverlayPreview(true);
+                    }} style={{ padding: '10px 16px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Preview</button>
+                  </div>
+                </div>
+              )}
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1f2937', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>Ad Assets (Images, Videos, Banners)</h3>
                 {adAssets.length === 0 ? (
@@ -5226,1824 +5507,87 @@ export default function StaffDashboard() {
                     ))}
                   </div>
                 )}
-              </div>
+              
+              {/* Bottom ad preview overlay */}
+              {showBottomPreview && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1400, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }} onClick={() => setShowBottomPreview(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    {/* Top-right close button (smaller) */}
+                    <button onClick={() => setShowBottomPreview(false)} style={{ position: 'fixed', top: 14, right: 14, zIndex: 1420, background: 'rgba(255,255,255,0.04)', border: 'none', color: 'white', padding: '6px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 14, opacity: 0.95 }}>✕</button>
 
-              {/* Professional Ad Overlay Manager - NEW SYSTEM */}
-              <div style={{ marginTop: '32px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1f2937', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Select Video to Edit Overlays</h3>
-                {videos.length === 0 ? (
-                  <div style={{
-                    padding: '48px 32px',
-                    textAlign: 'center',
-                    background: '#f3f4f6',
-                    borderRadius: '8px',
-                    color: '#6b7280'
-                  }}>
-                    No videos available to edit overlays
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px' }}>
-                    {videos.map(video => (
-                      <div
-                        key={video.id}
-                        onClick={() => setSelectedAdVideo(video.id)}
-                        style={{
-                          padding: '12px',
-                          border: selectedAdVideo === video.id ? '2px solid #3b82f6' : '1px solid #e5e7eb',
-                          background: selectedAdVideo === video.id ? '#dbeafe' : 'white',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          position: 'relative',
-                          boxShadow: selectedAdVideo === video.id ? '0 4px 12px rgba(59,130,246,0.3)' : 'none'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (selectedAdVideo !== video.id) {
-                            e.currentTarget.style.borderColor = '#3b82f6';
-                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(59,130,246,0.15)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (selectedAdVideo !== video.id) {
-                            e.currentTarget.style.borderColor = '#e5e7eb';
-                            e.currentTarget.style.boxShadow = 'none';
-                          }
-                        }}
-                      >
-                        {/* Reported Badge */}
-                        {video.reportCount > 0 && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '-8px',
-                            right: '-8px',
-                            width: '32px',
-                            height: '32px',
-                            background: '#ef4444',
-                            color: 'white',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            boxShadow: '0 2px 8px rgba(239,68,68,0.3)',
-                            border: '2px solid white'
-                          }}>
-                            {video.reportCount}
-                          </div>
-                        )}
-                        <div style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', marginBottom: '4px' }}>
-                          {video.title}
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
-                          By {video.author}
-                        </div>
-                        {video.reportCount > 0 && (
-                          <div style={{ fontSize: '10px', color: '#ef4444', fontWeight: '600', marginTop: '4px' }}>
-                            ⚠️ {video.reportCount} report{video.reportCount !== 1 ? 's' : ''}
-                          </div>
-                        )}
+                    {/* Minimal header to reduce clutter (toggleable) - portrait only */}
+                    {previewShowAdBar && !previewLandscape && (
+                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 32, background: 'transparent', display: 'flex', alignItems: 'center', gap: 8, padding: '0 14px', color: '#cbd5e1', fontSize: 12, opacity: 0.9, zIndex: 10 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: 6, background: '#ef4444' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: 6, background: '#f59e0b' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: 6, background: '#10b981' }} />
+                      <div style={{ marginLeft: 8, fontWeight: 700 }}>Video Preview</div>
+                      <div style={{ flex: 1 }} />
+                      <div style={{ opacity: 0.75, fontSize: 11 }}>360x640</div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    )}
 
-              {/* Video Overlays Section - OLD (kept for reference) */}
-              <div style={{ marginTop: '32px', display: 'none' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1f2937', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>Video Ad Overlays & Banners</h3>
-                {videos.length === 0 ? (
-                  <div style={{
-                    padding: '48px 32px',
-                    textAlign: 'center',
-                    background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                    borderRadius: '10px',
-                    color: '#6b7280',
-                    border: '1px solid #d1d5db'
-                  }}>
-                    <div style={{ 
-                      width: '72px',
-                      height: '72px',
-                      backgroundColor: 'rgba(79,70,229,0.1)',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 16px'
-                    }}>
-                      <Play size={36} style={{ color: '#4f46e5' }} />
-                    </div>
-                    <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Videos Available</p>
-                    <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Upload videos first to create and manage ad overlays</p>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {videos.map(video => (
-                      <div key={video.id} style={{
-                        padding: selectedAdVideo === video.id ? '0' : '16px',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '8px',
-                        backgroundColor: selectedAdVideo === video.id ? '#1f2937' : '#ffffff',
-                        transition: 'all 0.3s',
-                        overflow: 'hidden'
-                      }}>
-                        {selectedAdVideo === video.id ? (
-                          // Expanded/Selected View - Just show video editor
-                          <div />
-                        ) : (
-                          // Collapsed View - Show thumbnail and details
-                          <div 
-                            style={{ 
-                              display: 'flex', 
-                              justifyContent: 'space-between', 
-                              alignItems: 'start', 
-                              gap: '12px',
-                              transition: 'all 0.3s ease'
-                            }}
-                            onMouseEnter={() => setExpandedVideoCardId(video.id)}
-                            onMouseLeave={() => setExpandedVideoCardId(null)}
-                          >
-                            {/* Video Thumbnail - Larger when collapsed */}
-                            <div style={{
-                              width: '120px',
-                              height: '67px',
-                              backgroundColor: '#374151',
-                              borderRadius: '6px',
-                              overflow: 'hidden',
-                              flexShrink: 0,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: '#9ca3af',
-                              fontSize: '24px',
-                              position: 'relative'
-                            }}>
-                              {video.thumbnail ? (
-                                <img src={video.thumbnail} alt={video.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              ) : (
-                                <>
-                                  <video 
-                                    src={video.videoUrl}
-                                    crossOrigin="anonymous"
-                                    style={{ 
-                                      width: '100%', 
-                                      height: '100%', 
-                                      objectFit: 'cover', 
-                                      position: 'absolute',
-                                      opacity: 0,
-                                      pointerEvents: 'none'
-                                    }}
-                                    onLoadedMetadata={(e) => {
-                                      // Generate thumbnail by seeking to middle of video
-                                      if (e.target.duration > 0) {
-                                        e.target.currentTime = Math.min(e.target.duration / 2, 5);
-                                      }
-                                    }}
-                                    onSeeked={(e) => {
-                                      try {
-                                        // Capture frame as thumbnail
-                                        const canvas = document.createElement('canvas');
-                                        canvas.width = e.target.videoWidth;
-                                        canvas.height = e.target.videoHeight;
-                                        const ctx = canvas.getContext('2d');
-                                        ctx.drawImage(e.target, 0, 0);
-                                        const thumbnail = canvas.toDataURL('image/jpeg', 0.7);
-                                        // Update the video object with thumbnail
-                                        const updatedVideos = videos.map(v => v.id === video.id ? {...v, thumbnail} : v);
-                                        setVideos(updatedVideos);
-                                      } catch (err) {
-                                        // Silently fail if canvas is tainted (CORS issue)
-                                        console.warn('Could not generate thumbnail for', video.title, err);
-                                      }
-                                    }}
-                                  />
-                                  <Film size={32} />
-                                </>
-                              )}
-                            </div>
-                            
-                            {/* Video Info - Compact by default, expands on hover */}
-                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <h4 style={{ margin: '0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
-                                {video.title}
-                              </h4>
-                              
-                              {/* Duration - Always visible */}
-                              <div style={{ fontSize: '12px', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <Clock size={12} />
-                                {video.duration ? formatTimeCompact(video.duration) : '0:00'}
-                              </div>
-                              
-                              {/* Stats - Show on hover/expand */}
-                              {expandedVideoCardId === video.id && (
-                                <div style={{ 
-                                  display: 'flex', 
-                                  gap: '12px', 
-                                  fontSize: '11px', 
-                                  color: '#9ca3af',
-                                  marginTop: '4px',
-                                  animation: 'slideIn 0.3s ease'
-                                }}>
-                                  <span title="Views" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                    <Eye size={12} />{(video.views || 0).toLocaleString()}
-                                  </span>
-                                  <span title="Comments" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                    <MessageCircle size={12} />{(video.comments?.length || 0)}
-                                  </span>
-                                  <span title="Likes" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                    <ThumbsUp size={12} />{(video.likes || 0)}
-                                  </span>
-                                  {video.category && (
-                                    <span style={{ marginLeft: 'auto', padding: '2px 6px', backgroundColor: '#f0f0f0', borderRadius: '3px' }}>
-                                      {video.category}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            
-                            <button
-                              onClick={() => setSelectedAdVideo(selectedAdVideo === video.id ? null : video.id)}
-                              style={{
-                                padding: '8px 16px',
-                                backgroundColor: '#10b981',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                transition: 'all 0.2s',
-                                whiteSpace: 'nowrap',
-                                flexShrink: 0
-                              }}
-                              onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                              onMouseLeave={(e) => e.target.style.opacity = '1'}
-                            >
-                              Select
-                            </button>
-                          </div>
-                        )}
+                    {/* Fullscreen video area with placeholder and orientation/ad-bar toggles */}
+                    <div style={{ position: 'absolute', top: previewShowAdBar && !previewLandscape ? 32 : 0, bottom: 0, left: 0, right: 0, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                      {/* Determine video asset */}
+                      {(() => {
+                        const videoSrc = adAssets.find(a => a.type === 'video')?.url || '';
+                        const wrapperStyle = previewLandscape
+                          ? { width: '100vw', height: '100vh', background: '#000', borderRadius: 0, overflow: 'hidden', boxShadow: 'none' }
+                          : { width: '100%', maxWidth: '100%', aspectRatio: '16/9', background: '#000', borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 
-                        {/* Video Timeline for Overlay Placement */}
-                        {selectedAdVideo === video.id && (
-                          <div style={{ padding: '16px' }}>
-                            {/* Timeline */}
-                            <div style={{
-                              position: 'relative',
-                              width: '100%',
-                              height: '40px',
-                              background: adOverlayModal.videoId === video.id 
-                                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                                : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                              borderRadius: '8px',
-                              border: '1px solid rgba(255,255,255,0.2)',
-                              marginBottom: '12px',
-                              overflow: 'hidden',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
-                              fontSize: '13px',
-                              fontWeight: '600',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                              transition: 'all 0.3s ease'
-                            }}>
-                              {adOverlayModal.videoId === video.id 
-                                ? `✓ Start Time: ${formatTimeCompact(adOverlayModal.startTime)}`
-                                : 'Select asset to set start time'
-                              }
-                            </div>
+                        // SVG placeholder (16:9) encoded as data URL
+                        const placeholderSvg = encodeURIComponent(`
+                          <svg xmlns='http://www.w3.org/2000/svg' width='1600' height='900'>
+                            <rect width='100%' height='100%' fill='#111827' />
+                            <g fill='#9ca3af' font-family='Arial, Helvetica, sans-serif' font-size='40' text-anchor='middle'>
+                              <text x='50%' y='48%'>No video uploaded</text>
+                              <text x='50%' y='62%' font-size='28'>Placeholder 16:9</text>
+                            </g>
+                          </svg>
+                        `);
 
-                            {/* Overlay Duration - MOVED BELOW FRAME STRIP */}
-                            {/* Overlay Type Toggle */}
-                            <div style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
-                              <button
-                                onClick={() => setAdOverlayModal({
-                                  ...adOverlayModal,
-                                  assetType: 'image'
-                                })}
-                                style={{
-                                  flex: 1,
-                                  padding: '8px 12px',
-                                  backgroundColor: adOverlayModal.assetType === 'image' ? '#4f46e5' : '#e5e7eb',
-                                  color: adOverlayModal.assetType === 'image' ? 'white' : '#6b7280',
-                                  border: 'none',
-                                  borderRadius: '6px',
-                                  cursor: 'pointer',
-                                  fontSize: '13px',
-                                  fontWeight: '600',
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (adOverlayModal.assetType !== 'image') {
-                                    e.target.style.backgroundColor = '#d1d5db';
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  if (adOverlayModal.assetType !== 'image') {
-                                    e.target.style.backgroundColor = '#e5e7eb';
-                                  }
-                                }}
-                              >
-                                📸 Image/Video
-                              </button>
-                              <button
-                                onClick={() => setAdOverlayModal({
-                                  ...adOverlayModal,
-                                  assetType: 'text',
-                                  assetUrl: null
-                                })}
-                                style={{
-                                  flex: 1,
-                                  padding: '8px 12px',
-                                  backgroundColor: adOverlayModal.assetType === 'text' ? '#4f46e5' : '#e5e7eb',
-                                  color: adOverlayModal.assetType === 'text' ? 'white' : '#6b7280',
-                                  border: 'none',
-                                  borderRadius: '6px',
-                                  cursor: 'pointer',
-                                  fontSize: '13px',
-                                  fontWeight: '600',
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (adOverlayModal.assetType !== 'text') {
-                                    e.target.style.backgroundColor = '#d1d5db';
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  if (adOverlayModal.assetType !== 'text') {
-                                    e.target.style.backgroundColor = '#e5e7eb';
-                                  }
-                                }}
-                              >
-                                📝 Text
-                              </button>
-                            </div>
+                        return (
+                          <div style={wrapperStyle}>
+                            {videoSrc ? (
+                              <video id="bottom-ad-preview-video" src={videoSrc} autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000', display: 'block' }} onError={() => { /* ignore */ }} />
+                            ) : (
+                              <img alt="placeholder" src={`data:image/svg+xml;utf8,${placeholderSvg}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                            )}
 
-                            {/* Asset Selection - Custom Dropdown (for image/video) */}
-                            {adOverlayModal.assetType !== 'text' && (
-                            <div style={{ marginBottom: '12px' }}>
-                              <label style={{ fontSize: '12px', fontWeight: '700', color: '#1f2937', marginBottom: '8px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                Select Ad Asset
-                              </label>
-                              <div style={{
-                                position: 'relative',
-                                width: '100%'
-                              }}>
-                                <button
-                                  onClick={() => setAdOverlayModal({
-                                    ...adOverlayModal,
-                                    _dropdownOpen: !adOverlayModal._dropdownOpen
-                                  })}
-                                  style={{
-                                    width: '100%',
-                                    padding: '10px 14px',
-                                    border: '1px solid #e5e7eb',
-                                    borderRadius: '8px',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    boxSizing: 'border-box',
-                                    backgroundColor: 'white',
-                                    color: adOverlayModal.assetUrl ? '#1f2937' : '#6b7280',
-                                    cursor: 'pointer',
-                                    textAlign: 'left',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    transition: 'all 0.3s ease',
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.target.style.borderColor = '#4f46e5';
-                                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.15)';
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.target.style.borderColor = '#e5e7eb';
-                                    e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
-                                  }}
-                                >
-                                  <span>
-                                    {adAssets.find(a => a.url === adOverlayModal.assetUrl)?.name || 'Choose an asset...'}
-                                  </span>
-                                  <span style={{ fontSize: '12px', transition: 'transform 0.3s', transform: adOverlayModal._dropdownOpen ? 'rotate(180deg)' : 'rotate(0)' }}>▼</span>
-                                </button>
-
-                                {adOverlayModal._dropdownOpen && (
-                                  <div style={{
-                                    position: 'absolute',
-                                    top: '100%',
-                                    left: 0,
-                                    right: 0,
-                                    marginTop: '8px',
-                                    backgroundColor: 'white',
-                                    border: '1px solid #e5e7eb',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                                    zIndex: 1000,
-                                    maxHeight: '300px',
-                                    overflow: 'auto',
-                                    animation: 'slideDown 0.2s ease'
-                                  }}>
-                                    {adAssets.length === 0 ? (
-                                      <div style={{
-                                        padding: '16px',
-                                        color: '#9ca3af',
-                                        fontSize: '14px',
-                                        textAlign: 'center',
-                                        fontStyle: 'italic'
-                                      }}>
-                                        No assets available
-                                      </div>
+                                {/* Compact bottom ad bar overlay (always visible in preview) */}
+                                  <div style={{ position: 'absolute', left: 16, right: 16, bottom: 20, background: 'rgba(17,24,39,0.9)', color: 'white', borderRadius: 12, padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 10, maxWidth: 'calc(100% - 32px)' }}>
+                                    {bottomAdProfileAvatar ? (
+                                      <img src={bottomAdProfileAvatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover' }} />
                                     ) : (
-                                      adAssets.map((asset, idx) => (
-                                        <button
-                                          key={idx}
-                                          onClick={() => {
-                                            setAdOverlayModal({
-                                              ...adOverlayModal,
-                                              assetUrl: asset.url,
-                                              assetType: asset.type,
-                                              videoId: selectedAdVideo,
-                                              _dropdownOpen: false
-                                            });
-                                          }}
-                                          style={{
-                                            width: '100%',
-                                            padding: '12px 14px',
-                                            border: 'none',
-                                            backgroundColor: adOverlayModal.assetUrl === asset.url ? '#eef2ff' : 'white',
-                                            color: '#1f2937',
-                                            cursor: 'pointer',
-                                            fontSize: '14px',
-                                            fontWeight: adOverlayModal.assetUrl === asset.url ? '600' : '500',
-                                            textAlign: 'left',
-                                            borderBottom: idx !== adAssets.length - 1 ? '1px solid #f3f4f6' : 'none',
-                                            transition: 'all 0.2s ease',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '10px'
-                                          }}
-                                          onMouseEnter={(e) => {
-                                            if (adOverlayModal.assetUrl !== asset.url) {
-                                              e.target.style.backgroundColor = '#f9fafb';
-                                            }
-                                          }}
-                                          onMouseLeave={(e) => {
-                                            e.target.style.backgroundColor = adOverlayModal.assetUrl === asset.url ? '#eef2ff' : 'white';
-                                          }}
-                                        >
-                                          {asset.type === 'image' ? (
-                                            <img 
-                                              src={asset.url}
-                                              alt={asset.name}
-                                              style={{
-                                                width: '28px',
-                                                height: '28px',
-                                                borderRadius: '4px',
-                                                objectFit: 'cover',
-                                                flexShrink: 0
-                                              }}
-                                              onError={(e) => {
-                                                e.target.style.display = 'none';
-                                              }}
-                                            />
-                                          ) : (
-                                            <video
-                                              src={asset.url}
-                                              style={{
-                                                width: '28px',
-                                                height: '28px',
-                                                borderRadius: '4px',
-                                                objectFit: 'cover',
-                                                flexShrink: 0
-                                              }}
-                                            />
-                                          )}
-                                          <div style={{ flex: 1, overflow: 'hidden' }}>
-                                            <div style={{
-                                              fontSize: '13px',
-                                              fontWeight: '500',
-                                              color: '#1f2937',
-                                              whiteSpace: 'nowrap',
-                                              textOverflow: 'ellipsis',
-                                              overflow: 'hidden'
-                                            }}>
-                                              {asset.name}
-                                            </div>
-                                            <div style={{
-                                              fontSize: '11px',
-                                              color: '#9ca3af'
-                                            }}>
-                                              {asset.type}
-                                            </div>
-                                          </div>
-                                          {adOverlayModal.assetUrl === asset.url && (
-                                            <span style={{
-                                              fontSize: '16px',
-                                              color: '#10b981'
-                                            }}>✓</span>
-                                          )}
-                                        </button>
-                                      ))
+                                      <div style={{ width: 44, height: 44, borderRadius: 10, background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontWeight: 700 }}>{(bottomAdProfileName || '').charAt(0).toUpperCase() || 'A'}</div>
                                     )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            )}
-
-                            {/* Upload Custom Asset - Only for image/video */}
-                            {adOverlayModal.assetType !== 'text' && (
-                            <div style={{ marginBottom: '12px' }}>
-                              <label style={{ fontSize: '12px', fontWeight: '700', color: '#1f2937', marginBottom: '8px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                Or Upload Custom Asset
-                              </label>
-                              <div 
-                                style={{
-                                  padding: '32px 24px',
-                                  border: '2px dashed #4f46e5',
-                                  borderRadius: '10px',
-                                  textAlign: 'center',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.3s ease',
-                                  backgroundColor: '#f0f4ff',
-                                  position: 'relative',
-                                  overflow: 'hidden'
-                                }}
-                                onDragEnter={(e) => {
-                                  e.preventDefault();
-                                  e.currentTarget.style.borderColor = '#4338ca';
-                                  e.currentTarget.style.backgroundColor = '#e0e7ff';
-                                  e.currentTarget.style.transform = 'scale(1.02)';
-                                }}
-                                onDragLeave={(e) => {
-                                  e.currentTarget.style.borderColor = '#4f46e5';
-                                  e.currentTarget.style.backgroundColor = '#f0f4ff';
-                                  e.currentTarget.style.transform = 'scale(1)';
-                                }}
-                                onDragOver={(e) => e.preventDefault()}
-                                onDrop={(e) => {
-                                  e.preventDefault();
-                                  e.currentTarget.style.borderColor = '#4f46e5';
-                                  e.currentTarget.style.backgroundColor = '#f0f4ff';
-                                  e.currentTarget.style.transform = 'scale(1)';
-                                  if (e.dataTransfer.files?.[0]) {
-                                    const file = e.dataTransfer.files[0];
-                                    const type = file.type.startsWith('image') ? 'image' : 'video';
-                                    setAdOverlayModal({
-                                      ...adOverlayModal,
-                                      assetUrl: URL.createObjectURL(file),
-                                      assetType: type,
-                                      videoId: selectedAdVideo
-                                    });
-                                  }
-                                }}
-                                onClick={() => document.getElementById('customAssetInput')?.click()}
-                              >
-                                <Upload size={32} style={{ color: '#4f46e5', margin: '0 auto 14px', opacity: 0.8 }} />
-                                <p style={{ margin: '0', fontSize: '14px', fontWeight: '700', color: '#1f2937', marginBottom: '6px' }}>
-                                  Upload Image or Video
-                                </p>
-                                <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>
-                                  Drag and drop or click to browse
-                                </p>
-                                <input
-                                  id="customAssetInput"
-                                  type="file"
-                                  accept="image/*,video/*"
-                                  style={{ display: 'none' }}
-                                  onChange={(e) => {
-                                    if (e.target.files?.[0]) {
-                                      const file = e.target.files[0];
-                                      const type = file.type.startsWith('image') ? 'image' : 'video';
-                                      setAdOverlayModal({
-                                        ...adOverlayModal,
-                                        assetUrl: URL.createObjectURL(file),
-                                        assetType: type,
-                                        videoId: selectedAdVideo
-                                      });
-                                    }
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            )}
-
-                            {/* Text Input for Text Overlay */}
-                            {adOverlayModal.assetType === 'text' && (
-                            <div style={{ marginBottom: '12px' }}>
-                              <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'block' }}>
-                                Overlay Text
-                              </label>
-                              <input
-                                type="text"
-                                placeholder="Enter overlay text..."
-                                value={adOverlayModal.overlayText || ''}
-                                onChange={(e) => setAdOverlayModal({
-                                  ...adOverlayModal,
-                                  overlayText: e.target.value,
-                                  videoId: selectedAdVideo
-                                })}
-                                style={{
-                                  width: '100%',
-                                  padding: '7px',
-                                  border: '1px solid #e5e7eb',
-                                  borderRadius: '5px',
-                                  fontSize: '13px',
-                                  boxSizing: 'border-box',
-                                  marginBottom: '8px'
-                                }}
-                              />
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                                <div>
-                                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                    <Type size={12} /> Text
-                                  </label>
-                                  <div style={{ display: 'flex', gap: '4px' }}>
-                                    <input
-                                      type="color"
-                                      value={adOverlayModal.overlayColor || '#ffffff'}
-                                      onChange={(e) => setAdOverlayModal({
-                                        ...adOverlayModal,
-                                        overlayColor: e.target.value
-                                      })}
-                                      style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        border: '1px solid #e5e7eb',
-                                        borderRadius: '5px',
-                                        cursor: 'pointer',
-                                        padding: '2px'
-                                      }}
-                                    />
-                                    <input
-                                      type="text"
-                                      value={adOverlayModal.overlayColor || '#ffffff'}
-                                      onChange={(e) => setAdOverlayModal({
-                                        ...adOverlayModal,
-                                        overlayColor: e.target.value
-                                      })}
-                                      style={{
-                                        flex: 1,
-                                        padding: '6px',
-                                        border: '1px solid #e5e7eb',
-                                        borderRadius: '5px',
-                                        fontSize: '11px'
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                                <div>
-                                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                    <div style={{ width: '12px', height: '12px', borderRadius: '2px', backgroundColor: adOverlayModal.overlayBgColor || 'rgba(0, 0, 0, 0.6)', border: '1px solid #ccc' }} /> BG
-                                  </label>
-                                  <div style={{ display: 'flex', gap: '4px' }}>
-                                    <input
-                                      type="color"
-                                      value={adOverlayModal.overlayBgColor || '#000000'}
-                                      onChange={(e) => setAdOverlayModal({
-                                        ...adOverlayModal,
-                                        overlayBgColor: e.target.value
-                                      })}
-                                      style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        border: '1px solid #e5e7eb',
-                                        borderRadius: '5px',
-                                        cursor: 'pointer',
-                                        padding: '2px'
-                                      }}
-                                    />
-                                    <input
-                                      type="text"
-                                      value={adOverlayModal.overlayBgColor || 'rgba(0, 0, 0, 0.6)'}
-                                      onChange={(e) => setAdOverlayModal({
-                                        ...adOverlayModal,
-                                        overlayBgColor: e.target.value
-                                      })}
-                                      placeholder="rgba(0,0,0)"
-                                      style={{
-                                        flex: 1,
-                                        padding: '6px',
-                                        border: '1px solid #e5e7eb',
-                                        borderRadius: '5px',
-                                        fontSize: '11px'
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                              <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px', marginTop: '8px' }}>
-                                <Link2 size={12} /> Link URL
-                              </label>
-                              <input
-                                type="text"
-                                placeholder="https://example.com"
-                                value={adOverlayModal.overlayUrl || ''}
-                                onChange={(e) => setAdOverlayModal({
-                                  ...adOverlayModal,
-                                  overlayUrl: e.target.value
-                                })}
-                                style={{
-                                  width: '100%',
-                                  padding: '6px',
-                                  border: '1px solid #e5e7eb',
-                                  borderRadius: '5px',
-                                  fontSize: '12px',
-                                  boxSizing: 'border-box',
-                                  marginBottom: '8px'
-                                }}
-                              />
-                              
-                              {/* Link Customization Options */}
-                              {adOverlayModal.overlayUrl && (
-                                <div style={{
-                                  marginTop: '12px',
-                                  padding: '10px',
-                                  backgroundColor: '#f0f9ff',
-                                  borderRadius: '6px',
-                                  border: '1px solid #bfdbfe'
-                                }}>
-                                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'block' }}>
-                                    Link Display Options
-                                  </label>
-                                  
-                                  <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', cursor: 'pointer' }}>
-                                      <input
-                                        type="radio"
-                                        name="linkDisplay"
-                                        checked={!adOverlayModal.linkText}
-                                        onChange={() => setAdOverlayModal({
-                                          ...adOverlayModal,
-                                          linkText: undefined
-                                        })}
-                                        style={{ cursor: 'pointer' }}
-                                      />
-                                      Default (Icon)
-                                    </label>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', cursor: 'pointer' }}>
-                                      <input
-                                        type="radio"
-                                        name="linkDisplay"
-                                        checked={adOverlayModal.linkText === 'text'}
-                                        onChange={() => setAdOverlayModal({
-                                          ...adOverlayModal,
-                                          linkText: 'text'
-                                        })}
-                                        style={{ cursor: 'pointer' }}
-                                      />
-                                      Show Text
-                                    </label>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', cursor: 'pointer' }}>
-                                      <input
-                                        type="radio"
-                                        name="linkDisplay"
-                                        checked={adOverlayModal.linkText === 'button'}
-                                        onChange={() => setAdOverlayModal({
-                                          ...adOverlayModal,
-                                          linkText: 'button'
-                                        })}
-                                        style={{ cursor: 'pointer' }}
-                                      />
-                                      Button
-                                    </label>
-                                  </div>
-                                  
-                                  {adOverlayModal.linkText && (
-                                    <input
-                                      type="text"
-                                      placeholder="Link label text..."
-                                      value={adOverlayModal.linkLabel || ''}
-                                      onChange={(e) => setAdOverlayModal({
-                                        ...adOverlayModal,
-                                        linkLabel: e.target.value
-                                      })}
-                                      style={{
-                                        width: '100%',
-                                        padding: '6px',
-                                        border: '1px solid #e5e7eb',
-                                        borderRadius: '4px',
-                                        fontSize: '12px',
-                                        boxSizing: 'border-box'
-                                      }}
-                                    />
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            )}
-
-                            {(adOverlayModal.assetUrl || adOverlayModal.assetType === 'text') && (
-                              <div style={{
-                                marginBottom: '12px',
-                                padding: '10px',
-                                backgroundColor: '#f3f4f6',
-                                borderRadius: '6px',
-                                border: '1px solid #e5e7eb'
-                              }}>
-                                <p style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                  <span style={{ padding: '2px 6px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '3px', fontSize: '10px' }}>Interactive</span> 
-                                  Drag to move • Edges to resize
-                                </p>
-                                
-                                {/* Main Video Preview */}
-                                <div data-video-container style={{
-                                  width: '100%',
-                                  height: '240px',
-                                  backgroundColor: '#1f2937',
-                                  borderRadius: '6px',
-                                  overflow: 'hidden',
-                                  position: 'relative',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  aspectRatio: '16/9',
-                                  marginBottom: '8px',
-                                  cursor: 'default'
-                                }}>
-                                  {/* Actual Video or Placeholder */}
-                                  {selectedAdVideo && videos.find(v => v.id === selectedAdVideo) ? (
-                                    <video
-                                      data-video-preview
-                                      src={videos.find(v => v.id === selectedAdVideo)?.videoUrl}
-                                      style={{
-                                        position: 'absolute',
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        backgroundColor: '#1f2937',
-                                        display: 'block',
-                                        zIndex: 1
-                                      }}
-                                      onLoadedMetadata={(e) => {
-                                        setVideoPreviewState(prev => ({
-                                          ...prev,
-                                          videoDuration: e.target.duration
-                                        }));
-                                        // Generate thumbnail by seeking to middle of video
-                                        if (e.target.duration > 0) {
-                                          e.target.currentTime = Math.min(e.target.duration / 2, 5);
-                                        }
-                                      }}
-                                      controls={false}
-                                    />
-                                  ) : (
-                                    <div style={{
-                                      position: 'absolute',
-                                      width: '100%',
-                                      height: '100%',
-                                      backgroundColor: '#374151',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      color: '#9ca3af',
-                                      fontSize: '14px'
-                                    }}>
-                                      Select a video to preview
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                                      <div style={{ fontSize: 13, fontWeight: 800 }}>{bottomAdProfileName || 'Advertiser'}</div>
+                                      <div contentEditable suppressContentEditableWarning onInput={(e) => setBottomAdText(e.currentTarget.textContent)} style={{ fontSize: 13, color: '#e6eef8', outline: 'none', cursor: 'text', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{bottomAdText || 'Your ad text goes here. Click to edit...'}</div>
                                     </div>
-                                  )}
-
-                                  {/* Playback indicator overlay */}
-                                  {selectedAdVideo && videoPreviewState.isPlaying && (
-                                    <div style={{
-                                      position: 'absolute',
-                                      width: '100%',
-                                      height: '100%',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                                      pointerEvents: 'none'
-                                    }}>
-                                      <Play size={48} fill="#f59e0b" color="#f59e0b" style={{ opacity: 0.3 }} />
-                                    </div>
-                                  )}
-
-                                  {/* Draggable & Resizable Overlay Asset */}
-                                  <div 
-                                    onMouseDown={(e) => {
-                                      // Only drag if clicking on the overlay, not the resize handle or buttons
-                                      const isResizeHandle = e.target.closest('[data-resize-handle]');
-                                      const isButton = e.target.closest('button');
-                                      if (!isResizeHandle && !isButton) {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect) return;
-                                        
-                                        const startX = e.clientX;
-                                        const startY = e.clientY;
-                                        const startPosX = videoPreviewState.overlayPosition.x;
-                                        const startPosY = videoPreviewState.overlayPosition.y;
-                                        
-                                        const handleMouseMove = (moveEvent) => {
-                                          moveEvent.preventDefault();
-                                          const deltaX = moveEvent.clientX - startX;
-                                          const deltaY = moveEvent.clientY - startY;
-                                          const deltaXPercent = (deltaX / containerRect.width) * 100;
-                                          const deltaYPercent = (deltaY / containerRect.height) * 100;
-                                          
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlayPosition: {
-                                              x: startPosX + deltaXPercent,
-                                              y: startPosY + deltaYPercent
-                                            }
-                                          }));
-                                        };
-
-                                        const handleMouseUp = () => {
-                                          document.removeEventListener('mousemove', handleMouseMove);
-                                          document.removeEventListener('mouseup', handleMouseUp);
-                                        };
-
-                                        document.addEventListener('mousemove', handleMouseMove);
-                                        document.addEventListener('mouseup', handleMouseUp);
-                                      }
-                                    }}
-                                    onTouchStart={(e) => {
-                                      // Only drag if touching the overlay, not the resize handle or buttons
-                                      const isResizeHandle = e.target.closest('[data-resize-handle]');
-                                      const isButton = e.target.closest('button');
-                                      if (!isResizeHandle && !isButton) {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect || !e.touches[0]) return;
-                                        
-                                        const startX = e.touches[0].clientX;
-                                        const startY = e.touches[0].clientY;
-                                        const startPosX = videoPreviewState.overlayPosition.x;
-                                        const startPosY = videoPreviewState.overlayPosition.y;
-                                        
-                                        const handleTouchMove = (moveEvent) => {
-                                          moveEvent.preventDefault();
-                                          if (!moveEvent.touches[0]) return;
-                                          const deltaX = moveEvent.touches[0].clientX - startX;
-                                          const deltaY = moveEvent.touches[0].clientY - startY;
-                                          const deltaXPercent = (deltaX / containerRect.width) * 100;
-                                          const deltaYPercent = (deltaY / containerRect.height) * 100;
-                                          
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlayPosition: {
-                                              x: Math.max(0, Math.min(100, startPosX + deltaXPercent)),
-                                              y: Math.max(0, Math.min(100, startPosY + deltaYPercent))
-                                            }
-                                          }));
-                                        };
-
-                                        const handleTouchEnd = () => {
-                                          document.removeEventListener('touchmove', handleTouchMove);
-                                          document.removeEventListener('touchend', handleTouchEnd);
-                                        };
-
-                                        document.addEventListener('touchmove', handleTouchMove);
-                                        document.addEventListener('touchend', handleTouchEnd);
-                                      }
-                                    }}
-                                    onKeyDown={(e) => {
-                                      // Arrow keys to move asset
-                                      const step = e.shiftKey ? 10 : 5; // Shift for larger steps
-                                      let newX = videoPreviewState.overlayPosition.x;
-                                      let newY = videoPreviewState.overlayPosition.y;
-
-                                      if (e.key === 'ArrowLeft') {
-                                        newX = Math.max(0, newX - step);
-                                        e.preventDefault();
-                                      } else if (e.key === 'ArrowRight') {
-                                        newX = Math.min(100, newX + step);
-                                        e.preventDefault();
-                                      } else if (e.key === 'ArrowUp') {
-                                        newY = Math.max(0, newY - step);
-                                        e.preventDefault();
-                                      } else if (e.key === 'ArrowDown') {
-                                        newY = Math.min(100, newY + step);
-                                        e.preventDefault();
-                                      }
-
-                                      if (e.key.includes('Arrow')) {
-                                        setVideoPreviewState(prev => ({
-                                          ...prev,
-                                          overlayPosition: { x: newX, y: newY }
-                                        }));
-                                      }
-                                    }}
-                                    tabIndex={0}
-                                    style={{
-                                      position: 'absolute',
-                                      left: `${videoPreviewState.overlayPosition.x}%`,
-                                      top: `${videoPreviewState.overlayPosition.y}%`,
-                                      transform: 'translate(-50%, -50%)',
-                                      width: `${videoPreviewState.overlaySize.width}%`,
-                                      height: `${videoPreviewState.overlaySize.height}%`,
-                                      minWidth: '30px',
-                                      minHeight: '30px',
-                                      zIndex: 10,
-                                      cursor: 'grab',
-                                      border: '2px dashed #3b82f6',
-                                      borderRadius: '4px',
-                                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      overflow: 'visible',
-                                      userSelect: 'none',
-                                      outline: 'none',
-                                      touchAction: 'none',
-                                      pointerEvents: 'auto'
-                                    }}
-                                  >
-                                    {/* Overlay Content */}
-                                    <div data-overlay-content style={{
-                                      width: '100%',
-                                      height: '100%',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      pointerEvents: 'auto'
-                                    }}>
-                                      {adOverlayModal.assetType === 'text' ? (
-                                        <div style={{
-                                          backgroundColor: adOverlayModal.overlayBgColor || 'rgba(0, 0, 0, 0.6)',
-                                          padding: '12px 16px',
-                                          borderRadius: '6px',
-                                          color: adOverlayModal.overlayColor || '#ffffff',
-                                          fontSize: '16px',
-                                          fontWeight: '600',
-                                          textAlign: 'center',
-                                          wordWrap: 'break-word',
-                                          wordBreak: 'break-word'
-                                        }}>
-                                          {adOverlayModal.overlayText || 'Click here'}
-                                          {adOverlayModal.overlayUrl && (
-                                            <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                              <Link2 size={10} /> {adOverlayModal.overlayUrl}
-                                            </div>
-                                          )}
-                                        </div>
-                                      ) : adOverlayModal.assetType === 'image' ? (
-                                        <div style={{
-                                          width: '100%',
-                                          height: '100%',
-                                          position: 'relative',
-                                          cursor: adOverlayModal.overlayUrl ? 'pointer' : 'default',
-                                          pointerEvents: 'auto'
-                                        }}
-                                          onClick={() => adOverlayModal.overlayUrl && window.open(adOverlayModal.overlayUrl, '_blank')}
-                                          title={adOverlayModal.overlayUrl ? `Click to visit: ${adOverlayModal.overlayUrl}` : ''}
-                                        >
-                                          <img 
-                                            src={adOverlayModal.assetUrl} 
-                                            alt="preview"
-                                            style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '2px', pointerEvents: 'none' }}
-                                          />
-                                          {adOverlayModal.overlayUrl && adOverlayModal.linkText === 'button' && (
-                                            <div style={{
-                                              position: 'absolute',
-                                              bottom: '8px',
-                                              right: '8px',
-                                              backgroundColor: '#3b82f6',
-                                              color: 'white',
-                                              padding: '6px 12px',
-                                              borderRadius: '4px',
-                                              fontSize: '11px',
-                                              fontWeight: '600',
-                                              pointerEvents: 'none',
-                                              cursor: 'pointer'
-                                            }}>
-                                              {adOverlayModal.linkLabel || 'Visit'}
-                                            </div>
-                                          )}
-                                          {adOverlayModal.overlayUrl && adOverlayModal.linkText === 'text' && (
-                                            <div style={{
-                                              position: 'absolute',
-                                              bottom: '8px',
-                                              left: '50%',
-                                              transform: 'translateX(-50%)',
-                                              backgroundColor: 'rgba(0,0,0,0.7)',
-                                              color: 'white',
-                                              padding: '4px 8px',
-                                              borderRadius: '3px',
-                                              fontSize: '10px',
-                                              pointerEvents: 'none'
-                                            }}>
-                                              {adOverlayModal.linkLabel || 'Click to visit'}
-                                            </div>
-                                          )}
-                                        </div>
-                                      ) : (
-                                        <div style={{
-                                          width: '100%',
-                                          height: '100%',
-                                          position: 'relative',
-                                          cursor: adOverlayModal.overlayUrl ? 'pointer' : 'default',
-                                          pointerEvents: 'auto'
-                                        }}
-                                          onClick={() => adOverlayModal.overlayUrl && window.open(adOverlayModal.overlayUrl, '_blank')}
-                                          title={adOverlayModal.overlayUrl ? `Click to visit: ${adOverlayModal.overlayUrl}` : ''}
-                                        >
-                                          <video 
-                                            src={adOverlayModal.assetUrl}
-                                            style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '2px', pointerEvents: 'none' }}
-                                          />
-                                          {adOverlayModal.overlayUrl && adOverlayModal.linkText === 'button' && (
-                                            <div style={{
-                                              position: 'absolute',
-                                              bottom: '8px',
-                                              right: '8px',
-                                              backgroundColor: '#3b82f6',
-                                              color: 'white',
-                                              padding: '6px 12px',
-                                              borderRadius: '4px',
-                                              fontSize: '11px',
-                                              fontWeight: '600',
-                                              pointerEvents: 'none',
-                                              cursor: 'pointer'
-                                            }}>
-                                              {adOverlayModal.linkLabel || 'Visit'}
-                                            </div>
-                                          )}
-                                          {adOverlayModal.overlayUrl && adOverlayModal.linkText === 'text' && (
-                                            <div style={{
-                                              position: 'absolute',
-                                              bottom: '8px',
-                                              left: '50%',
-                                              transform: 'translateX(-50%)',
-                                              backgroundColor: 'rgba(0,0,0,0.7)',
-                                              color: 'white',
-                                              padding: '4px 8px',
-                                              borderRadius: '3px',
-                                              fontSize: '10px',
-                                              pointerEvents: 'none'
-                                            }}>
-                                              {adOverlayModal.linkLabel || 'Click to visit'}
-                                            </div>
-                                          )}
-                                        </div>
-                                      )}
-                                    </div>
-
-                                    {/* Resize Handle - Corners and Edges */}
-                                    {/* Bottom Right Corner */}
-                                    <div
-                                      data-resize-handle
-                                      onMouseDown={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect) return;
-                                        
-                                        const startX = e.clientX;
-                                        const startY = e.clientY;
-                                        const startWidth = videoPreviewState.overlaySize.width;
-                                        const startHeight = videoPreviewState.overlaySize.height;
-
-                                        const handleMouseMove = (moveEvent) => {
-                                          moveEvent.preventDefault();
-                                          const deltaX = moveEvent.clientX - startX;
-                                          const deltaY = moveEvent.clientY - startY;
-                                          const widthPercent = (deltaX / containerRect.width) * 100;
-                                          const heightPercent = (deltaY / containerRect.height) * 100;
-                                          
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlaySize: {
-                                              width: Math.max(5, startWidth + widthPercent),
-                                              height: Math.max(5, startHeight + heightPercent)
-                                            }
-                                          }));
-                                        };
-
-                                        const handleMouseUp = () => {
-                                          document.removeEventListener('mousemove', handleMouseMove);
-                                          document.removeEventListener('mouseup', handleMouseUp);
-                                        };
-
-                                        document.addEventListener('mousemove', handleMouseMove);
-                                        document.addEventListener('mouseup', handleMouseUp);
-                                      }}
-                                      onTouchStart={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect || !e.touches || !e.touches[0]) return;
-
-                                        const startX = e.touches[0].clientX;
-                                        const startY = e.touches[0].clientY;
-                                        const startWidth = videoPreviewState.overlaySize.width;
-                                        const startHeight = videoPreviewState.overlaySize.height;
-
-                                        const handleTouchMove = (moveEvent) => {
-                                          if (!moveEvent.touches || !moveEvent.touches[0]) return;
-                                          moveEvent.preventDefault();
-                                          const deltaX = moveEvent.touches[0].clientX - startX;
-                                          const deltaY = moveEvent.touches[0].clientY - startY;
-                                          const widthPercent = (deltaX / containerRect.width) * 100;
-                                          const heightPercent = (deltaY / containerRect.height) * 100;
-
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlaySize: {
-                                              width: Math.max(5, startWidth + widthPercent),
-                                              height: Math.max(5, startHeight + heightPercent)
-                                            }
-                                          }));
-                                        };
-
-                                        const handleTouchEnd = () => {
-                                          document.removeEventListener('touchmove', handleTouchMove);
-                                          document.removeEventListener('touchend', handleTouchEnd);
-                                        };
-
-                                        document.addEventListener('touchmove', handleTouchMove, { passive: false });
-                                        document.addEventListener('touchend', handleTouchEnd);
-                                      }}
-                                      style={{
-                                        position: 'absolute',
-                                        bottom: '-5px',
-                                        right: '-5px',
-                                        width: '16px',
-                                        height: '16px',
-                                        backgroundColor: '#3b82f6',
-                                        cursor: 'nwse-resize',
-                                        borderRadius: '50%',
-                                        zIndex: 25,
-                                        pointerEvents: 'auto',
-                                        border: '2px solid white',
-                                        boxShadow: '0 2px 8px rgba(59, 130, 246, 0.6)',
-                                        transition: 'all 0.2s'
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.target.style.transform = 'scale(1.3)';
-                                        e.target.style.boxShadow = '0 2px 12px rgba(59, 130, 246, 0.8)';
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.target.style.transform = 'scale(1)';
-                                        e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.6)';
-                                      }}
-                                      title="Drag corner to resize"
-                                    />
-
-                                    {/* Right Edge */}
-                                    <div
-                                      data-resize-handle
-                                      onMouseDown={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect) return;
-                                        
-                                        const startX = e.clientX;
-                                        const startWidth = videoPreviewState.overlaySize.width;
-
-                                        const handleMouseMove = (moveEvent) => {
-                                          moveEvent.preventDefault();
-                                          const deltaX = moveEvent.clientX - startX;
-                                          const widthPercent = (deltaX / containerRect.width) * 100;
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlaySize: {
-                                              ...prev.overlaySize,
-                                              width: Math.max(5, startWidth + widthPercent)
-                                            }
-                                          }));
-                                        };
-
-                                        const handleMouseUp = () => {
-                                          document.removeEventListener('mousemove', handleMouseMove);
-                                          document.removeEventListener('mouseup', handleMouseUp);
-                                        };
-
-                                        document.addEventListener('mousemove', handleMouseMove);
-                                        document.addEventListener('mouseup', handleMouseUp);
-                                      }}
-                                      onTouchStart={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect || !e.touches || !e.touches[0]) return;
-
-                                        const startX = e.touches[0].clientX;
-                                        const startWidth = videoPreviewState.overlaySize.width;
-
-                                        const handleTouchMove = (moveEvent) => {
-                                          if (!moveEvent.touches || !moveEvent.touches[0]) return;
-                                          moveEvent.preventDefault();
-                                          const deltaX = moveEvent.touches[0].clientX - startX;
-                                          const widthPercent = (deltaX / containerRect.width) * 100;
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlaySize: {
-                                              ...prev.overlaySize,
-                                              width: Math.max(5, startWidth + widthPercent)
-                                            }
-                                          }));
-                                        };
-
-                                        const handleTouchEnd = () => {
-                                          document.removeEventListener('touchmove', handleTouchMove);
-                                          document.removeEventListener('touchend', handleTouchEnd);
-                                        };
-
-                                        document.addEventListener('touchmove', handleTouchMove, { passive: false });
-                                        document.addEventListener('touchend', handleTouchEnd);
-                                      }}
-                                      style={{
-                                        position: 'absolute',
-                                        top: '0',
-                                        right: '-3px',
-                                        width: '6px',
-                                        height: '100%',
-                                        cursor: 'ew-resize',
-                                        zIndex: 20,
-                                        pointerEvents: 'auto'
-                                      }}
-                                      title="Drag to resize width"
-                                    />
-
-                                    {/* Bottom Edge */}
-                                    <div
-                                      data-resize-handle
-                                      onMouseDown={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect) return;
-                                        
-                                        const startY = e.clientY;
-                                        const startHeight = videoPreviewState.overlaySize.height;
-
-                                        const handleMouseMove = (moveEvent) => {
-                                          moveEvent.preventDefault();
-                                          const deltaY = moveEvent.clientY - startY;
-                                          const heightPercent = (deltaY / containerRect.height) * 100;
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlaySize: {
-                                              ...prev.overlaySize,
-                                              height: Math.max(5, startHeight + heightPercent)
-                                            }
-                                          }));
-                                        };
-
-                                        const handleMouseUp = () => {
-                                          document.removeEventListener('mousemove', handleMouseMove);
-                                          document.removeEventListener('mouseup', handleMouseUp);
-                                        };
-
-                                        document.addEventListener('mousemove', handleMouseMove);
-                                        document.addEventListener('mouseup', handleMouseUp);
-                                      }}
-                                      onTouchStart={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const containerRect = document.querySelector('[data-video-container]')?.getBoundingClientRect();
-                                        if (!containerRect || !e.touches || !e.touches[0]) return;
-
-                                        const startY = e.touches[0].clientY;
-                                        const startHeight = videoPreviewState.overlaySize.height;
-
-                                        const handleTouchMove = (moveEvent) => {
-                                          if (!moveEvent.touches || !moveEvent.touches[0]) return;
-                                          moveEvent.preventDefault();
-                                          const deltaY = moveEvent.touches[0].clientY - startY;
-                                          const heightPercent = (deltaY / containerRect.height) * 100;
-                                          setVideoPreviewState(prev => ({
-                                            ...prev,
-                                            overlaySize: {
-                                              ...prev.overlaySize,
-                                              height: Math.max(5, startHeight + heightPercent)
-                                            }
-                                          }));
-                                        };
-
-                                        const handleTouchEnd = () => {
-                                          document.removeEventListener('touchmove', handleTouchMove);
-                                          document.removeEventListener('touchend', handleTouchEnd);
-                                        };
-
-                                        document.addEventListener('touchmove', handleTouchMove, { passive: false });
-                                        document.addEventListener('touchend', handleTouchEnd);
-                                      }}
-                                      style={{
-                                        position: 'absolute',
-                                        bottom: '-3px',
-                                        left: '0',
-                                        width: '100%',
-                                        height: '6px',
-                                        cursor: 'ns-resize',
-                                        zIndex: 20,
-                                        pointerEvents: 'auto'
-                                      }}
-                                      title="Drag to resize height"
-                                    />
-
-                                    {/* Resize Handle - Right Edge */}
-                                    {/* Removed - using generic edges instead */}
+                                    <a href={bottomAdLink || '#'} target="_blank" rel="noreferrer" style={{ background: '#fff', color: '#111827', padding: '8px 10px', borderRadius: 8, textDecoration: 'none', fontWeight: 800, fontSize: 13 }}>Learn more</a>
                                   </div>
-
-                                  {/* Timeline Control at bottom */}
-                                  <div style={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    height: '44px',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    borderTop: '1px solid #555',
-                                    zIndex: 20
-                                  }}>
-                                    {/* Progress bar section */}
-                                    <div style={{
-                                      flex: 1,
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      paddingLeft: '8px',
-                                      paddingRight: '8px',
-                                      gap: '8px'
-                                    }}>
-                                      {/* Play/Pause button - Click only */}
-                                      <button
-                                        onClick={() => setVideoPreviewState({
-                                          ...videoPreviewState,
-                                          isPlaying: !videoPreviewState.isPlaying
-                                        })}
-                                        style={{
-                                          width: '26px',
-                                          height: '26px',
-                                          borderRadius: '50%',
-                                          backgroundColor: '#f59e0b',
-                                          border: 'none',
-                                          color: 'white',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          cursor: 'pointer',
-                                          flexShrink: 0,
-                                          transition: 'all 0.2s',
-                                          userSelect: 'none',
-                                          zIndex: 100,
-                                          padding: 0
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.opacity = '0.9';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.opacity = '1';
-                                        }}
-                                        title="Click to play/pause"
-                                      >
-                                        {videoPreviewState.isPlaying ? <Pause size={12} fill="white" /> : <Play size={12} fill="white" />}
-                                      </button>
-
-                                      {/* Progress bar - Full width DRAGGABLE */}
-                                      <div 
-                                        onMouseDown={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
-                                          const rect = e.currentTarget.getBoundingClientRect();
-                                          
-                                          const updatePosition = (clientX) => {
-                                            const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                                            const selectedVideo = videos.find(v => v.id === selectedAdVideo);
-                                            const videoDuration = selectedVideo?.duration || videoPreviewState.videoDuration || 100;
-                                            const newTime = percent * videoDuration;
-                                            
-                                            setAdOverlayModal(prev => ({
-                                              ...prev,
-                                              startTime: newTime
-                                            }));
-                                            setVideoPreviewState(prev => ({
-                                              ...prev,
-                                              currentTime: newTime
-                                            }));
-                                          };
-
-                                          updatePosition(e.clientX);
-                                          
-                                          const handleMouseMove = (moveEvent) => {
-                                            moveEvent.preventDefault();
-                                            updatePosition(moveEvent.clientX);
-                                          };
-
-                                          const handleMouseUp = () => {
-                                            document.removeEventListener('mousemove', handleMouseMove);
-                                            document.removeEventListener('mouseup', handleMouseUp);
-                                          };
-
-                                          document.addEventListener('mousemove', handleMouseMove, true);
-                                          document.addEventListener('mouseup', handleMouseUp, true);
-                                        }}
-                                        onTouchStart={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
-                                          if (!e.touches[0]) return;
-                                          const rect = e.currentTarget.getBoundingClientRect();
-                                          
-                                          const updatePosition = (clientX) => {
-                                            const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                                            const selectedVideo = videos.find(v => v.id === selectedAdVideo);
-                                            const videoDuration = selectedVideo?.duration || videoPreviewState.videoDuration || 100;
-                                            const newTime = percent * videoDuration;
-                                            
-                                            setAdOverlayModal(prev => ({
-                                              ...prev,
-                                              startTime: newTime
-                                            }));
-                                            setVideoPreviewState(prev => ({
-                                              ...prev,
-                                              currentTime: newTime
-                                            }));
-                                          };
-
-                                          updatePosition(e.touches[0].clientX);
-                                          
-                                          const handleTouchMove = (moveEvent) => {
-                                            moveEvent.preventDefault();
-                                            if (!moveEvent.touches[0]) return;
-                                            updatePosition(moveEvent.touches[0].clientX);
-                                          };
-
-                                          const handleTouchEnd = () => {
-                                            document.removeEventListener('touchmove', handleTouchMove);
-                                            document.removeEventListener('touchend', handleTouchEnd);
-                                          };
-
-                                          document.addEventListener('touchmove', handleTouchMove, true);
-                                          document.addEventListener('touchend', handleTouchEnd, true);
-                                        }}
-                                        style={{
-                                          flex: 1,
-                                          height: '8px',
-                                          backgroundColor: '#555',
-                                          borderRadius: '4px',
-                                          position: 'relative',
-                                          cursor: 'pointer',
-                                          zIndex: 30,
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          pointerEvents: 'auto',
-                                          touchAction: 'none'
-                                        }}
-                                      >
-                                        <div style={{
-                                          width: `${((videoPreviewState.currentTime || adOverlayModal.startTime || 0) / (videos.find(v => v.id === selectedAdVideo)?.duration || videoPreviewState.videoDuration || 100)) * 100}%`,
-                                          height: '100%',
-                                          backgroundColor: '#3b82f6',
-                                          borderRadius: '4px',
-                                          position: 'relative',
-                                          pointerEvents: 'none'
-                                        }}>
-                                          <div style={{
-                                            position: 'absolute',
-                                            right: '-5px',
-                                            top: '50%',
-                                            transform: 'translateY(-50%)',
-                                            width: '12px',
-                                            height: '12px',
-                                            backgroundColor: '#3b82f6',
-                                            borderRadius: '50%',
-                                            boxShadow: '0 0 4px rgba(59, 130, 246, 1)',
-                                            pointerEvents: 'none'
-                                          }} />
-                                        </div>
-                                      </div>
-
-                                      {/* Time display - Show current time and total duration */}
-                                      <span style={{
-                                        color: '#fff',
-                                        fontSize: '10px',
-                                        fontWeight: '600',
-                                        whiteSpace: 'nowrap',
-                                        minWidth: '60px',
-                                        textAlign: 'right'
-                                      }}>
-                                        {formatTimeCompact(videoPreviewState.currentTime || adOverlayModal.startTime || 0)} / {formatTimeCompact(videos.find(v => v.id === selectedAdVideo)?.duration || videoPreviewState.videoDuration || 0)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Frame Strip Below - Horizontally Scrollable */}
-                                <div style={{
-                                  width: '100%',
-                                  height: '50px',
-                                  backgroundColor: '#1f2937',
-                                  borderRadius: '6px',
-                                  overflow: 'auto',
-                                  display: 'flex',
-                                  gap: '2px',
-                                  padding: '4px',
-                                  boxSizing: 'border-box',
-                                  border: '1px solid #374151',
-                                  scrollBehavior: 'smooth'
-                                }}>
-                                  {Array.from({ length: 12 }).map((_, idx) => (
-                                    <div key={idx} style={{
-                                      flex: '0 0 auto',
-                                      width: '40px',
-                                      minWidth: '40px',
-                                      height: '100%',
-                                      backgroundColor: '#374151',
-                                      borderRadius: '4px',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      color: '#9ca3af',
-                                      fontSize: '9px',
-                                      fontWeight: '600',
-                                      cursor: 'pointer',
-                                      transition: 'all 0.2s',
-                                      border: idx === Math.floor((videoPreviewState.currentTime || adOverlayModal.startTime || 0) / ((video?.duration || 100) / 12)) ? '1px solid #3b82f6' : '1px solid transparent',
-                                      whiteSpace: 'nowrap'
-                                    }}
-                                    onClick={() => {
-                                      const newTime = (idx / 12) * (video?.duration || 100);
-                                      setAdOverlayModal({
-                                        ...adOverlayModal,
-                                        startTime: newTime
-                                      });
-                                      setVideoPreviewState({
-                                        ...videoPreviewState,
-                                        currentTime: newTime
-                                      });
-                                    }}
-                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#555'}
-                                    onMouseLeave={(e) => e.target.style.backgroundColor = '#374151'}
-                                    >
-                                      {formatTimeCompact((idx / 12) * (video?.duration || 100))}
-                                    </div>
-                                  ))}
-                                </div>
-
-                                {/* Overlay Duration - Below Frame Strip */}
-                                <div style={{ marginTop: '12px', marginBottom: '12px' }}>
-                                  <label style={{ fontSize: '12px', fontWeight: '600', color: '#1f2937', marginBottom: '4px', display: 'block' }}>
-                                    Overlay Duration (seconds)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    max="30"
-                                    defaultValue="5"
-                                    style={{
-                                      width: '100%',
-                                      padding: '8px',
-                                      border: '1px solid #e5e7eb',
-                                      borderRadius: '6px',
-                                      fontSize: '14px',
-                                      boxSizing: 'border-box'
-                                    }}
-                                    onChange={(e) => setAdOverlayModal({
-                                      ...adOverlayModal,
-                                      duration: parseInt(e.target.value)
-                                    })}
-                                  />
-                                </div>
-
-                                {/* Make Overlay Clickable - For Image/Video/Text */}
-                                <div style={{ marginBottom: '12px' }}>
-                                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#1f2937', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                    <Link2 size={12} /> URL
-                                  </label>
-                                  <input
-                                    type="text"
-                                    placeholder="https://example.com"
-                                    value={adOverlayModal.overlayUrl || ''}
-                                    onChange={(e) => setAdOverlayModal({
-                                      ...adOverlayModal,
-                                      overlayUrl: e.target.value
-                                    })}
-                                    style={{
-                                      width: '100%',
-                                      padding: '6px',
-                                      border: '1px solid #e5e7eb',
-                                      borderRadius: '5px',
-                                      fontSize: '12px',
-                                      boxSizing: 'border-box'
-                                    }}
-                                  />
-                                  {adOverlayModal.overlayUrl && (
-                                    <div style={{ marginTop: '3px', fontSize: '10px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                      <CheckCircle size={10} /> Clickable
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Add Button */}
-                            <button
-                              onClick={() => {
-                                if ((adOverlayModal.assetUrl || adOverlayModal.assetType === 'text') && adOverlayModal.videoId) {
-                                  const newOverlay = {
-                                    id: Date.now(),
-                                    videoId: adOverlayModal.videoId,
-                                    assetType: adOverlayModal.assetType,
-                                    startTime: adOverlayModal.startTime,
-                                    duration: adOverlayModal.duration || 5,
-                                    x: videoPreviewState.overlayPosition.x,
-                                    y: videoPreviewState.overlayPosition.y,
-                                    width: videoPreviewState.overlaySize.width,
-                                    height: videoPreviewState.overlaySize.height,
-                                    ...(adOverlayModal.assetType === 'text' ? {
-                                      text: adOverlayModal.overlayText || 'Click here',
-                                      color: adOverlayModal.overlayColor || '#ffffff',
-                                      clickUrl: adOverlayModal.overlayUrl || null
-                                    } : {
-                                      assetUrl: adOverlayModal.assetUrl,
-                                      clickUrl: adOverlayModal.overlayUrl || null
-                                    })
-                                  };
-                                  setAdOverlays([...adOverlays, newOverlay]);
-                                  // Show preview of the overlay
-                                  setPreviewingOverlay(newOverlay);
-                                  setShowOverlayPreview(true);
-                                  setAdOverlayModal({ isOpen: false, assetUrl: '', assetType: 'image', videoId: null, startTime: 0, duration: null, _dropdownOpen: false, overlayText: '', overlayColor: '#ffffff', overlayUrl: '' });
-                                  setSelectedAdVideo(null);
-                                  setVideoPreviewState({ isPlaying: false, currentTime: 0, overlayPosition: { x: 50, y: 50 }, overlaySize: { width: 80, height: 60 }, isDragging: false, dragStart: { x: 0, y: 0 } });
-                                }
-                              }}
-                              style={{
-                                width: '100%',
-                                padding: '10px',
-                                backgroundColor: (adOverlayModal.assetUrl || adOverlayModal.assetType === 'text') && adOverlayModal.videoId ? '#f59e0b' : '#e5e7eb',
-                                color: (adOverlayModal.assetUrl || adOverlayModal.assetType === 'text') && adOverlayModal.videoId ? 'white' : '#6b7280',
-                                border: 'none',
-                                borderRadius: '6px',
-                                cursor: (adOverlayModal.assetUrl || adOverlayModal.assetType === 'text') && adOverlayModal.videoId ? 'pointer' : 'not-allowed',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={(e) => (adOverlayModal.assetUrl || adOverlayModal.assetType === 'text') && adOverlayModal.videoId && (e.target.style.opacity = '0.9')}
-                              onMouseLeave={(e) => (adOverlayModal.assetUrl || adOverlayModal.assetType === 'text') && adOverlayModal.videoId && (e.target.style.opacity = '1')}
-                            >
-                              Add Overlay to Video
-                            </button>
                           </div>
-                        )}
+                        );
+                      })()}
 
-                        {/* Show existing overlays for this video */}
-                        {adOverlays.filter(o => o.videoId === video.id).length > 0 && (
-                          <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-                            <p style={{ fontSize: '12px', fontWeight: '600', color: '#666', margin: '0 0 8px 0' }}>
-                              Active Overlays ({adOverlays.filter(o => o.videoId === video.id).length})
-                            </p>
-                            {adOverlays.filter(o => o.videoId === video.id).map(overlay => (
-                              <div key={overlay.id} style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                padding: '8px',
-                                backgroundColor: '#f9fafb',
-                                borderRadius: '6px',
-                                marginBottom: '8px',
-                                fontSize: '12px',
-                                color: '#666'
-                              }}>
-                                <span>
-                                  {formatTimeCompact(overlay.startTime)} - {overlay.duration}s ({overlay.assetType})
-                                  {overlay.clickUrl && ' 🔗'}
-                                  {overlay.assetType === 'text' && ` - "${overlay.text}"`}
-                                </span>
-                                <button
-                                  onClick={() => setAdOverlays(adOverlays.filter(o => o.id !== overlay.id))}
-                                  style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    backgroundColor: '#ef4444',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    transition: 'all 0.2s'
-                                  }}
-                                  onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-                                  onMouseLeave={(e) => e.target.style.opacity = '1'}
-                                >
-                                  <Trash size={14} />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                      {/* Small overlay controls: show/hide ad bar, landscape toggle */}
+                      <div style={{ position: 'fixed', top: 14, right: 56, zIndex: 1425, display: 'flex', gap: 8 }}>
+                        <button onClick={(e) => { e.stopPropagation(); setPreviewShowAdBar(s => !s); }} style={{ background: 'rgba(255,255,255,0.06)', border: 'none', color: '#e6eef8', padding: '6px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 12 }}>{previewShowAdBar ? 'Hide Header' : 'Show Header'}</button>
+                        <button onClick={(e) => { e.stopPropagation(); saveBottomAdTemplate(); }} style={{ background: '#0b74de', border: 'none', color: '#fff', padding: '6px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 12 }}>Save Template</button>
+                        <button onClick={(e) => { e.stopPropagation(); setPreviewLandscape(s => !s); }} style={{ background: 'rgba(255,255,255,0.06)', border: 'none', color: '#e6eef8', padding: '6px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 12 }}>{previewLandscape ? 'Portrait' : 'Landscape'}</button>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                )}
+                </div>
+              )}
               </div>
+
+
+
             </div>
           )}
-
         </div>
 
         {/* Promotion Modal */}
@@ -8352,6 +6896,144 @@ export default function StaffDashboard() {
             </div>
           </div>
         </div>
+        )}
+
+        {/* Overlay Ad Preview Modal */}
+        {showOverlayPreview && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1400, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }} onClick={() => setShowOverlayPreview(false)}>
+            <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <button onClick={() => setShowOverlayPreview(false)} style={{ position: 'fixed', top: 14, right: 14, zIndex: 1420, background: 'rgba(255,255,255,0.04)', border: 'none', color: 'white', padding: '6px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 14, opacity: 0.95 }}>✕</button>
+
+              {/* Video preview area */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
+                <div style={{ fontSize: 24, color: '#9ca3af' }}>Video Content Area</div>
+              </div>
+
+              {/* Overlay ticker based on position */}
+              {(overlayAdPosition === 'bottom' || overlayAdPosition === 'top') && (
+                <div style={{
+                  position: 'fixed',
+                  [overlayAdPosition]: 0,
+                  left: 0,
+                  right: 0,
+                  background: overlayAdBgColor,
+                  color: overlayAdTextColor,
+                  padding: '14px 16px',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  zIndex: 1410,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  overflow: 'hidden'
+                }}>
+                  <div style={{ whiteSpace: 'nowrap', display: 'flex', gap: 32, animation: overlayAdTextItems.length > 0 ? `scroll ${overlayAdTextItems.reduce((acc, i) => acc + i.duration, 0) * 1.5}s linear infinite` : 'scroll 20s linear infinite' }}>
+                    {overlayAdTextItems.length > 0 ? (
+                      overlayAdTextItems.map((item) => (
+                        <span key={item.id}>{overlayAdEmoji} {overlayAdCompanyName && `[${overlayAdCompanyName}]`} {item.text}</span>
+                      ))
+                    ) : (
+                      <>
+                        <span>{overlayAdEmoji} {overlayAdText}</span>
+                        <span>{overlayAdEmoji} {overlayAdText}</span>
+                        <span>{overlayAdEmoji} {overlayAdText}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {overlayAdPosition === 'fullscreen' && (
+                <div style={{
+                  position: 'fixed',
+                  inset: 0,
+                  background: overlayAdBgColor,
+                  color: overlayAdTextColor,
+                  zIndex: 1410,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  gap: 20,
+                  padding: 20,
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: 24, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{overlayAdCompanyName}</div>
+                  <div style={{ fontSize: 32, fontWeight: 800 }}>Sponsorship Message</div>
+                  <div style={{ fontSize: 18, maxWidth: 600 }}>{overlayAdTextItems.length > 0 ? overlayAdTextItems.map(i => i.text).join(' • ') : overlayAdText}</div>
+                  <button style={{ padding: '12px 24px', background: 'white', color: overlayAdBgColor, border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>Learn More</button>
+                </div>
+              )}
+
+              <style>{`
+                @keyframes scroll {
+                  0% { transform: translateX(0); }
+                  100% { transform: translateX(-100%); }
+                }
+              `}</style>
+            </div>
+          </div>
+        )}
+
+        {/* Templates Modal (Saved bottom-ad templates) */}
+        {showTemplatesModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowTemplatesModal(false)}>
+            <div onClick={(e) => e.stopPropagation()} style={{ width: 680, maxWidth: '94%', maxHeight: '85vh', overflowY: 'auto', background: 'white', borderRadius: 12, padding: 18 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3 style={{ margin: 0 }}>Saved Bottom Ad Templates</h3>
+              </div>
+              <div style={{ marginTop: 12 }}>
+                {(bottomAdTemplates || []).length === 0 ? (
+                  <div style={{ padding: 24, textAlign: 'center', color: '#6b7280' }}>No templates saved yet.</div>
+                ) : (
+                  (bottomAdTemplates || []).map((t) => (
+                    <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 8, border: '1px solid #e6edf3', marginBottom: 10 }}>
+                      <div style={{ width: 56, height: 56, borderRadius: 8, overflow: 'hidden', background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {t.avatar ? <img src={t.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ color: '#9ca3af', fontWeight: 700 }}>{(t.name||'A').charAt(0).toUpperCase()}</div>}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 800 }}>{t.name}</div>
+                        <div style={{ color: '#6b7280', fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.text}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={() => applyTemplate(t)} style={{ padding: '8px 10px', borderRadius: 8, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer' }}>Apply</button>
+                        <button onClick={() => setEditingBottomTemplate(t)} style={{ padding: '8px 10px', borderRadius: 8, background: '#f59e0b', color: 'white', border: 'none', cursor: 'pointer' }}>Edit</button>
+                        <button onClick={() => { if (confirm('Delete this template?')) deleteBottomAdTemplate(t.id); }} style={{ padding: '8px 10px', borderRadius: 8, background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer' }}>Delete</button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {editingBottomTemplate && (
+                <div style={{ marginTop: 12, padding: 12, border: '1px dashed #e5e7eb', borderRadius: 8 }}>
+                  <h4 style={{ marginTop: 0 }}>Edit Template</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Profile Name</label>
+                      <input value={editingBottomTemplate.name} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, name: e.target.value })} style={{ width: '100%', padding: 8, marginTop: 6, borderRadius: 6, border: '1px solid #e5e7eb' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Avatar URL</label>
+                      <input value={editingBottomTemplate.avatar} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, avatar: e.target.value })} style={{ width: '100%', padding: 8, marginTop: 6, borderRadius: 6, border: '1px solid #e5e7eb' }} />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Ad Text</label>
+                      <textarea value={editingBottomTemplate.text} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, text: e.target.value })} rows={3} style={{ width: '100%', padding: 8, marginTop: 6, borderRadius: 6, border: '1px solid #e5e7eb' }} />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Target Link</label>
+                      <input value={editingBottomTemplate.link} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, link: e.target.value })} style={{ width: '100%', padding: 8, marginTop: 6, borderRadius: 6, border: '1px solid #e5e7eb' }} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10 }}>
+                    <button onClick={() => setEditingBottomTemplate(null)} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: 'white' }}>Cancel</button>
+                    <button onClick={() => updateBottomAdTemplate(editingBottomTemplate.id, editingBottomTemplate)} style={{ padding: '8px 12px', borderRadius: 6, background: '#111827', color: 'white', border: 'none' }}>Save Changes</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         )}
     <footer style={{
       position: 'fixed',
