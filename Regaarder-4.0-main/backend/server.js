@@ -1150,6 +1150,90 @@ app.post('/staff/send-promotion', (req, res) => {
   }
 });
 
+// POST /staff/apply-overlay-ad - apply overlay ad to videos with timing
+app.post('/staff/apply-overlay-ad', (req, res) => {
+  try {
+    const { employeeId, videoIds, ad } = req.body || {};
+    if (parseInt(employeeId) !== 1000) return res.status(403).json({ error: 'Unauthorized' });
+    if (!videoIds || !Array.isArray(videoIds) || videoIds.length === 0) {
+      return res.status(400).json({ error: 'No videos selected' });
+    }
+    if (!ad) return res.status(400).json({ error: 'Ad data missing' });
+
+    const videos = readVideos();
+    const updated = [];
+
+    videos.forEach((v) => {
+      if (videoIds.includes(v.id)) {
+        if (!v.ads) v.ads = [];
+        if (!v.ads.overlays) v.ads.overlays = [];
+        v.ads.overlays.push({
+          id: `overlay-${Date.now()}-${Math.random().toString(36).substr(2,9)}`,
+          type: 'overlay',
+          ...ad,
+          appliedAt: new Date().toISOString(),
+          appliedBy: employeeId
+        });
+        updated.push(v);
+      }
+    });
+
+    try {
+      fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2), 'utf8');
+    } catch (e) {
+      console.error('write videos error:', e);
+      return res.status(500).json({ error: 'Failed to save' });
+    }
+
+    return res.json({ success: true, applied: updated.length, videos: updated });
+  } catch (err) {
+    console.error('apply-overlay-ad error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /staff/apply-bottom-ad - apply bottom ad to videos with timing
+app.post('/staff/apply-bottom-ad', (req, res) => {
+  try {
+    const { employeeId, videoIds, ad } = req.body || {};
+    if (parseInt(employeeId) !== 1000) return res.status(403).json({ error: 'Unauthorized' });
+    if (!videoIds || !Array.isArray(videoIds) || videoIds.length === 0) {
+      return res.status(400).json({ error: 'No videos selected' });
+    }
+    if (!ad) return res.status(400).json({ error: 'Ad data missing' });
+
+    const videos = readVideos();
+    const updated = [];
+
+    videos.forEach((v) => {
+      if (videoIds.includes(v.id)) {
+        if (!v.ads) v.ads = [];
+        if (!v.ads.bottom) v.ads.bottom = [];
+        v.ads.bottom.push({
+          id: `bottom-${Date.now()}-${Math.random().toString(36).substr(2,9)}`,
+          type: 'bottom',
+          ...ad,
+          appliedAt: new Date().toISOString(),
+          appliedBy: employeeId
+        });
+        updated.push(v);
+      }
+    });
+
+    try {
+      fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2), 'utf8');
+    } catch (e) {
+      console.error('write videos error:', e);
+      return res.status(500).json({ error: 'Failed to save' });
+    }
+
+    return res.json({ success: true, applied: updated.length, videos: updated });
+  } catch (err) {
+    console.error('apply-bottom-ad error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Boost endpoint: requires authentication
 app.post('/boost', authMiddleware, (req, res) => {
   const { requestId, amount, provider } = req.body || {};

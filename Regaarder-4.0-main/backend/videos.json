@@ -18,7 +18,7 @@
     "timestamp": 1768835100749,
     "likes": "0",
     "dislikes": "0",
-    "views": "1",
+    "views": "2",
     "comments": "0",
     "shares": "0",
     "retentionRate": "0",
@@ -36,10 +36,11 @@
         "linkColor": "#c615a0"
       }
     ],
-    "hidden": true,
-    "hiddenReason": "n f wj",
-    "hiddenBy": 1000,
-    "hiddenAt": "2026-01-19T16:50:51.056Z"
+    "hidden": false,
+    "hiddenReason": null,
+    "hiddenBy": null,
+    "hiddenAt": null,
+    "ads": []
   },
   {
     "id": "1768834941791-toh8qpe73",
@@ -78,10 +79,10 @@
         "linkColor": "#e4c411"
       }
     ],
-    "hidden": true,
-    "hiddenReason": "mmm",
-    "hiddenBy": 1000,
-    "hiddenAt": "2026-01-19T16:29:59.900Z"
+    "hidden": false,
+    "hiddenReason": null,
+    "hiddenBy": null,
+    "hiddenAt": null
   },
   {
     "id": "1768716793172-4lw88hmuz",
@@ -117,7 +118,8 @@
     "shadowDeleted": true,
     "shadowDeletedBy": 1000,
     "shadowDeletedAt": "2026-01-19T13:07:45.924Z",
-    "shadowDeleteReason": "Report action: Offensive language"
+    "shadowDeleteReason": "Report action: Offensive language",
+    "ads": []
   },
   {
     "id": "1768710959607-g8v4uvc0n",
@@ -149,7 +151,8 @@
     "hidden": true,
     "hiddenReason": "xzzx",
     "hiddenBy": 1000,
-    "hiddenAt": "2026-01-19T16:30:49.118Z"
+    "hiddenAt": "2026-01-19T16:30:49.118Z",
+    "ads": []
   },
   {
     "id": "1768708685919-ipj1letr7",
@@ -187,10 +190,10 @@
     ],
     "modifiedBy": 1000,
     "modifiedAt": "2026-01-19T12:15:44.446Z",
-    "hidden": true,
-    "hiddenReason": "nnfn",
-    "hiddenBy": 1000,
-    "hiddenAt": "2026-01-19T14:15:06.337Z"
+    "hidden": false,
+    "hiddenReason": null,
+    "hiddenBy": null,
+    "hiddenAt": null
   },
   {
     "id": "1768705640199-5oejvnutu",
@@ -267,7 +270,7 @@
     "timestamp": 1768702267464,
     "likes": "0",
     "dislikes": "0",
-    "views": "1",
+    "views": "2",
     "comments": "0",
     "shares": "0",
     "retentionRate": "0",
@@ -339,11 +342,12 @@
     "timestamp": 1768700560607,
     "likes": "0",
     "dislikes": "0",
-    "views": "1",
+    "views": "2",
     "comments": "0",
     "shares": "0",
     "retentionRate": "0",
-    "retentionPercentage": "0%"
+    "retentionPercentage": "0%",
+    "ads": []
   },
   {
     "id": "1768546393656-90lkdx3m3",
@@ -443,7 +447,8 @@
     "comments": "0",
     "shares": "0",
     "retentionRate": "0",
-    "retentionPercentage": "0%"
+    "retentionPercentage": "0%",
+    "ads": []
   },
   {
     "id": "1767691092183-r9lm9nfgo",

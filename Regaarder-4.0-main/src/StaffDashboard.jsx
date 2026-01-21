@@ -49,10 +49,30 @@ export default function StaffDashboard() {
   const [overlayAdTextItems, setOverlayAdTextItems] = useState([]);
   const [overlayAdBgColor, setOverlayAdBgColor] = useState('#E41E24');
   const [overlayAdTextColor, setOverlayAdTextColor] = useState('#fff');
+  // Floating brand button colors
+  const [overlayBrandBgColor, setOverlayBrandBgColor] = useState('#ffffff');
+  const [overlayBrandTextColor, setOverlayBrandTextColor] = useState('#000000');
+  const [overlayAdOpacity, setOverlayAdOpacity] = useState(1);
+  const [overlayTagOpacity, setOverlayTagOpacity] = useState(1);
   const [overlayAdPosition, setOverlayAdPosition] = useState('bottom');
+  const [overlayTextAnimation, setOverlayTextAnimation] = useState('marquee'); // 'marquee', 'fade', 'slide'
   const [showOverlayPreview, setShowOverlayPreview] = useState(false);
   const [overlayPositionOpen, setOverlayPositionOpen] = useState(false);
   const [overlayEmojiOpen, setOverlayEmojiOpen] = useState(false);
+  // Overlay template and apply states
+  const [overlayTemplates, setOverlayTemplates] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('overlayTemplates') || '[]');
+    } catch (e) { return []; }
+  });
+  const [overlayTemplateName, setOverlayTemplateName] = useState('');
+  const [showOverlaySaveModal, setShowOverlaySaveModal] = useState(false);
+  const [showOverlayApplyModal, setShowOverlayApplyModal] = useState(false);
+  const [showOverlayTemplatesModal, setShowOverlayTemplatesModal] = useState(false);
+  const [overlayApplyVideoSearch, setOverlayApplyVideoSearch] = useState('');
+  const [overlayApplyStartTime, setOverlayApplyStartTime] = useState(0);
+  const [overlayApplyEndTime, setOverlayApplyEndTime] = useState(30);
+  const [overlayApplySelectedVideos, setOverlayApplySelectedVideos] = useState([]);
   // Preview display toggles
   const [previewShowAdBar, setPreviewShowAdBar] = useState(true);
   const [previewLandscape, setPreviewLandscape] = useState(true);
@@ -287,6 +307,12 @@ export default function StaffDashboard() {
   const [templatePanelOpen, setTemplatePanelOpen] = useState(null);
   const [selectedVideosForApply, setSelectedVideosForApply] = useState([]);
   const [applyPlacement, setApplyPlacement] = useState('beginning');
+  // Bottom ads apply state
+  const [showBottomApplyModal, setShowBottomApplyModal] = useState(false);
+  const [bottomApplyVideoSearch, setBottomApplyVideoSearch] = useState('');
+  const [bottomApplyStartTime, setBottomApplyStartTime] = useState(0);
+  const [bottomApplyDuration, setBottomApplyDuration] = useState(30);
+  const [bottomApplySelectedVideos, setBottomApplySelectedVideos] = useState([]);
 
   // Track scroll position per tab
   useEffect(() => {
@@ -326,6 +352,29 @@ export default function StaffDashboard() {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDraggingFooter, footerDragStart]);
+
+  // Keep footer inside the viewport so buttons never get clipped by dragging or resize
+  useEffect(() => {
+    const clampFooterIntoView = () => {
+      try {
+        const maxX = Math.max(0, window.innerWidth - 320); // footer has minWidth ~300
+        const maxY = Math.max(0, window.innerHeight - 40); // keep bottom within visible area
+        setFooterPosition((prev) => {
+          const nx = Math.min(Math.max(0, prev.x), maxX);
+          const ny = Math.min(Math.max(0, prev.y), maxY);
+          if (nx !== prev.x || ny !== prev.y) return { x: nx, y: ny };
+          return prev;
+        });
+      } catch (e) {
+        // defensive: ignore during SSR or when window not available
+      }
+    };
+
+    // clamp on mount and when window resizes
+    clampFooterIntoView();
+    window.addEventListener('resize', clampFooterIntoView);
+    return () => window.removeEventListener('resize', clampFooterIntoView);
+  }, []);
 
   useEffect(() => {
     const session = localStorage.getItem('staffSession');
@@ -1050,6 +1099,103 @@ export default function StaffDashboard() {
     } catch (err) {
       console.error('Promotion send failed:', err);
       setError('Error sending promotion');
+    }
+  };
+
+  // Apply overlay ad to selected videos with timing
+  const handleApplyOverlayAd = async () => {
+    if (overlayApplySelectedVideos.length === 0) {
+      setToast({ type: 'error', title: 'No videos selected', message: 'Please select at least one video.' });
+      return;
+    }
+    if (!overlayAdCompanyName || (overlayAdTextItems.length === 0 && !overlayAdText)) {
+      setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name and at least one message.' });
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:4000/staff/apply-overlay-ad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id,
+          videoIds: overlayApplySelectedVideos,
+          ad: {
+            companyName: overlayAdCompanyName,
+            text: overlayAdText,
+            textItems: overlayAdTextItems,
+            emoji: overlayAdEmoji,
+            bgColor: overlayAdBgColor,
+            textColor: overlayAdTextColor,
+            brandBgColor: overlayBrandBgColor,
+            brandTextColor: overlayBrandTextColor,
+            opacity: overlayAdOpacity,
+            tagOpacity: overlayTagOpacity,
+            position: overlayAdPosition,
+            animation: overlayTextAnimation,
+            startTime: overlayApplyStartTime,
+            duration: overlayApplyEndTime
+          }
+        })
+      });
+
+      if (res.ok) {
+        setToast({ type: 'success', title: 'Applied', message: `Overlay applied to ${overlayApplySelectedVideos.length} video(s).` });
+        setShowOverlayApplyModal(false);
+        setOverlayApplySelectedVideos([]);
+        setOverlayApplyVideoSearch('');
+        if (staffSession) loadData(staffSession);
+      } else {
+        setToast({ type: 'error', title: 'Apply failed', message: 'Unable to apply overlay ad.' });
+      }
+    } catch (err) {
+      console.error('Overlay apply failed:', err);
+      setToast({ type: 'error', title: 'Error', message: 'Error applying overlay ad.' });
+    }
+  };
+
+  // Apply bottom ad to selected videos with timing
+  const handleApplyBottomAd = async () => {
+    if (bottomApplySelectedVideos.length === 0) {
+      setToast({ type: 'error', title: 'No videos selected', message: 'Please select at least one video.' });
+      return;
+    }
+    if (!bottomAdProfileName || !bottomAdText) {
+      setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and ad text.' });
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:4000/staff/apply-bottom-ad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id,
+          videoIds: bottomApplySelectedVideos,
+          ad: {
+            profileName: bottomAdProfileName,
+            profileAvatar: bottomAdProfileAvatar,
+            text: bottomAdText,
+            link: bottomAdLink,
+            startTime: bottomApplyStartTime,
+            duration: bottomApplyDuration,
+            assets: adAssets
+          }
+        })
+      });
+
+      if (res.ok) {
+        setToast({ type: 'success', title: 'Applied', message: `Bottom ad applied to ${bottomApplySelectedVideos.length} video(s).` });
+        setShowBottomApplyModal(false);
+        setBottomApplySelectedVideos([]);
+        setBottomApplyVideoSearch('');
+        if (staffSession) loadData(staffSession);
+      } else {
+        setToast({ type: 'error', title: 'Apply failed', message: 'Unable to apply bottom ad.' });
+      }
+    } catch (err) {
+      console.error('Bottom ad apply failed:', err);
+      setToast({ type: 'error', title: 'Error', message: 'Error applying bottom ad.' });
     }
   };
 
@@ -5274,6 +5420,10 @@ export default function StaffDashboard() {
                       if (!bottomAdProfileName || !bottomAdText) { setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and ad text.' }); return; }
                       setShowBottomPreview(true);
                     }} style={{ padding: '8px 12px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer' }}>Preview</button>
+                    <button onClick={() => {
+                      if (!bottomAdProfileName || !bottomAdText) { setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and ad text.' }); return; }
+                      setShowBottomApplyModal(true);
+                    }} style={{ padding: '8px 12px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply</button>
                   </div>
                 </div>
               )}
@@ -5306,12 +5456,42 @@ export default function StaffDashboard() {
                     </div>
                   </div>
 
+                  {/* Brand Button Colors */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BRAND BACKGROUND</label>
+                      <input type="color" value={overlayBrandBgColor} onChange={(e) => setOverlayBrandBgColor(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', height: 38, cursor: 'pointer' }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BRAND TEXT</label>
+                      <input type="color" value={overlayBrandTextColor} onChange={(e) => setOverlayBrandTextColor(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', height: 38, cursor: 'pointer' }} />
+                    </div>
+                  </div>
+
+                  {/* Opacity Sliders for Banner and Tag */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BANNER OPACITY</label>
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <input type="range" min={0} max={100} value={Math.round((overlayAdOpacity || 1) * 100)} onChange={(e) => setOverlayAdOpacity(Number(e.target.value) / 100)} style={{ flex: 1 }} />
+                        <div style={{ minWidth: 40, textAlign: 'right', fontSize: 12, color: '#374151', fontWeight: 700 }}>{Math.round((overlayAdOpacity || 1) * 100)}%</div>
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>TAG OPACITY</label>
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <input type="range" min={0} max={100} value={Math.round((overlayTagOpacity || 1) * 100)} onChange={(e) => setOverlayTagOpacity(Number(e.target.value) / 100)} style={{ flex: 1 }} />
+                        <div style={{ minWidth: 40, textAlign: 'right', fontSize: 12, color: '#374151', fontWeight: 700 }}>{Math.round((overlayTagOpacity || 1) * 100)}%</div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Position Dropdown */}
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>POSITION</label>
                       <div tabIndex={0} onBlur={() => setOverlayPositionOpen(false)} style={{ position: 'relative' }}>
                         <button onClick={() => setOverlayPositionOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, border: '2px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s ease', borderColor: overlayPositionOpen ? '#0b74de' : '#e5e7eb', backgroundColor: overlayPositionOpen ? '#f0f9ff' : 'white' }}>
-                          <span>{overlayAdPosition === 'bottom' ? '📍 Bottom Ticker' : overlayAdPosition === 'top' ? '📍 Top Ticker' : '📺 Full Screen Banner'}</span>
+                          <span>{overlayAdPosition === 'bottom' ? '📍 Bottom Ticker' : overlayAdPosition === 'top' ? '📍 Top Ticker' : overlayAdPosition === 'fullscreen' ? '📺 Full Screen Banner' : '🎯 Video Overlay'}</span>
                           <ChevronDown size={16} style={{ transition: 'transform 0.2s ease', transform: overlayPositionOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                         </button>
                         {overlayPositionOpen && (
@@ -5319,6 +5499,25 @@ export default function StaffDashboard() {
                             <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('bottom'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'bottom' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'bottom' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'bottom' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'bottom' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'bottom' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'bottom' ? '#dbeafe' : 'transparent'; }}>📍 Bottom Ticker</div>
                             <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('top'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'top' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'top' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'top' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'top' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'top' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'top' ? '#dbeafe' : 'transparent'; }}>📍 Top Ticker</div>
                             <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('fullscreen'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'fullscreen' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'fullscreen' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'fullscreen' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'fullscreen' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'fullscreen' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'fullscreen' ? '#dbeafe' : 'transparent'; }}>📺 Full Screen Banner</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('videoOverlay'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'videoOverlay' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'videoOverlay' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'videoOverlay' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'videoOverlay' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'videoOverlay' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'videoOverlay' ? '#dbeafe' : 'transparent'; }}>🎯 Video Overlay</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Animation Selector Dropdown */}
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>TEXT ANIMATION</label>
+                      <select 
+                        value={overlayTextAnimation} 
+                        onChange={(e) => setOverlayTextAnimation(e.target.value)}
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '2px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 500, transition: 'all 0.2s ease', borderColor: '#e5e7eb', backgroundColor: 'white' }}
+                      >
+                        <option value="marquee">🎬 Marquee (Left to Right)</option>
+                        <option value="fade">✨ Fade In/Out</option>
+                        <option value="slide">➡️ Slide In/Out</option>
+                      </select>
+                    </div>
 
                     {/* Emoji Selector Dropdown */}
                     <div style={{ marginBottom: 16 }}>
@@ -5369,15 +5568,38 @@ export default function StaffDashboard() {
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                    <button onClick={() => { setAdsMode(null); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Close</button>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => { setAdsMode(null); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Close</button>
+                      <button onClick={() => {
+                        if (!overlayAdCompanyName || (overlayAdTextItems.length === 0 && !overlayAdText)) { 
+                          setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name and at least one message.' }); 
+                          return; 
+                        }
+                        setOverlayTemplateName('');
+                        setShowOverlaySaveModal(true);
+                      }} style={{ padding: '8px 16px', borderRadius: 8, background: '#8b5cf6', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Save Template</button>
+                      <button onClick={() => {
+                        if (!overlayAdCompanyName || (overlayAdTextItems.length === 0 && !overlayAdText)) { 
+                          setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name and at least one message.' }); 
+                          return; 
+                        }
+                        setShowOverlayPreview(true);
+                      }} style={{ padding: '10px 16px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Preview</button>
+                      {overlayTemplates.length > 0 && (
+                        <button onClick={() => setShowOverlayTemplatesModal(true)} style={{ padding: '10px 16px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Saved Templates</button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
                     <button onClick={() => {
                       if (!overlayAdCompanyName || (overlayAdTextItems.length === 0 && !overlayAdText)) { 
                         setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name and at least one message.' }); 
                         return; 
                       }
-                      setShowOverlayPreview(true);
-                    }} style={{ padding: '10px 16px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Preview</button>
+                      setShowOverlayApplyModal(true);
+                    }} style={{ padding: '8px 16px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply</button>
                   </div>
                 </div>
               )}
@@ -5507,6 +5729,258 @@ export default function StaffDashboard() {
                     ))}
                   </div>
                 )}
+              
+              {/* Save Template Modal */}
+              {showOverlaySaveModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowOverlaySaveModal(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+                    <h2 style={{ margin: '0 0 8px 0', fontSize: 20, fontWeight: 700, color: '#1f2937' }}>Save Overlay Template</h2>
+                    <p style={{ margin: '0 0 20px 0', fontSize: 13, color: '#6b7280' }}>Give your overlay template a name to save it for later use.</p>
+                    
+                    <input 
+                      value={overlayTemplateName} 
+                      onChange={(e) => setOverlayTemplateName(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && overlayTemplateName.trim()) {
+                          const newTemplate = {
+                            id: Date.now(),
+                            name: overlayTemplateName.trim(),
+                            companyName: overlayAdCompanyName,
+                            text: overlayAdText,
+                            textItems: overlayAdTextItems,
+                            emoji: overlayAdEmoji,
+                            bgColor: overlayAdBgColor,
+                            textColor: overlayAdTextColor,
+                            brandBgColor: overlayBrandBgColor,
+                            brandTextColor: overlayBrandTextColor,
+                            opacity: overlayAdOpacity,
+                            tagOpacity: overlayTagOpacity,
+                            position: overlayAdPosition,
+                            animation: overlayTextAnimation
+                          };
+                          const updated = [...overlayTemplates, newTemplate];
+                          setOverlayTemplates(updated);
+                          localStorage.setItem('overlayTemplates', JSON.stringify(updated));
+                          // TODO: Save to backend
+                          setToast({ type: 'success', title: 'Saved', message: `Template "${overlayTemplateName}" saved successfully.` });
+                          setShowOverlaySaveModal(false);
+                          setOverlayTemplateName('');
+                        }
+                      }}
+                      placeholder="E.g., Flash Sale, New Product..." 
+                      autoFocus
+                      style={{ width: '100%', padding: '12px', borderRadius: 8, border: '2px solid #e5e7eb', fontSize: 14, marginBottom: 20, boxSizing: 'border-box' }}
+                    />
+                    
+                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <button onClick={() => setShowOverlaySaveModal(false)} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Cancel</button>
+                      <button onClick={() => {
+                        if (!overlayTemplateName.trim()) {
+                          setToast({ type: 'error', title: 'Name required', message: 'Please enter a template name.' });
+                          return;
+                        }
+                        const newTemplate = {
+                          id: Date.now(),
+                          name: overlayTemplateName.trim(),
+                          companyName: overlayAdCompanyName,
+                          text: overlayAdText,
+                          textItems: overlayAdTextItems,
+                          emoji: overlayAdEmoji,
+                          bgColor: overlayAdBgColor,
+                          textColor: overlayAdTextColor,
+                          brandBgColor: overlayBrandBgColor,
+                          brandTextColor: overlayBrandTextColor,
+                          opacity: overlayAdOpacity,
+                          tagOpacity: overlayTagOpacity,
+                          position: overlayAdPosition,
+                          animation: overlayTextAnimation
+                        };
+                        const updated = [...overlayTemplates, newTemplate];
+                        setOverlayTemplates(updated);
+                        localStorage.setItem('overlayTemplates', JSON.stringify(updated));
+                        // TODO: Save to backend
+                        setToast({ type: 'success', title: 'Saved', message: `Template "${overlayTemplateName}" saved successfully.` });
+                        setShowOverlaySaveModal(false);
+                        setOverlayTemplateName('');
+                      }} disabled={!overlayTemplateName.trim()} style={{ padding: '10px 16px', borderRadius: 8, background: overlayTemplateName.trim() ? '#8b5cf6' : '#d1d5db', color: 'white', border: 'none', cursor: overlayTemplateName.trim() ? 'pointer' : 'not-allowed', fontWeight: 600, fontSize: 13 }}>Save</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Saved Overlay Templates Modal */}
+              {showOverlayTemplatesModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowOverlayTemplatesModal(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 700, maxHeight: '85vh', overflowY: 'auto', background: 'white', borderRadius: 12, padding: 24 }}>
+                    <h2 style={{ margin: '0 0 20px 0', fontSize: 20, fontWeight: 700 }}>Saved Overlay Templates</h2>
+                    {overlayTemplates.length === 0 ? (
+                      <div style={{ padding: 24, textAlign: 'center', color: '#9ca3af' }}>No templates saved yet.</div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {overlayTemplates.map((tpl) => (
+                          <div key={tpl.id} style={{ padding: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb' }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: 700, fontSize: 14, color: '#1f2937', marginBottom: 4 }}>{tpl.name}</div>
+                                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>
+                                  <span style={{ display: 'inline-block', marginRight: 12 }}>📢 {tpl.companyName}</span>
+                                  <span style={{ display: 'inline-block' }}>✨ {tpl.animation}</span>
+                                </div>
+                                <div style={{ fontSize: 12, color: '#9ca3af' }}>{tpl.textItems?.length || 0} message{(tpl.textItems?.length || 0) !== 1 ? 's' : ''}</div>
+                              </div>
+                              <div style={{ display: 'flex', gap: 6 }}>
+                                <button onClick={() => {
+                                  // Load template
+                                  setOverlayAdCompanyName(tpl.companyName || '');
+                                  setOverlayAdText(tpl.text || '');
+                                  setOverlayAdTextItems(tpl.textItems || []);
+                                  setOverlayAdEmoji(tpl.emoji || '⚡');
+                                  setOverlayAdBgColor(tpl.bgColor || '#E41E24');
+                                  setOverlayAdTextColor(tpl.textColor || '#fff');
+                                  setOverlayBrandBgColor(tpl.brandBgColor || '#ffffff');
+                                  setOverlayBrandTextColor(tpl.brandTextColor || '#000000');
+                                  setOverlayAdOpacity(tpl.opacity != null ? tpl.opacity : 1);
+                                  setOverlayTagOpacity(tpl.tagOpacity != null ? tpl.tagOpacity : 1);
+                                  setOverlayAdPosition(tpl.position || 'bottom');
+                                  setOverlayTextAnimation(tpl.animation || 'marquee');
+                                  setShowOverlayTemplatesModal(false);
+                                  setAdsMode('overlay');
+                                  setToast({ type: 'success', title: 'Loaded', message: `Template "${tpl.name}" loaded.` });
+                                }} style={{ padding: '6px 12px', borderRadius: 6, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>Apply</button>
+                                <button onClick={() => {
+                                  const updated = overlayTemplates.filter(t => t.id !== tpl.id);
+                                  setOverlayTemplates(updated);
+                                  localStorage.setItem('overlayTemplates', JSON.stringify(updated));
+                                  // TODO: Delete from backend
+                                  setToast({ type: 'success', title: 'Deleted', message: `Template "${tpl.name}" deleted.` });
+                                }} style={{ padding: '6px 12px', borderRadius: 6, background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>Delete</button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {showBottomApplyModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowBottomApplyModal(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 600, maxHeight: '90vh', overflowY: 'auto', background: 'white', borderRadius: 12, padding: 24 }}>
+                    <h2 style={{ margin: '0 0 20px 0', fontSize: 20, fontWeight: 700 }}>Apply Bottom Ad to Videos</h2>
+                    
+                    {/* Search Input */}
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Search Videos</label>
+                      <input 
+                        value={bottomApplyVideoSearch} 
+                        onChange={(e) => setBottomApplyVideoSearch(e.target.value)} 
+                        placeholder="Search by title or author..." 
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }}
+                      />
+                    </div>
+
+                    {/* Time Controls */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Start Time (seconds)</label>
+                        <input type="number" min={0} value={bottomApplyStartTime} onChange={(e) => setBottomApplyStartTime(Math.max(0, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Duration (seconds)</label>
+                        <input type="number" min={1} value={bottomApplyDuration} onChange={(e) => setBottomApplyDuration(Math.max(1, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                    </div>
+
+                    {/* Video List */}
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 10 }}>Select Videos</label>
+                      <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 8, padding: 8 }}>
+                        {videos.filter(v => !bottomApplyVideoSearch || v.title.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()))).length === 0 ? (
+                          <div style={{ padding: 16, textAlign: 'center', color: '#9ca3af' }}>No videos found</div>
+                        ) : (
+                          videos.filter(v => !bottomApplyVideoSearch || v.title.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()))).map(video => (
+                            <div key={video.id} style={{ padding: 10, borderRadius: 6, marginBottom: 6, background: bottomApplySelectedVideos.includes(video.id) ? '#dbeafe' : '#f9fafb', border: `2px solid ${bottomApplySelectedVideos.includes(video.id) ? '#0b74de' : 'transparent'}`, cursor: 'pointer', transition: 'all 0.2s ease' }} onClick={() => setBottomApplySelectedVideos(bottomApplySelectedVideos.includes(video.id) ? bottomApplySelectedVideos.filter(id => id !== video.id) : [...bottomApplySelectedVideos, video.id])}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <input type="checkbox" checked={bottomApplySelectedVideos.includes(video.id)} readOnly style={{ cursor: 'pointer' }} />
+                                <div>
+                                  <div style={{ fontWeight: 600, fontSize: 13, color: '#1f2937' }}>{video.title}</div>
+                                  <div style={{ fontSize: 12, color: '#9ca3af' }}>by {video.author || 'Unknown'}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Buttons */}
+                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <button onClick={() => setShowBottomApplyModal(false)} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Cancel</button>
+                      <button onClick={handleApplyBottomAd} style={{ padding: '10px 16px', borderRadius: 8, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply to Videos</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {showOverlayApplyModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowOverlayApplyModal(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 600, maxHeight: '90vh', overflowY: 'auto', background: 'white', borderRadius: 12, padding: 24 }}>
+                    <h2 style={{ margin: '0 0 20px 0', fontSize: 20, fontWeight: 700 }}>Apply Overlay to Videos</h2>
+                    
+                    {/* Search Input */}
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Search Videos</label>
+                      <input 
+                        value={overlayApplyVideoSearch} 
+                        onChange={(e) => setOverlayApplyVideoSearch(e.target.value)} 
+                        placeholder="Search by title or author..." 
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }}
+                      />
+                    </div>
+
+                    {/* Time Controls */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Start Time (seconds)</label>
+                        <input type="number" min={0} value={overlayApplyStartTime} onChange={(e) => setOverlayApplyStartTime(Math.max(0, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Duration (seconds)</label>
+                        <input type="number" min={1} value={overlayApplyEndTime} onChange={(e) => setOverlayApplyEndTime(Math.max(1, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                    </div>
+
+                    {/* Video List */}
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 10 }}>Select Videos</label>
+                      <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 8, padding: 8 }}>
+                        {videos.filter(v => !overlayApplyVideoSearch || v.title.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()))).length === 0 ? (
+                          <div style={{ padding: 16, textAlign: 'center', color: '#9ca3af' }}>No videos found</div>
+                        ) : (
+                          videos.filter(v => !overlayApplyVideoSearch || v.title.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()))).map(video => (
+                            <div key={video.id} style={{ padding: 10, borderRadius: 6, marginBottom: 6, background: overlayApplySelectedVideos.includes(video.id) ? '#dbeafe' : '#f9fafb', border: `2px solid ${overlayApplySelectedVideos.includes(video.id) ? '#0b74de' : 'transparent'}`, cursor: 'pointer', transition: 'all 0.2s ease' }} onClick={() => setOverlayApplySelectedVideos(overlayApplySelectedVideos.includes(video.id) ? overlayApplySelectedVideos.filter(id => id !== video.id) : [...overlayApplySelectedVideos, video.id])}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <input type="checkbox" checked={overlayApplySelectedVideos.includes(video.id)} readOnly style={{ cursor: 'pointer' }} />
+                                <div>
+                                  <div style={{ fontWeight: 600, fontSize: 13, color: '#1f2937' }}>{video.title}</div>
+                                  <div style={{ fontSize: 12, color: '#9ca3af' }}>by {video.author || 'Unknown'}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Buttons */}
+                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <button onClick={() => setShowOverlayApplyModal(false)} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Cancel</button>
+                      <button onClick={handleApplyOverlayAd} style={{ padding: '10px 16px', borderRadius: 8, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply to Videos</button>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               {/* Bottom ad preview overlay */}
               {showBottomPreview && (
@@ -6907,6 +7381,19 @@ export default function StaffDashboard() {
               {/* Video preview area */}
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
                 <div style={{ fontSize: 24, color: '#9ca3af' }}>Video Content Area</div>
+                {/* Static placeholder ad card - full width */}
+                <div style={{ position: 'absolute', width: '100%', height: 160, background: 'rgba(17,24,39,0.94)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2, boxShadow: '0 12px 30px rgba(0,0,0,0.5)' }}>
+                  <div style={{ width: '95%', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 10, background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontWeight: 700, flexShrink: 0 }}>
+                      {(bottomAdProfileName || '').charAt(0).toUpperCase() || 'A'}
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{bottomAdProfileName || 'Advertiser'}</div>
+                      <div style={{ fontSize: 13, color: '#e6eef8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{bottomAdText || 'Your ad text goes here. Click to edit...'}</div>
+                    </div>
+                    <a href={bottomAdLink || '#'} target="_blank" rel="noreferrer" style={{ background: '#fff', color: '#111827', padding: '8px 12px', borderRadius: 8, textDecoration: 'none', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>Learn more</a>
+                  </div>
+                </div>
               </div>
 
               {/* Overlay ticker based on position */}
@@ -6965,10 +7452,127 @@ export default function StaffDashboard() {
                 </div>
               )}
 
+              {overlayAdPosition === 'videoOverlay' && (
+                <div style={{
+                  position: 'fixed',
+                  bottom: '80px',
+                  left: 0,
+                  right: 0,
+                  zIndex: 1410,
+                  height: 'auto',
+                  pointerEvents: 'none',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'center',
+                  paddingLeft: 0,
+                  paddingTop: overlayAdCompanyName ? '24px' : 0
+                }}>
+                  {/* Banner wrapper so tag aligns with banner left */}
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    {/* Company Name Tag - positioned relative to banner */}
+                    {overlayAdCompanyName && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '100%',
+                        left: '0px',
+                        transform: 'translateY(6px)',
+                        background: hexToRgba(overlayAdBgColor || '#E41E24', overlayTagOpacity != null ? overlayTagOpacity : 1),
+                        color: overlayAdTextColor || '#ffffff',
+                        padding: '6px 12px',
+                        borderRadius: '6px 6px 0 0',
+                        fontSize: '12px',
+                        fontWeight: '900',
+                        letterSpacing: '0.6px',
+                        boxShadow: 'none',
+                        whiteSpace: 'nowrap',
+                        textTransform: 'uppercase',
+                        border: '1px solid rgba(0,0,0,0.06)'
+                      }}>
+                        {overlayAdCompanyName}
+                      </div>
+                    )}
+
+                    {/* Red Banner - Centered with Text */}
+                    <div style={{
+                      background: hexToRgba(overlayAdBgColor || '#dc2626', overlayAdOpacity != null ? overlayAdOpacity : 1),
+                      padding: '12px 24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '12px',
+                      boxShadow: overlayAdOpacity > 0.5 ? '0 6px 18px rgba(0,0,0,0.35)' : 'none',
+                      borderRadius: '6px',
+                      color: overlayAdTextColor || '#ffffff',
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      letterSpacing: '0.25px'
+                    }}>
+                      <div>
+                        {overlayTextAnimation === 'marquee' && (
+                          <div style={{
+                            display: 'flex',
+                            animation: 'marqueeScroll 14s linear infinite',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {overlayAdTextItems && overlayAdTextItems.length > 0 ? (
+                              overlayAdTextItems.map((it) => (
+                                <span key={it.id} style={{ paddingRight: 32, display: 'inline-block' }}>{overlayAdEmoji} {it.text}</span>
+                              ))
+                            ) : (
+                              <span style={{ display: 'inline-block' }}>{overlayAdEmoji} {overlayAdText || 'Your announcement here'}</span>
+                            )}
+                          </div>
+                        )}
+                        {overlayTextAnimation === 'fade' && (
+                          <div style={{
+                            animation: 'fadeInOut 6s ease-in-out infinite',
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap',
+                            minWidth: '300px'
+                          }}>
+                            {overlayAdTextItems && overlayAdTextItems.length > 0 ? (
+                              overlayAdTextItems[0] && <span>{overlayAdEmoji} {overlayAdTextItems[0].text}</span>
+                            ) : (
+                              <span>{overlayAdEmoji} {overlayAdText || 'Your announcement here'}</span>
+                            )}
+                          </div>
+                        )}
+                        {overlayTextAnimation === 'slide' && (
+                          <div style={{
+                            animation: 'slideInOut 8s ease-in-out infinite',
+                            whiteSpace: 'nowrap',
+                            minWidth: '300px',
+                            textAlign: 'center'
+                          }}>
+                            {overlayAdTextItems && overlayAdTextItems.length > 0 ? (
+                              overlayAdTextItems[0] && <span>{overlayAdEmoji} {overlayAdTextItems[0].text}</span>
+                            ) : (
+                              <span>{overlayAdEmoji} {overlayAdText || 'Your announcement here'}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <style>{`
-                @keyframes scroll {
-                  0% { transform: translateX(0); }
-                  100% { transform: translateX(-100%); }
+                @keyframes marqueeScroll {
+                  0% { 
+                    transform: translateX(-100%);
+                  }
+                  100% { 
+                    transform: translateX(100%);
+                  }
+                }
+                @keyframes fadeInOut {
+                  0%, 100% { opacity: 0; }
+                  50% { opacity: 1; }
+                }
+                @keyframes slideInOut {
+                  0%, 100% { transform: translateX(-100%); }
+                  50% { transform: translateX(0); }
                 }
               `}</style>
             </div>

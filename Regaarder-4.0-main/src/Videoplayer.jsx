@@ -30,7 +30,6 @@ const VideoPlayer = () => {
 	const [error, setError] = useState(null);
 	const [videoInfo, setVideoInfo] = useState(null);
 	const videoRef = useRef(null);
-	const _recordFnRef = useRef(null);
 	const containerRef = useRef(null);
 	const player = useContext(PlayerContext) || {};
 	const globalVideoRef = player.videoRef;
@@ -283,58 +282,6 @@ const VideoPlayer = () => {
 		return () => window.removeEventListener('wheel', handler);
 	}, []);
 
-	// Wire watch-history recording for this simple player instance (dynamic import to avoid bundler errors)
-	useEffect(() => {
-		const v = videoRef.current;
-		if (!v || !videoInfo) return;
-		let mounted = true;
-		// import once and cache the recording function
-		import('./watchhistory.jsx').then((m) => { if (mounted) _recordFnRef.current = m.recordWatchProgress; }).catch(() => { });
-
-		const saveProgress = (isComplete = false) => {
-			try {
-				const fn = _recordFnRef.current;
-				if (typeof fn !== 'function') return; // not available yet
-				fn({
-					videoId: videoInfo.id || videoInfo.src || videoInfo.title || null,
-					userId: null,
-					lastWatchedTime: Math.floor(v.currentTime || 0),
-					duration: Math.floor(v.duration || 0),
-					timestamp: new Date().toISOString(),
-					isComplete: Boolean(isComplete)
-				});
-
-				// also persist concise playback position locally for quick resume
-				try {
-					const key = 'playback:' + (videoInfo.id || videoInfo.src || videoInfo.url || videoInfo.title || '');
-					localStorage.setItem(key, JSON.stringify({ videoId: videoInfo.id || videoInfo.src || videoInfo.title || null, currentTime: Math.floor(v.currentTime || 0), updatedAt: new Date().toISOString() }));
-				} catch (e) { }
-			} catch (e) {
-				// best-effort
-			}
-		};
-
-		const onPause = () => saveProgress(false);
-		const onEnded = () => saveProgress(true);
-
-		v.addEventListener('pause', onPause);
-		v.addEventListener('ended', onEnded);
-
-		// periodic save while playing
-		const interval = setInterval(() => { try { if (!v.paused && !v.ended) saveProgress(false); } catch { } }, 15000);
-
-		const onPageHide = () => saveProgress(v.ended || false);
-		window.addEventListener('pagehide', onPageHide);
-		const onVis = () => { if (document.visibilityState === 'hidden') onPageHide(); };
-		document.addEventListener('visibilitychange', onVis);
-
-		return () => {
-			mounted = false;
-			try { v.removeEventListener('pause', onPause); v.removeEventListener('ended', onEnded); } catch { }
-			try { window.removeEventListener('pagehide', onPageHide); document.removeEventListener('visibilitychange', onVis); } catch { }
-			clearInterval(interval);
-		};
-	}, [videoInfo]);
 
 	if (error) {
 		return (
@@ -893,6 +840,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	// NEW: Video overlays (links/images) that appear at specific times
 	const [videoOverlays, setVideoOverlays] = useState([]);
 	const [visibleOverlays, setVisibleOverlays] = useState([]);
+
+	// NEW: Video ads (bottom panel ads that appear at specific times)
+	const [videoAds, setVideoAds] = useState([]);
+	const [visibleAds, setVisibleAds] = useState([]);
 
 	// NEW: orientation + natural aspect
 	const [orientation, setOrientation] = useState("landscape"); // "landscape" (16:9 default) or "portrait" (9:16)
@@ -1528,6 +1479,96 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 		v.addEventListener('timeupdate', handleTimeUpdate);
 		return () => v.removeEventListener('timeupdate', handleTimeUpdate);
 	}, [videoOverlays]);
+
+	// Load ads from videoInfo when it changes
+	useEffect(() => {
+		let allAds = [];
+		
+		// Load from nested structure: ads.bottom and ads.overlays
+		if (videoInfo && videoInfo.ads) {
+			if (Array.isArray(videoInfo.ads.bottom)) {
+				allAds = [...allAds, ...videoInfo.ads.bottom];
+			}
+			if (Array.isArray(videoInfo.ads.overlays)) {
+				// Note: overlays might be rendered differently, but we can handle them as ads too
+				const overlayAds = videoInfo.ads.overlays.map(o => ({
+					...o,
+					type: o.type || 'overlay'
+				}));
+				allAds = [...allAds, ...overlayAds];
+			}
+		}
+		
+		// Also check for flat ads array (legacy format)
+		if (videoInfo && Array.isArray(videoInfo.ads) && videoInfo.ads.length > 0 && !videoInfo.ads[0].type) {
+			allAds = [...allAds, ...videoInfo.ads];
+		}
+		
+		// TEST: Add sample ads for debugging
+		if (allAds.length === 0 && videoInfo) {
+			allAds = [
+				{
+					id: 'test-ad-1',
+					profileName: 'Tesla Motors',
+					profileAvatar: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.VoVBbSBay_bsfT2EC5U4-wHaHa%3Fpid%3DApi&f=1&ipt=da75805acbc19e9813e65fc68c7a5203b828250f01c4fc38d1a0a86b039784a0&ipo=images',
+					text: 'Order your New car now!',
+					link: 'https://www.tesla.com',
+					startTime: 0,
+					duration: 5
+				}
+			];
+		}
+		
+		// Debug: log when ads are loaded
+		if (allAds.length > 0) {
+			console.log('Loaded ads:', allAds);
+		}
+		
+		setVideoAds(allAds);
+	}, [videoInfo]);
+
+	// Update visible ads based on current playback time
+	useEffect(() => {
+		if (!videoRef.current) {
+			setVisibleAds([]);
+			return;
+		}
+
+		const currentTime = videoRef.current.currentTime;
+		const visible = videoAds.filter(ad => {
+			const startTime = ad.startTime || 0;
+			const endTime = startTime + (ad.duration || 3);
+			return currentTime >= startTime && currentTime < endTime;
+		});
+
+		console.log('Checking visible ads at time', currentTime, 'out of', videoAds.length, 'total ads');
+		setVisibleAds(visible);
+	}, [videoAds]);
+
+	// Update visible ads on timeupdate
+	useEffect(() => {
+		const v = videoRef.current;
+		if (!v) return;
+
+		const handleTimeUpdate = () => {
+			const currentTime = v.currentTime;
+			const visible = videoAds.filter(ad => {
+				const startTime = ad.startTime || 0;
+				const endTime = startTime + (ad.duration || 3);
+				return currentTime >= startTime && currentTime < endTime;
+			});
+			
+			// Debug: log when ads become visible
+			if (visible.length > 0) {
+				console.log('Visible ads at time', currentTime, ':', visible);
+			}
+			
+			setVisibleAds(visible);
+		};
+
+		v.addEventListener('timeupdate', handleTimeUpdate);
+		return () => v.removeEventListener('timeupdate', handleTimeUpdate);
+	}, [videoAds]);
 
 	// AUTO-PLAY DISABLED: Users must manually click play to start video
 	// (previously attempted autoplay when initialVideo was provided)
@@ -4829,6 +4870,124 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					</div>
 				</div>
 			</div>
+
+			{/* 5. Bottom Ads Panel - displays ads at specific video times */}
+			{visibleAds && visibleAds.length > 0 && (
+				<div
+					style={{
+						position: 'fixed',
+						bottom: 'calc(env(safe-area-inset-bottom, 20px) + 120px)',
+						left: 0,
+						right: 0,
+						zIndex: 38,
+						backgroundColor: 'rgba(0, 0, 0, 0.95)',
+						borderTop: '2px solid rgba(255, 0, 255, 0.6)',
+						borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+						padding: '12px 16px',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '12px',
+						maxHeight: '140px',
+						overflowX: 'auto',
+						overflowY: 'hidden',
+						scrollBehavior: 'smooth',
+						boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.5)'
+					}}
+				>
+					{visibleAds.map((ad) => (
+						<div
+							key={ad.id || `ad-${Math.random()}`}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '10px',
+								backgroundColor: 'rgba(255, 255, 255, 0.08)',
+								borderRadius: '8px',
+								padding: '10px 12px',
+								minWidth: '240px',
+								flex: '0 0 auto',
+								border: '1px solid rgba(255, 255, 255, 0.12)',
+								cursor: 'pointer',
+								transition: 'all 200ms ease',
+								hover: 'background-color: rgba(255, 255, 255, 0.15)'
+							}}
+							onClick={() => {
+								if (ad.link) {
+									window.open(ad.link, '_blank');
+								}
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+								e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+								e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+							}}
+						>
+							{/* Ad Avatar/Logo */}
+							{(ad.profileAvatar || ad.avatar) && (
+								<div
+									style={{
+										width: '48px',
+										height: '48px',
+										borderRadius: '6px',
+										backgroundColor: '#333',
+										backgroundImage: `url('${ad.profileAvatar || ad.avatar}')`,
+										backgroundSize: 'cover',
+										backgroundPosition: 'center',
+										flexShrink: 0,
+										border: '1px solid rgba(255, 255, 255, 0.1)'
+									}}
+								/>
+							)}
+							
+							{/* Ad Content */}
+							<div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+								{/* Ad Name */}
+								<div
+									style={{
+										fontSize: '13px',
+										fontWeight: '600',
+										color: '#ffffff',
+										whiteSpace: 'nowrap',
+										overflow: 'hidden',
+										textOverflow: 'ellipsis'
+									}}
+								>
+									{ad.profileName || ad.name || 'Sponsored'}
+								</div>
+								{/* Ad Text */}
+								<div
+									style={{
+										fontSize: '12px',
+										color: 'rgba(255, 255, 255, 0.7)',
+										whiteSpace: 'nowrap',
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+										lineHeight: '1.2'
+									}}
+								>
+									{ad.text || 'Check out our offer'}
+								</div>
+							</div>
+							
+							{/* CTA Arrow */}
+							<div
+								style={{
+									color: 'rgba(255, 255, 255, 0.6)',
+									fontSize: '16px',
+									flexShrink: 0,
+									display: 'flex',
+									alignItems: 'center'
+								}}
+							>
+								→
+							</div>
+						</div>
+					))}
+				</div>
+			)}
 
 			{/* Modal: Options dialog (carbon copy style) */}
 			{showMenu && (
