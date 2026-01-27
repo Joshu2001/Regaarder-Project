@@ -1,9 +1,11 @@
 /* eslint-disable no-empty */
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, FileText, File as FileIcon, Pencil, MoreHorizontal, MoreVertical, Pin, Star, TrendingUp, Trophy, User, Zap, Video, Clock, BarChart, Upload, Lightbulb, Headphones, Copy, LineChart, CheckCircle, Search, Globe, Link2, Image, Lock, Link, Eye, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import RequestsFeed from './requests.jsx';
 import VideoOverlayEditor from './VideoOverlayEditor.jsx';
+import FeedbackModal from './FeedbackModal.jsx'; // Feedback Modal
+import { useAuth } from './AuthContext.jsx';
 import { getTranslation, translations } from './translations.js';
 
 // No per-page CSS vars here — let the page inherit the global :root variables
@@ -425,6 +427,7 @@ const ClaimStatusPanel = ({
     const [linkCopied, setLinkCopied] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('regaarder_language') : 'English') || 'English');
+    const { user: authUser } = useAuth(); // For accent color in category dropdown
 
     useEffect(() => {
         const handleStorage = () => {
@@ -447,22 +450,8 @@ const ClaimStatusPanel = ({
             }
         } catch (e) { }
     }, []);
-
-    const [videoTitle, setVideoTitle] = useState(title || '');
-    const [category, setCategory] = useState('');
-    const categories = ['Travel', 'Education', 'Entertainment', 'Music', 'Sports'];
-    const [categoryOpen, setCategoryOpen] = useState(false);
-    const categoryRef = useRef(null);
-    const [scriptOpen, setScriptOpen] = useState(false);
-    const scriptRef = useRef(null);
-    const [appearance, setAppearance] = useState('public');
-    const [scriptType, setScriptType] = useState('');
-    const scriptTypes = ['Narration', 'Interview', 'Vlog', 'Explainer', 'Other'];
-    const [scriptFile, setScriptFile] = useState(null);
-    const [scriptOther, setScriptOther] = useState('');
-    const scriptInputRef = useRef(null);
-    const [changeNote, setChangeNote] = useState('');
-    const [isReuploading, setIsReuploading] = useState(false);
+    
+    // Format state and definitions for video uploads
     const [videoFormat, setVideoFormat] = useState('one-time');
     const formats = [
         { key: 'one-time', label: getTranslation('One-Time', selectedLanguage), fullLabel: getTranslation('One-Time Video', selectedLanguage), desc: getTranslation('Single video delivery', selectedLanguage), icon: '🎬' },
@@ -472,9 +461,102 @@ const ClaimStatusPanel = ({
     ];
     const [formatOpen, setFormatOpen] = useState(false);
     const formatRef = useRef(null);
-
-    // Currently selected format object (falls back to first format)
+    
     const selectedFormat = formats.find(f => f.key === videoFormat) || formats[0];
+
+    // Category states
+    const [category, setCategory] = useState('');
+    const [categoryOpen, setCategoryOpen] = useState(false);
+    const [isAddingCategory, setIsAddingCategory] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [categories, setCategories] = useState(['Travel', 'Education', 'Entertainment', 'Music', 'Sports']); // Default fallback
+    const categoryRef = useRef(null);
+
+    // Fetch categories from backend
+    const fetchCategories = useCallback(async () => {
+        try {
+            const res = await fetch('http://localhost:4000/categories');
+            if (res.ok) {
+                const data = await res.json();
+                console.log('Fetched categories:', data);
+                if (Array.isArray(data) && data.length > 0) {
+                    setCategories(data);
+                    return;
+                }
+            }
+            // Fallback defaults if empty
+            setCategories(['Travel', 'Education', 'Entertainment', 'Music', 'Sports']);
+        } catch (err) {
+            console.error("Error fetching categories:", err);
+            setCategories(['Travel', 'Education', 'Entertainment', 'Music', 'Sports']);
+        }
+    }, []);
+
+    // Fetch on mount
+    useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
+
+    // Also refetch when dropdown opens (to get any newly added categories)
+    useEffect(() => {
+        if (categoryOpen && !isAddingCategory) {
+            fetchCategories();
+        }
+    }, [categoryOpen, isAddingCategory, fetchCategories]);
+    
+    const handleSaveNewCategory = async () => {
+        if (!newCategoryName.trim()) {
+            setIsAddingCategory(false);
+            return;
+        }
+
+        try {
+            const raw = newCategoryName.trim();
+            const res = await fetch('http://localhost:4000/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: raw })
+            });
+            
+            if (res.ok) {
+                const updatedList = await res.json();
+                setCategories(updatedList);
+                setCategory(raw); // Select the newly created category
+                // Keep dropdown open so user can see the new category in the list
+                setIsAddingCategory(false);
+                setNewCategoryName('');
+                // Don't close dropdown - let user see the updated list
+                return;
+            }
+        } catch (e) {
+            console.error("Failed to save category", e);
+        }
+
+        setNewCategoryName('');
+        setIsAddingCategory(false);
+        setCategoryOpen(false);
+    };
+
+    const handleCategorySelect = (c) => {
+        setCategory(c);
+        setCategoryOpen(false);
+    };
+
+    const [scriptOpen, setScriptOpen] = useState(false);
+    const scriptRef = useRef(null);
+    
+    // Video upload and editing states for this claim panel
+    const [videoTitle, setVideoTitle] = useState(title || '');
+    const [appearance, setAppearance] = useState('public');
+    const [scriptType, setScriptType] = useState('');
+    const scriptTypes = ['Narration', 'Interview', 'Vlog', 'Explainer', 'Other'];
+    const [scriptFile, setScriptFile] = useState(null);
+    const [scriptOther, setScriptOther] = useState('');
+    const scriptInputRef = useRef(null);
+    const [changeNote, setChangeNote] = useState('');
+    const [isReuploading, setIsReuploading] = useState(false);
+    const [publishStep, setPublishStep] = useState('form');
+    const [previewData, setPreviewData] = useState(null);
 
     // Status steps for the claim workflow (used to render the tracker and labels)
     const steps = [
@@ -504,6 +586,8 @@ const ClaimStatusPanel = ({
     // Track how many times a video has been published for this request
     const [publishedCount, setPublishedCount] = useState(0);
     const [publishedItems, setPublishedItems] = useState([]);
+    const [privateLink, setPrivateLink] = useState('');
+    const [showPrivateLinkModal, setShowPrivateLinkModal] = useState(false);
     // Load persisted published items (if any) so Published tab reflects prior publishes
     useEffect(() => {
         try {
@@ -530,9 +614,6 @@ const ClaimStatusPanel = ({
     const seriesLimit = 5;
     const catalogueLimit = 5;
     const [lastPublished, setLastPublished] = useState(null);
-    // Two-step publish flow state: 'form', 'overlays', or 'preview'
-    const [publishStep, setPublishStep] = useState('form');
-    const [previewData, setPreviewData] = useState(null);
     const [videoOverlays, setVideoOverlays] = useState([]);
     const [creatorName, setCreatorName] = useState('CreatorName');
     const [creatorHandle, setCreatorHandle] = useState(null);
@@ -1469,7 +1550,17 @@ const ClaimStatusPanel = ({
                                             </div>
 
                                             <div className="mb-6">
-                                                <div className="text-sm font-medium text-gray-700 mb-2">{getTranslation('Category', selectedLanguage)} <span className="text-red-500">*</span></div>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="text-sm font-medium text-gray-700">{getTranslation('Category', selectedLanguage)} <span className="text-red-500">*</span></div>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => { setIsAddingCategory(true); setCategoryOpen(true); }}
+                                                        className="text-gray-400 hover:text-blue-600 transition-colors p-1"
+                                                        title="Add Category"
+                                                    >
+                                                        <Pencil size={14} />
+                                                    </button>
+                                                </div>
                                                 <div className="relative" ref={categoryRef}>
                                                     <button
                                                         type="button"
@@ -1483,21 +1574,44 @@ const ClaimStatusPanel = ({
                                                     </button>
 
                                                     {categoryOpen && (
-                                                        <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 max-h-48 overflow-y-auto">
-                                                            {categories.map((c) => {
-                                                                const selected = c === category;
-                                                                return (
-                                                                    <button
-                                                                        key={c}
-                                                                        type="button"
-                                                                        onClick={() => { setCategory(c); setCategoryOpen(false); }}
-                                                                        className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
-                                                                    >
-                                                                        <span className="text-sm text-gray-900">{getTranslation(c, selectedLanguage)}</span>
-                                                                        {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
+                                                        <div className="absolute left-0 mt-2 w-full z-30 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                                                            {isAddingCategory ? (
+                                                                <div className="p-2 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
+                                                                    <input 
+                                                                        autoFocus
+                                                                        value={newCategoryName}
+                                                                        onChange={(e) => setNewCategoryName(e.target.value)}
+                                                                        placeholder="New Category..."
+                                                                        className="flex-1 text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-blue-500"
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === 'Enter') { e.preventDefault(); handleSaveNewCategory(); }
+                                                                             if (e.key === 'Escape') setIsAddingCategory(false);
+                                                                        }}
+                                                                    />
+                                                                    <button onClick={handleSaveNewCategory} className="text-green-600 p-1 hover:bg-green-100 rounded">
+                                                                        <CheckCircle size={14} />
                                                                     </button>
-                                                                );
-                                                            })}
+                                                                    <button onClick={() => setIsAddingCategory(false)} className="text-gray-500 p-1 hover:bg-gray-200 rounded">
+                                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                                                                    </button>
+                                                                </div>
+                                                            ) : null}
+                                                            <div className="max-h-48 overflow-y-auto">
+                                                                {categories.map((c) => {
+                                                                    const selected = c === category;
+                                                                    return (
+                                                                        <button
+                                                                            key={c}
+                                                                            type="button"
+                                                                            onClick={() => handleCategorySelect(c)}
+                                                                            className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${selected ? 'bg-[var(--color-gold-light-bg)]' : ''}`}
+                                                                        >
+                                                                            <span className="text-sm text-gray-900">{getTranslation(c, selectedLanguage)}</span>
+                                                                            {selected && <span className="text-[var(--color-gold-darker)]">✓</span>}
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
@@ -1796,7 +1910,8 @@ const ClaimStatusPanel = ({
                                                 }
                                             }}
                                             disabled={(videoFormat === 'one-time' && publishedCount >= 1) || (videoFormat === 'series' && publishedCount >= seriesLimit) || (videoFormat === 'catalogue' && publishedCount >= catalogueLimit)}
-                                            className={`w-full bg-[var(--color-gold)] text-white px-4 py-3 rounded-lg font-semibold mb-3`}
+                                            style={{ backgroundColor: authUser?.accentColor || 'var(--color-gold)' }}
+                                            className={`w-full text-white px-4 py-3 rounded-lg font-semibold mb-3`}
                                         >
                                             {getTranslation('Next: Preview', selectedLanguage)}
                                         </button>
@@ -1808,7 +1923,8 @@ const ClaimStatusPanel = ({
                                             onClick={() => {
                                                 setPublishStep('preview');
                                             }}
-                                            className={`w-full bg-[var(--color-gold)] text-white px-4 py-3 rounded-lg font-semibold mb-3`}
+                                            style={{ backgroundColor: authUser?.accentColor || 'var(--color-gold)' }}
+                                            className={`w-full text-white px-4 py-3 rounded-lg font-semibold mb-3`}
                                         >
                                             {getTranslation('Next: Preview', selectedLanguage)}
                                         </button>
@@ -2271,6 +2387,49 @@ const ClaimStatusPanel = ({
                 requestData={requestData}
                 selectedLanguage={selectedLanguage}
             />
+
+            {/* Private Link Modal */}
+            {showPrivateLinkModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-xl p-6 w-[90%] max-w-md animate-scale-in">
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                {getTranslation('Video Published Privately', selectedLanguage)}
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-6">
+                                {getTranslation('Your video is only visible to those with the link below.', selectedLanguage)}
+                            </p>
+                            
+                            <div className="w-full flex items-center bg-gray-50 rounded-lg border border-gray-200 p-3 mb-6">
+                                <span className="flex-1 truncate text-sm text-gray-600 font-mono select-all">
+                                    {privateLink}
+                                </span>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(privateLink);
+                                        setToastMessage(getTranslation('Link copied!', selectedLanguage));
+                                    }}
+                                    className="ml-2 bg-transparent text-gray-500 hover:text-gray-900 focus:outline-none"
+                                    title={getTranslation('Copy Link', selectedLanguage)}
+                                >
+                                    <Copy size={18} />
+                                </button>
+                            </div>
+                            
+                            <button
+                                onClick={() => setShowPrivateLinkModal(false)}
+                                className="px-6 py-2.5 bg-gray-900 hover:bg-black text-white rounded-lg font-medium transition-colors w-full"
+                            >
+                                {getTranslation('Close', selectedLanguage)}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
                 </>
             )}
         </div>
@@ -2396,6 +2555,19 @@ const App = () => {
     const [activeTopTab, setActiveTopTab] = useState('Overview');
     const [showDropdown, setShowDropdown] = useState(false);
 
+    // Feedback Modal State
+    const [showCreatorFeedback, setShowCreatorFeedback] = useState(false);
+    const [completedRequestId, setCompletedRequestId] = useState(null);
+
+    const handleCreatorFeedbackSubmit = (answers) => {
+        try {
+            console.log('Creator Feedback:', answers);
+            // Save to local storage for demo
+            const feedbackKey = `feedback_creator_${completedRequestId || 'general'}`;
+            localStorage.setItem(feedbackKey, JSON.stringify(answers));
+        } catch (e) { console.error(e); }
+    };
+
     // Check URL parameters on mount to navigate to specific tab
     useEffect(() => {
         try {
@@ -2472,6 +2644,14 @@ const App = () => {
     const [userPlan, setUserPlan] = useState(null);
     const [isProCreator, setIsProCreator] = useState(false);
 
+    // Category states (moved from ClaimStatusPanel where they were causing errors)
+    const [categories, setCategories] = useState(['Travel', 'Education', 'Entertainment', 'Music', 'Sports']);
+    const [categoryOpen, setCategoryOpen] = useState(false);
+    const [category, setCategory] = useState('');
+    const [isAddingCategory, setIsAddingCategory] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const { user: authUser } = useAuth(); // For accent color
+
     // Fetch user plan on mount
     useEffect(() => {
         const fetchUserPlan = async () => {
@@ -2498,6 +2678,71 @@ const App = () => {
 
         fetchUserPlan();
     }, []);
+
+    // Fetch categories from backend - matching home page logic
+    const fetchCategories = useCallback(async () => {
+         try {
+             // Fallback default list
+            const defaults = ['Travel', 'Education', 'Entertainment', 'Music', 'Sports'];
+
+            const res = await fetch('http://localhost:4000/categories');
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    setCategories(data);
+                    return;
+                }
+            }
+             // Fallback if empty/error
+             setCategories(prev => prev.length > 0 ? prev : defaults);
+         } catch(e) { console.error("Could not fetch categories", e); }
+    }, []);
+
+    // Initial load
+    useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
+
+    // Refetch when opening dropdown
+    useEffect(() => {
+        if (categoryOpen && !isAddingCategory) {
+            fetchCategories();
+        }
+    }, [categoryOpen, isAddingCategory, fetchCategories]);
+
+    const handleSaveNewCategory = async () => {
+        if (!newCategoryName.trim()) {
+            setIsAddingCategory(false);
+            return;
+        }
+
+        try {
+            const raw = newCategoryName.trim();
+            const res = await fetch('http://localhost:4000/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: raw })
+            });
+            
+            if (res.ok) {
+                const updatedList = await res.json();
+                setCategories(updatedList);
+                setCategory(raw); // Select it
+            }
+        } catch (e) {
+            console.error("Failed to save category", e);
+        }
+
+        setNewCategoryName('');
+        setIsAddingCategory(false);
+        setCategoryOpen(false);
+    };
+
+    const handleCategorySelect = (c) => {
+        setCategory(c);
+        setCategoryOpen(false);
+    };
+    const categoryRef = useRef(null);
 
     const [claimedRequests, setClaimedRequests] = useState(() => {
         try {
@@ -2783,6 +3028,10 @@ const App = () => {
                     originalClaim: requestBeingUpdated
                 };
                 setPublishedList(prev => [publishedItem, ...prev]);
+
+                // TRIGGER FEEDBACK for Creator
+                setCompletedRequestId(requestBeingUpdated.id);
+                setShowCreatorFeedback(true);
             }, 2000);
         }
         
@@ -3668,6 +3917,20 @@ const App = () => {
                     </div>
                 </React.Fragment>
             )}
+            {/* Feedback Modal for Creator */}
+             <FeedbackModal
+                isOpen={showCreatorFeedback}
+                onClose={() => setShowCreatorFeedback(false)}
+                onSubmit={handleCreatorFeedbackSubmit}
+                title={getTranslation('How was the publishing process?', selectedLanguage)}
+                questions={[
+                    { id: 'understood', type: 'likert', label: getTranslation('Did you easily understand the process?', selectedLanguage) },
+                    { id: 'length', type: 'likert', label: getTranslation('Was the process fast enough?', selectedLanguage) },
+                    { id: 'friction', type: 'text', label: getTranslation('Did you face any friction? (Optional)', selectedLanguage), placeholder: 'Describe any issues...' },
+                    { id: 'satisfaction', type: 'likert', label: getTranslation('Overall Satisfaction', selectedLanguage) },
+                    { id: 'suggestions', type: 'text', label: getTranslation('Suggestions for improvement', selectedLanguage) }
+                ]}
+            />
             {/* Footer */}
             <BottomBar selectedLanguage={selectedLanguage} />
 

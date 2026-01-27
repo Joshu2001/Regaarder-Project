@@ -318,6 +318,10 @@ export const translations = {
     'Unlimited Requests': 'Unlimited Requests',
     'Request as many videos as you want': 'Request as many videos as you want',
     'Upgrade Your Plan': 'Upgrade Your Plan',
+    
+    // Ad Visibility Messages
+    'You\'re on a premium plan, no ads will be shown': 'You\'re on a premium plan, no ads will be shown',
+    'Free tier account, ads will be shown': 'Free tier account, ads will be shown',
     'Start your premium journey today': 'Start your premium journey today',
     'Loading...': 'Loading...',
     'Yearly': 'Yearly',
@@ -817,7 +821,7 @@ export const translations = {
     'More': 'More',
     
     // Ideas Page
-    'Book Your Next Video': 'Book Your Next Video',
+    'Book Your Next Videos': 'Book Your Next Videos',
     'Progress': 'Progress',
     'complete': 'complete',
     'About': 'About',
@@ -2207,7 +2211,7 @@ export const translations = {
     'Share link copied': '連結已複製',
 
     // Ideas Page
-    'Book Your Next Video': '預訂您的下一個影片',
+    'Book Your Next Videos': '預訂您的下一個影片',
     'Progress': '進度',
     'complete': '完成',
     'About': '大約',
@@ -4117,7 +4121,7 @@ export const translations = {
     'Move up the rankings': 'Leo lên bảng xếp hạng',
 
     // Ideas Page - Progress & Delivery
-    'Book Your Next Video': 'Đặt video tiếp theo của bạn',
+    'Book Your Next Videos': 'Đặt video tiếp theo của bạn',
     'Progress': 'Tiến độ',
     'complete': 'hoàn thành',
     'Don\'t lose your progress — 30% complete': 'Đừng để mất tiến độ — đã hoàn thành 30%',
@@ -5302,7 +5306,7 @@ export const translations = {
     'Private': 'Pribado',
 
     // Ideas Page - Progress & Delivery
-    'Book Your Next Video': 'I-book ang Iyong Susunod na Video',
+    'Book Your Next Videos': 'I-book ang Iyong Susunod na Video',
     'Progress': 'Progreso',
     'complete': 'kumpleto',
     'Don\'t lose your progress — 30% complete': 'Huwag sayangin ang iyong progreso — 30% kumpleto na',
@@ -6417,7 +6421,7 @@ export const translations = {
     'Private': 'Privado',
 
     // Ideas Page - Progress & Delivery
-    'Book Your Next Video': 'Reserva tu próximo video',
+    'Book Your Next Videos': 'Reserva tu próximo video',
     'Progress': 'Progreso',
     'complete': 'completo',
     'Don\'t lose your progress — 30% complete': 'No pierdas tu progreso — 30% completado',
@@ -7265,7 +7269,7 @@ export const translations = {
     'Private': 'Privaatne',
 
     // Ideas Page - Progress & Delivery
-    'Book Your Next Video': 'Broneeri oma järgmine video',
+    'Book Your Next Videos': 'Broneeri oma järgmine video',
     'Progress': 'Edenemine',
     'complete': 'valmis',
     'Don\'t lose your progress — 30% complete': 'Ära kaota oma edusamme — 30% valmis',

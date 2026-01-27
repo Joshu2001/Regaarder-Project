@@ -192,9 +192,10 @@ const BoostsModalRevamped = ({ isOpen, onClose, requestId, detailedRank, onGiveL
             <div
                 ref={modalRef}
                 tabIndex={-1}
-                className="relative w-full max-w-md mx-auto rounded-3xl flex flex-col z-50"
+                className="relative w-full mx-auto rounded-3xl flex flex-col z-50"
                 style={{
-                    maxHeight: '85vh',
+                    maxHeight: '75vh',
+                    maxWidth: '280px',
                     background: '#ffffff',
                     boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
                     border: '1px solid #e5e7eb'
@@ -203,77 +204,50 @@ const BoostsModalRevamped = ({ isOpen, onClose, requestId, detailedRank, onGiveL
             >
 
                 {/* Header */}
-                <header className="relative px-8 pt-8 pb-6 border-b border-gray-50">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{getHeadline()}</h2>
-                    <p className="text-gray-600 text-sm leading-relaxed">{getSubheadline()}</p>
+                <header className="relative px-5 pt-5 pb-3 text-center">
+                    <h2 className="text-lg font-bold text-gray-900 mb-0.5">{getHeadline()}</h2>
+                    <p className="text-gray-500 text-xs leading-relaxed">{getSubheadline()}</p>
                 </header>
 
                 {/* Main Content */}
-                <main className="flex-grow overflow-y-auto px-8 pb-8 space-y-8">
-                    {/* Experiential Section: Why Boosting Matters */}
-                    <section>
-                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-                            {getTranslation('How Boosting Works', selectedLanguage)}
-                        </h3>
-                        <div className="space-y-3">
-                            {/* Visibility Increase */}
-                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                                <div className="flex items-start space-x-3">
-                                    <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="font-medium text-gray-900 text-sm">{getTranslation('Reach More Creators', selectedLanguage)}</div>
-                                        <div className="text-xs text-gray-600 mt-1">{getTranslation('Your request climbs rankings, appearing first to creators actively searching.', selectedLanguage)}</div>
-                                    </div>
-                                </div>
+                <main className="flex-grow overflow-y-auto px-5 pb-4 space-y-4">
+                    {/* Minimal Benefits */}
+                    <section className="space-y-2">
+                        {/* Visibility Increase */}
+                        <div className="flex items-start space-x-2">
+                            <div className="w-3.5 h-3.5 rounded-full bg-blue-500 flex-shrink-0 mt-0.5"></div>
+                            <div className="flex-1">
+                                <div className="font-medium text-gray-900 text-xs">{getTranslation('Reach More Creators', selectedLanguage)}</div>
                             </div>
+                        </div>
 
-                            {/* Faster Fulfillment */}
-                            <div className="bg-green-50 border border-green-100 rounded-xl p-4">
-                                <div className="flex items-start space-x-3">
-                                    <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="font-medium text-gray-900 text-sm">{getTranslation('Get Fulfilled Faster', selectedLanguage)}</div>
-                                        <div className="text-xs text-gray-600 mt-1">{getTranslation('Higher visibility means more creators see it, and higher chance someone claims it.', selectedLanguage)}</div>
-                                    </div>
-                                </div>
+                        {/* Faster Fulfillment */}
+                        <div className="flex items-start space-x-2">
+                            <div className="w-3.5 h-3.5 rounded-full bg-green-500 flex-shrink-0 mt-0.5"></div>
+                            <div className="flex-1">
+                                <div className="font-medium text-gray-900 text-xs">{getTranslation('Get Fulfilled Faster', selectedLanguage)}</div>
                             </div>
                         </div>
                     </section>
 
-                    {/* Principled Urgency Section */}
-                    {/* Removed RANK DECAY WINDOW section as requested */}
-
-                    {/* Removed COMPETITIVE EDGE section as requested */}
-
                     {/* Boost Amount Selection */}
                     <section>
-                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-                            {getTranslation('Choose Your Boost', selectedLanguage)}
-                        </h3>
-                        <div className="grid grid-cols-4 gap-2">
-                            {[5, 10, 25, 50].map(amount => (
+                        <div className="grid grid-cols-3 gap-2">
+                            {[10, 25, 50].map(amount => (
                                 <button
                                     key={amount}
                                     onClick={() => setSelectedAmount(amount)}
-                                    className="relative py-6 px-2 text-center rounded-xl border-2 font-bold transition-all duration-200"
+                                    className="relative py-4 px-2 text-center rounded-lg border-2 font-bold transition-all duration-200"
                                     style={{
-                                        backgroundColor: selectedAmount === amount ? '#111827' : '#fff',
+                                        backgroundColor: selectedAmount === amount ? '#111827' : '#f9fafb',
                                         color: selectedAmount === amount ? '#fff' : '#6b7280',
                                         borderColor: selectedAmount === amount ? '#111827' : '#e5e7eb',
                                         boxShadow: selectedAmount === amount ? '0 0 12px rgba(17, 24, 39, 0.15)' : 'none',
                                     }}
                                 >
-                                    <div className="text-lg font-bold">${amount}</div>
-                                    <div className="text-xs mt-1" style={{ opacity: 0.7 }}>
-                                        +{amount * 2},
+                                    <div className="text-xs font-bold">${amount}</div>
+                                    <div className="text-[10px] mt-0.5" style={{ opacity: 0.7 }}>
+                                        +{amount * 2}
                                     </div>
                                 </button>
                             ))}
@@ -282,69 +256,33 @@ const BoostsModalRevamped = ({ isOpen, onClose, requestId, detailedRank, onGiveL
                 </main>
 
                 {/* Footer with CTA */}
-                <footer className="px-8 pb-10 pt-6 border-t border-gray-50" style={{ paddingBottom: 'calc(40px + env(safe-area-inset-bottom))' }}>
-                    <div className="space-y-4">
-                        {/* Primary CTA */}
-                        <button
-                            className={`w-full py-4 font-semibold text-base rounded-2xl transition-all ${processingPayment ? 'opacity-50 pointer-events-none' : 'hover:scale-[1.01] active:scale-[0.99]'}`}
-                            style={{
-                                backgroundColor: '#111827',
-                                color: '#ffffff'
-                            }}
-                            onClick={async () => {
-                                setProcessingPayment(true);
-                                try {
-                                    const res = await fetch('/api/pay/create-session', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            provider: selectedProvider,
-                                            requestId,
-                                            amount: selectedAmount,
-                                            boost: boostValue
-                                        })
-                                    });
-                                    const data = await res.json();
+                <footer className="px-5 pb-6 pt-3 border-t border-gray-100" style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom))' }}>
+                    {/* Primary CTA */}
+                    <button
+                        className={`w-full py-3 font-semibold text-sm rounded-2xl transition-all ${processingPayment ? 'opacity-50 pointer-events-none' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
+                        style={{
+                            backgroundColor: '#111827',
+                            color: '#ffffff'
+                        }}
+                        onClick={async () => {
+                            setProcessingPayment(true);
+                            try {
+                                // Navigate directly to PayPal payment link
+                                window.location.href = 'https://www.paypal.com/ncp/payment/FAR4N4DZARHBY';
+                                return;
+                            } catch (err) {
+                                console.error('Payment error', err);
+                                setProcessingPayment(false);
+                                alert(getTranslation('Payment failed. Please try again.', selectedLanguage));
+                            }
+                        }}
+                    >
+                        {processingPayment ? getTranslation('Processing...', selectedLanguage) : `${getTranslation('Boost for', selectedLanguage)} $${selectedAmount}`}
+                    </button>
 
-                                    if (data && data.redirectUrl) {
-                                        window.location.href = data.redirectUrl;
-                                        return;
-                                    }
-
-                                    if (data && data.success) {
-                                        setCurrentScore(prev => prev + boostValue);
-                                        setProcessingPayment(false);
-                                        setTimeout(() => onClose(), 650);
-                                        return;
-                                    }
-
-                                    setProcessingPayment(false);
-                                    alert(getTranslation('Payment failed. Please try again.', selectedLanguage));
-                                } catch (err) {
-                                    console.error('Payment error', err);
-                                    setProcessingPayment(false);
-                                    alert(getTranslation('Payment failed. Please try again.', selectedLanguage));
-                                }
-                            }}
-                        >
-                            {processingPayment ? getTranslation('Processing...', selectedLanguage) : `${getTranslation('Boost for', selectedLanguage)} $${selectedAmount}`}
-                        </button>
-
-                        {/* Payment Providers */}
-                        <div className="flex justify-center gap-4 pt-2">
-                            {['Wise', 'Stripe', 'PayPal'].map(provider => (
-                                <button
-                                    key={provider}
-                                    onClick={() => setSelectedProvider(provider.toLowerCase())}
-                                    className="text-xs font-medium transition-colors"
-                                    style={{
-                                        color: selectedProvider === provider.toLowerCase() ? '#111827' : '#d1d5db'
-                                    }}
-                                >
-                                    {provider}
-                                </button>
-                            ))}
-                        </div>
+                    {/* Payment Provider Note */}
+                    <div className="text-center pt-2">
+                        <p className="text-[10px] text-gray-400">{getTranslation('Secured by PayPal', selectedLanguage)}</p>
                     </div>
                 </footer>
             </div>

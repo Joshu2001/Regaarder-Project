@@ -2205,8 +2205,7 @@ const SponsorUserRequests = ({ setCurrentPage, ACCENT_COLOR }) => {
                     <button
                         onClick={() => setSelectedModel('CPM')}
                         className={`w-full text-left p-4 rounded-2xl border bg-white shadow-sm flex justify-between items-start`}
-                        style={selectedModel === 'CPM' ? { borderColor: ACCENT_COLOR, boxShadow: '0 0 0 4px rgba(var(--color-gold-rgb),0.04)' } : undefined}
-                        style={selectedModel === 'CPM' ? { backgroundColor: HIGHLIGHT_COLOR } : {}}
+                        style={selectedModel === 'CPM' ? { borderColor: ACCENT_COLOR, boxShadow: '0 0 0 4px rgba(var(--color-gold-rgb),0.04)', backgroundColor: HIGHLIGHT_COLOR } : undefined}
                     >
                         <div>
                             <div className="text-lg font-medium text-gray-900">{t('Pay Per View (CPM)')}</div>

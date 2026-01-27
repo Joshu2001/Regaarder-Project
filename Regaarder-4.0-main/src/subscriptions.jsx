@@ -260,6 +260,45 @@ const Subscriptions = () => {
         <div className="min-h-screen text-gray-900" style={{ background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb), 0.03) 0%, white 50%)' }}>
             <div className="max-w-md mx-auto px-4 pt-6 pb-28">
 
+                {/* Ad Visibility Message Banner */}
+                {(() => {
+                    const userStr = localStorage.getItem('regaarder_user');
+                    const user = userStr ? JSON.parse(userStr) : null;
+                    const hasPaidPlan = user?.subscription && 
+                                       user.subscription.tier && 
+                                       user.subscription.tier !== 'free' && 
+                                       user.subscription.tier !== 'Free' &&
+                                       user.subscription.isActive !== false;
+                    
+                    const isPaidUser = hasPaidPlan;
+                    const message = isPaidUser 
+                        ? t('You\'re on a premium plan, no ads will be shown')
+                        : t('Free tier account, ads will be shown');
+                    const bgColor = isPaidUser ? 'bg-green-50' : 'bg-blue-50';
+                    const borderColor = isPaidUser ? 'border-green-200' : 'border-blue-200';
+                    const textColor = isPaidUser ? 'text-green-800' : 'text-blue-800';
+                    const iconColor = isPaidUser ? 'text-green-600' : 'text-blue-600';
+                    
+                    return (
+                        <div className={`mb-6 px-4 py-3 rounded-lg border ${bgColor} ${borderColor}`}>
+                            <div className="flex items-start space-x-3">
+                                <div className={`flex-shrink-0 mt-0.5 ${iconColor}`}>
+                                    {isPaidUser ? (
+                                        <Check size={18} />
+                                    ) : (
+                                        <FileText size={18} />
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <p className={`text-sm font-medium ${textColor}`}>
+                                        {message}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()}
+
                 {loading ? (
                     <div className="flex flex-col items-center justify-start text-center space-y-6 pt-8">
                         <div className="text-gray-500">Loading...</div>

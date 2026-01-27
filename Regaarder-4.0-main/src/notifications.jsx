@@ -506,7 +506,7 @@ const App = ({ onClose }) => {
   const [hasNotifications, setHasNotifications] = React.useState(false);
   const [groupedSuggestions, setGroupedSuggestions] = React.useState([]);
   const [userId, setUserId] = React.useState(null);
-  const [showFilterModal, setShowFilterModal] = React.useState(true);
+  const [showFilterModal, setShowFilterModal] = React.useState(false);
   const [filters, setFilters] = React.useState({
     dateRange: 'all', // 'all', 'today', 'week', 'month'
     category: 'all', // 'all', 'status_update', 'staff_action', 'message'

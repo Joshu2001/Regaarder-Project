@@ -12,9 +12,190 @@ function hexToRgba(hex, alpha = 1) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Beautiful Dropdown Component with Icons/Emojis
+function BeautifulDropdown({ value, onChange, options, label }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find(o => o.value === value);
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          width: '100%',
+          padding: '10px 12px',
+          marginTop: 6,
+          borderRadius: 8,
+          border: '1px solid #e5e7eb',
+          background: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'pointer',
+          fontSize: 13,
+          fontWeight: 500,
+          color: '#374151',
+          transition: 'all 0.2s'
+        }}
+        onMouseEnter={(e) => e.target.style.borderColor = '#3b82f6'}
+        onMouseLeave={(e) => e.target.style.borderColor = '#e5e7eb'}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 16 }}>{selectedOption?.icon}</span>
+          {selectedOption?.label}
+        </span>
+        <ChevronDown size={16} style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
+      </button>
+      
+      {isOpen && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          marginTop: 4,
+          background: 'white',
+          border: '1px solid #e5e7eb',
+          borderRadius: 8,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          zIndex: 1000,
+          overflow: 'hidden'
+        }}>
+          {options.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+              }}
+              style={{
+                width: '100%',
+                padding: '12px 12px',
+                border: 'none',
+                background: value === option.value ? '#eff6ff' : 'white',
+                borderBottom: '1px solid #f3f4f6',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: 13,
+                color: '#374151',
+                transition: 'all 0.2s',
+                textAlign: 'left'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#f0f9ff';
+                e.target.style.color = '#0369a1';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = value === option.value ? '#eff6ff' : 'white';
+                e.target.style.color = '#374151';
+              }}
+            >
+              <span style={{ fontSize: 18 }}>{option.icon}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600 }}>{option.label}</div>
+                {option.description && (
+                  <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{option.description}</div>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Component for Bottom Ad Preview Bar with Text Animation
+function BottomAdPreviewBar({ profileName, profileAvatar, textItems, textInterval, textAnimation, cardAnimation, cardEffect, link }) {
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+
+  useEffect(() => {
+    if (textItems.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentTextIndex(prev => (prev + 1) % textItems.length);
+    }, textInterval);
+    return () => clearInterval(interval);
+  }, [textItems.length, textInterval]);
+
+  const getAnimationKeyframes = () => {
+    const duration = (textInterval / 1000).toFixed(2);
+    switch(textAnimation) {
+      case 'slide-left': return `slideLeftIn 0.4s ease`;
+      case 'slide-right': return `slideRightIn 0.4s ease`;
+      case 'bounce': return `bounceIn 0.5s ease`;
+      case 'scale': return `scaleIn 0.4s ease`;
+      default: return `fadeInOut ${duration}s ease`;
+    }
+  };
+
+  const getCardAnimation = () => {
+    const entryAnimation = (() => {
+      switch(cardAnimation) {
+        case 'line-first': return `lineAppear 0.3s ease, slideDown 0.4s ease 0.3s`;
+        case 'slide-down': return `slideDown 0.4s ease`;
+        case 'bounce-in': return `bounceInCard 0.5s ease`;
+        case 'scale-up': return `scaleUpCard 0.4s ease`;
+        default: return `fadeInOut 0.6s ease`;
+      }
+    })();
+    
+    if (cardEffect && cardEffect !== 'none') {
+      return `${entryAnimation}, ${cardEffect} 2s ease-in-out infinite 0.5s`;
+    }
+    return entryAnimation;
+  };
+
+  const currentText = textItems[currentTextIndex] || 'Your ad text goes here';
+
+  return (
+    <div style={{
+      position: 'absolute',
+      left: 16,
+      right: 16,
+      bottom: 20,
+      background: 'rgba(17,24,39,0.9)',
+      color: 'white',
+      borderRadius: 12,
+      padding: '8px 10px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      maxWidth: 'calc(100% - 32px)',
+      animation: getCardAnimation(),
+      borderLeft: cardAnimation === 'line-first' ? '3px solid #8b5cf6' : 'none'
+    }}>
+      {profileAvatar ? (
+        <img src={profileAvatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+      ) : (
+        <div style={{ width: 44, height: 44, borderRadius: 10, background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontWeight: 700, flexShrink: 0 }}>
+          {(profileName || '').charAt(0).toUpperCase() || 'A'}
+        </div>
+      )}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 800 }}>{profileName || 'Advertiser'}</div>
+        <div key={currentTextIndex} style={{
+          fontSize: 13,
+          color: '#e6eef8',
+          outline: 'none',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          animation: getAnimationKeyframes()
+        }}>
+          {currentText}
+        </div>
+      </div>
+      <a href={link || '#'} target="_blank" rel="noreferrer" style={{ background: '#fff', color: '#111827', padding: '8px 10px', borderRadius: 8, textDecoration: 'none', fontWeight: 800, fontSize: 13, flexShrink: 0 }}>Learn more</a>
+    </div>
+  );
+}
+
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
-  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'requests', 'comments', 'reports', 'users', 'creators', 'shadowDeleted', 'approvals', 'promotions', 'templates', 'ads'
+  const [staffNotifications, setStaffNotifications] = useState([]);
+  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'requests', 'comments', 'reports', 'users', 'creators', 'shadowDeleted', 'approvals', 'promotions', 'templates', 'ads', 'feedback', 'myProfile'
   const [adAssets, setAdAssets] = useState([]);
   const [selectedAdVideo, setSelectedAdVideo] = useState(null);
   const [videoPreviewState, setVideoPreviewState] = useState({ isPlaying: false, currentTime: 0, videoDuration: 100, overlayPosition: { x: 50, y: 50 }, overlaySize: { width: 80, height: 60 }, isDragging: false, dragStart: { x: 0, y: 0 } });
@@ -40,6 +221,13 @@ export default function StaffDashboard() {
   const [bottomAdProfileName, setBottomAdProfileName] = useState('');
   const [bottomAdProfileAvatar, setBottomAdProfileAvatar] = useState('');
   const [bottomAdText, setBottomAdText] = useState('');
+  const [bottomAdTextItems, setBottomAdTextItems] = useState([]);
+  const [bottomAdTextInterval, setBottomAdTextInterval] = useState(5000);
+  const [bottomAdTextAnimation, setBottomAdTextAnimation] = useState('fade');
+  const [bottomAdCardAnimation, setBottomAdCardAnimation] = useState('fade');
+  const [bottomAdCardEffect, setBottomAdCardEffect] = useState('none');
+  const [bottomAdCardExitAnimation, setBottomAdCardExitAnimation] = useState('fadeOut');
+  const [bottomAdBorderColor, setBottomAdBorderColor] = useState('rgba(255, 0, 255, 0.6)');
   const [bottomAdLink, setBottomAdLink] = useState('');
   const [showBottomPreview, setShowBottomPreview] = useState(false);
   // Overlay ads state
@@ -55,6 +243,23 @@ export default function StaffDashboard() {
   const [overlayAdOpacity, setOverlayAdOpacity] = useState(1);
   const [overlayTagOpacity, setOverlayTagOpacity] = useState(1);
   const [overlayAdPosition, setOverlayAdPosition] = useState('bottom');
+  const [overlayBtnText, setOverlayBtnText] = useState('Learn More');
+  const [overlayProfileUrl, setOverlayProfileUrl] = useState('');
+  const [overlayVideoUrl, setOverlayVideoUrl] = useState('');
+  const [overlayExitTransition, setOverlayExitTransition] = useState('fade'); // 'fade', 'dissolve', 'blinds', 'wilt', 'random'
+  const [overlayExitTransitionOpen, setOverlayExitTransitionOpen] = useState(false);
+  const [overlayBadgeType, setOverlayBadgeType] = useState('ad'); // 'ad', 'sponsoredBy', 'none'
+  const [overlayBadgeColor, setOverlayBadgeColor] = useState('#ff0000'); // Red by default for AD
+  const [overlayBadgeLogo, setOverlayBadgeLogo] = useState(''); // URL for sponsor logo
+  const [overlayBadgePosition, setOverlayBadgePosition] = useState('top-left-video'); // Badge position on video
+  const [overlayBadgeTypeOpen, setOverlayBadgeTypeOpen] = useState(false);
+  const [overlayBadgePositionOpen, setOverlayBadgePositionOpen] = useState(false);
+  const [overlayCtaText, setOverlayCtaText] = useState('');
+  const [overlayCtaColor, setOverlayCtaColor] = useState('#4B9EFF');
+  const [overlayCtaType, setOverlayCtaType] = useState('text'); // 'text', 'image', 'video', 'gif'
+  const [overlayCtaMedia, setOverlayCtaMedia] = useState(''); // URL for image/video/gif
+  const [overlayCtaDelay, setOverlayCtaDelay] = useState(0); // Seconds before CTA appears
+  const [overlayCtaDuration, setOverlayCtaDuration] = useState(3); // Seconds CTA is visible
   const [overlayTextAnimation, setOverlayTextAnimation] = useState('marquee'); // 'marquee', 'fade', 'slide'
   const [showOverlayPreview, setShowOverlayPreview] = useState(false);
   const [overlayPositionOpen, setOverlayPositionOpen] = useState(false);
@@ -79,6 +284,39 @@ export default function StaffDashboard() {
   const [bottomAdTemplates, setBottomAdTemplates] = useState([]);
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [editingBottomTemplate, setEditingBottomTemplate] = useState(null);
+  const [selectedVideoForAdMgmt, setSelectedVideoForAdMgmt] = useState(null); // For managing ads on a video
+  const [expandedTemplateUrls, setExpandedTemplateUrls] = useState({}); // Track expanded URLs per template
+  
+  // Video ad config state
+  const [videoAdTitle, setVideoAdTitle] = useState('');
+  const [videoAdCtaText, setVideoAdCtaText] = useState('Learn More');
+  const [videoAdCtaColor, setVideoAdCtaColor] = useState('#0b74de');
+  const [videoAdLink, setVideoAdLink] = useState('');
+  const [showVideoAdPreview, setShowVideoAdPreview] = useState(false);
+  
+  // Default 2 ad config state
+  const [default2LineColor, setDefault2LineColor] = useState('#d946ef');
+  const [default2BgColor, setDefault2BgColor] = useState('#ffffff');
+  const [default2TextColor, setDefault2TextColor] = useState('#111827');
+  const [default2Title, setDefault2Title] = useState('');
+  const [default2Description, setDefault2Description] = useState('');
+  const [default2Logo, setDefault2Logo] = useState('');
+  const [default2Link, setDefault2Link] = useState('');
+  const [showDefault2Preview, setShowDefault2Preview] = useState(false);
+  const [default2Templates, setDefault2Templates] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('default2Templates') || '[]');
+    } catch (e) { return []; }
+  });
+  const [showDefault2TemplatesModal, setShowDefault2TemplatesModal] = useState(false);
+  const [default2TemplateName, setDefault2TemplateName] = useState('');
+  const [showDefault2SaveModal, setShowDefault2SaveModal] = useState(false);
+  const [showDefault2ApplyModal, setShowDefault2ApplyModal] = useState(false);
+  const [default2ApplyVideoSearch, setDefault2ApplyVideoSearch] = useState('');
+  const [default2ApplyStartTime, setDefault2ApplyStartTime] = useState(0);
+  const [default2ApplyDuration, setDefault2ApplyDuration] = useState(30);
+  const [default2ApplyDisplayCount, setDefault2ApplyDisplayCount] = useState(1);
+  const [default2ApplySelectedVideos, setDefault2ApplySelectedVideos] = useState([]);
 
   // Fetch templates from backend (with localStorage fallback)
   const fetchBottomAdTemplates = async () => {
@@ -104,11 +342,23 @@ export default function StaffDashboard() {
 
   // Save template locally and to backend
   const saveBottomAdTemplate = async () => {
-    if (!bottomAdProfileName || !bottomAdText) {
-      setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and ad text.' });
+    if (!bottomAdProfileName || bottomAdTextItems.length === 0) {
+      setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and at least one text item.' });
       return;
     }
-    const tpl = { name: bottomAdProfileName, avatar: bottomAdProfileAvatar, text: bottomAdText, link: bottomAdLink, assets: adAssets };
+    const tpl = {
+      name: bottomAdProfileName,
+      avatar: bottomAdProfileAvatar,
+      textItems: bottomAdTextItems,
+      textInterval: bottomAdTextInterval,
+      textAnimation: bottomAdTextAnimation,
+      cardAnimation: bottomAdCardAnimation,
+      cardEffect: bottomAdCardEffect,
+      cardExitAnimation: bottomAdCardExitAnimation,
+      borderColor: bottomAdBorderColor,
+      link: bottomAdLink,
+      assets: adAssets
+    };
     try {
       const res = await fetch('http://localhost:4000/templates/bottom', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(tpl) });
       if (res.ok) {
@@ -182,11 +432,58 @@ export default function StaffDashboard() {
     if (!tpl) return;
     setBottomAdProfileName(tpl.name || '');
     setBottomAdProfileAvatar(tpl.avatar || '');
-    setBottomAdText(tpl.text || '');
+    if (tpl.textItems && tpl.textItems.length > 0) {
+      setBottomAdTextItems(tpl.textItems);
+      setBottomAdTextInterval(tpl.textInterval || 5000);
+      setBottomAdTextAnimation(tpl.textAnimation || 'fade');
+      setBottomAdCardAnimation(tpl.cardAnimation || 'fade');
+      setBottomAdCardEffect(tpl.cardEffect || 'none');
+      setBottomAdCardExitAnimation(tpl.cardExitAnimation || 'fadeOut');
+      setBottomAdBorderColor(tpl.borderColor || 'rgba(255, 0, 255, 0.6)');
+    } else {
+      setBottomAdText(tpl.text || '');
+    }
     setBottomAdLink(tpl.link || '');
     setAdAssets(tpl.assets || []);
     setShowTemplatesModal(false);
     setShowBottomPreview(true);
+  };
+
+  // Function to remove ads from a video
+  const handleRemoveAdsFromVideo = async (videoId, adType, adId = null) => {
+    try {
+      const res = await fetch('http://localhost:4000/staff/remove-ad-from-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession?.id,
+          videoId: videoId,
+          adType: adType, // 'bottom', 'overlay', or 'all'
+          adId: adId // specific ad ID if removing individual ad
+        })
+      });
+
+      if (res.ok) {
+        const msg = adId ? `Ad removed` : `All ${adType} ads removed`;
+        setToast({ type: 'success', title: 'Removed', message: msg });
+        // Reload data but keep modal open
+        if (staffSession) {
+          loadData(staffSession);
+          // Refresh selectedVideoForAdMgmt after a short delay to show updated data
+          setTimeout(() => {
+            const updatedVideo = videos.find(v => v.id === videoId);
+            if (updatedVideo) {
+              setSelectedVideoForAdMgmt(updatedVideo);
+            }
+          }, 500);
+        }
+      } else {
+        setToast({ type: 'error', title: 'Failed', message: 'Unable to remove ads.' });
+      }
+    } catch (err) {
+      console.error('Remove ads failed:', err);
+      setToast({ type: 'error', title: 'Error', message: 'Error removing ads.' });
+    }
   };
 
   useEffect(() => {
@@ -288,6 +585,74 @@ export default function StaffDashboard() {
   const [creatorSearch, setCreatorSearch] = useState('');
   const [shadowDeletedSearch, setShadowDeletedSearch] = useState('');
   const [approvalsSearch, setApprovalsSearch] = useState('');
+  const [requestAccentColorSelection, setRequestAccentColorSelection] = useState(() => {
+    try {
+      const saved = localStorage.getItem('requestAccentColorSelection');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  }); // Track which requests have accent color enabled (persisted to localStorage)
+  const [approvalModal, setApprovalModal] = useState({ isOpen: false, account: null, permissions: {}, grantAdmin: false });
+  const [staffMembers, setStaffMembers] = useState([]);
+  const [staffSearch, setStaffSearch] = useState('');
+  const [editingStaffMember, setEditingStaffMember] = useState(null);
+  const [staffPermissionsModal, setStaffPermissionsModal] = useState({ isOpen: false, member: null, permissions: {}, grantAdmin: false, blocked: false });
+  const [denyModal, setDenyModal] = useState({ isOpen: false, account: null, selectedReason: '', customMessage: '' });
+  const [approvalInstructionsModal, setApprovalInstructionsModal] = useState({ isOpen: false, account: null, permissions: {}, grantAdmin: false, instructions: '' });
+  const [staffProfileModal, setStaffProfileModal] = useState({ 
+    isOpen: false, 
+    showPasswordChange: false, 
+    name: '', 
+    email: '', 
+    currentPasswords: ['', '', ''],
+    newPassword1: '',
+    newPassword2: '',
+    newPassword3: '',
+    showPassword1: false,
+    showPassword2: false,
+    showPassword3: false,
+    showCurrentPassword1: false,
+    showCurrentPassword2: false,
+    showCurrentPassword3: false
+  });
+  const [accessDeniedModal, setAccessDeniedModal] = useState({ isOpen: false, pageName: '' });
+  const [myProfileEdit, setMyProfileEdit] = useState({ name: '', email: '', newPassword: '', confirmPassword: '', showPasswordChange: false, isEditing: false });
+
+  // All available permissions for staff
+  const ALL_PERMISSIONS = {
+    videos: 'Videos',
+    requests: 'Requests',
+    comments: 'Comments',
+    reports: 'Report Queue',
+    users: 'Users',
+    creators: 'Creators',
+    shadowDeleted: 'Shadow Deleted',
+    approvals: 'Account Approvals',
+    staffManagement: 'Manage Staff',
+    promotions: 'Promotions'
+  };
+
+  // Helper function to check if staff has permission for a page
+  const hasPermission = (permKey) => {
+    // Administrators always have all permissions
+    if (staffSession?.role === 'administrator') return true;
+    // If permissions not set, default to true (backwards compatibility)
+    if (!staffSession?.permissions) return true;
+    // Check specific permission - if not explicitly false, allow
+    return staffSession.permissions[permKey] !== false;
+  };
+
+  // Helper function to navigate to tab with permission check
+  const navigateToTab = (tabName, permKey, displayName) => {
+    if (!hasPermission(permKey)) {
+      setAccessDeniedModal({ isOpen: true, pageName: displayName || ALL_PERMISSIONS[permKey] || tabName });
+      return;
+    }
+    setActiveTab(tabName);
+    setShowDropdown(false);
+  };
+
   const [collapsedCreators, setCollapsedCreators] = useState(new Set());
   const [collapsedUsers, setCollapsedUsers] = useState(new Set());
   const [collapsedReports, setCollapsedReports] = useState(new Set());
@@ -312,6 +677,7 @@ export default function StaffDashboard() {
   const [bottomApplyVideoSearch, setBottomApplyVideoSearch] = useState('');
   const [bottomApplyStartTime, setBottomApplyStartTime] = useState(0);
   const [bottomApplyDuration, setBottomApplyDuration] = useState(30);
+  const [bottomApplyDisplayCount, setBottomApplyDisplayCount] = useState(1); // Max number of times to display ad
   const [bottomApplySelectedVideos, setBottomApplySelectedVideos] = useState([]);
 
   // Track scroll position per tab
@@ -498,6 +864,13 @@ export default function StaffDashboard() {
       setLoading(true);
       setError('');
 
+      // Load staff notifications
+      const notificationsRes = await fetch(`http://localhost:4000/staff/notifications?employeeId=${employee.id}`);
+      if (notificationsRes.ok) {
+        const data = await notificationsRes.json();
+        setStaffNotifications(data.notifications || []);
+      }
+
       // Load reports
       const reportsRes = await fetch(`http://localhost:4000/staff/reports?employeeId=${employee.id}`);
       if (reportsRes.ok) {
@@ -559,6 +932,13 @@ export default function StaffDashboard() {
           const data = await pendingRes.json();
           setPendingAccounts(data.pendingAccounts || []);
         }
+
+        // Load staff members (admin only)
+        const staffRes = await fetch(`http://localhost:4000/staff/all?employeeId=${employee.id}`);
+        if (staffRes.ok) {
+          const data = await staffRes.json();
+          setStaffMembers(data.members || []);
+        }
       }
     } catch (err) {
       setError('Failed to load data');
@@ -578,24 +958,216 @@ export default function StaffDashboard() {
     return 0;
   };
 
-  const handleApproveAccount = async (pendingId, approve) => {
+  const handleApproveAccount = async (account, approve) => {
+    if (!account) return;
+    
+    console.log(`Click registered: ${approve ? 'Approve' : 'Deny'} for ${account.name}`);
+    
     try {
       const res = await fetch('http://localhost:4000/staff/approve-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           employeeId: staffSession.id,
-          pendingId,
-          approve
+          pendingId: account.employeeId,
+          approve: approve,
+          denialReason: approve ? null : 'Application denied by staff'
         })
       });
 
       if (res.ok) {
-        setPendingAccounts(pendingAccounts.filter(p => p.employeeId !== pendingId));
+        setPendingAccounts(pendingAccounts.filter(p => p.employeeId !== account.employeeId));
+        setToast({ 
+          type: 'success', 
+          message: approve ? `Account approved for ${account.name}` : `Account denied for ${account.name}` 
+        });
+      } else {
+        setToast({ type: 'error', message: `Failed to ${approve ? 'approve' : 'deny'} account` });
+      }
+    } catch (err) {
+      console.error(`${approve ? 'Approval' : 'Denial'} failed:`, err);
+      setToast({ type: 'error', message: `Failed to ${approve ? 'approve' : 'deny'} account` });
+    }
+  };
+
+  const handleConfirmApproval = async () => {
+    if (!approvalInstructionsModal.account) return;
+
+    try {
+      const res = await fetch('http://localhost:4000/staff/approve-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id,
+          pendingId: approvalInstructionsModal.account.employeeId,
+          approve: true,
+          permissions: approvalInstructionsModal.permissions,
+          grantAdminAccess: approvalInstructionsModal.grantAdmin,
+          approvalInstructions: approvalInstructionsModal.instructions
+        })
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        setPendingAccounts(pendingAccounts.filter(p => p.employeeId !== approvalInstructionsModal.account.employeeId));
+        setApprovalInstructionsModal({ isOpen: false, account: null, permissions: {}, grantAdmin: false, instructions: '' });
+        setToast({ 
+          type: 'success', 
+          message: `Account approved for ${approvalInstructionsModal.account.name}! Employee ID: ${result.employeeId}` 
+        });
       }
     } catch (err) {
       console.error('Approval failed:', err);
+      setToast({ type: 'error', message: 'Failed to approve account' });
     }
+  };
+
+  const handleConfirmDenial = async () => {
+    // Check if either a preset reason is selected OR a custom message is provided
+    const hasReason = denyModal.selectedReason.trim() || denyModal.customMessage.trim();
+    
+    if (!denyModal.account || !hasReason) {
+      setToast({ type: 'error', message: 'Please select or provide a denial reason' });
+      return;
+    }
+
+    try {
+      const finalMessage = denyModal.customMessage.trim() || denyModal.selectedReason;
+
+      const res = await fetch('http://localhost:4000/staff/approve-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id,
+          pendingId: denyModal.account.employeeId,
+          approve: false,
+          denialReason: finalMessage
+        })
+      });
+
+      if (res.ok) {
+        setPendingAccounts(pendingAccounts.filter(p => p.employeeId !== denyModal.account.employeeId));
+        setDenyModal({ isOpen: false, account: null, selectedReason: '', customMessage: '' });
+        setToast({ type: 'success', message: `Account denied for ${denyModal.account.name}` });
+      }
+    } catch (err) {
+      console.error('Denial failed:', err);
+      setToast({ type: 'error', message: 'Failed to deny account' });
+    }
+  };
+
+  const togglePermission = (permission) => {
+    setApprovalInstructionsModal(prev => ({
+      ...prev,
+      permissions: {
+        ...prev.permissions,
+        [permission]: !prev.permissions[permission]
+      }
+    }));
+  };
+
+  const setAllPermissions = (value) => {
+    setApprovalInstructionsModal(prev => ({
+      ...prev,
+      permissions: {
+        videos: value,
+        requests: value,
+        comments: value,
+        reports: value,
+        users: value,
+        creators: value,
+        shadowDeleted: value,
+        approvals: value,
+        promotions: value,
+        templates: value,
+        ads: value
+      }
+    }));
+  };
+
+  const handleEditMyProfile = () => {
+    setMyProfileEdit({
+      name: staffSession?.name || '',
+      email: staffSession?.email || '',
+      newPassword: '',
+      confirmPassword: '',
+      showPasswordChange: false,
+      isEditing: true
+    });
+  };
+
+  const handleSaveMyProfile = async () => {
+    if (!myProfileEdit.name.trim() || !myProfileEdit.email.trim()) {
+      setToast({ type: 'error', message: 'Name and email are required' });
+      return;
+    }
+
+    if (!myProfileEdit.email.includes('@')) {
+      setToast({ type: 'error', message: 'Invalid email address' });
+      return;
+    }
+
+    if (myProfileEdit.showPasswordChange) {
+      if (!myProfileEdit.newPassword || !myProfileEdit.confirmPassword) {
+        setToast({ type: 'error', message: 'Please enter both passwords' });
+        return;
+      }
+
+      if (myProfileEdit.newPassword !== myProfileEdit.confirmPassword) {
+        setToast({ type: 'error', message: 'Passwords do not match' });
+        return;
+      }
+    }
+
+    try {
+      const updateData = {
+        employeeId: staffSession?.id,
+        name: myProfileEdit.name,
+        email: myProfileEdit.email
+      };
+
+      if (myProfileEdit.showPasswordChange && myProfileEdit.newPassword) {
+        updateData.newPassword = myProfileEdit.newPassword;
+      }
+
+      const res = await fetch('http://localhost:4000/staff/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData)
+      });
+
+      if (res.ok) {
+        const updatedEmployee = { ...staffSession, name: myProfileEdit.name, email: myProfileEdit.email };
+        setStaffSession(updatedEmployee);
+        localStorage.setItem('staffSession', JSON.stringify(updatedEmployee));
+        setMyProfileEdit({
+          name: myProfileEdit.name,
+          email: myProfileEdit.email,
+          newPassword: '',
+          confirmPassword: '',
+          showPasswordChange: false,
+          isEditing: false
+        });
+        setToast({ type: 'success', message: 'Profile updated successfully' });
+      } else {
+        const data = await res.json();
+        setToast({ type: 'error', message: data.error || 'Failed to update profile' });
+      }
+    } catch (err) {
+      console.error('Profile update error:', err);
+      setToast({ type: 'error', message: 'Connection error' });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setMyProfileEdit({
+      name: staffSession?.name || '',
+      email: staffSession?.email || '',
+      newPassword: '',
+      confirmPassword: '',
+      showPasswordChange: false,
+      isEditing: false
+    });
   };
 
   const handleDeleteVideo = async (videoId) => {
@@ -1108,8 +1680,8 @@ export default function StaffDashboard() {
       setToast({ type: 'error', title: 'No videos selected', message: 'Please select at least one video.' });
       return;
     }
-    if (!overlayAdCompanyName || (overlayAdTextItems.length === 0 && !overlayAdText)) {
-      setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name and at least one message.' });
+    if (!overlayAdCompanyName || (overlayAdPosition !== 'videoPlayer' && (overlayAdTextItems.length === 0 && !overlayAdText)) || (overlayAdPosition === 'videoPlayer' && !overlayVideoUrl)) {
+      setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name' + (overlayAdPosition === 'videoPlayer' ? ' and video/image/GIF' : ' and at least one message') + '.' });
       return;
     }
 
@@ -1121,18 +1693,32 @@ export default function StaffDashboard() {
           employeeId: staffSession.id,
           videoIds: overlayApplySelectedVideos,
           ad: {
-            companyName: overlayAdCompanyName,
-            text: overlayAdText,
-            textItems: overlayAdTextItems,
-            emoji: overlayAdEmoji,
-            bgColor: overlayAdBgColor,
-            textColor: overlayAdTextColor,
-            brandBgColor: overlayBrandBgColor,
-            brandTextColor: overlayBrandTextColor,
-            opacity: overlayAdOpacity,
-            tagOpacity: overlayTagOpacity,
-            position: overlayAdPosition,
-            animation: overlayTextAnimation,
+            overlayAdCompanyName: overlayAdCompanyName,
+            overlayAdText: overlayAdText,
+            overlayAdTextItems: overlayAdTextItems,
+            overlayAdEmoji: overlayAdEmoji,
+            overlayAdBgColor: overlayAdBgColor,
+            overlayAdTextColor: overlayAdTextColor,
+            overlayBrandBgColor: overlayBrandBgColor,
+            overlayBrandTextColor: overlayBrandTextColor,
+            overlayAdOpacity: overlayAdOpacity,
+            overlayTagOpacity: overlayTagOpacity,
+            overlayAdPosition: overlayAdPosition,
+            overlayBtnText: overlayBtnText,
+            overlayProfileUrl: overlayProfileUrl,
+            overlayVideoUrl: overlayVideoUrl,
+            overlayExitTransition: overlayExitTransition,
+            overlayBadgeType: overlayBadgeType,
+            overlayBadgeColor: overlayBadgeColor,
+            overlayBadgeLogo: overlayBadgeLogo,
+            overlayBadgePosition: overlayBadgePosition,
+            overlayCtaText: overlayCtaText,
+            overlayCtaColor: overlayCtaColor,
+            overlayCtaType: overlayCtaType,
+            overlayCtaMedia: overlayCtaMedia,
+            overlayCtaDelay: overlayCtaDelay,
+            overlayCtaDuration: overlayCtaDuration,
+            overlayTextAnimation: overlayTextAnimation,
             startTime: overlayApplyStartTime,
             duration: overlayApplyEndTime
           }
@@ -1141,16 +1727,18 @@ export default function StaffDashboard() {
 
       if (res.ok) {
         setToast({ type: 'success', title: 'Applied', message: `Overlay applied to ${overlayApplySelectedVideos.length} video(s).` });
-        setShowOverlayApplyModal(false);
-        setOverlayApplySelectedVideos([]);
-        setOverlayApplyVideoSearch('');
+        // Keep modal open like branded card does
         if (staffSession) loadData(staffSession);
+        // Don't close: setShowOverlayApplyModal(false);
+        // Don't clear: setOverlayApplySelectedVideos([]);
+        // Don't clear: setOverlayApplyVideoSearch('');
       } else {
-        setToast({ type: 'error', title: 'Apply failed', message: 'Unable to apply overlay ad.' });
+        const errData = await res.json().catch(() => ({}));
+        setToast({ type: 'error', title: 'Apply failed', message: errData.error || 'Unable to apply overlay ad.' });
       }
     } catch (err) {
       console.error('Overlay apply failed:', err);
-      setToast({ type: 'error', title: 'Error', message: 'Error applying overlay ad.' });
+      setToast({ type: 'error', title: 'Error', message: err.message || 'Error applying overlay ad.' });
     }
   };
 
@@ -1160,9 +1748,45 @@ export default function StaffDashboard() {
       setToast({ type: 'error', title: 'No videos selected', message: 'Please select at least one video.' });
       return;
     }
-    if (!bottomAdProfileName || !bottomAdText) {
+    if (!bottomAdProfileName || (!bottomAdText && bottomAdTextItems.length === 0)) {
       setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and ad text.' });
       return;
+    }
+
+    // Check for timing conflicts on selected videos - WARN but allow stacking
+    const newAdStart = bottomApplyStartTime;
+    const newAdEnd = bottomApplyStartTime + bottomApplyDuration;
+    let conflictWarnings = [];
+    
+    for (const videoId of bottomApplySelectedVideos) {
+      const video = videos.find(v => v.id === videoId);
+      if (video && video.ads?.bottom) {
+        for (const existingAd of video.ads.bottom) {
+          const existingStart = existingAd.startTime || 0;
+          const existingEnd = existingStart + (existingAd.duration || 0);
+          
+          // Check if times overlap - warn but allow (for stacking preview feature)
+          if (!(newAdEnd <= existingStart || newAdStart >= existingEnd)) {
+            conflictWarnings.push({
+              videoTitle: video.title,
+              newAdTime: `${newAdStart}s-${newAdEnd}s`,
+              existingAdTime: `${existingStart}s-${existingEnd}s`
+            });
+          }
+        }
+      }
+    }
+
+    // If conflicts exist, show warning but allow proceeding
+    if (conflictWarnings.length > 0) {
+      const conflictMsg = conflictWarnings
+        .map(w => `"${w.videoTitle}": New (${w.newAdTime}) overlaps with existing (${w.existingAdTime})`)
+        .join('\n');
+      setToast({
+        type: 'warning',
+        title: 'Timing Overlap Detected',
+        message: `These ads will stack horizontally as preview:\n${conflictMsg}\n\nThis is intentional - the preview feature allows multiple ads in the same timeframe.`
+      });
     }
 
     try {
@@ -1176,9 +1800,17 @@ export default function StaffDashboard() {
             profileName: bottomAdProfileName,
             profileAvatar: bottomAdProfileAvatar,
             text: bottomAdText,
+            textItems: bottomAdTextItems,
+            textInterval: bottomAdTextInterval,
+            textAnimation: bottomAdTextAnimation,
+            cardAnimation: bottomAdCardAnimation,
+            cardEffect: bottomAdCardEffect,
+            cardExitAnimation: bottomAdCardExitAnimation,
+            borderColor: bottomAdBorderColor,
             link: bottomAdLink,
             startTime: bottomApplyStartTime,
             duration: bottomApplyDuration,
+            displayCount: bottomApplyDisplayCount,
             assets: adAssets
           }
         })
@@ -1186,16 +1818,63 @@ export default function StaffDashboard() {
 
       if (res.ok) {
         setToast({ type: 'success', title: 'Applied', message: `Bottom ad applied to ${bottomApplySelectedVideos.length} video(s).` });
-        setShowBottomApplyModal(false);
-        setBottomApplySelectedVideos([]);
-        setBottomApplyVideoSearch('');
+        // Keep selections visible and reload data
         if (staffSession) loadData(staffSession);
+        // Don't clear: setShowBottomApplyModal(false);
+        // Don't clear: setBottomApplySelectedVideos([]);
+        // Don't clear: setBottomApplyVideoSearch('');
       } else {
         setToast({ type: 'error', title: 'Apply failed', message: 'Unable to apply bottom ad.' });
       }
     } catch (err) {
       console.error('Bottom ad apply failed:', err);
       setToast({ type: 'error', title: 'Error', message: 'Error applying bottom ad.' });
+    }
+  };
+
+  const handleApplyDefault2Ad = async () => {
+    if (default2ApplySelectedVideos.length === 0) {
+      setToast({ type: 'error', title: 'No videos selected', message: 'Please select at least one video.' });
+      return;
+    }
+    if (!default2Title) {
+      setToast({ type: 'error', title: 'Missing fields', message: 'Please provide at least a title.' });
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:4000/staff/apply-default2-ad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: staffSession.id,
+          videoIds: default2ApplySelectedVideos,
+          ad: {
+            lineColor: default2LineColor,
+            bgColor: default2BgColor,
+            textColor: default2TextColor,
+            title: default2Title,
+            description: default2Description,
+            logo: default2Logo,
+            link: default2Link,
+            startTime: default2ApplyStartTime,
+            duration: default2ApplyDuration,
+            displayCount: default2ApplyDisplayCount
+          }
+        })
+      });
+
+      if (res.ok) {
+        setToast({ type: 'success', title: 'Applied', message: `Default 2 ad applied to ${default2ApplySelectedVideos.length} video(s).` });
+        if (staffSession) loadData(staffSession);
+        setShowDefault2ApplyModal(false);
+        setDefault2ApplySelectedVideos([]);
+      } else {
+        setToast({ type: 'error', title: 'Apply failed', message: 'Unable to apply Default 2 ad.' });
+      }
+    } catch (err) {
+      console.error('Default 2 ad apply failed:', err);
+      setToast({ type: 'error', title: 'Error', message: 'Error applying Default 2 ad.' });
     }
   };
 
@@ -1333,17 +2012,14 @@ export default function StaffDashboard() {
             overflow: 'hidden'
           }}>
             <button
-              onClick={() => {
-                setActiveTab('videos');
-                setShowDropdown(false);
-              }}
+              onClick={() => navigateToTab('videos', 'videos')}
               style={{
                 display: 'block',
                 width: '100%',
                 padding: '12px 16px',
                 textAlign: 'left',
-                backgroundColor: activeTab === 'videos' ? '#eff6ff' : 'white',
-                color: activeTab === 'videos' ? '#1e40af' : '#374151',
+                backgroundColor: activeTab === 'videos' ? '#eff6ff' : (!hasPermission('videos') ? '#fef2f2' : 'white'),
+                color: activeTab === 'videos' ? '#1e40af' : (!hasPermission('videos') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
@@ -1352,22 +2028,19 @@ export default function StaffDashboard() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'videos' ? '#eff6ff' : 'white'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'videos' ? '#eff6ff' : (!hasPermission('videos') ? '#fef2f2' : 'white')}
             >
-              Videos ({videos.length})
+              {!hasPermission('videos') && '🚫 '}Videos ({videos.length})
             </button>
             <button
-              onClick={() => {
-                setActiveTab('requests');
-                setShowDropdown(false);
-              }}
+              onClick={() => navigateToTab('requests', 'requests')}
               style={{
                 display: 'block',
                 width: '100%',
                 padding: '12px 16px',
                 textAlign: 'left',
-                backgroundColor: activeTab === 'requests' ? '#eff6ff' : 'white',
-                color: activeTab === 'requests' ? '#1e40af' : '#374151',
+                backgroundColor: activeTab === 'requests' ? '#eff6ff' : (!hasPermission('requests') ? '#fef2f2' : 'white'),
+                color: activeTab === 'requests' ? '#1e40af' : (!hasPermission('requests') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
@@ -1376,22 +2049,19 @@ export default function StaffDashboard() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'requests' ? '#eff6ff' : 'white'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'requests' ? '#eff6ff' : (!hasPermission('requests') ? '#fef2f2' : 'white')}
             >
-              Requests ({requests.length})
+              {!hasPermission('requests') && '🚫 '}Requests ({requests.length})
             </button>
             <button
-              onClick={() => {
-                setActiveTab('comments');
-                setShowDropdown(false);
-              }}
+              onClick={() => navigateToTab('comments', 'comments')}
               style={{
                 display: 'block',
                 width: '100%',
                 padding: '12px 16px',
                 textAlign: 'left',
-                backgroundColor: activeTab === 'comments' ? '#eff6ff' : 'white',
-                color: activeTab === 'comments' ? '#1e40af' : '#374151',
+                backgroundColor: activeTab === 'comments' ? '#eff6ff' : (!hasPermission('comments') ? '#fef2f2' : 'white'),
+                color: activeTab === 'comments' ? '#1e40af' : (!hasPermission('comments') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
@@ -1400,22 +2070,19 @@ export default function StaffDashboard() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'comments' ? '#eff6ff' : 'white'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'comments' ? '#eff6ff' : (!hasPermission('comments') ? '#fef2f2' : 'white')}
             >
-              Comments ({comments.length})
+              {!hasPermission('comments') && '🚫 '}Comments ({comments.length})
             </button>
             <button
-              onClick={() => {
-                setActiveTab('reports');
-                setShowDropdown(false);
-              }}
+              onClick={() => navigateToTab('reports', 'reports')}
               style={{
                 display: 'block',
                 width: '100%',
                 padding: '12px 16px',
                 textAlign: 'left',
-                backgroundColor: activeTab === 'reports' ? '#eff6ff' : 'white',
-                color: activeTab === 'reports' ? '#1e40af' : '#374151',
+                backgroundColor: activeTab === 'reports' ? '#eff6ff' : (!hasPermission('reports') ? '#fef2f2' : 'white'),
+                color: activeTab === 'reports' ? '#1e40af' : (!hasPermission('reports') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
@@ -1424,22 +2091,19 @@ export default function StaffDashboard() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'reports' ? '#eff6ff' : 'white'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'reports' ? '#eff6ff' : (!hasPermission('reports') ? '#fef2f2' : 'white')}
             >
-              Report Queue ({reports.length})
+              {!hasPermission('reports') && '🚫 '}Report Queue ({reports.length})
             </button>
             <button
-              onClick={() => {
-                setActiveTab('users');
-                setShowDropdown(false);
-              }}
+              onClick={() => navigateToTab('users', 'users')}
               style={{
                 display: 'block',
                 width: '100%',
                 padding: '12px 16px',
                 textAlign: 'left',
-                backgroundColor: activeTab === 'users' ? '#eff6ff' : 'white',
-                color: activeTab === 'users' ? '#1e40af' : '#374151',
+                backgroundColor: activeTab === 'users' ? '#eff6ff' : (!hasPermission('users') ? '#fef2f2' : 'white'),
+                color: activeTab === 'users' ? '#1e40af' : (!hasPermission('users') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
@@ -1448,22 +2112,19 @@ export default function StaffDashboard() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'users' ? '#eff6ff' : 'white'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'users' ? '#eff6ff' : (!hasPermission('users') ? '#fef2f2' : 'white')}
             >
-              Users ({users.length})
+              {!hasPermission('users') && '🚫 '}Users ({users.length})
             </button>
             <button
-              onClick={() => {
-                setActiveTab('creators');
-                setShowDropdown(false);
-              }}
+              onClick={() => navigateToTab('creators', 'creators')}
               style={{
                 display: 'block',
                 width: '100%',
                 padding: '12px 16px',
                 textAlign: 'left',
-                backgroundColor: activeTab === 'creators' ? '#eff6ff' : 'white',
-                color: activeTab === 'creators' ? '#1e40af' : '#374151',
+                backgroundColor: activeTab === 'creators' ? '#eff6ff' : (!hasPermission('creators') ? '#fef2f2' : 'white'),
+                color: activeTab === 'creators' ? '#1e40af' : (!hasPermission('creators') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
@@ -1472,40 +2133,57 @@ export default function StaffDashboard() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'creators' ? '#eff6ff' : 'white'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'creators' ? '#eff6ff' : (!hasPermission('creators') ? '#fef2f2' : 'white')}
             >
-              Creators ({creators.length})
+              {!hasPermission('creators') && '🚫 '}Creators ({creators.length})
             </button>
             <button
-              onClick={() => {
-                setActiveTab('shadowDeleted');
-                setShowDropdown(false);
+              onClick={() => navigateToTab('feedback', 'reports')}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                textAlign: 'left',
+                backgroundColor: activeTab === 'feedback' ? '#eff6ff' : 'white',
+                color: activeTab === 'feedback' ? '#1e40af' : '#374151',
+                border: 'none',
+                borderBottom: '1px solid #e5e7eb',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: activeTab === 'feedback' ? 'bold' : 'normal',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
               }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'feedback' ? '#eff6ff' : 'white'}
+            >
+              <Megaphone size={16} /> User Feedback
+            </button>
+            <button
+              onClick={() => navigateToTab('shadowDeleted', 'shadowDeleted')}
               style={{
                 display: 'block',
                 width: '100%',
                 padding: '12px 16px',
                 textAlign: 'left',
-                backgroundColor: activeTab === 'shadowDeleted' ? '#eff6ff' : 'white',
-                color: activeTab === 'shadowDeleted' ? '#1e40af' : '#374151',
+                backgroundColor: activeTab === 'shadowDeleted' ? '#eff6ff' : (!hasPermission('shadowDeleted') ? '#fef2f2' : 'white'),
+                color: activeTab === 'shadowDeleted' ? '#1e40af' : (!hasPermission('shadowDeleted') ? '#dc2626' : '#374151'),
                 border: 'none',
-                borderBottom: staffSession?.role === 'administrator' ? '1px solid #e5e7eb' : 'none',
+                borderBottom: staffSession?.role === 'administrator' ? '1px solid #e5e7eb' : '1px solid #e5e7eb',
                 cursor: 'pointer',
                 fontSize: '14px',
                 fontWeight: activeTab === 'shadowDeleted' ? 'bold' : 'normal',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'shadowDeleted' ? '#eff6ff' : 'white'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'shadowDeleted' ? '#eff6ff' : (!hasPermission('shadowDeleted') ? '#fef2f2' : 'white')}
             >
-              Shadow Deleted ({shadowDeleted.length})
+              {!hasPermission('shadowDeleted') && '🚫 '}Shadow Deleted ({shadowDeleted.length})
             </button>
             {staffSession?.role === 'administrator' && (
               <button
-                onClick={() => {
-                  setActiveTab('approvals');
-                  setShowDropdown(false);
-                }}
+                onClick={() => navigateToTab('approvals', 'approvals')}
                 style={{
                   display: 'block',
                   width: '100%',
@@ -1514,6 +2192,7 @@ export default function StaffDashboard() {
                   backgroundColor: activeTab === 'approvals' ? '#eff6ff' : 'white',
                   color: activeTab === 'approvals' ? '#1e40af' : '#374151',
                   border: 'none',
+                  borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
                   fontSize: '14px',
                   fontWeight: activeTab === 'approvals' ? 'bold' : 'normal',
@@ -1525,9 +2204,47 @@ export default function StaffDashboard() {
                 Account Approvals ({pendingAccounts.length})
               </button>
             )}
+            {staffSession?.role === 'administrator' && (
+              <button
+                onClick={() => navigateToTab('staffManagement', 'staffManagement')}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  backgroundColor: activeTab === 'staffManagement' ? '#eff6ff' : 'white',
+                  color: activeTab === 'staffManagement' ? '#1e40af' : '#374151',
+                  border: 'none',
+                  borderBottom: '1px solid #e5e7eb',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: activeTab === 'staffManagement' ? 'bold' : 'normal',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'staffManagement' ? '#eff6ff' : 'white'}
+              >
+                Manage Staff ({staffMembers.length})
+              </button>
+            )}
             <button
               onClick={() => {
-                setActiveTab('promotions');
+                setStaffProfileModal({
+                  isOpen: true,
+                  showPasswordChange: false,
+                  name: staffSession?.name || '',
+                  email: staffSession?.email || '',
+                  currentPasswords: staffSession?.passwords || ['', '', ''],
+                  newPassword1: '',
+                  newPassword2: '',
+                  newPassword3: '',
+                  showPassword1: false,
+                  showPassword2: false,
+                  showPassword3: false,
+                  showCurrentPassword1: false,
+                  showCurrentPassword2: false,
+                  showCurrentPassword3: false
+                });
                 setShowDropdown(false);
               }}
               style={{
@@ -1535,8 +2252,29 @@ export default function StaffDashboard() {
                 width: '100%',
                 padding: '12px 16px',
                 textAlign: 'left',
-                backgroundColor: activeTab === 'promotions' ? '#eff6ff' : 'white',
-                color: activeTab === 'promotions' ? '#1e40af' : '#374151',
+                backgroundColor: 'white',
+                color: '#374151',
+                border: 'none',
+                borderBottom: '1px solid #e5e7eb',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
+            >
+              👤 My Profile
+            </button>
+            <button
+              onClick={() => navigateToTab('promotions', 'promotions')}
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '12px 16px',
+                textAlign: 'left',
+                backgroundColor: activeTab === 'promotions' ? '#eff6ff' : (!hasPermission('promotions') ? '#fef2f2' : 'white'),
+                color: activeTab === 'promotions' ? '#1e40af' : (!hasPermission('promotions') ? '#dc2626' : '#374151'),
                 border: 'none',
                 cursor: 'pointer',
                 fontSize: '14px',
@@ -1544,9 +2282,9 @@ export default function StaffDashboard() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'promotions' ? '#eff6ff' : 'white'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'promotions' ? '#eff6ff' : (!hasPermission('promotions') ? '#fef2f2' : 'white')}
             >
-              Promotions
+              {!hasPermission('promotions') && '🚫 '}Promotions
             </button>
           </div>
         )}
@@ -1743,30 +2481,56 @@ export default function StaffDashboard() {
                         </div>
                         <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', alignItems: 'flex-end' }}>
                           {!video.hidden && !video.deleted && (
-                            <button
-                              onClick={() => setActionModal({ isOpen: true, itemId: video.id, itemType: 'video' })}
-                              style={{
-                                padding: '8px 16px',
-                                backgroundColor: 'white',
-                                color: '#dc2626',
-                                border: '2px solid #dc2626',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                fontSize: '12px',
-                                fontWeight: 'bold',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.target.style.backgroundColor = '#dc2626';
-                                e.target.style.color = 'white';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.target.style.backgroundColor = 'white';
-                                e.target.style.color = '#dc2626';
-                              }}
-                            >
-                              Action
-                            </button>
+                            <>
+                              <button
+                                onClick={() => setActionModal({ isOpen: true, itemId: video.id, itemType: 'video' })}
+                                style={{
+                                  padding: '8px 16px',
+                                  backgroundColor: 'white',
+                                  color: '#dc2626',
+                                  border: '2px solid #dc2626',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.target.style.backgroundColor = '#dc2626';
+                                  e.target.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.backgroundColor = 'white';
+                                  e.target.style.color = '#dc2626';
+                                }}
+                              >
+                                Action
+                              </button>
+                              <button
+                                onClick={() => setSelectedVideoForAdMgmt(video)}
+                                style={{
+                                  padding: '8px 16px',
+                                  backgroundColor: 'white',
+                                  color: '#0b74de',
+                                  border: '2px solid #0b74de',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.target.style.backgroundColor = '#0b74de';
+                                  e.target.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.backgroundColor = 'white';
+                                  e.target.style.color = '#0b74de';
+                                }}
+                              >
+                                Manage Ads
+                              </button>
+                            </>
                           )}
                           {(video.hidden || video.deleted) && (
                             <button
@@ -1966,13 +2730,35 @@ export default function StaffDashboard() {
                       <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
                         Showing {filteredRequests.length} of {requests.length} requests
                       </p>
-                      {filteredRequests.map(req => (
+                      {filteredRequests.map(req => {
+                        // Determine border color: accent color if boosted or selected, otherwise grey
+                        const isSelected = requestAccentColorSelection[req.id];
+                        const isBoosted = (req.boosts || 0) >= 1;
+                        const useAccentBorder = isSelected || isBoosted;
+                        const accentColor = '#9333ea'; // Purple accent from theme
+                        
+                        let borderColor = '#9ca3af'; // Grey outline by default
+                        let borderWidth = '1px';
+                        
+                        if (req.hidden) {
+                          borderColor = '#f59e0b';
+                          borderWidth = '2px';
+                        } else if (req.deleted) {
+                          borderColor = '#a855f7';
+                          borderWidth = '2px';
+                        } else if (useAccentBorder) {
+                          borderColor = accentColor;
+                          borderWidth = '2px';
+                        }
+                        
+                        return (
                     <div key={req.id} style={{
                       padding: '16px',
-                      border: req.hidden ? '2px solid #f59e0b' : req.deleted ? '2px solid #a855f7' : '1px solid #e5e7eb',
+                      border: `${borderWidth} solid ${borderColor}`,
                       borderRadius: '8px',
-                      backgroundColor: req.hidden ? '#fef3c7' : req.deleted ? '#faf5ff' : '#fff',
-                      position: 'relative'
+                      backgroundColor: req.hidden ? '#fef3c7' : req.deleted ? '#faf5ff' : (useAccentBorder ? hexToRgba(accentColor, 0.05) : '#fff'),
+                      position: 'relative',
+                      transition: 'all 0.2s ease'
                     }}>
                       {/* Status Tags */}
                       <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
@@ -2008,6 +2794,38 @@ export default function StaffDashboard() {
                             Deleted
                           </span>
                         )}
+                        {isBoosted && !requestAccentColorSelection[req.id] && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '4px 12px',
+                            backgroundColor: accentColor,
+                            color: 'white',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            <Megaphone size={14} />
+                            Boosted
+                          </span>
+                        )}
+                        {isSelected && (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '4px 12px',
+                            backgroundColor: accentColor,
+                            color: 'white',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            <Crown size={14} />
+                            Admin Selected
+                          </span>
+                        )}
                       </div>
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
@@ -2024,7 +2842,7 @@ export default function StaffDashboard() {
                             </p>
                           )}
                           <p style={{ margin: '4px 0', color: '#666', fontSize: '14px' }}>
-                            Likes: {req.likes} | Comments: {req.comments}
+                            Likes: {req.likes} | Comments: {req.comments} | Boosts: {req.boosts || 0}
                           </p>
                           <p style={{ margin: '4px 0', color: '#999', fontSize: '12px' }}>
                             {new Date(req.createdAt).toLocaleString()}
@@ -2032,30 +2850,78 @@ export default function StaffDashboard() {
                         </div>
                         <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', alignItems: 'flex-end' }}>
                           {!req.hidden && !req.deleted && (
-                            <button
-                              onClick={() => setActionModal({ isOpen: true, itemId: req.id, itemType: 'request' })}
-                              style={{
-                                padding: '8px 16px',
-                                backgroundColor: 'white',
-                                color: '#dc2626',
-                                border: '2px solid #dc2626',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                fontSize: '12px',
-                                fontWeight: 'bold',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.target.style.backgroundColor = '#dc2626';
-                                e.target.style.color = 'white';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.target.style.backgroundColor = 'white';
-                                e.target.style.color = '#dc2626';
-                              }}
-                            >
-                              Action
-                            </button>
+                            <>
+                              <button
+                                onClick={() => setActionModal({ isOpen: true, itemId: req.id, itemType: 'request' })}
+                                style={{
+                                  padding: '8px 16px',
+                                  backgroundColor: 'white',
+                                  color: '#dc2626',
+                                  border: '2px solid #dc2626',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.target.style.backgroundColor = '#dc2626';
+                                  e.target.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.backgroundColor = 'white';
+                                  e.target.style.color = '#dc2626';
+                                }}
+                              >
+                                Action
+                              </button>
+                              <button
+                                onClick={() => {
+                                  let newSelection;
+                                  if (requestAccentColorSelection[req.id]) {
+                                    newSelection = { ...requestAccentColorSelection };
+                                    delete newSelection[req.id];
+                                  } else {
+                                    newSelection = {
+                                      ...requestAccentColorSelection,
+                                      [req.id]: true
+                                    };
+                                  }
+                                  setRequestAccentColorSelection(newSelection);
+                                  localStorage.setItem('requestAccentColorSelection', JSON.stringify(newSelection));
+                                  // Dispatch custom event for same-page listeners
+                                  window.dispatchEvent(new CustomEvent('adminSelectionChanged', { detail: newSelection }));
+                                }}
+                                style={{
+                                  padding: '8px 16px',
+                                  backgroundColor: requestAccentColorSelection[req.id] ? '#9333ea' : 'white',
+                                  color: requestAccentColorSelection[req.id] ? 'white' : '#9333ea',
+                                  border: '2px solid #9333ea',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  transition: 'all 0.2s',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!requestAccentColorSelection[req.id]) {
+                                    e.target.style.backgroundColor = 'rgba(147, 51, 234, 0.1)';
+                                  } else {
+                                    e.target.style.backgroundColor = '#7c3aed';
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.backgroundColor = requestAccentColorSelection[req.id] ? '#9333ea' : 'white';
+                                }}
+                                title="Toggle accent color outline for this request"
+                              >
+                                <Crown size={14} />
+                                {requestAccentColorSelection[req.id] ? 'Selected' : 'Select'}
+                              </button>
+                            </>
                           )}
                           {(req.hidden || req.deleted) && (
                             <button
@@ -2086,7 +2952,8 @@ export default function StaffDashboard() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                        );
+                      })}
                     </div>
                   );
                 })()
@@ -4036,9 +4903,10 @@ export default function StaffDashboard() {
                       padding: '16px',
                       border: '1px solid #fbbf24',
                       borderRadius: '8px',
-                      backgroundColor: '#fffbeb'
+                      backgroundColor: '#fffbeb',
+                      overflow: 'hidden'
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
                         <div>
                           <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold' }}>
                             {account.name}
@@ -4053,38 +4921,193 @@ export default function StaffDashboard() {
                             Applied: {new Date(account.createdAt).toLocaleString()}
                           </p>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flexShrink: 0, minWidth: '180px' }}>
                           <button
-                            onClick={() => handleApproveAccount(account.employeeId, true)}
+                            type="button"
+                            onClick={() => handleApproveAccount(account, true)}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = 'translateY(-2px)';
+                              e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = 'translateY(0)';
+                              e.target.style.boxShadow = 'none';
+                            }}
                             style={{
                               padding: '8px 12px',
-                              backgroundColor: '#10b981',
+                              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                               color: 'white',
                               border: 'none',
-                              borderRadius: '6px',
+                              borderRadius: '8px',
                               cursor: 'pointer',
-                              fontSize: '12px',
-                              fontWeight: 'bold'
+                              fontSize: '13px',
+                              fontWeight: '700',
+                              transition: 'all 0.2s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              whiteSpace: 'nowrap'
                             }}
                           >
-                            Approve
+                            <span>✓</span> Approve
                           </button>
                           <button
-                            onClick={() => handleApproveAccount(account.employeeId, false)}
+                            type="button"
+                            onClick={() => handleApproveAccount(account, false)}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = 'translateY(-2px)';
+                              e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = 'translateY(0)';
+                              e.target.style.boxShadow = 'none';
+                            }}
                             style={{
                               padding: '8px 12px',
-                              backgroundColor: '#ef4444',
+                              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                               color: 'white',
                               border: 'none',
-                              borderRadius: '6px',
+                              borderRadius: '8px',
                               cursor: 'pointer',
-                              fontSize: '12px',
-                              fontWeight: 'bold'
+                              fontSize: '13px',
+                              fontWeight: '700',
+                              transition: 'all 0.2s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              whiteSpace: 'nowrap'
                             }}
                           >
-                            Deny
+                            <span>✕</span> Deny
                           </button>
                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Staff Management Tab */}
+          {activeTab === 'staffManagement' && staffSession.role === 'administrator' && (
+            <div>
+              {/* Search Bar */}
+              <div style={{marginBottom: '12px', position: 'relative', display: 'flex', alignItems: 'center'}}>
+                <Search size={18} style={{position: 'absolute', left: '12px', color: '#6b7280', pointerEvents: 'none'}} />
+                <input type="text" placeholder="Search staff members..." value={staffSearch} onChange={(e) => setStaffSearch(e.target.value)} 
+                  style={{width: '100%', padding: '10px 12px 10px 40px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', marginBottom: '12px'}} />
+              </div>
+              {staffMembers.length === 0 ? (
+                <div style={{
+                  padding: '48px 32px',
+                  textAlign: 'center',
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
+                }}>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Users size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Staff Members</p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>No staff members found</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {staffMembers.filter(member => (member.name || '').toLowerCase().includes(staffSearch.toLowerCase()) || (member.email || '').toLowerCase().includes(staffSearch.toLowerCase())).map(member => (
+                    <div key={member.id} style={{
+                      padding: '16px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      backgroundColor: member.id === staffSession.id ? '#eff6ff' : 'white',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                            <h3 style={{ margin: '0', fontSize: '16px', fontWeight: 'bold' }}>
+                              {member.name}
+                            </h3>
+                            {member.id === 1000 && (
+                              <span style={{ padding: '2px 8px', backgroundColor: '#dc2626', color: 'white', fontSize: '11px', fontWeight: 'bold', borderRadius: '4px' }}>
+                                ADMIN
+                              </span>
+                            )}
+                            {member.id === staffSession.id && (
+                              <span style={{ padding: '2px 8px', backgroundColor: '#0369a1', color: 'white', fontSize: '11px', fontWeight: 'bold', borderRadius: '4px' }}>
+                                YOU
+                              </span>
+                            )}
+                            {member.approvalAuthority && member.id !== 1000 && member.id !== staffSession.id && (
+                              <span style={{ padding: '2px 8px', backgroundColor: '#7c3aed', color: 'white', fontSize: '11px', fontWeight: 'bold', borderRadius: '4px' }}>
+                                APPROVER
+                              </span>
+                            )}
+                          </div>
+                          <p style={{ margin: '4px 0', color: '#666', fontSize: '14px' }}>
+                            Email: {member.email}
+                          </p>
+                          <p style={{ margin: '4px 0', color: '#666', fontSize: '14px' }}>
+                            Employee ID: {member.id}
+                          </p>
+                          <p style={{ margin: '4px 0', color: '#999', fontSize: '12px' }}>
+                            Created: {new Date(member.createdAt).toLocaleString()}
+                          </p>
+                          <div style={{ marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {member.permissions && Object.entries(member.permissions).filter(([_, val]) => val).map(([perm, _]) => (
+                              <span key={perm} style={{ padding: '2px 6px', backgroundColor: '#dbeafe', color: '#0369a1', fontSize: '11px', borderRadius: '3px', fontWeight: '500' }}>
+                                {perm.charAt(0).toUpperCase() + perm.slice(1).replace(/([A-Z])/g, ' $1')}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        {member.id !== staffSession.id && (
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={() => {
+                                // Create permissions object with all permissions, defaulting to true if not set
+                                const fullPermissions = {};
+                                Object.keys(ALL_PERMISSIONS).forEach(key => {
+                                  fullPermissions[key] = member.permissions?.[key] !== false; // Default to true
+                                });
+                                setStaffPermissionsModal({
+                                  isOpen: true,
+                                  member,
+                                  permissions: fullPermissions,
+                                  grantAdmin: member.approvalAuthority || false,
+                                  blocked: member.status === 'blocked'
+                                });
+                              }}
+                              style={{
+                                padding: '8px 12px',
+                                backgroundColor: '#4f46e5',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                transition: 'background-color 0.2s'
+                              }}
+                              onMouseEnter={(e) => e.target.style.backgroundColor = '#4338ca'}
+                              onMouseLeave={(e) => e.target.style.backgroundColor = '#4f46e5'}
+                            >
+                              Edit Permissions
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -4095,7 +5118,7 @@ export default function StaffDashboard() {
         </>
       )}
 
-      {/* Action Modal */}
+        {/* Action Modal */}
       {actionModal.isOpen && (
         <div style={{
           position: 'fixed',
@@ -5168,45 +6191,90 @@ export default function StaffDashboard() {
                   Serve Advertisements
                 </button>
               </div>
-              <div style={{
-                padding: '48px 32px',
-                textAlign: 'center',
-                background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                borderRadius: '10px',
-                color: '#6b7280',
-                border: '1px solid #d1d5db'
-              }}>
-                <div style={{ 
-                  width: '72px',
-                  height: '72px',
-                  backgroundColor: 'rgba(79,70,229,0.1)',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 16px'
-                }}>
-                  <Megaphone size={36} style={{ color: '#4f46e5' }} />
+              {/* Overlay Templates Section */}
+              <div style={{ marginTop: '32px' }}>
+                <div style={{ marginBottom: '20px' }}>
+                  <h2 style={{ fontSize: '18px', fontWeight: '700', margin: '0', color: '#111827' }}>News Ticker Templates</h2>
                 </div>
-                <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Promotions Yet</p>
-                <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Create promotions to engage users with special offers</p>
-              </div>
-              {/* Templates Section */}
-              <div style={{ marginTop: '18px' }}>
-                <h3 style={{ margin: '0 0 8px 0' }}>Overlay Templates</h3>
                 {templates.length === 0 ? (
-                  <p style={{ color: '#6b7280' }}>No templates yet. Save overlays from the preview to create reusable templates.</p>
+                  <div style={{
+                    padding: '48px 32px',
+                    textAlign: 'center',
+                    background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                    borderRadius: '12px',
+                    color: '#6b7280',
+                    border: '1px solid #bae6fd'
+                  }}>
+                    <div style={{ 
+                      width: '80px',
+                      height: '80px',
+                      backgroundColor: 'rgba(59,130,246,0.1)',
+                      borderRadius: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 16px'
+                    }}>
+                      <Megaphone size={40} style={{ color: '#3b82f6' }} />
+                    </div>
+                    <p style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>No Templates Yet</p>
+                    <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Save overlays from the ad preview to create reusable templates</p>
+                  </div>
                 ) : (
-                  <div style={{ display: 'grid', gap: '8px' }}>
+                  <div style={{ display: 'grid', gap: '12px' }}>
                     {templates.map(t => (
-                      <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <div style={{ width: '10px', height: '10px', background: '#3b82f6', borderRadius: '2px' }} />
-                          <div style={{ fontWeight: '600' }}>{t.name}</div>
+                      <div key={t.id} style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        padding: '16px', 
+                        border: '1px solid #e5e7eb', 
+                        borderRadius: '10px',
+                        background: '#ffffff',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                        e.currentTarget.style.borderColor = '#3b82f6';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                      }}>
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1 }}>
+                          <div style={{ width: '12px', height: '12px', background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', borderRadius: '3px' }} />
+                          <div>
+                            <div style={{ fontWeight: '600', color: '#111827', fontSize: '14px' }}>{t.name}</div>
+                            <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>News ticker overlay</div>
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <button onClick={() => setTemplatePanelOpen(templatePanelOpen === t.id ? null : t.id)} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #d1d5db', background: 'white' }}>{templatePanelOpen === t.id ? 'Close' : 'Apply'}</button>
-                        </div>
+                        <button 
+                          onClick={() => setTemplatePanelOpen(templatePanelOpen === t.id ? null : t.id)} 
+                          style={{ 
+                            padding: '8px 16px', 
+                            borderRadius: '6px', 
+                            border: '1px solid #d1d5db', 
+                            background: templatePanelOpen === t.id ? '#3b82f6' : 'white',
+                            color: templatePanelOpen === t.id ? 'white' : '#1f2937',
+                            cursor: 'pointer',
+                            fontWeight: '600',
+                            fontSize: '13px',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (templatePanelOpen !== t.id) {
+                              e.target.style.background = '#f3f4f6';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (templatePanelOpen !== t.id) {
+                              e.target.style.background = 'white';
+                            }
+                          }}
+                        >
+                          {templatePanelOpen === t.id ? 'Close' : 'Apply'}
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -5320,75 +6388,334 @@ export default function StaffDashboard() {
             </div>
           )}
 
+          {activeTab === 'feedback' && (
+            <div style={{ padding: '0 0 40px 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
+                    <div>
+                        <h2 style={{ fontSize: 24, fontWeight: 700, color: '#111827', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                             <Star style={{ color: '#d946ef' }} /> User & Creator Feedback
+                        </h2>
+                        <p style={{ color: '#6b7280', marginTop: 6 }}>Insights collected from creators after publishing and users after watching</p>
+                    </div>
+                </div>
+
+                {(() => {
+                    // Collect feedback items from localStorage
+                    const items = [];
+                    if (typeof window !== 'undefined') {
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key && key.startsWith('feedback_')) {
+                                try {
+                                    const val = JSON.parse(localStorage.getItem(key));
+                                    const type = key.startsWith('feedback_creator_') ? 'Creator' : 'Requester';
+                                    const id = key.replace('feedback_creator_', '').replace('feedback_requester_', '');
+                                    items.push({ id, type, ...val });
+                                } catch(e) {}
+                            }
+                        }
+                    }
+
+                    if (items.length === 0) {
+                        return (
+                            <div style={{ padding: 60, textAlign: 'center', background: '#f9fafb', borderRadius: 16 }}>
+                                <div style={{ marginBottom: 16, display: 'inline-flex', padding: 16, background: '#e0e7ff', borderRadius: '50%' }}>
+                                    <Megaphone size={32} color="#4f46e5" />
+                                </div>
+                                <h3 style={{ fontSize: 18, fontWeight: 600, color: '#374151' }}>No Feedback Yet</h3>
+                                <p style={{ color: '#6b7280' }}>Wait for creators to publish videos or requesters to rate them.</p>
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
+                            {items.map((item, idx) => (
+                                <div key={idx} style={{ 
+                                    background: 'white', 
+                                    borderRadius: 16, 
+                                    padding: 24, 
+                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                                    border: '1px solid #f3f4f6',
+                                    transition: 'transform 0.2s',
+                                    display: 'flex', 
+                                    flexDirection: 'column',
+                                    gap: 16
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ 
+                                            padding: '4px 12px', 
+                                            borderRadius: 20, 
+                                            fontSize: 12, 
+                                            fontWeight: 700,
+                                            background: item.type === 'Creator' ? '#ede9fe' : '#dbeafe',
+                                            color: item.type === 'Creator' ? '#7c3aed' : '#2563eb'
+                                        }}>
+                                            {item.type} Feedback
+                                        </span>
+                                        <span style={{ fontSize: 12, color: '#9ca3af' }}>ID: {item.id.substring(0,6)}...</span>
+                                    </div>
+
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                        {Object.keys(item).filter(k => k!=='id' && k!=='type').map(k => (
+                                            <div key={k} style={{ fontSize: 13 }}>
+                                                <div style={{ color: '#6b7280', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
+                                                    {k.replace(/_/g, ' ')}
+                                                </div>
+                                                <div style={{ color: '#111827', fontWeight: 500 }}>
+                                                    {['1','2','3','4','5'].includes(String(item[k])) ? (
+                                                        <div style={{ display: 'flex', gap: 2 }}>
+                                                            {[1,2,3,4,5].map(n => (
+                                                                <Star 
+                                                                    key={n} 
+                                                                    size={14} 
+                                                                    fill={n <= Number(item[k]) ? '#fbbf24' : 'none'} 
+                                                                    color={n <= Number(item[k]) ? '#fbbf24' : '#d1d5db'} 
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    ) : item[k]}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })()}
+            </div>
+          )}
+
           {/* Ads Tab */}
           {activeTab === 'ads' && (
             <div>
               {showAdsOptions && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'white', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: 460, maxWidth: '94%', padding: 24, borderRadius: 12, boxShadow: '0 20px 60px rgba(2,6,23,0.2)' }}>
-                    <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#0f172a' }}>Serve Advertisements</h3>
-                    <p style={{ color: '#6b7280', marginTop: 8 }}>Choose the ad format to configure and serve.</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
-                      <button onClick={() => { setAdsMode('video'); setShowAdsOptions(false); }} style={{ padding: '12px 16px', background: '#111827', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>1 — Video Ads</button>
-                      <button onClick={() => { setAdsMode('overlay'); setShowAdsOptions(false); }} style={{ padding: '12px 16px', background: '#06b6d4', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>2 — Overlay Ads</button>
-                      <button onClick={() => { setAdsMode('bottom'); setShowAdsOptions(false); }} style={{ padding: '12px 16px', background: '#10b981', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>3 — Bottom Video Ads (text running ads + link)</button>
-                      <button onClick={() => setShowAdsOptions(false)} style={{ padding: '10px 12px', background: 'transparent', color: '#374151', border: '1px solid #e5e7eb', borderRadius: 8, cursor: 'pointer' }}>Cancel</button>
-                      <button onClick={() => { setShowTemplatesModal(true); }} style={{ padding: '10px 12px', background: '#2563eb', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer' }}>Saved Templates</button>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+                  <div style={{ width: '100%', maxWidth: 500, padding: 32, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', background: 'white' }}>
+                    <h2 style={{ margin: '0 0 8px 0', fontSize: 24, fontWeight: 700, color: '#111827' }}>Create Advertisement</h2>
+                    <p style={{ color: '#6b7280', margin: '0 0 24px 0', fontSize: 14 }}>Choose an ad format to configure and deploy across videos</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      <button 
+                        onClick={() => { setAdsMode('video'); setShowAdsOptions(false); }} 
+                        style={{ 
+                          padding: '14px 16px', 
+                          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', 
+                          color: 'white', 
+                          border: 'none', 
+                          borderRadius: 10, 
+                          cursor: 'pointer', 
+                          fontWeight: 700,
+                          fontSize: 14,
+                          transition: 'all 0.2s',
+                          textAlign: 'left',
+                          boxShadow: '0 2px 8px rgba(15,23,42,0.2)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 4px 16px rgba(15,23,42,0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(15,23,42,0.2)';
+                        }}
+                      >
+                        <div style={{ fontSize: 15, fontWeight: 700 }}>Video Ads</div>
+                        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>Interactive CTA overlays on video player</div>
+                      </button>
+                      <button 
+                        onClick={() => { setAdsMode('overlay'); setShowAdsOptions(false); }} 
+                        style={{ 
+                          padding: '14px 16px', 
+                          background: 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)', 
+                          color: 'white', 
+                          border: 'none', 
+                          borderRadius: 10, 
+                          cursor: 'pointer', 
+                          fontWeight: 700,
+                          fontSize: 14,
+                          transition: 'all 0.2s',
+                          textAlign: 'left',
+                          boxShadow: '0 2px 8px rgba(6,182,212,0.2)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 4px 16px rgba(6,182,212,0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(6,182,212,0.2)';
+                        }}
+                      >
+                        <div style={{ fontSize: 15, fontWeight: 700 }}>News Ticker</div>
+                        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>Animated scrolling text overlay at bottom</div>
+                      </button>
+                      <button 
+                        onClick={() => { setAdsMode('bottom'); setShowAdsOptions(false); }} 
+                        style={{ 
+                          padding: '14px 16px', 
+                          background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', 
+                          color: 'white', 
+                          border: 'none', 
+                          borderRadius: 10, 
+                          cursor: 'pointer', 
+                          fontWeight: 700,
+                          fontSize: 14,
+                          transition: 'all 0.2s',
+                          textAlign: 'left',
+                          boxShadow: '0 2px 8px rgba(16,185,129,0.2)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 4px 16px rgba(16,185,129,0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(16,185,129,0.2)';
+                        }}
+                      >
+                        <div style={{ fontSize: 15, fontWeight: 700 }}>Branded Card</div>
+                        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>Profile card with text and clickable link</div>
+                      </button>
+                      <button 
+                        onClick={() => { setAdsMode('default2'); setShowAdsOptions(false); }} 
+                        style={{ 
+                          padding: '14px 16px', 
+                          background: 'linear-gradient(135deg, #c026d3 0%, #d946ef 100%)', 
+                          color: 'white', 
+                          border: 'none', 
+                          borderRadius: 10, 
+                          cursor: 'pointer', 
+                          fontWeight: 700,
+                          fontSize: 14,
+                          transition: 'all 0.2s',
+                          textAlign: 'left',
+                          boxShadow: '0 2px 8px rgba(217,70,239,0.2)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 4px 16px rgba(217,70,239,0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(217,70,239,0.2)';
+                        }}
+                      >
+                        <div style={{ fontSize: 15, fontWeight: 700 }}>Inline Banner</div>
+                        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>Customizable banner with title and description</div>
+                      </button>
+                      <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                        <button 
+                          onClick={() => setShowAdsOptions(false)} 
+                          style={{ 
+                            flex: 1,
+                            padding: '10px 12px', 
+                            background: 'transparent', 
+                            color: '#6b7280', 
+                            border: '1px solid #e5e7eb', 
+                            borderRadius: 8, 
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                            fontSize: 13,
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.background = '#f9fafb';
+                            e.target.style.borderColor = '#d1d5db';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.background = 'transparent';
+                            e.target.style.borderColor = '#e5e7eb';
+                          }}
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          onClick={() => { setShowTemplatesModal(true); }} 
+                          style={{ 
+                            flex: 1,
+                            padding: '10px 12px', 
+                            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: 8, 
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                            fontSize: 13,
+                            transition: 'all 0.2s',
+                            boxShadow: '0 2px 8px rgba(37,99,235,0.2)'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-1px)';
+                            e.target.style.boxShadow = '0 4px 12px rgba(37,99,235,0.3)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 2px 8px rgba(37,99,235,0.2)';
+                          }}
+                        >
+                          Saved Templates
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0', color: '#1f2937', letterSpacing: '-0.5px' }}>Ad Management</h2>
-                <button
-                  onClick={() => document.getElementById('adAssetFileInput')?.click()}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '10px 20px',
-                    background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.boxShadow = '0 8px 20px rgba(79,70,229,0.4)';
-                    e.target.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.boxShadow = '0 4px 12px rgba(79,70,229,0.3)';
-                    e.target.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <Plus size={19} strokeWidth={2.5} /> Upload Ad Asset
-                </button>
-                <input
-                  id="adAssetFileInput"
-                  type="file"
-                  accept="image/*,video/*"
-                  style={{ display: 'none' }}
-                  onChange={(e) => {
-                    if (e.target.files?.[0]) {
-                      const file = e.target.files[0];
-                      const type = file.type.startsWith('image') ? 'image' : 'video';
-                      const url = URL.createObjectURL(file);
-                      setAdAssets([...adAssets, {
-                        name: file.name,
-                        type: type,
-                        url: url
-                      }]);
-                    }
-                  }}
-                />
               </div>
+
+              {/* Ad Assets Section */}
+              {/* Ads Mode: Video ad configuration */}
+              {adsMode === 'video' && (
+                <div style={{ marginBottom: '20px', padding: '16px', borderRadius: 10, border: '1px solid #e6edf3', background: '#fff' }}>
+                  <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Configure Video Ad</h4>
+                  
+                  {/* Input Fields */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                    {/* Ad Title */}
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>AD TITLE</label>
+                      <input placeholder="Your video ad title" value={videoAdTitle} onChange={(e) => setVideoAdTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                    </div>
+
+                    {/* CTA Button Text */}
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>CTA BUTTON TEXT</label>
+                      <input placeholder="e.g., Learn More" value={videoAdCtaText} onChange={(e) => setVideoAdCtaText(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                    </div>
+
+                    {/* CTA Button Color */}
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>CTA BUTTON COLOR</label>
+                      <div style={{ display: 'flex', gap: 6, flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <input type="color" value={videoAdCtaColor} onChange={(e) => setVideoAdCtaColor(e.target.value)} style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+                          <input type="text" value={videoAdCtaColor} onChange={(e) => setVideoAdCtaColor(e.target.value)} placeholder="#4B9EFF" style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, fontFamily: 'monospace', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1'].map(color => (
+                            <button key={color} onClick={() => setVideoAdCtaColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: videoAdCtaColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Target Link */}
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>TARGET LINK</label>
+                      <input placeholder="https://example.com" value={videoAdLink} onChange={(e) => setVideoAdLink(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                    <button onClick={() => { setAdsMode(null); }} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer' }}>Close</button>
+                    <button onClick={() => setShowVideoAdPreview(true)} style={{ padding: '8px 12px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer' }}>Preview</button>
+                    <button onClick={() => setToast({ type: 'success', title: 'Saved', message: 'Video ad template saved!' })} style={{ padding: '8px 12px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Save Template</button>
+                    <button onClick={() => setToast({ type: 'info', title: 'Apply', message: 'Apply video ad to videos' })} style={{ padding: '8px 12px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply</button>
+                  </div>
+                </div>
+              )}
 
               {/* Ad Assets Section */}
               {/* Ads Mode: Bottom ad configuration */}
@@ -5405,25 +6732,356 @@ export default function StaffDashboard() {
                       <input value={bottomAdProfileAvatar} onChange={(e) => setBottomAdProfileAvatar(e.target.value)} placeholder="https://...jpg" style={{ width: '100%', padding: '8px', marginTop: 6, borderRadius: 8, border: '1px solid #e5e7eb' }} />
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
-                      <label style={{ fontSize: 13, color: '#374151' }}>Ad Text</label>
-                      <textarea value={bottomAdText} onChange={(e) => setBottomAdText(e.target.value)} placeholder="Write the ad text shown in the bottom bar" rows={3} style={{ width: '100%', padding: '8px', marginTop: 6, borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                      <label style={{ fontSize: 13, color: '#374151', marginBottom: 8, display: 'block' }}>Ad Text Items (displayed at interval)</label>
+                      <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, background: '#fafbfc', maxHeight: '200px', overflowY: 'auto' }}>
+                        {bottomAdTextItems.length === 0 ? (
+                          <p style={{ margin: 0, fontSize: 13, color: '#9ca3af', textAlign: 'center', padding: '20px 12px' }}>No text items yet. Add one below to get started.</p>
+                        ) : (
+                          bottomAdTextItems.map((item, idx) => (
+                            <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: idx === bottomAdTextItems.length - 1 ? 0 : 8 }}>
+                              <input 
+                                value={item} 
+                                onChange={(e) => {
+                                  const updated = [...bottomAdTextItems];
+                                  updated[idx] = e.target.value;
+                                  setBottomAdTextItems(updated);
+                                }} 
+                                placeholder={`Text item ${idx + 1}`}
+                                style={{ flex: 1, padding: '8px', borderRadius: 6, border: '1px solid #e5e7eb', background: 'white', fontSize: 13 }}
+                              />
+                              <button 
+                                onClick={() => {
+                                  setBottomAdTextItems(bottomAdTextItems.filter((_, i) => i !== idx));
+                                }} 
+                                style={{ padding: '6px 8px', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 500 }}>
+                                Remove
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      <button 
+                        onClick={() => setBottomAdTextItems([...bottomAdTextItems, ''])}
+                        style={{ marginTop: 8, padding: '8px 12px', background: '#dbeafe', color: '#0369a1', border: '1px solid #7dd3fc', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                        + Add Text Item
+                      </button>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Text Rotation Interval (ms)</label>
+                      <input 
+                        type="number" 
+                        value={bottomAdTextInterval} 
+                        onChange={(e) => setBottomAdTextInterval(Math.max(1000, parseInt(e.target.value) || 5000))} 
+                        min={1000}
+                        step={500}
+                        style={{ width: '100%', padding: '8px', marginTop: 6, borderRadius: 8, border: '1px solid #e5e7eb' }}
+                      />
+                      <small style={{ fontSize: 11, color: '#6b7280', marginTop: 4, display: 'block' }}>Min 1000ms (1 second)</small>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Text Transition</label>
+                      <BeautifulDropdown
+                        value={bottomAdTextAnimation}
+                        onChange={setBottomAdTextAnimation}
+                        options={[
+                          { value: 'fade', label: 'Fade', icon: '✨', description: 'Smooth opacity transition' },
+                          { value: 'slide-left', label: 'Slide Left', icon: '→', description: 'Text moves from right to left' },
+                          { value: 'slide-right', label: 'Slide Right', icon: '←', description: 'Text moves from left to right' },
+                          { value: 'bounce', label: 'Bounce', icon: '🎾', description: 'Spring-like bounce effect' },
+                          { value: 'scale', label: 'Scale', icon: '📏', description: 'Size grows and shrinks' }
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Card Entry Animation</label>
+                      <BeautifulDropdown
+                        value={bottomAdCardAnimation}
+                        onChange={setBottomAdCardAnimation}
+                        options={[
+                          { value: 'fade', label: 'Fade', icon: '✨', description: 'Simple opacity fade-in' },
+                          { value: 'line-first', label: 'Line First', icon: '━', description: 'Purple line appears first' },
+                          { value: 'slide-down', label: 'Slide Down', icon: '⬇️', description: 'Comes from top of screen' },
+                          { value: 'bounce-in', label: 'Bounce In', icon: '⏹️', description: 'Bouncy entrance animation' },
+                          { value: 'scale-up', label: 'Scale Up', icon: '📏', description: 'Grows from center' }
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Card Effect (After Entry)</label>
+                      <BeautifulDropdown
+                        value={bottomAdCardEffect}
+                        onChange={setBottomAdCardEffect}
+                        options={[
+                          { value: 'none', label: 'None', icon: '⭕', description: 'No additional effect' },
+                          { value: 'pulse', label: 'Pulse', icon: '💓', description: 'Subtle breathing effect' },
+                          { value: 'shake', label: 'Shake', icon: '📳', description: 'Slight horizontal shaking' },
+                          { value: 'glow', label: 'Glow', icon: '⚡', description: 'Purple glowing aura' },
+                          { value: 'float', label: 'Float', icon: '🎈', description: 'Gentle up and down motion' },
+                          { value: 'rotate', label: 'Rotate', icon: '🔄', description: 'Subtle rotating effect' }
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Exit Animation</label>
+                      <BeautifulDropdown
+                        value={bottomAdCardExitAnimation}
+                        onChange={setBottomAdCardExitAnimation}
+                        options={[
+                          { value: 'fadeOut', label: 'Fade Out', icon: '✨', description: 'Smooth fade to transparent' },
+                          { value: 'slideOut', label: 'Slide Out', icon: '→', description: 'Slide to the right' },
+                          { value: 'scaleDown', label: 'Scale Down', icon: '📏', description: 'Shrinks and disappears' },
+                          { value: 'bounceOut', label: 'Bounce Out', icon: '🎾', description: 'Bounces away' },
+                          { value: 'rotateOut', label: 'Rotate Out', icon: '🔄', description: 'Rotates while fading' }
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151' }}>Border Color</label>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <input
+                          type="color"
+                          value={bottomAdBorderColor.includes('#') ? bottomAdBorderColor : '#FF00FF'}
+                          onChange={(e) => setBottomAdBorderColor(e.target.value)}
+                          style={{ width: 50, height: 40, borderRadius: 6, border: '1px solid #e5e7eb', cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: 12, color: '#6b7280' }}>Pick a color for the card border</span>
+                      </div>
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
                       <label style={{ fontSize: 13, color: '#374151' }}>Target Link</label>
                       <input value={bottomAdLink} onChange={(e) => setBottomAdLink(e.target.value)} placeholder="https://example.com" style={{ width: '100%', padding: '8px', marginTop: 6, borderRadius: 8, border: '1px solid #e5e7eb' }} />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
-                    <button onClick={() => { setAdsMode(null); }} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer' }}>Close</button>
-                    <button onClick={(e) => { e.preventDefault(); saveBottomAdTemplate(); }} style={{ padding: '8px 12px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer' }}>Save Template</button>
+                  <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 16, flexWrap: 'wrap' }}>
+                    <button onClick={() => { setAdsMode(null); }} style={{ padding: '9px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 500, fontSize: 13 }}>Close</button>
+                    <button onClick={(e) => { e.preventDefault(); saveBottomAdTemplate(); }} style={{ padding: '9px 16px', borderRadius: 8, background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: 13 }}>Save Template</button>
+                    <button onClick={() => setShowTemplatesModal(true)} style={{ padding: '9px 16px', borderRadius: 8, background: '#2563eb', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Templates ({bottomAdTemplates.length})</button>
                     <button onClick={() => {
-                      if (!bottomAdProfileName || !bottomAdText) { setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and ad text.' }); return; }
+                      if (!bottomAdProfileName || bottomAdTextItems.length === 0) { setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and at least one text item.' }); return; }
                       setShowBottomPreview(true);
-                    }} style={{ padding: '8px 12px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer' }}>Preview</button>
+                    }} style={{ padding: '9px 16px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: 13 }}>Preview</button>
                     <button onClick={() => {
-                      if (!bottomAdProfileName || !bottomAdText) { setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and ad text.' }); return; }
+                      if (!bottomAdProfileName || bottomAdTextItems.length === 0) { setToast({ type: 'error', title: 'Missing fields', message: 'Please provide profile name and at least one text item.' }); return; }
                       setShowBottomApplyModal(true);
-                    }} style={{ padding: '8px 12px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply</button>
+                    }} style={{ padding: '9px 16px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply</button>
+                  </div>
+                </div>
+              )}
+
+              {/* Ads Mode: Default 2 configuration (card containers with purple separator) */}
+              {adsMode === 'default2' && (
+                <div style={{ marginBottom: '20px', padding: '16px', borderRadius: 10, border: '1px solid #e6edf3', background: '#fff' }}>
+                  <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Configure Default 2 Ad</h4>
+                  
+                  {/* Input Fields Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                    {/* Line Color */}
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>LINE COLOR</label>
+                      <div style={{ display: 'flex', gap: 6, flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <input type="color" value={default2LineColor} onChange={(e) => setDefault2LineColor(e.target.value)} style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+                          <input type="text" value={default2LineColor} onChange={(e) => setDefault2LineColor(e.target.value)} placeholder="#8b5cf6" style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, fontFamily: 'monospace', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {['#8b5cf6', '#ec4899', '#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6', '#6366f1'].map(color => (
+                            <button key={color} onClick={() => setDefault2LineColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: default2LineColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Background Color */}
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BACKGROUND COLOR</label>
+                      <div style={{ display: 'flex', gap: 6, flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <input type="color" value={default2BgColor} onChange={(e) => setDefault2BgColor(e.target.value)} style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+                          <input type="text" value={default2BgColor} onChange={(e) => setDefault2BgColor(e.target.value)} placeholder="#ffffff" style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, fontFamily: 'monospace', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {['#ffffff', '#f8fafc', '#f1f5f9', '#e2e8f0', '#111827', '#1f2937'].map(color => (
+                            <button key={color} onClick={() => setDefault2BgColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: default2BgColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Text Color */}
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>TEXT COLOR</label>
+                      <div style={{ display: 'flex', gap: 6, flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <input type="color" value={default2TextColor} onChange={(e) => setDefault2TextColor(e.target.value)} style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+                          <input type="text" value={default2TextColor} onChange={(e) => setDefault2TextColor(e.target.value)} placeholder="#1f2937" style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, fontFamily: 'monospace', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {['#000000', '#1f2937', '#374151', '#4b5563', '#ffffff', '#f3f4f6'].map(color => (
+                            <button key={color} onClick={() => setDefault2TextColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: default2TextColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>TITLE</label>
+                      <input placeholder="Card title" value={default2Title} onChange={(e) => setDefault2Title(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>DESCRIPTION</label>
+                      <input placeholder="Card description" value={default2Description} onChange={(e) => setDefault2Description(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                    </div>
+
+                    {/* Logo/Image URL */}
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>LOGO/IMAGE URL</label>
+                      <input placeholder="https://example.com/logo.png" value={default2Logo} onChange={(e) => setDefault2Logo(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                    </div>
+
+                    {/* Profile Link */}
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>PROFILE LINK</label>
+                      <input placeholder="https://example.com" value={default2Link} onChange={(e) => setDefault2Link(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 16, flexWrap: 'wrap' }}>
+                    <button onClick={() => { setAdsMode(null); }} style={{ padding: '9px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 500, fontSize: 13 }}>Close</button>
+                    <button onClick={() => setShowDefault2Preview(true)} style={{ padding: '9px 16px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: 13 }}>Preview</button>
+                    <button onClick={() => setShowDefault2SaveModal(true)} style={{ padding: '9px 16px', borderRadius: 8, background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: 13 }}>Save Template</button>
+                    <button onClick={() => setShowDefault2TemplatesModal(true)} style={{ padding: '9px 16px', borderRadius: 8, background: '#2563eb', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Templates ({default2Templates.length})</button>
+                    <button onClick={() => setShowDefault2ApplyModal(true)} style={{ padding: '9px 16px', borderRadius: 8, background: '#d946ef', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply to Videos</button>
+                  </div>
+                </div>
+              )}
+
+              {/* Video Ad Preview Modal */}
+              {showVideoAdPreview && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1400, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: 20 }} onClick={() => setShowVideoAdPreview(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 500, background: '#000', borderRadius: 12, position: 'relative', display: 'flex', flexDirection: 'column', aspectRatio: 9/16, overflow: 'hidden' }}>
+                    
+                    {/* Close button */}
+                    <button onClick={() => setShowVideoAdPreview(false)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 100, background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '6px 8px', borderRadius: 6, cursor: 'pointer', fontSize: 14 }}>✕</button>
+
+                    {/* Video Playing Area - showing background video */}
+                    <div style={{ flex: 1, background: 'linear-gradient(135deg, #111827 0%, #1f2937 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontSize: 14, position: 'relative', overflow: 'hidden' }}>
+                      {/* Video placeholder/background */}
+                      <div style={{ position: 'absolute', inset: 0, background: 'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27400%27 height=%27600%27%3E%3Crect fill=%27%23111827%27 width=%27400%27 height=%27600%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 font-size=%2740%27 fill=%27%236b7280%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27%3EVideo Playing%3C/text%3E%3C/svg%3E")', backgroundSize: 'cover', opacity: 0.8 }} />
+                      
+                      {/* Video Ad Overlay - your ad video/content plays on top */}
+                      <div style={{ 
+                        position: 'absolute', 
+                        inset: '40px 20px', 
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)', 
+                        borderRadius: 12, 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        padding: '20px',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                        zIndex: 10,
+                        border: '2px solid rgba(255,255,255,0.1)'
+                      }}>
+                        <div style={{ width: '100%', height: '120px', background: 'rgba(0,0,0,0.3)', borderRadius: 8, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#90caf9', fontWeight: 600, fontSize: 14 }}>
+                          🎬 Ad Video
+                        </div>
+                        <div style={{ color: 'white', fontSize: 16, fontWeight: 700, marginBottom: 12, textAlign: 'center' }}>{videoAdTitle || 'Your Ad Title'}</div>
+                        
+                        {/* CTA Button */}
+                        <button style={{
+                          padding: '12px 24px',
+                          background: videoAdCtaColor || '#0b74de',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 8,
+                          fontSize: 14,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                        }}>
+                          {videoAdCtaText || 'Learn More'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Default 2 Preview Modal */}
+              {showDefault2Preview && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1400, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: 20 }} onClick={() => setShowDefault2Preview(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 500, maxHeight: '90vh', overflowY: 'auto', background: '#000', borderRadius: 12, position: 'relative', display: 'flex', flexDirection: 'column', aspectRatio: 9/16 }}>
+                    
+                    {/* Close button */}
+                    <button onClick={() => setShowDefault2Preview(false)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 100, background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '6px 8px', borderRadius: 6, cursor: 'pointer', fontSize: 14 }}>✕</button>
+
+                    {/* Video background placeholder */}
+                    <div style={{ flex: 1, background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontSize: 14, position: 'relative' }}>
+                      Video Content Area
+                      
+                      {/* Corner Button Preview */}
+                      <button style={{
+                        position: 'absolute',
+                        bottom: 20,
+                        right: 16,
+                        padding: '10px 16px',
+                        background: 'linear-gradient(135deg, #ff0080 0%, #ff8c00 100%)',
+                        color: '#ffffff',
+                        border: '2px solid #ff0080',
+                        borderRadius: 8,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(255, 0, 128, 0.4)',
+                        whiteSpace: 'nowrap',
+                        zIndex: 10
+                      }}>
+                        Visit Link
+                      </button>
+                    </div>
+
+                    {/* Cards Container */}
+                    <div style={{ background: '#000', padding: '16px', borderTop: `3px solid ${default2LineColor || '#d946ef'}` }}>
+                      {[1, 2].map((i) => (
+                        <div key={i} style={{
+                          marginBottom: i === 1 ? 12 : 0,
+                          padding: '12px 14px',
+                          background: default2BgColor || '#ffffff',
+                          border: `2px solid ${(default2BgColor || '#ffffff')}`,
+                          borderLeft: `3px solid ${default2LineColor || '#d946ef'}`,
+                          borderRadius: 8,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          minHeight: '70px'
+                        }}>
+                          {/* Logo */}
+                          {default2Logo && (
+                            <img src={default2Logo} alt="logo" style={{ width: 50, height: 50, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} onError={(e) => e.target.style.display = 'none'} />
+                          )}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: default2TextColor || '#111827', marginBottom: 4 }}>{default2Title || 'Card Title'}</div>
+                            <div style={{ fontSize: 12, color: default2TextColor || '#6b7280' }}>{default2Description || 'Card description'}</div>
+                          </div>
+                          <div style={{ fontSize: 20, color: default2LineColor || '#d946ef', flexShrink: 0 }}>→</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -5448,11 +7106,31 @@ export default function StaffDashboard() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                     <div>
                       <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BACKGROUND COLOR</label>
-                      <input type="color" value={overlayAdBgColor} onChange={(e) => setOverlayAdBgColor(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', height: 38, cursor: 'pointer' }} />
+                      <div style={{ display: 'flex', gap: 6, flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <input type="color" value={overlayAdBgColor} onChange={(e) => setOverlayAdBgColor(e.target.value)} style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+                          <input type="text" value={overlayAdBgColor} onChange={(e) => setOverlayAdBgColor(e.target.value)} placeholder="#E41E24" style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, fontFamily: 'monospace', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {['#E41E24', '#DC143C', '#FF6B6B', '#FF4757', '#FE5454'].map(color => (
+                            <button key={color} onClick={() => setOverlayAdBgColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: overlayAdBgColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                          ))}
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>TEXT COLOR</label>
-                      <input type="color" value={overlayAdTextColor} onChange={(e) => setOverlayAdTextColor(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', height: 38, cursor: 'pointer' }} />
+                      <div style={{ display: 'flex', gap: 6, flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <input type="color" value={overlayAdTextColor} onChange={(e) => setOverlayAdTextColor(e.target.value)} style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+                          <input type="text" value={overlayAdTextColor} onChange={(e) => setOverlayAdTextColor(e.target.value)} placeholder="#fff" style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, fontFamily: 'monospace', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {['#ffffff', '#f3f4f6', '#e5e7eb', '#d1d5db', '#000000'].map(color => (
+                            <button key={color} onClick={() => setOverlayAdTextColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: overlayAdTextColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -5460,11 +7138,31 @@ export default function StaffDashboard() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                     <div>
                       <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BRAND BACKGROUND</label>
-                      <input type="color" value={overlayBrandBgColor} onChange={(e) => setOverlayBrandBgColor(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', height: 38, cursor: 'pointer' }} />
+                      <div style={{ display: 'flex', gap: 6, flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <input type="color" value={overlayBrandBgColor} onChange={(e) => setOverlayBrandBgColor(e.target.value)} style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+                          <input type="text" value={overlayBrandBgColor} onChange={(e) => setOverlayBrandBgColor(e.target.value)} placeholder="#ffffff" style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, fontFamily: 'monospace', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {['#ffffff', '#f8fafc', '#f1f5f9', '#e2e8f0', '#0b74de'].map(color => (
+                            <button key={color} onClick={() => setOverlayBrandBgColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: overlayBrandBgColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                          ))}
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BRAND TEXT</label>
-                      <input type="color" value={overlayBrandTextColor} onChange={(e) => setOverlayBrandTextColor(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e5e7eb', height: 38, cursor: 'pointer' }} />
+                      <div style={{ display: 'flex', gap: 6, flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <input type="color" value={overlayBrandTextColor} onChange={(e) => setOverlayBrandTextColor(e.target.value)} style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+                          <input type="text" value={overlayBrandTextColor} onChange={(e) => setOverlayBrandTextColor(e.target.value)} placeholder="#000000" style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, fontFamily: 'monospace', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {['#000000', '#1f2937', '#374151', '#4b5563', '#ffffff'].map(color => (
+                            <button key={color} onClick={() => setOverlayBrandTextColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: overlayBrandTextColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -5491,7 +7189,7 @@ export default function StaffDashboard() {
                     <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>POSITION</label>
                       <div tabIndex={0} onBlur={() => setOverlayPositionOpen(false)} style={{ position: 'relative' }}>
                         <button onClick={() => setOverlayPositionOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, border: '2px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s ease', borderColor: overlayPositionOpen ? '#0b74de' : '#e5e7eb', backgroundColor: overlayPositionOpen ? '#f0f9ff' : 'white' }}>
-                          <span>{overlayAdPosition === 'bottom' ? '📍 Bottom Ticker' : overlayAdPosition === 'top' ? '📍 Top Ticker' : overlayAdPosition === 'fullscreen' ? '📺 Full Screen Banner' : '🎯 Video Overlay'}</span>
+                          <span>{overlayAdPosition === 'bottom' ? '📍 Bottom Ticker' : overlayAdPosition === 'top' ? '📍 Top Ticker' : overlayAdPosition === 'fullscreen' ? '📺 Full Screen Banner' : overlayAdPosition === 'videoOverlay' ? '🎯 Video Overlay' : '🎬 Video Player Overlay'}</span>
                           <ChevronDown size={16} style={{ transition: 'transform 0.2s ease', transform: overlayPositionOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                         </button>
                         {overlayPositionOpen && (
@@ -5500,6 +7198,7 @@ export default function StaffDashboard() {
                             <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('top'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'top' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'top' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'top' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'top' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'top' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'top' ? '#dbeafe' : 'transparent'; }}>📍 Top Ticker</div>
                             <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('fullscreen'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'fullscreen' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'fullscreen' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'fullscreen' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'fullscreen' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'fullscreen' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'fullscreen' ? '#dbeafe' : 'transparent'; }}>📺 Full Screen Banner</div>
                             <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('videoOverlay'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'videoOverlay' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'videoOverlay' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'videoOverlay' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'videoOverlay' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'videoOverlay' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'videoOverlay' ? '#dbeafe' : 'transparent'; }}>🎯 Video Overlay</div>
+                            <div onMouseDown={(e) => { e.preventDefault(); setOverlayAdPosition('videoPlayer'); setOverlayPositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayAdPosition === 'videoPlayer' ? '#dbeafe' : 'transparent', color: overlayAdPosition === 'videoPlayer' ? '#0b74de' : '#1f2937', borderLeft: overlayAdPosition === 'videoPlayer' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayAdPosition === 'videoPlayer' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'videoPlayer' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayAdPosition === 'videoPlayer' ? '#dbeafe' : 'transparent'; }}>🎬 Video Player Overlay</div>
                           </div>
                         )}
                       </div>
@@ -5544,6 +7243,300 @@ export default function StaffDashboard() {
                       </div>
                     </div>
 
+                  {/* Button Text - Only show for fullscreen */}
+                  {overlayAdPosition === 'fullscreen' && (
+                    <>
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BUTTON TEXT</label>
+                        <input value={overlayBtnText} onChange={(e) => setOverlayBtnText(e.target.value)} placeholder="e.g., Learn More" style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>COMPANY PROFILE URL</label>
+                        <input value={overlayProfileUrl} onChange={(e) => setOverlayProfileUrl(e.target.value)} placeholder="e.g., https://example.com/profile.jpg" style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Video Player URL - Only for Video Player Overlay */}
+                  {overlayAdPosition === 'videoPlayer' && (
+                    <>
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>VIDEO/IMAGE/GIF URL OR UPLOAD</label>
+                        <input 
+                          value={overlayVideoUrl} 
+                          onChange={(e) => setOverlayVideoUrl(e.target.value)} 
+                          placeholder="e.g., https://example.com/video.mp4" 
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13, marginBottom: 8 }} 
+                        />
+                        <div style={{ marginBottom: 12 }}>
+                          <label style={{ fontSize: 11, color: '#9ca3af', display: 'block', marginBottom: 8, fontWeight: 500 }}>OR upload from device:</label>
+                          <label style={{ 
+                            display: 'inline-block',
+                            padding: '10px 16px',
+                            background: '#3b82f6',
+                            color: '#fff',
+                            borderRadius: 8,
+                            fontSize: 13,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            border: 'none',
+                            transition: 'background 0.2s'
+                          }}>
+                            📁 Choose File
+                            <input 
+                              type="file"
+                              accept="video/*,image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const formData = new FormData();
+                                  formData.append('media', file);
+                                  fetch('http://localhost:4000/staff/upload-overlay-media', {
+                                    method: 'POST',
+                                    body: formData
+                                  })
+                                  .then(res => res.json())
+                                  .then(data => {
+                                    if (data.success) {
+                                      setOverlayVideoUrl(data.url);
+                                      setToast({ type: 'success', title: 'Uploaded', message: 'Media uploaded successfully!' });
+                                    } else {
+                                      setToast({ type: 'error', title: 'Upload failed', message: data.error || 'Failed to upload media' });
+                                    }
+                                  })
+                                  .catch(err => {
+                                    console.error('Upload error:', err);
+                                    setToast({ type: 'error', title: 'Upload error', message: 'Error uploading file' });
+                                  });
+                                }
+                              }}
+                              style={{ display: 'none' }} 
+                            />
+                          </label>
+                        </div>
+                        {overlayVideoUrl && (
+                          <div style={{ fontSize: 11, color: '#10b981' }}>✓ Media loaded successfully</div>
+                        )}
+                        <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>Supports MP4, WebM, images, and GIFs</div>
+                      </div>
+
+                      {/* Exit Transition Effect */}
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>EXIT TRANSITION EFFECT</label>
+                        <div tabIndex={0} onBlur={() => setOverlayExitTransitionOpen(false)} style={{ position: 'relative' }}>
+                          <button onClick={() => setOverlayExitTransitionOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, border: '2px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 14, transition: 'all 0.2s ease', borderColor: overlayExitTransitionOpen ? '#0b74de' : '#e5e7eb', backgroundColor: overlayExitTransitionOpen ? '#f0f9ff' : 'white' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              {overlayExitTransition === 'fade' && '✨ Fade'}
+                              {overlayExitTransition === 'dissolve' && '💫 Dissolve'}
+                              {overlayExitTransition === 'blinds' && '🪟 Blinds'}
+                              {overlayExitTransition === 'wilt' && '🌹 Wilt'}
+                              {overlayExitTransition === 'random' && '🎲 Random'}
+                            </span>
+                            <ChevronDown size={16} style={{ transition: 'transform 0.2s ease', transform: overlayExitTransitionOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                          </button>
+                          {overlayExitTransitionOpen && (
+                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, marginTop: 4, zIndex: 10, boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+                              {['fade', 'dissolve', 'blinds', 'wilt', 'random'].map((effect) => (
+                                <button
+                                  key={effect}
+                                  onClick={() => {
+                                    setOverlayExitTransition(effect);
+                                    setOverlayExitTransitionOpen(false);
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    border: 'none',
+                                    background: overlayExitTransition === effect ? '#f0f9ff' : 'transparent',
+                                    cursor: 'pointer',
+                                    fontSize: 14,
+                                    textAlign: 'left',
+                                    color: overlayExitTransition === effect ? '#0b74de' : '#374151',
+                                    fontWeight: overlayExitTransition === effect ? 600 : 400,
+                                    borderLeft: overlayExitTransition === effect ? '3px solid #0b74de' : '3px solid transparent',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                >
+                                  {effect === 'fade' && '✨ Fade - Simple opacity fade-out'}
+                                  {effect === 'dissolve' && '💫 Dissolve - Fade with shrink'}
+                                  {effect === 'blinds' && '🪟 Blinds - Collapse from top'}
+                                  {effect === 'wilt' && '🌹 Wilt - Dramatic fold & rotate'}
+                                  {effect === 'random' && '🎲 Random - Pick random effect'}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* AD/Sponsored Badge Settings */}
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BADGE TYPE</label>
+                        <div tabIndex={0} onBlur={() => setOverlayBadgeTypeOpen(false)} style={{ position: 'relative' }}>
+                          <button onClick={() => setOverlayBadgeTypeOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, border: '2px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 14, transition: 'all 0.2s ease', borderColor: overlayBadgeTypeOpen ? '#0b74de' : '#e5e7eb', backgroundColor: overlayBadgeTypeOpen ? '#f0f9ff' : 'white' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              {overlayBadgeType === 'ad' && '🏷️ AD Tag'}
+                              {overlayBadgeType === 'sponsoredBy' && '🎯 Sponsored By'}
+                              {overlayBadgeType === 'none' && '❌ None'}
+                            </span>
+                            <ChevronDown size={16} style={{ transition: 'transform 0.2s ease', transform: overlayBadgeTypeOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                          </button>
+                          {overlayBadgeTypeOpen && (
+                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: 'white', border: '2px solid #e5e7eb', borderRadius: 8, zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                              <div onMouseDown={(e) => { e.preventDefault(); setOverlayBadgeType('ad'); setOverlayBadgeTypeOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayBadgeType === 'ad' ? '#dbeafe' : 'transparent', color: overlayBadgeType === 'ad' ? '#0b74de' : '#1f2937', borderLeft: overlayBadgeType === 'ad' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayBadgeType === 'ad' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayBadgeType === 'ad' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayBadgeType === 'ad' ? '#dbeafe' : 'transparent'; }}>🏷️ AD Tag (Default)</div>
+                              <div onMouseDown={(e) => { e.preventDefault(); setOverlayBadgeType('sponsoredBy'); setOverlayBadgeTypeOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayBadgeType === 'sponsoredBy' ? '#dbeafe' : 'transparent', color: overlayBadgeType === 'sponsoredBy' ? '#0b74de' : '#1f2937', borderLeft: overlayBadgeType === 'sponsoredBy' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayBadgeType === 'sponsoredBy' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayBadgeType === 'sponsoredBy' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayBadgeType === 'sponsoredBy' ? '#dbeafe' : 'transparent'; }}>🎯 Sponsored By + Logo</div>
+                              <div onMouseDown={(e) => { e.preventDefault(); setOverlayBadgeType('none'); setOverlayBadgeTypeOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayBadgeType === 'none' ? '#dbeafe' : 'transparent', color: overlayBadgeType === 'none' ? '#0b74de' : '#1f2937', borderLeft: overlayBadgeType === 'none' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayBadgeType === 'none' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayBadgeType === 'none' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayBadgeType === 'none' ? '#dbeafe' : 'transparent'; }}>❌ None</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Badge Position Dropdown */}
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BADGE POSITION</label>
+                        <div tabIndex={0} onBlur={() => setOverlayBadgePositionOpen(false)} style={{ position: 'relative' }}>
+                          <button onClick={() => setOverlayBadgePositionOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, border: '2px solid #e5e7eb', background: 'white', cursor: 'pointer', fontSize: 14, transition: 'all 0.2s ease', borderColor: overlayBadgePositionOpen ? '#0b74de' : '#e5e7eb', backgroundColor: overlayBadgePositionOpen ? '#f0f9ff' : 'white' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+                              {overlayBadgePosition === 'top-left-player' && '↖️ Top Left (Player)'}
+                              {overlayBadgePosition === 'top-right-player' && '↗️ Top Right (Player)'}
+                              {overlayBadgePosition === 'top-left-video' && '↖️ Top Left (Video)'}
+                              {overlayBadgePosition === 'top-right-video' && '↗️ Top Right (Video)'}
+                              {overlayBadgePosition === 'bottom-left-video' && '↙️ Bottom Left (Video)'}
+                              {overlayBadgePosition === 'bottom-right-video' && '↘️ Bottom Right (Video)'}
+                            </span>
+                            <ChevronDown size={16} style={{ transition: 'transform 0.2s ease', transform: overlayBadgePositionOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                          </button>
+                          {overlayBadgePositionOpen && (
+                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: 'white', border: '2px solid #e5e7eb', borderRadius: 8, zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                              <div onMouseDown={(e) => { e.preventDefault(); setOverlayBadgePosition('top-left-player'); setOverlayBadgePositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayBadgePosition === 'top-left-player' ? '#dbeafe' : 'transparent', color: overlayBadgePosition === 'top-left-player' ? '#0b74de' : '#1f2937', borderLeft: overlayBadgePosition === 'top-left-player' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayBadgePosition === 'top-left-player' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'top-left-player' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'top-left-player' ? '#dbeafe' : 'transparent'; }}>↖️ Top Left of Player</div>
+                              <div onMouseDown={(e) => { e.preventDefault(); setOverlayBadgePosition('top-right-player'); setOverlayBadgePositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayBadgePosition === 'top-right-player' ? '#dbeafe' : 'transparent', color: overlayBadgePosition === 'top-right-player' ? '#0b74de' : '#1f2937', borderLeft: overlayBadgePosition === 'top-right-player' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayBadgePosition === 'top-right-player' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'top-right-player' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'top-right-player' ? '#dbeafe' : 'transparent'; }}>↗️ Top Right of Player</div>
+                              <div onMouseDown={(e) => { e.preventDefault(); setOverlayBadgePosition('top-left-video'); setOverlayBadgePositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayBadgePosition === 'top-left-video' ? '#dbeafe' : 'transparent', color: overlayBadgePosition === 'top-left-video' ? '#0b74de' : '#1f2937', borderLeft: overlayBadgePosition === 'top-left-video' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayBadgePosition === 'top-left-video' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'top-left-video' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'top-left-video' ? '#dbeafe' : 'transparent'; }}>↖️ Top Left of Video</div>
+                              <div onMouseDown={(e) => { e.preventDefault(); setOverlayBadgePosition('top-right-video'); setOverlayBadgePositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayBadgePosition === 'top-right-video' ? '#dbeafe' : 'transparent', color: overlayBadgePosition === 'top-right-video' ? '#0b74de' : '#1f2937', borderLeft: overlayBadgePosition === 'top-right-video' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayBadgePosition === 'top-right-video' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'top-right-video' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'top-right-video' ? '#dbeafe' : 'transparent'; }}>↗️ Top Right of Video</div>
+                              <div onMouseDown={(e) => { e.preventDefault(); setOverlayBadgePosition('bottom-left-video'); setOverlayBadgePositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayBadgePosition === 'bottom-left-video' ? '#dbeafe' : 'transparent', color: overlayBadgePosition === 'bottom-left-video' ? '#0b74de' : '#1f2937', borderLeft: overlayBadgePosition === 'bottom-left-video' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayBadgePosition === 'bottom-left-video' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'bottom-left-video' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'bottom-left-video' ? '#dbeafe' : 'transparent'; }}>↙️ Bottom Left of Video</div>
+                              <div onMouseDown={(e) => { e.preventDefault(); setOverlayBadgePosition('bottom-right-video'); setOverlayBadgePositionOpen(false); }} style={{ padding: '12px 16px', cursor: 'pointer', fontSize: 13, fontWeight: '500', transition: 'all 0.15s ease', backgroundColor: overlayBadgePosition === 'bottom-right-video' ? '#dbeafe' : 'transparent', color: overlayBadgePosition === 'bottom-right-video' ? '#0b74de' : '#1f2937', borderLeft: overlayBadgePosition === 'bottom-right-video' ? '3px solid #0b74de' : '3px solid transparent', paddingLeft: overlayBadgePosition === 'bottom-right-video' ? '13px' : '16px' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'bottom-right-video' ? '#dbeafe' : '#f3f4f6'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = overlayBadgePosition === 'bottom-right-video' ? '#dbeafe' : 'transparent'; }}>↘️ Bottom Right of Video</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Badge Color */}
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BADGE COLOR</label>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <div style={{ position: 'relative' }}>
+                            <input 
+                              type="color" 
+                              value={overlayBadgeColor} 
+                              onChange={(e) => setOverlayBadgeColor(e.target.value)}
+                              style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease' }}
+                            />
+                          </div>
+                          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            <input 
+                              type="text" 
+                              value={overlayBadgeColor} 
+                              onChange={(e) => setOverlayBadgeColor(e.target.value)}
+                              placeholder="#ff0000"
+                              style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13, fontFamily: 'monospace', transition: 'all 0.2s ease', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+                            />
+                            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                              {['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff6600', '#ff0066'].map(color => (
+                                <button key={color} onClick={() => setOverlayBadgeColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: overlayBadgeColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Sponsor Logo URL (only show if sponsoredBy selected) */}
+                      {overlayBadgeType === 'sponsoredBy' && (
+                        <div style={{ marginBottom: 16 }}>
+                          <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>SPONSOR LOGO URL</label>
+                          <input 
+                            value={overlayBadgeLogo} 
+                            onChange={(e) => setOverlayBadgeLogo(e.target.value)}
+                            placeholder="e.g., https://example.com/logo.png"
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }}
+                          />
+                          <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>Logo will be displayed next to "Sponsored by" text</div>
+                        </div>
+                      )}
+
+                      {/* Optional Text CTA */}
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>TEXT BUTTON (Optional)</label>
+                        <input 
+                          value={overlayCtaText} 
+                          onChange={(e) => setOverlayCtaText(e.target.value)} 
+                          placeholder="e.g., Learn More" 
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} 
+                        />
+                      </div>
+
+                      {/* CTA Color - Only show if text is filled */}
+                      {overlayCtaText && (
+                        <div style={{ marginBottom: 16 }}>
+                          <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>BUTTON COLOR</label>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <div style={{ position: 'relative' }}>
+                              <input 
+                                type="color"
+                                value={overlayCtaColor} 
+                                onChange={(e) => setOverlayCtaColor(e.target.value)} 
+                                style={{ width: 50, height: 40, borderRadius: 8, border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease' }} 
+                              />
+                            </div>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              <input 
+                                type="text"
+                                value={overlayCtaColor} 
+                                onChange={(e) => setOverlayCtaColor(e.target.value)} 
+                                placeholder="#4B9EFF" 
+                                style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13, fontFamily: 'monospace', transition: 'all 0.2s ease', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} 
+                              />
+                              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                                {['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1'].map(color => (
+                                  <button key={color} onClick={() => setOverlayCtaColor(color)} style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: color, border: overlayCtaColor === color ? '3px solid #1f2937' : '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} title={color} />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* CTA Timing - Show if CTA is configured */}
+                      {((overlayCtaType === 'text' && overlayCtaText) || (overlayCtaType !== 'text' && overlayCtaMedia)) && (
+                        <>
+                          <div style={{ marginBottom: 16 }}>
+                            <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>CTA DELAY (seconds)</label>
+                            <input 
+                              type="number"
+                              min="0"
+                              max="30"
+                              value={overlayCtaDelay} 
+                              onChange={(e) => setOverlayCtaDelay(Math.max(0, parseInt(e.target.value) || 0))} 
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} 
+                            />
+                            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>How many seconds before CTA appears</div>
+                          </div>
+
+                          <div style={{ marginBottom: 16 }}>
+                            <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 600, display: 'block', marginBottom: 6 }}>CTA DURATION (seconds)</label>
+                            <input 
+                              type="number"
+                              min="1"
+                              max="30"
+                              value={overlayCtaDuration} 
+                              onChange={(e) => setOverlayCtaDuration(Math.max(1, parseInt(e.target.value) || 3))} 
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} 
+                            />
+                            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>How many seconds the CTA is visible</div>
+                          </div>
+                        </>
+                      )}
+                    </>
+                  )}
+
                   {/* Multiple Text Items */}
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -5568,167 +7561,34 @@ export default function StaffDashboard() {
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button onClick={() => { setAdsMode(null); }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Close</button>
+                  <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap', marginTop: 16 }}>
+                    <button onClick={() => { setAdsMode(null); }} style={{ padding: '9px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 500, fontSize: 13 }}>Close</button>
                       <button onClick={() => {
-                        if (!overlayAdCompanyName || (overlayAdTextItems.length === 0 && !overlayAdText)) { 
-                          setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name and at least one message.' }); 
+                        if (!overlayAdCompanyName || (overlayAdPosition !== 'videoPlayer' && (overlayAdTextItems.length === 0 && !overlayAdText)) || (overlayAdPosition === 'videoPlayer' && !overlayVideoUrl)) { 
+                          setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name' + (overlayAdPosition === 'videoPlayer' ? ' and video/image/GIF' : ' and at least one message') + '.' }); 
                           return; 
                         }
                         setOverlayTemplateName('');
                         setShowOverlaySaveModal(true);
-                      }} style={{ padding: '8px 16px', borderRadius: 8, background: '#8b5cf6', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Save Template</button>
+                      }} style={{ padding: '9px 16px', borderRadius: 8, background: '#8b5cf6', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: 13 }}>Save Template</button>
                       <button onClick={() => {
-                        if (!overlayAdCompanyName || (overlayAdTextItems.length === 0 && !overlayAdText)) { 
-                          setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name and at least one message.' }); 
+                        if (!overlayAdCompanyName || (overlayAdPosition !== 'videoPlayer' && (overlayAdTextItems.length === 0 && !overlayAdText)) || (overlayAdPosition === 'videoPlayer' && !overlayVideoUrl)) { 
+                          setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name' + (overlayAdPosition === 'videoPlayer' ? ' and video/image/GIF' : ' and at least one message') + '.' }); 
                           return; 
                         }
                         setShowOverlayPreview(true);
-                      }} style={{ padding: '10px 16px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Preview</button>
-                      {overlayTemplates.length > 0 && (
-                        <button onClick={() => setShowOverlayTemplatesModal(true)} style={{ padding: '10px 16px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Saved Templates</button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-                    <button onClick={() => {
-                      if (!overlayAdCompanyName || (overlayAdTextItems.length === 0 && !overlayAdText)) { 
-                        setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name and at least one message.' }); 
-                        return; 
-                      }
-                      setShowOverlayApplyModal(true);
-                    }} style={{ padding: '8px 16px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply</button>
+                      }} style={{ padding: '9px 16px', borderRadius: 8, background: '#111827', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: 13 }}>Preview</button>
+                      <button onClick={() => setShowOverlayTemplatesModal(true)} style={{ padding: '9px 16px', borderRadius: 8, background: '#2563eb', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Templates ({overlayTemplates.length})</button>
+                      <button onClick={() => {
+                        if (!overlayAdCompanyName || (overlayAdPosition !== 'videoPlayer' && (overlayAdTextItems.length === 0 && !overlayAdText)) || (overlayAdPosition === 'videoPlayer' && !overlayVideoUrl)) { 
+                          setToast({ type: 'error', title: 'Missing fields', message: 'Please provide company name' + (overlayAdPosition === 'videoPlayer' ? ' and video/image/GIF' : ' and at least one message') + '.' }); 
+                          return; 
+                        }
+                        setShowOverlayApplyModal(true);
+                      }} style={{ padding: '9px 16px', borderRadius: 8, background: '#0b74de', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply</button>
                   </div>
                 </div>
               )}
-              <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1f2937', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>Ad Assets (Images, Videos, Banners)</h3>
-                {adAssets.length === 0 ? (
-                  <div style={{
-                    padding: '48px 32px',
-                    textAlign: 'center',
-                    background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                    borderRadius: '10px',
-                    color: '#6b7280',
-                    border: '1px solid #d1d5db'
-                  }}>
-                    <div style={{ 
-                      width: '72px',
-                      height: '72px',
-                      backgroundColor: 'rgba(79,70,229,0.1)',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 16px'
-                    }}>
-                      <ImageIcon size={36} style={{ color: '#4f46e5' }} />
-                    </div>
-                    <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>No Ad Assets Yet</p>
-                    <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>Upload images, videos, or banners to create engaging ads</p>
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '12px' }}>
-                    {adAssets.map((asset, idx) => (
-                      <div key={idx} style={{
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '10px',
-                        overflow: 'hidden',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        cursor: 'pointer',
-                        position: 'relative',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                        backgroundColor: 'white'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.12)';
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.borderColor = '#4f46e5';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.borderColor = '#e5e7eb';
-                      }}>
-                        <div style={{
-                          width: '100%',
-                          height: '120px',
-                          backgroundColor: '#f9fafb',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          overflow: 'hidden'
-                        }}>
-                          {asset.type === 'image' ? (
-                            <img 
-                              src={asset.url} 
-                              alt={asset.name}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                display: 'block'
-                              }}
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <video 
-                              src={asset.url}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                display: 'block'
-                              }}
-                            />
-                          )}
-                        </div>
-                        <div style={{ padding: '10px', backgroundColor: 'white', borderTop: '1px solid #f3f4f6' }}>
-                          <p style={{ margin: '0', fontSize: '13px', fontWeight: '600', color: '#1f2937', wordBreak: 'break-word' }}>
-                            {asset.name}
-                          </p>
-                          <p style={{ margin: '3px 0 0 0', fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.3px', fontWeight: '500' }}>
-                            {asset.type}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => setAdAssets(adAssets.filter((_, i) => i !== idx))}
-                          style={{
-                            position: 'absolute',
-                            top: '6px',
-                            right: '6px',
-                            width: '28px',
-                            height: '28px',
-                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.3s ease',
-                            boxShadow: '0 2px 8px rgba(239,68,68,0.3)'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.boxShadow = '0 4px 12px rgba(239,68,68,0.4)';
-                            e.target.style.transform = 'scale(1.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.boxShadow = '0 2px 8px rgba(239,68,68,0.3)';
-                            e.target.style.transform = 'scale(1)';
-                          }}
-                        >
-                          <Trash size={15} strokeWidth={2} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
               
               {/* Save Template Modal */}
               {showOverlaySaveModal && (
@@ -5756,7 +7616,14 @@ export default function StaffDashboard() {
                             opacity: overlayAdOpacity,
                             tagOpacity: overlayTagOpacity,
                             position: overlayAdPosition,
-                            animation: overlayTextAnimation
+                            animation: overlayTextAnimation,
+                            videoUrl: overlayVideoUrl,
+                            videoText: overlayAdText,
+                            btnText: overlayBtnText,
+                            badgeType: overlayBadgeType,
+                            badgeColor: overlayBadgeColor,
+                            badgeLogo: overlayBadgeLogo,
+                            badgePosition: overlayBadgePosition
                           };
                           const updated = [...overlayTemplates, newTemplate];
                           setOverlayTemplates(updated);
@@ -5793,7 +7660,14 @@ export default function StaffDashboard() {
                           opacity: overlayAdOpacity,
                           tagOpacity: overlayTagOpacity,
                           position: overlayAdPosition,
-                          animation: overlayTextAnimation
+                          animation: overlayTextAnimation,
+                          videoUrl: overlayVideoUrl,
+                          videoText: overlayAdText,
+                          btnText: overlayBtnText,
+                          badgeType: overlayBadgeType,
+                          badgeColor: overlayBadgeColor,
+                          badgeLogo: overlayBadgeLogo,
+                          badgePosition: overlayBadgePosition
                         };
                         const updated = [...overlayTemplates, newTemplate];
                         setOverlayTemplates(updated);
@@ -5810,56 +7684,89 @@ export default function StaffDashboard() {
               
               {/* Saved Overlay Templates Modal */}
               {showOverlayTemplatesModal && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowOverlayTemplatesModal(false)}>
-                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 700, maxHeight: '85vh', overflowY: 'auto', background: 'white', borderRadius: 12, padding: 24 }}>
-                    <h2 style={{ margin: '0 0 20px 0', fontSize: 20, fontWeight: 700 }}>Saved Overlay Templates</h2>
-                    {overlayTemplates.length === 0 ? (
-                      <div style={{ padding: 24, textAlign: 'center', color: '#9ca3af' }}>No templates saved yet.</div>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {overlayTemplates.map((tpl) => (
-                          <div key={tpl.id} style={{ padding: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb' }}>
-                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 700, fontSize: 14, color: '#1f2937', marginBottom: 4 }}>{tpl.name}</div>
-                                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>
-                                  <span style={{ display: 'inline-block', marginRight: 12 }}>📢 {tpl.companyName}</span>
-                                  <span style={{ display: 'inline-block' }}>✨ {tpl.animation}</span>
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowOverlayTemplatesModal(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 720, maxHeight: '88vh', overflowY: 'auto', background: 'white', borderRadius: 16, padding: 0, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+                    {/* Header */}
+                    <div style={{ padding: '28px 32px', borderBottom: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <h2 style={{ margin: '0 0 8px 0', fontSize: 22, fontWeight: 700, color: '#111827' }}>Saved Overlay Templates</h2>
+                          <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>Manage your news ticker templates</p>
+                        </div>
+                        <button onClick={() => setShowOverlayTemplatesModal(false)} style={{ padding: '8px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Close</button>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ padding: '24px 32px' }}>
+                      {overlayTemplates.length === 0 ? (
+                        <div style={{ padding: '48px 24px', textAlign: 'center' }}>
+                          <div style={{ fontSize: 56, marginBottom: 12 }}>📺</div>
+                          <div style={{ fontSize: 16, fontWeight: 600, color: '#111827', marginBottom: 6 }}>No templates yet</div>
+                          <div style={{ fontSize: 13, color: '#6b7280' }}>Create your first template to get started</div>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 16 }}>
+                          {overlayTemplates.map((tpl) => (
+                            <div key={tpl.id} className="template-card" style={{ padding: '20px', borderRadius: 12, border: '1px solid #e5e7eb', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                              <div className="template-card-content" style={{ display: 'flex', alignItems: 'stretch', gap: 16, justifyContent: 'space-between' }}>
+                                {/* Template Info */}
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 10 }}>{tpl.name}</div>
+                                  <div style={{ display: 'flex', gap: 12, fontSize: 13, color: '#6b7280', marginBottom: 10, flexWrap: 'wrap' }}>
+                                    <span>📢 <strong>{tpl.companyName}</strong></span>
+                                    <span>✨ {tpl.animation}</span>
+                                    <span>💬 {tpl.textItems?.length || 0} msg{(tpl.textItems?.length || 0) !== 1 ? 's' : ''}</span>
+                                  </div>
+                                  {/* Mini Preview */}
+                                  <div style={{ padding: '12px 14px', background: tpl.bgColor, borderRadius: 8, overflow: 'hidden' }}>
+                                    <div style={{ color: tpl.textColor, fontSize: 12, fontWeight: 600, opacity: 0.8 }}>
+                                      {tpl.emoji} {tpl.companyName}
+                                    </div>
+                                  </div>
                                 </div>
-                                <div style={{ fontSize: 12, color: '#9ca3af' }}>{tpl.textItems?.length || 0} message{(tpl.textItems?.length || 0) !== 1 ? 's' : ''}</div>
-                              </div>
-                              <div style={{ display: 'flex', gap: 6 }}>
-                                <button onClick={() => {
-                                  // Load template
-                                  setOverlayAdCompanyName(tpl.companyName || '');
-                                  setOverlayAdText(tpl.text || '');
-                                  setOverlayAdTextItems(tpl.textItems || []);
-                                  setOverlayAdEmoji(tpl.emoji || '⚡');
-                                  setOverlayAdBgColor(tpl.bgColor || '#E41E24');
-                                  setOverlayAdTextColor(tpl.textColor || '#fff');
-                                  setOverlayBrandBgColor(tpl.brandBgColor || '#ffffff');
-                                  setOverlayBrandTextColor(tpl.brandTextColor || '#000000');
-                                  setOverlayAdOpacity(tpl.opacity != null ? tpl.opacity : 1);
-                                  setOverlayTagOpacity(tpl.tagOpacity != null ? tpl.tagOpacity : 1);
-                                  setOverlayAdPosition(tpl.position || 'bottom');
-                                  setOverlayTextAnimation(tpl.animation || 'marquee');
-                                  setShowOverlayTemplatesModal(false);
-                                  setAdsMode('overlay');
-                                  setToast({ type: 'success', title: 'Loaded', message: `Template "${tpl.name}" loaded.` });
-                                }} style={{ padding: '6px 12px', borderRadius: 6, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>Apply</button>
-                                <button onClick={() => {
-                                  const updated = overlayTemplates.filter(t => t.id !== tpl.id);
-                                  setOverlayTemplates(updated);
-                                  localStorage.setItem('overlayTemplates', JSON.stringify(updated));
-                                  // TODO: Delete from backend
-                                  setToast({ type: 'success', title: 'Deleted', message: `Template "${tpl.name}" deleted.` });
-                                }} style={{ padding: '6px 12px', borderRadius: 6, background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>Delete</button>
+
+                                {/* Actions */}
+                                <div className="template-actions" style={{ display: 'flex', flexDirection: 'column', gap: 8, justifyContent: 'center', flexShrink: 0 }}>
+                                  <button onClick={() => {
+                                    // Load template
+                                    setOverlayAdCompanyName(tpl.companyName || '');
+                                    setOverlayAdText(tpl.text || '');
+                                    setOverlayAdTextItems(tpl.textItems || []);
+                                    setOverlayAdEmoji(tpl.emoji || '⚡');
+                                    setOverlayAdBgColor(tpl.bgColor || '#E41E24');
+                                    setOverlayAdTextColor(tpl.textColor || '#fff');
+                                    setOverlayBrandBgColor(tpl.brandBgColor || '#ffffff');
+                                    setOverlayBrandTextColor(tpl.brandTextColor || '#000000');
+                                    setOverlayAdOpacity(tpl.opacity != null ? tpl.opacity : 1);
+                                    setOverlayTagOpacity(tpl.tagOpacity != null ? tpl.tagOpacity : 1);
+                                    setOverlayAdPosition(tpl.position || 'bottom');
+                                    setOverlayTextAnimation(tpl.animation || 'marquee');
+                                    // Load video-related fields
+                                    setOverlayVideoUrl(tpl.videoUrl || '');
+                                    setOverlayExitTransition(tpl.overlayExitTransition || 'fade');
+                                    setOverlayBtnText(tpl.btnText || 'Learn More');
+                                    setOverlayBadgeType(tpl.badgeType || 'ad');
+                                    setOverlayBadgeColor(tpl.badgeColor || '#ff0000');
+                                    setOverlayBadgeLogo(tpl.badgeLogo || '');
+                                    setOverlayBadgePosition(tpl.badgePosition || 'top-left-video');
+                                    setShowOverlayTemplatesModal(false);
+                                    setAdsMode('overlay');
+                                    setToast({ type: 'success', title: 'Loaded', message: `Template "${tpl.name}" loaded.` });
+                                  }} style={{ padding: '10px 16px', borderRadius: 8, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>✓ Apply</button>
+                                  <button onClick={() => {
+                                    const updated = overlayTemplates.filter(t => t.id !== tpl.id);
+                                    setOverlayTemplates(updated);
+                                    localStorage.setItem('overlayTemplates', JSON.stringify(updated));
+                                    setToast({ type: 'success', title: 'Deleted', message: `Template "${tpl.name}" deleted.` });
+                                  }} style={{ padding: '10px 16px', borderRadius: 8, background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>🗑 Delete</button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -5881,7 +7788,7 @@ export default function StaffDashboard() {
                     </div>
 
                     {/* Time Controls */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 20 }}>
                       <div>
                         <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Start Time (seconds)</label>
                         <input type="number" min={0} value={bottomApplyStartTime} onChange={(e) => setBottomApplyStartTime(Math.max(0, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
@@ -5890,26 +7797,50 @@ export default function StaffDashboard() {
                         <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Duration (seconds)</label>
                         <input type="number" min={1} value={bottomApplyDuration} onChange={(e) => setBottomApplyDuration(Math.max(1, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
                       </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Max Display Count</label>
+                        <input type="number" min={1} value={bottomApplyDisplayCount} onChange={(e) => setBottomApplyDisplayCount(Math.max(1, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
                     </div>
 
                     {/* Video List */}
                     <div style={{ marginBottom: 20 }}>
-                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 10 }}>Select Videos</label>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 10 }}>Select Videos (showing ad count)</label>
                       <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 8, padding: 8 }}>
                         {videos.filter(v => !bottomApplyVideoSearch || v.title.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()))).length === 0 ? (
                           <div style={{ padding: 16, textAlign: 'center', color: '#9ca3af' }}>No videos found</div>
                         ) : (
-                          videos.filter(v => !bottomApplyVideoSearch || v.title.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()))).map(video => (
-                            <div key={video.id} style={{ padding: 10, borderRadius: 6, marginBottom: 6, background: bottomApplySelectedVideos.includes(video.id) ? '#dbeafe' : '#f9fafb', border: `2px solid ${bottomApplySelectedVideos.includes(video.id) ? '#0b74de' : 'transparent'}`, cursor: 'pointer', transition: 'all 0.2s ease' }} onClick={() => setBottomApplySelectedVideos(bottomApplySelectedVideos.includes(video.id) ? bottomApplySelectedVideos.filter(id => id !== video.id) : [...bottomApplySelectedVideos, video.id])}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                <input type="checkbox" checked={bottomApplySelectedVideos.includes(video.id)} readOnly style={{ cursor: 'pointer' }} />
-                                <div>
-                                  <div style={{ fontWeight: 600, fontSize: 13, color: '#1f2937' }}>{video.title}</div>
-                                  <div style={{ fontSize: 12, color: '#9ca3af' }}>by {video.author || 'Unknown'}</div>
+                          videos.filter(v => !bottomApplyVideoSearch || v.title.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(bottomApplyVideoSearch.toLowerCase()))).map(video => {
+                            const adCount = (video.ads?.bottom?.length || 0) + (video.ads?.overlays?.length || 0);
+                            return (
+                              <div key={video.id} style={{ padding: 10, borderRadius: 6, marginBottom: 6, background: bottomApplySelectedVideos.includes(video.id) ? '#dbeafe' : '#f9fafb', border: `2px solid ${bottomApplySelectedVideos.includes(video.id) ? '#0b74de' : 'transparent'}`, cursor: 'pointer', transition: 'all 0.2s ease' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between' }} onClick={() => setBottomApplySelectedVideos(bottomApplySelectedVideos.includes(video.id) ? bottomApplySelectedVideos.filter(id => id !== video.id) : [...bottomApplySelectedVideos, video.id])}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
+                                    <input type="checkbox" checked={bottomApplySelectedVideos.includes(video.id)} readOnly style={{ cursor: 'pointer' }} />
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ fontWeight: 600, fontSize: 13, color: '#1f2937' }}>{video.title}</div>
+                                      <div style={{ fontSize: 12, color: '#9ca3af' }}>by {video.author || 'Unknown'}</div>
+                                    </div>
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    {adCount > 0 && (
+                                      <span style={{ padding: '4px 8px', background: '#fef08a', color: '#854d0e', fontSize: 12, fontWeight: 600, borderRadius: 4 }}>
+                                        {adCount} ad{adCount !== 1 ? 's' : ''}
+                                      </span>
+                                    )}
+                                    {adCount > 0 && (
+                                      <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedVideoForAdMgmt(video);
+                                      }} style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                                        Remove
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))
+                            );
+                          })
                         )}
                       </div>
                     </div>
@@ -5953,22 +7884,42 @@ export default function StaffDashboard() {
 
                     {/* Video List */}
                     <div style={{ marginBottom: 20 }}>
-                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 10 }}>Select Videos</label>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 10 }}>Select Videos (showing total ad count - all positions)</label>
                       <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 8, padding: 8 }}>
                         {videos.filter(v => !overlayApplyVideoSearch || v.title.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()))).length === 0 ? (
                           <div style={{ padding: 16, textAlign: 'center', color: '#9ca3af' }}>No videos found</div>
                         ) : (
-                          videos.filter(v => !overlayApplyVideoSearch || v.title.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()))).map(video => (
-                            <div key={video.id} style={{ padding: 10, borderRadius: 6, marginBottom: 6, background: overlayApplySelectedVideos.includes(video.id) ? '#dbeafe' : '#f9fafb', border: `2px solid ${overlayApplySelectedVideos.includes(video.id) ? '#0b74de' : 'transparent'}`, cursor: 'pointer', transition: 'all 0.2s ease' }} onClick={() => setOverlayApplySelectedVideos(overlayApplySelectedVideos.includes(video.id) ? overlayApplySelectedVideos.filter(id => id !== video.id) : [...overlayApplySelectedVideos, video.id])}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                <input type="checkbox" checked={overlayApplySelectedVideos.includes(video.id)} readOnly style={{ cursor: 'pointer' }} />
-                                <div>
-                                  <div style={{ fontWeight: 600, fontSize: 13, color: '#1f2937' }}>{video.title}</div>
-                                  <div style={{ fontSize: 12, color: '#9ca3af' }}>by {video.author || 'Unknown'}</div>
+                          videos.filter(v => !overlayApplyVideoSearch || v.title.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(overlayApplyVideoSearch.toLowerCase()))).map(video => {
+                            const adCount = (video.ads?.bottom?.length || 0) + (video.ads?.overlays?.length || 0);
+                            return (
+                              <div key={video.id} style={{ padding: 10, borderRadius: 6, marginBottom: 6, background: overlayApplySelectedVideos.includes(video.id) ? '#dbeafe' : '#f9fafb', border: `2px solid ${overlayApplySelectedVideos.includes(video.id) ? '#0b74de' : 'transparent'}`, cursor: 'pointer', transition: 'all 0.2s ease' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between' }} onClick={() => setOverlayApplySelectedVideos(overlayApplySelectedVideos.includes(video.id) ? overlayApplySelectedVideos.filter(id => id !== video.id) : [...overlayApplySelectedVideos, video.id])}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
+                                    <input type="checkbox" checked={overlayApplySelectedVideos.includes(video.id)} readOnly style={{ cursor: 'pointer' }} />
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ fontWeight: 600, fontSize: 13, color: '#1f2937' }}>{video.title}</div>
+                                      <div style={{ fontSize: 12, color: '#9ca3af' }}>by {video.author || 'Unknown'}</div>
+                                    </div>
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    {adCount > 0 && (
+                                      <span style={{ padding: '4px 8px', background: '#fef08a', color: '#854d0e', fontSize: 12, fontWeight: 600, borderRadius: 4 }}>
+                                        {adCount} ad{adCount !== 1 ? 's' : ''}
+                                      </span>
+                                    )}
+                                    {adCount > 0 && (
+                                      <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedVideoForAdMgmt(video);
+                                      }} style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                                        Remove
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))
+                            );
+                          })
                         )}
                       </div>
                     </div>
@@ -5985,6 +7936,69 @@ export default function StaffDashboard() {
               {/* Bottom ad preview overlay */}
               {showBottomPreview && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1400, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }} onClick={() => setShowBottomPreview(false)}>
+                  <style>{`
+                    @keyframes fadeInOut {
+                      0%, 100% { opacity: 0; }
+                      10% { opacity: 1; }
+                      90% { opacity: 1; }
+                    }
+                    @keyframes slideLeftIn {
+                      from { transform: translateX(20px); opacity: 0; }
+                      to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideRightIn {
+                      from { transform: translateX(-20px); opacity: 0; }
+                      to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes bounceIn {
+                      0% { transform: scale(0.8); opacity: 0; }
+                      50% { transform: scale(1.05); }
+                      100% { transform: scale(1); opacity: 1; }
+                    }
+                    @keyframes scaleIn {
+                      from { transform: scale(0.95); opacity: 0; }
+                      to { transform: scale(1); opacity: 1; }
+                    }
+                    @keyframes lineAppear {
+                      from { width: 0; }
+                      to { width: 3px; }
+                    }
+                    @keyframes slideDown {
+                      from { transform: translateY(-20px); opacity: 0; }
+                      to { transform: translateY(0); opacity: 1; }
+                    }
+                    @keyframes bounceInCard {
+                      0% { transform: scale(0.8) translateY(-20px); opacity: 0; }
+                      50% { transform: scale(1.02); }
+                      100% { transform: scale(1) translateY(0); opacity: 1; }
+                    }
+                    @keyframes scaleUpCard {
+                      from { transform: scale(0.9); opacity: 0; }
+                      to { transform: scale(1); opacity: 1; }
+                    }
+                    @keyframes pulse {
+                      0%, 100% { transform: scale(1); opacity: 1; }
+                      50% { transform: scale(1.02); opacity: 0.95; }
+                    }
+                    @keyframes shake {
+                      0%, 100% { transform: translateX(0); }
+                      10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+                      20%, 40%, 60%, 80% { transform: translateX(2px); }
+                    }
+                    @keyframes glow {
+                      0%, 100% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.5), 0 4px 12px rgba(17, 24, 39, 0.3); }
+                      50% { box-shadow: 0 0 15px rgba(139, 92, 246, 0.8), 0 4px 12px rgba(17, 24, 39, 0.3); }
+                    }
+                    @keyframes float {
+                      0%, 100% { transform: translateY(0px); }
+                      50% { transform: translateY(-4px); }
+                    }
+                    @keyframes rotate {
+                      0% { transform: rotate(0deg) scale(1); }
+                      50% { transform: rotate(1deg) scale(1.01); }
+                      100% { transform: rotate(0deg) scale(1); }
+                    }
+                  `}</style>
                   <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                     {/* Top-right close button (smaller) */}
                     <button onClick={() => setShowBottomPreview(false)} style={{ position: 'fixed', top: 14, right: 14, zIndex: 1420, background: 'rgba(255,255,255,0.04)', border: 'none', color: 'white', padding: '6px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 14, opacity: 0.95 }}>✕</button>
@@ -6029,19 +8043,52 @@ export default function StaffDashboard() {
                               <img alt="placeholder" src={`data:image/svg+xml;utf8,${placeholderSvg}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                             )}
 
-                                {/* Compact bottom ad bar overlay (always visible in preview) */}
-                                  <div style={{ position: 'absolute', left: 16, right: 16, bottom: 20, background: 'rgba(17,24,39,0.9)', color: 'white', borderRadius: 12, padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 10, maxWidth: 'calc(100% - 32px)' }}>
-                                    {bottomAdProfileAvatar ? (
-                                      <img src={bottomAdProfileAvatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover' }} />
-                                    ) : (
-                                      <div style={{ width: 44, height: 44, borderRadius: 10, background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontWeight: 700 }}>{(bottomAdProfileName || '').charAt(0).toUpperCase() || 'A'}</div>
-                                    )}
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                                      <div style={{ fontSize: 13, fontWeight: 800 }}>{bottomAdProfileName || 'Advertiser'}</div>
-                                      <div contentEditable suppressContentEditableWarning onInput={(e) => setBottomAdText(e.currentTarget.textContent)} style={{ fontSize: 13, color: '#e6eef8', outline: 'none', cursor: 'text', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{bottomAdText || 'Your ad text goes here. Click to edit...'}</div>
-                                    </div>
-                                    <a href={bottomAdLink || '#'} target="_blank" rel="noreferrer" style={{ background: '#fff', color: '#111827', padding: '8px 10px', borderRadius: 8, textDecoration: 'none', fontWeight: 800, fontSize: 13 }}>Learn more</a>
-                                  </div>
+                                {/* Show corner button when cornerButton position is selected */}
+                                {overlayAdPosition === 'cornerButton' && (
+                                  <button
+                                    style={{
+                                      position: 'absolute',
+                                      bottom: 20,
+                                      right: 16,
+                                      padding: '10px 16px',
+                                      background: 'linear-gradient(135deg, #ff0080 0%, #ff8c00 100%)',
+                                      color: '#ffffff',
+                                      border: '2px solid #ff0080',
+                                      borderRadius: 8,
+                                      fontSize: 13,
+                                      fontWeight: 700,
+                                      cursor: 'pointer',
+                                      boxShadow: '0 4px 12px rgba(255, 0, 128, 0.4)',
+                                      transition: 'all 0.2s ease',
+                                      whiteSpace: 'nowrap',
+                                      zIndex: 100
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.boxShadow = '0 6px 16px rgba(255, 0, 128, 0.6)';
+                                      e.currentTarget.style.transform = 'scale(1.05)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 0, 128, 0.4)';
+                                      e.currentTarget.style.transform = 'scale(1)';
+                                    }}
+                                  >
+                                    Visit Link
+                                  </button>
+                                )}
+
+                                {/* Show bottom ad bar for other positions */}
+                                {overlayAdPosition !== 'cornerButton' && (
+                                  <BottomAdPreviewBar
+                                    profileName={bottomAdProfileName}
+                                    profileAvatar={bottomAdProfileAvatar}
+                                    textItems={bottomAdTextItems}
+                                    textInterval={bottomAdTextInterval}
+                                    textAnimation={bottomAdTextAnimation}
+                                    cardAnimation={bottomAdCardAnimation}
+                                    cardEffect={bottomAdCardEffect}
+                                    link={bottomAdLink}
+                                  />
+                                )}
                           </div>
                         );
                       })()}
@@ -6056,10 +8103,211 @@ export default function StaffDashboard() {
                   </div>
                 </div>
               )}
-              </div>
 
+              {/* Default 2 Save Template Modal */}
+              {showDefault2SaveModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowDefault2SaveModal(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, background: 'white', borderRadius: 12, padding: 24 }}>
+                    <h2 style={{ margin: '0 0 20px 0', fontSize: 20, fontWeight: 700 }}>Save as Template</h2>
+                    
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Template Name</label>
+                      <input 
+                        value={default2TemplateName} 
+                        onChange={(e) => setDefault2TemplateName(e.target.value)} 
+                        placeholder="e.g., Summer Promo" 
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }}
+                      />
+                    </div>
 
+                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <button onClick={() => setShowDefault2SaveModal(false)} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Cancel</button>
+                      <button onClick={() => {
+                        if (!default2TemplateName.trim()) {
+                          setToast({ type: 'error', title: 'Error', message: 'Please enter a template name' });
+                          return;
+                        }
+                        const newTemplate = {
+                          id: Date.now().toString(),
+                          name: default2TemplateName,
+                          lineColor: default2LineColor,
+                          bgColor: default2BgColor,
+                          textColor: default2TextColor,
+                          title: default2Title,
+                          description: default2Description,
+                          logo: default2Logo,
+                          link: default2Link
+                        };
+                        const updated = [...default2Templates, newTemplate];
+                        setDefault2Templates(updated);
+                        localStorage.setItem('default2Templates', JSON.stringify(updated));
+                        setDefault2TemplateName('');
+                        setShowDefault2SaveModal(false);
+                        setToast({ type: 'success', title: 'Saved', message: `Template "${default2TemplateName}" saved!` });
+                      }} style={{ padding: '10px 16px', borderRadius: 8, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Save Template</button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
+              {/* Default 2 Saved Templates Modal */}
+              {showDefault2TemplatesModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowDefault2TemplatesModal(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 720, maxHeight: '88vh', overflowY: 'auto', background: 'white', borderRadius: 16, padding: 0, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+                    {/* Header */}
+                    <div style={{ padding: '28px 32px', borderBottom: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <h2 style={{ margin: '0 0 8px 0', fontSize: 22, fontWeight: 700, color: '#111827' }}>Saved Default 2 Templates</h2>
+                          <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>Manage your card ad templates</p>
+                        </div>
+                        <button onClick={() => setShowDefault2TemplatesModal(false)} style={{ padding: '8px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Close</button>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ padding: '24px 32px' }}>
+                      {default2Templates.length === 0 ? (
+                        <div style={{ padding: '48px 24px', textAlign: 'center' }}>
+                          <div style={{ fontSize: 56, marginBottom: 12 }}>🎨</div>
+                          <div style={{ fontSize: 16, fontWeight: 600, color: '#111827', marginBottom: 6 }}>No templates yet</div>
+                          <div style={{ fontSize: 13, color: '#6b7280' }}>Create your first template to get started</div>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 16 }}>
+                          {default2Templates.map((tpl) => (
+                            <div key={tpl.id} className="template-card" style={{ padding: '20px', borderRadius: 12, border: '1px solid #e5e7eb', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                              <div className="template-card-content" style={{ display: 'flex', alignItems: 'stretch', gap: 16, justifyContent: 'space-between' }}>
+                                {/* Preview */}
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 12 }}>{tpl.name}</div>
+                                  <div style={{ 
+                                    padding: '14px 16px', 
+                                    background: tpl.bgColor, 
+                                    border: `2px solid ${tpl.lineColor}`,       
+                                    borderRadius: 10,
+                                    fontSize: 13
+                                  }}>
+                                    <div style={{ fontWeight: 700, color: tpl.textColor, marginBottom: 6, fontSize: 14 }}>{tpl.title || 'Title'}</div>
+                                    <div style={{ color: tpl.textColor, opacity: 0.8, fontSize: 12, lineHeight: '1.4' }}>{tpl.description || 'Description'}</div>
+                                  </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="template-actions" style={{ display: 'flex', flexDirection: 'column', gap: 8, justifyContent: 'center', flexShrink: 0 }}>
+                                  <button onClick={() => {
+                                    setDefault2LineColor(tpl.lineColor);
+                                    setDefault2BgColor(tpl.bgColor);
+                                    setDefault2TextColor(tpl.textColor);
+                                    setDefault2Title(tpl.title);
+                                    setDefault2Description(tpl.description);
+                                    setDefault2Logo(tpl.logo);
+                                    setDefault2Link(tpl.link);
+                                    setShowDefault2TemplatesModal(false);
+                                    setAdsMode('default2');
+                                    setToast({ type: 'success', title: 'Loaded', message: `Template "${tpl.name}" loaded.` });
+                                  }} style={{ padding: '10px 16px', borderRadius: 8, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>✓ Apply</button>
+                                  <button onClick={() => {
+                                    const updated = default2Templates.filter(t => t.id !== tpl.id);
+                                    setDefault2Templates(updated);
+                                    localStorage.setItem('default2Templates', JSON.stringify(updated));
+                                    setToast({ type: 'success', title: 'Deleted', message: `Template "${tpl.name}" deleted.` });
+                                  }} style={{ padding: '10px 16px', borderRadius: 8, background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>🗑 Delete</button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Default 2 Apply Modal */}
+              {showDefault2ApplyModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowDefault2ApplyModal(false)}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 600, maxHeight: '90vh', overflowY: 'auto', background: 'white', borderRadius: 12, padding: 24 }}>
+                    <h2 style={{ margin: '0 0 20px 0', fontSize: 20, fontWeight: 700 }}>Apply Default 2 Ad to Videos</h2>
+                    
+                    {/* Search Input */}
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Search Videos</label>
+                      <input 
+                        value={default2ApplyVideoSearch} 
+                        onChange={(e) => setDefault2ApplyVideoSearch(e.target.value)} 
+                        placeholder="Search by title or author..." 
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }}
+                      />
+                    </div>
+
+                    {/* Time Controls */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 20 }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Start Time (seconds)</label>
+                        <input type="number" min={0} value={default2ApplyStartTime} onChange={(e) => setDefault2ApplyStartTime(Math.max(0, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Duration (seconds)</label>
+                        <input type="number" min={1} value={default2ApplyDuration} onChange={(e) => setDefault2ApplyDuration(Math.max(1, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Max Display Count</label>
+                        <input type="number" min={1} value={default2ApplyDisplayCount} onChange={(e) => setDefault2ApplyDisplayCount(Math.max(1, Number(e.target.value)))} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                    </div>
+
+                    {/* Video List */}
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 10 }}>Select Videos (showing ad count)</label>
+                      <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 8, padding: 8 }}>
+                        {videos.filter(v => !default2ApplyVideoSearch || v.title.toLowerCase().includes(default2ApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(default2ApplyVideoSearch.toLowerCase()))).length === 0 ? (
+                          <div style={{ padding: 16, textAlign: 'center', color: '#9ca3af' }}>No videos found</div>
+                        ) : (
+                          videos.filter(v => !default2ApplyVideoSearch || v.title.toLowerCase().includes(default2ApplyVideoSearch.toLowerCase()) || (v.author && v.author.toLowerCase().includes(default2ApplyVideoSearch.toLowerCase()))).map(video => {
+                            const adCount = (video.ads?.bottom?.length || 0) + (video.ads?.overlays?.length || 0) + (video.ads?.default2?.length || 0);
+                            return (
+                              <div key={video.id} style={{ padding: 10, borderRadius: 6, marginBottom: 6, background: default2ApplySelectedVideos.includes(video.id) ? '#dbeafe' : '#f9fafb', border: `2px solid ${default2ApplySelectedVideos.includes(video.id) ? '#0b74de' : 'transparent'}`, cursor: 'pointer', transition: 'all 0.2s ease' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between' }} onClick={() => setDefault2ApplySelectedVideos(default2ApplySelectedVideos.includes(video.id) ? default2ApplySelectedVideos.filter(id => id !== video.id) : [...default2ApplySelectedVideos, video.id])}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
+                                    <input type="checkbox" checked={default2ApplySelectedVideos.includes(video.id)} readOnly style={{ cursor: 'pointer' }} />
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ fontWeight: 600, fontSize: 13, color: '#1f2937' }}>{video.title}</div>
+                                      <div style={{ fontSize: 12, color: '#9ca3af' }}>by {video.author || 'Unknown'}</div>
+                                    </div>
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    {adCount > 0 && (
+                                      <span style={{ padding: '4px 8px', background: '#fef08a', color: '#854d0e', fontSize: 12, fontWeight: 600, borderRadius: 4 }}>
+                                        {adCount} ad{adCount !== 1 ? 's' : ''}
+                                      </span>
+                                    )}
+                                    {adCount > 0 && (
+                                      <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedVideoForAdMgmt(video);
+                                      }} style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                                        Remove
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Buttons */}
+                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <button onClick={() => setShowDefault2ApplyModal(false)} style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Cancel</button>
+                      <button onClick={handleApplyDefault2Ad} style={{ padding: '10px 16px', borderRadius: 8, background: '#d946ef', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Apply to Videos</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            
             </div>
           )}
         </div>
@@ -7442,13 +9690,171 @@ export default function StaffDashboard() {
                   justifyContent: 'center',
                   flexDirection: 'column',
                   gap: 20,
-                  padding: 20,
+                  padding: 40,
                   textAlign: 'center'
                 }}>
-                  <div style={{ fontSize: 24, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{overlayAdCompanyName}</div>
-                  <div style={{ fontSize: 32, fontWeight: 800 }}>Sponsorship Message</div>
-                  <div style={{ fontSize: 18, maxWidth: 600 }}>{overlayAdTextItems.length > 0 ? overlayAdTextItems.map(i => i.text).join(' • ') : overlayAdText}</div>
-                  <button style={{ padding: '12px 24px', background: 'white', color: overlayAdBgColor, border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>Learn More</button>
+                  {/* Close Button */}
+                  <button 
+                    onClick={(e) => e.stopPropagation()} 
+                    style={{
+                      position: 'absolute',
+                      top: 20,
+                      right: 20,
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.2)',
+                      border: '2px solid rgba(255,255,255,0.4)',
+                      color: '#fff',
+                      fontSize: 20,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 51
+                    }}
+                  >
+                    ✕
+                  </button>
+                  
+                  {/* Profile Picture Area */}
+                  <div style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 24,
+                    border: '2px solid rgba(255,255,255,0.3)',
+                    overflow: 'hidden'
+                  }}>
+                    {overlayProfileUrl ? (
+                      <img src={overlayProfileUrl} alt="Company" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ fontSize: 40, opacity: 0.6 }}>📷</span>
+                    )}
+                  </div>
+                  
+                  {/* Text Items */}
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16, maxWidth: '85%' }}>
+                    {overlayAdTextItems.length > 0 ? overlayAdTextItems.map((item, idx) => (
+                      <div key={idx} style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.3 }}>{item.text}</div>
+                    )) : (
+                      <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.3 }}>Sponsorship Message</div>
+                    )}
+                  </div>
+                  
+                  {/* Button */}
+                  <button style={{ 
+                    padding: '14px 40px', 
+                    background: 'white', 
+                    color: overlayAdBgColor, 
+                    border: 'none', 
+                    borderRadius: 8, 
+                    fontSize: 16, 
+                    fontWeight: 700, 
+                    cursor: 'pointer', 
+                    marginTop: 16,
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  }}>{overlayBtnText || 'Learn More'}</button>
+                </div>
+              )}
+
+              {overlayAdPosition === 'videoPlayer' && (
+                <div style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 1410, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ flex: 1, width: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                    {/* AD Badge Preview */}
+                    {overlayBadgeType !== 'none' && (
+                      <div style={{
+                        position: 'absolute',
+                        top: 12,
+                        left: 12,
+                        zIndex: 601,
+                        pointerEvents: 'none'
+                      }}>
+                        {overlayBadgeType === 'sponsoredBy' && overlayBadgeLogo ? (
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            background: overlayBadgeColor || '#000',
+                            padding: '6px 12px',
+                            borderRadius: 6,
+                            color: '#fff',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            opacity: 0.95
+                          }}>
+                            <span>Sponsored by</span>
+                            <img src={overlayBadgeLogo} alt="sponsor" style={{
+                              height: 20,
+                              maxWidth: 80,
+                              objectFit: 'contain'
+                            }} />
+                          </div>
+                        ) : (
+                          <div style={{
+                            background: overlayBadgeColor || '#ff0000',
+                            padding: '6px 12px',
+                            borderRadius: 6,
+                            color: '#fff',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            letterSpacing: '0.5px',
+                            opacity: 0.95,
+                            minWidth: 45,
+                            textAlign: 'center'
+                          }}>
+                            AD
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {overlayVideoUrl ? (() => {
+                      const isYT = (url) => url.includes('youtube.com') || url.includes('youtu.be');
+                      const getYTId = (url) => {
+                        let id = '';
+                        if (url.includes('youtu.be/')) {
+                          id = url.split('youtu.be/')[1].split('?')[0];
+                        } else if (url.includes('youtube.com')) {
+                          try { id = new URL(url).searchParams.get('v') || ''; } catch { }
+                        }
+                        return id;
+                      };
+                      const ytId = getYTId(overlayVideoUrl);
+                      return isYT(overlayVideoUrl) && ytId ? (
+                        <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${ytId}?modestbranding=1&controls=1&fs=1&autoplay=1`} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ background: '#000' }} />
+                      ) : (
+                        <video src={overlayVideoUrl} autoPlay style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000' }} />
+                      );
+                    })() : (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', background: '#1a1a1a' }}>
+                        <div style={{ fontSize: 64, marginBottom: 16 }}>▶️</div>
+                        <div style={{ fontSize: 16, lineHeight: 1.6, fontWeight: 600, color: '#fff' }}>
+                          <div style={{ marginBottom: 8 }}>{overlayAdText || 'Advertisement'}</div>
+                          <div style={{ fontSize: 13, opacity: 0.8 }}>{overlayBtnText || 'Watch Now'}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {((overlayCtaType === 'text' && overlayCtaText) || (overlayCtaType !== 'text' && overlayCtaMedia)) && (
+                    <div style={{ width: '100%', padding: '12px 16px', background: 'rgba(0,0,0,0.8)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                      <div style={{ fontSize: 24, color: overlayCtaColor || '#4B9EFF' }}>v</div>
+                      {overlayCtaType === 'text' ? (
+                        <button style={{ width: '100%', padding: '12px 16px', background: overlayCtaColor || '#4B9EFF', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>{overlayCtaText}</button>
+                      ) : overlayCtaType === 'image' ? (
+                        <img src={overlayCtaMedia} alt="CTA" style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: 8 }} />
+                      ) : overlayCtaType === 'gif' ? (
+                        <img src={overlayCtaMedia} alt="CTA GIF" style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: 8 }} />
+                      ) : overlayCtaType === 'video' ? (
+                        <video src={overlayCtaMedia} autoPlay loop style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: 8, background: '#000' }} />
+                      ) : null}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -7574,6 +9980,29 @@ export default function StaffDashboard() {
                   0%, 100% { transform: translateX(-100%); }
                   50% { transform: translateX(0); }
                 }
+                
+                /* Mobile Responsive Template Cards */
+                @media (max-width: 768px) {
+                  .template-card {
+                    flex-direction: column !important;
+                  }
+                  
+                  .template-card-content {
+                    flex-direction: column !important;
+                    align-items: flex-start !important;
+                  }
+                  
+                  .template-actions {
+                    width: 100% !important;
+                    flex-direction: row !important;
+                    gap: 8px !important;
+                    margin-top: 12px !important;
+                  }
+                  
+                  .template-actions button {
+                    flex: 1 !important;
+                  }
+                }
               `}</style>
             </div>
           </div>
@@ -7581,64 +10010,330 @@ export default function StaffDashboard() {
 
         {/* Templates Modal (Saved bottom-ad templates) */}
         {showTemplatesModal && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowTemplatesModal(false)}>
-            <div onClick={(e) => e.stopPropagation()} style={{ width: 680, maxWidth: '94%', maxHeight: '85vh', overflowY: 'auto', background: 'white', borderRadius: 12, padding: 18 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ margin: 0 }}>Saved Bottom Ad Templates</h3>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowTemplatesModal(false)}>
+            <div onClick={(e) => e.stopPropagation()} style={{ width: 720, maxWidth: '96%', maxHeight: '88vh', overflowY: 'auto', background: 'white', borderRadius: 16, padding: 0, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+              {/* Header */}
+              <div style={{ padding: '28px 32px', borderBottom: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <h2 style={{ margin: '0 0 8px 0', fontSize: 22, fontWeight: 700, color: '#111827' }}>Saved Templates</h2>
+                    <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>Manage your bottom ad templates</p>
+                  </div>
+                  <button onClick={() => setShowTemplatesModal(false)} style={{ padding: '8px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Close</button>
+                </div>
               </div>
-              <div style={{ marginTop: 12 }}>
+
+              {/* Content */}
+              <div style={{ padding: '24px 32px' }}>
                 {(bottomAdTemplates || []).length === 0 ? (
-                  <div style={{ padding: 24, textAlign: 'center', color: '#6b7280' }}>No templates saved yet.</div>
+                  <div style={{ padding: '48px 24px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 56, marginBottom: 12 }}>📋</div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: '#111827', marginBottom: 6 }}>No templates yet</div>
+                    <div style={{ fontSize: 13, color: '#6b7280' }}>Create your first template to get started</div>
+                  </div>
                 ) : (
-                  (bottomAdTemplates || []).map((t) => (
-                    <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 8, border: '1px solid #e6edf3', marginBottom: 10 }}>
-                      <div style={{ width: 56, height: 56, borderRadius: 8, overflow: 'hidden', background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {t.avatar ? <img src={t.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ color: '#9ca3af', fontWeight: 700 }}>{(t.name||'A').charAt(0).toUpperCase()}</div>}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 16 }}>
+                    {(bottomAdTemplates || []).map((t) => (
+                      <div key={t.id} className="template-card" style={{ display: 'flex', gap: 16, padding: '18px', borderRadius: 12, border: '1px solid #e5e7eb', background: '#ffffff', transition: 'all 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                        {/* Avatar */}
+                        <div style={{ width: 72, height: 72, borderRadius: 12, overflow: 'hidden', background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          {t.avatar ? (
+                            <img src={t.avatar} alt={t.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <div style={{ color: 'white', fontWeight: 700, fontSize: 28 }}>{(t.name||'A').charAt(0).toUpperCase()}</div>
+                          )}
+                        </div>
+
+                        {/* Info */}
+                        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                          <div style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 6 }}>{t.name}</div>
+                          {t.textItems && t.textItems.length > 0 ? (
+                            <div style={{ color: '#6b7280', fontSize: 13, lineHeight: '1.5', marginBottom: 8 }}>
+                              <strong>Text items ({t.textItems.length}):</strong>
+                              <ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
+                                {t.textItems.slice(0, 3).map((item, i) => (
+                                  <li key={i} style={{ fontSize: 12, color: '#6b7280' }}>{item}</li>
+                                ))}
+                                {t.textItems.length > 3 && <li style={{ fontSize: 12, color: '#9ca3af' }}>... and {t.textItems.length - 3} more</li>}
+                              </ul>
+                              <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>
+                                Interval: {t.textInterval}ms | Animation: {t.textAnimation} | Entry: {t.cardAnimation}
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ color: '#6b7280', fontSize: 13, lineHeight: '1.5', marginBottom: 8 }}>{t.text}</div>
+                          )}
+                          {t.link && (
+                            <div 
+                              onClick={() => setExpandedTemplateUrls(prev => ({ ...prev, [t.id]: !prev[t.id] }))}
+                              style={{ 
+                                fontSize: 12, 
+                                color: '#3b82f6', 
+                                cursor: 'pointer',
+                                maxWidth: '100%',
+                                display: 'block',
+                                wordBreak: expandedTemplateUrls[t.id] ? 'break-all' : 'keep-all',
+                                whiteSpace: expandedTemplateUrls[t.id] ? 'normal' : 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: expandedTemplateUrls[t.id] ? 'clip' : 'ellipsis',
+                                transition: 'all 0.2s',
+                                borderRadius: 4,
+                                padding: '2px 4px',
+                                marginLeft: '-4px',
+                              }}
+                              title={t.link}
+                            >
+                              🔗 {t.link} {!expandedTemplateUrls[t.id] ? '...' : ''}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="template-actions" style={{ display: 'flex', flexDirection: 'column', gap: 8, justifyContent: 'center', flexShrink: 0 }}>
+                          <button onClick={() => applyTemplate(t)} style={{ padding: '10px 16px', borderRadius: 8, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13, transition: 'all 0.2s', whiteSpace: 'nowrap' }}>✓ Apply</button>
+                          <button onClick={() => setEditingBottomTemplate(t)} style={{ padding: '10px 16px', borderRadius: 8, background: '#f59e0b', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13, transition: 'all 0.2s', whiteSpace: 'nowrap' }}>✎ Edit</button>
+                          <button onClick={() => { if (confirm('Delete this template?')) deleteBottomAdTemplate(t.id); }} style={{ padding: '10px 16px', borderRadius: 8, background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13, transition: 'all 0.2s', whiteSpace: 'nowrap' }}>🗑 Delete</button>
+                        </div>
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 800 }}>{t.name}</div>
-                        <div style={{ color: '#6b7280', fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.text}</div>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => applyTemplate(t)} style={{ padding: '8px 10px', borderRadius: 8, background: '#10b981', color: 'white', border: 'none', cursor: 'pointer' }}>Apply</button>
-                        <button onClick={() => setEditingBottomTemplate(t)} style={{ padding: '8px 10px', borderRadius: 8, background: '#f59e0b', color: 'white', border: 'none', cursor: 'pointer' }}>Edit</button>
-                        <button onClick={() => { if (confirm('Delete this template?')) deleteBottomAdTemplate(t.id); }} style={{ padding: '8px 10px', borderRadius: 8, background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer' }}>Delete</button>
-                      </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
 
               {editingBottomTemplate && (
-                <div style={{ marginTop: 12, padding: 12, border: '1px dashed #e5e7eb', borderRadius: 8 }}>
-                  <h4 style={{ marginTop: 0 }}>Edit Template</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div style={{ marginTop: 24, padding: '24px', borderTop: '1px solid #e5e7eb', background: '#f9fafb', borderRadius: '0 0 16px 16px' }}>
+                  <h3 style={{ margin: '0 0 20px 0', fontSize: 18, fontWeight: 700, color: '#111827' }}>Edit Template</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
                     <div>
-                      <label style={{ fontSize: 13, color: '#374151' }}>Profile Name</label>
-                      <input value={editingBottomTemplate.name} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, name: e.target.value })} style={{ width: '100%', padding: 8, marginTop: 6, borderRadius: 6, border: '1px solid #e5e7eb' }} />
+                      <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Profile Name</label>
+                      <input value={editingBottomTemplate.name} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, name: e.target.value })} style={{ width: '100%', padding: '10px 12px', marginTop: 0, borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
                     </div>
                     <div>
-                      <label style={{ fontSize: 13, color: '#374151' }}>Avatar URL</label>
-                      <input value={editingBottomTemplate.avatar} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, avatar: e.target.value })} style={{ width: '100%', padding: 8, marginTop: 6, borderRadius: 6, border: '1px solid #e5e7eb' }} />
+                      <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Avatar URL</label>
+                      <input value={editingBottomTemplate.avatar} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, avatar: e.target.value })} style={{ width: '100%', padding: '10px 12px', marginTop: 0, borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                    </div>
+                    {editingBottomTemplate.textItems && editingBottomTemplate.textItems.length > 0 ? (
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Text Items</label>
+                        <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, background: 'white', maxHeight: '150px', overflowY: 'auto' }}>
+                          {editingBottomTemplate.textItems.map((item, idx) => (
+                            <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: idx === editingBottomTemplate.textItems.length - 1 ? 0 : 8 }}>
+                              <input 
+                                value={item} 
+                                onChange={(e) => {
+                                  const updated = editingBottomTemplate.textItems.slice();
+                                  updated[idx] = e.target.value;
+                                  setEditingBottomTemplate({ ...editingBottomTemplate, textItems: updated });
+                                }} 
+                                placeholder={`Text item ${idx + 1}`}
+                                style={{ flex: 1, padding: '6px', borderRadius: 6, border: '1px solid #e5e7eb', fontSize: 12 }}
+                              />
+                              <button 
+                                onClick={() => {
+                                  setEditingBottomTemplate({ ...editingBottomTemplate, textItems: editingBottomTemplate.textItems.filter((_, i) => i !== idx) });
+                                }} 
+                                style={{ padding: '4px 8px', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontWeight: 500 }}>
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <button 
+                          onClick={() => setEditingBottomTemplate({ ...editingBottomTemplate, textItems: [...(editingBottomTemplate.textItems || []), ''] })}
+                          style={{ marginTop: 8, padding: '6px 12px', background: '#dbeafe', color: '#0369a1', border: '1px solid #7dd3fc', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                          + Add Text Item
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Ad Text</label>
+                        <textarea value={editingBottomTemplate.text} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, text: e.target.value })} rows={3} style={{ width: '100%', padding: '10px 12px', marginTop: 0, borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                      </div>
+                    )}
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Text Interval (ms)</label>
+                      <input type="number" value={editingBottomTemplate.textInterval || 5000} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, textInterval: parseInt(e.target.value) || 5000 })} style={{ width: '100%', padding: '10px 12px', marginTop: 0, borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Text Animation</label>
+                      <BeautifulDropdown
+                        value={editingBottomTemplate.textAnimation || 'fade'}
+                        onChange={(val) => setEditingBottomTemplate({ ...editingBottomTemplate, textAnimation: val })}
+                        options={[
+                          { value: 'fade', label: 'Fade', icon: '✨', description: 'Smooth opacity transition' },
+                          { value: 'slide-left', label: 'Slide Left', icon: '→', description: 'Text moves from right to left' },
+                          { value: 'slide-right', label: 'Slide Right', icon: '←', description: 'Text moves from left to right' },
+                          { value: 'bounce', label: 'Bounce', icon: '🎾', description: 'Spring-like bounce effect' },
+                          { value: 'scale', label: 'Scale', icon: '📏', description: 'Size grows and shrinks' }
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Card Animation</label>
+                      <BeautifulDropdown
+                        value={editingBottomTemplate.cardAnimation || 'fade'}
+                        onChange={(val) => setEditingBottomTemplate({ ...editingBottomTemplate, cardAnimation: val })}
+                        options={[
+                          { value: 'fade', label: 'Fade', icon: '✨', description: 'Simple opacity fade-in' },
+                          { value: 'line-first', label: 'Line First', icon: '━', description: 'Purple line appears first' },
+                          { value: 'slide-down', label: 'Slide Down', icon: '⬇️', description: 'Comes from top of screen' },
+                          { value: 'bounce-in', label: 'Bounce In', icon: '⏹️', description: 'Bouncy entrance animation' },
+                          { value: 'scale-up', label: 'Scale Up', icon: '📏', description: 'Grows from center' }
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Card Effect (After Entry)</label>
+                      <BeautifulDropdown
+                        value={editingBottomTemplate.cardEffect || 'none'}
+                        onChange={(val) => setEditingBottomTemplate({ ...editingBottomTemplate, cardEffect: val })}
+                        options={[
+                          { value: 'none', label: 'None', icon: '⭕', description: 'No additional effect' },
+                          { value: 'pulse', label: 'Pulse', icon: '💓', description: 'Subtle breathing effect' },
+                          { value: 'shake', label: 'Shake', icon: '📳', description: 'Slight horizontal shaking' },
+                          { value: 'glow', label: 'Glow', icon: '⚡', description: 'Purple glowing aura' },
+                          { value: 'float', label: 'Float', icon: '🎈', description: 'Gentle up and down motion' },
+                          { value: 'rotate', label: 'Rotate', icon: '🔄', description: 'Subtle rotating effect' }
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Exit Animation</label>
+                      <BeautifulDropdown
+                        value={editingBottomTemplate.cardExitAnimation || 'fadeOut'}
+                        onChange={(val) => setEditingBottomTemplate({ ...editingBottomTemplate, cardExitAnimation: val })}
+                        options={[
+                          { value: 'fadeOut', label: 'Fade Out', icon: '✨', description: 'Smooth opacity fade-out' },
+                          { value: 'slideOut', label: 'Slide Out', icon: '→', description: 'Slides to the right' },
+                          { value: 'scaleDown', label: 'Scale Down', icon: '📏', description: 'Shrinks and disappears' },
+                          { value: 'bounceOut', label: 'Bounce Out', icon: '🎾', description: 'Bouncy exit animation' },
+                          { value: 'rotateOut', label: 'Rotate Out', icon: '🔄', description: 'Rotates while fading' }
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Border Color</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <input 
+                          type="color" 
+                          value={editingBottomTemplate.borderColor || '#ff00ff'} 
+                          onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, borderColor: e.target.value })}
+                          style={{ width: 50, height: 50, borderRadius: 8, border: '1px solid #e5e7eb', cursor: 'pointer' }}
+                        />
+                        <div style={{ fontSize: 12, color: '#6b7280', flex: 1 }}>
+                          Customize the purple line color
+                        </div>
+                      </div>
                     </div>
                     <div style={{ gridColumn: '1 / -1' }}>
-                      <label style={{ fontSize: 13, color: '#374151' }}>Ad Text</label>
-                      <textarea value={editingBottomTemplate.text} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, text: e.target.value })} rows={3} style={{ width: '100%', padding: 8, marginTop: 6, borderRadius: 6, border: '1px solid #e5e7eb' }} />
-                    </div>
-                    <div style={{ gridColumn: '1 / -1' }}>
-                      <label style={{ fontSize: 13, color: '#374151' }}>Target Link</label>
-                      <input value={editingBottomTemplate.link} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, link: e.target.value })} style={{ width: '100%', padding: 8, marginTop: 6, borderRadius: 6, border: '1px solid #e5e7eb' }} />
+                      <label style={{ fontSize: 13, color: '#374151', fontWeight: 600, display: 'block', marginBottom: 8 }}>Target Link</label>
+                      <input value={editingBottomTemplate.link} onChange={(e) => setEditingBottomTemplate({ ...editingBottomTemplate, link: e.target.value })} style={{ width: '100%', padding: '10px 12px', marginTop: 0, borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 13 }} />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 10 }}>
-                    <button onClick={() => setEditingBottomTemplate(null)} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: 'white' }}>Cancel</button>
-                    <button onClick={() => updateBottomAdTemplate(editingBottomTemplate.id, editingBottomTemplate)} style={{ padding: '8px 12px', borderRadius: 6, background: '#111827', color: 'white', border: 'none' }}>Save Changes</button>
+                  <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                    <button onClick={() => setEditingBottomTemplate(null)} style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #e5e7eb', background: 'white', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+                    <button onClick={() => updateBottomAdTemplate(editingBottomTemplate.id, editingBottomTemplate)} style={{ padding: '10px 20px', borderRadius: 8, background: '#3b82f6', color: 'white', border: 'none', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Save Changes</button>
                   </div>
                 </div>
               )}
             </div>
           </div>
         )}
+
+        {/* Ad Management Modal - View and remove ads from a specific video */}
+        {selectedVideoForAdMgmt && (() => {
+          // Get latest video data from videos array
+          const currentVideoData = videos.find(v => v.id === selectedVideoForAdMgmt.id) || selectedVideoForAdMgmt;
+          return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setSelectedVideoForAdMgmt(null)}>
+            <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 600, maxHeight: '90vh', overflowY: 'auto', background: 'white', borderRadius: 12, padding: 24 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 20 }}>
+                <div>
+                  <h2 style={{ margin: '0 0 8px 0', fontSize: 20, fontWeight: 700 }}>Manage Ads</h2>
+                  <p style={{ margin: '0 0 20px 0', fontSize: 13, color: '#6b7280' }}>Video: <strong>{currentVideoData.title}</strong></p>
+                </div>
+                <button onClick={() => setSelectedVideoForAdMgmt(null)} style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>Close</button>
+              </div>
+              
+              {/* Bottom Ads Section */}
+              <div style={{ marginBottom: 24, padding: 16, border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <h3 style={{ margin: '0', fontSize: 15, fontWeight: 700, color: '#111827' }}>Bottom Ads ({currentVideoData.ads?.bottom?.length || 0})</h3>
+                  {currentVideoData.ads?.bottom && currentVideoData.ads.bottom.length > 0 && (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: '#ef4444' }}>
+                      <input 
+                        type="checkbox" 
+                        onChange={() => handleRemoveAdsFromVideo(currentVideoData.id, 'bottom')}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      Remove All
+                    </label>
+                  )}
+                </div>
+                {currentVideoData.ads?.bottom && currentVideoData.ads.bottom.length > 0 ? (
+                  <>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+                      {currentVideoData.ads.bottom.map((ad, idx) => (
+                        <div key={ad.id || idx} style={{ padding: 10, background: 'white', borderRadius: 6, border: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600, fontSize: 13 }}>{ad.profileName || 'Unnamed Ad'}</div>
+                            <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+                              Start: {ad.startTime}s | Duration: {ad.duration}s | Max Displays: {ad.displayCount || 'unlimited'}
+                            </div>
+                            <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{ad.text}</div>
+                          </div>
+                          <button onClick={() => handleRemoveAdsFromVideo(currentVideoData.id, 'bottom', ad.id)} style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', marginLeft: 8 }}>Remove</button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ padding: 12, textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>No bottom ads assigned</div>
+                )}
+              </div>
+
+              {/* Overlay Ads Section */}
+              <div style={{ marginBottom: 24, padding: 16, border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <h3 style={{ margin: '0', fontSize: 15, fontWeight: 700, color: '#111827' }}>Overlay Ads ({currentVideoData.ads?.overlays?.length || 0})</h3>
+                  {currentVideoData.ads?.overlays && currentVideoData.ads.overlays.length > 0 && (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: '#ef4444' }}>
+                      <input 
+                        type="checkbox" 
+                        onChange={() => handleRemoveAdsFromVideo(currentVideoData.id, 'overlay')}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      Remove All
+                    </label>
+                  )}
+                </div>
+                {currentVideoData.ads?.overlays && currentVideoData.ads.overlays.length > 0 ? (
+                  <>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+                      {currentVideoData.ads.overlays.map((ad, idx) => (
+                        <div key={ad.id || idx} style={{ padding: 10, background: 'white', borderRadius: 6, border: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600, fontSize: 13 }}>{ad.companyName || 'Unnamed Ad'}</div>
+                            <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+                              Start: {ad.startTime}s | Duration: {ad.duration}s | Max Displays: {ad.displayCount || 'unlimited'}
+                            </div>
+                            <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{ad.text}</div>
+                          </div>
+                          <button onClick={() => handleRemoveAdsFromVideo(currentVideoData.id, 'overlay', ad.id)} style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', marginLeft: 8 }}>Remove</button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ padding: 12, textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>No overlay ads assigned</div>
+                )}
+              </div>
+            </div>
+          </div>
+          );
+        })()}
+
+
     <footer style={{
       position: 'fixed',
       bottom: footerPosition.y,
@@ -8273,6 +10968,638 @@ export default function StaffDashboard() {
             </div>
           </div>
         )}
+
+        {/* My Profile Tab */}
+        {activeTab === 'myProfile' && staffSession && (
+          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '32px',
+              gap: '16px'
+            }}>
+              <button
+                onClick={() => setActiveTab('videos')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#3b82f6',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#eff6ff'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                ← Back to Dashboard
+              </button>
+              <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#111827' }}>My Profile</h1>
+            </div>
+
+            {/* Profile Card */}
+            <div style={{
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              borderRadius: '12px',
+              padding: '32px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              {!myProfileEdit.isEditing ? (
+                <>
+                  {/* View Mode */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Employee ID</label>
+                      <div style={{
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        color: '#111827',
+                        padding: '8px 0'
+                      }}>{staffSession.id || 'N/A'}</div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Full Name</label>
+                      <div style={{
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        color: '#111827',
+                        padding: '8px 0'
+                      }}>{staffSession.name || 'Not set'}</div>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Address</label>
+                      <div style={{
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        color: '#111827',
+                        padding: '8px 0'
+                      }}>{staffSession.email || 'Not set'}</div>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Role</label>
+                      <div style={{
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        color: '#111827',
+                        padding: '8px 0',
+                        textTransform: 'capitalize'
+                      }}>{staffSession.role || 'Staff'}</div>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Permissions</label>
+                      <div style={{
+                        padding: '12px 16px',
+                        background: '#f0f9ff',
+                        border: '1px solid #bfdbfe',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        color: '#1e40af'
+                      }}>
+                        {Object.entries(staffSession?.permissions || {}).filter(([_, value]) => value).length > 0 ? (
+                          Object.entries(staffSession?.permissions || {}).map(([key, value]) => 
+                            value && <div key={key} style={{ padding: '4px 0' }}>✓ {key.replace(/_/g, ' ')}</div>
+                          )
+                        ) : (
+                          <div>No specific permissions assigned</div>
+                        )}
+                        {staffSession?.isAdmin && <div style={{ padding: '4px 0', fontWeight: '600' }}>✓ ADMIN ACCESS</div>}
+                      </div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+                      <button
+                        onClick={handleEditMyProfile}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.2)';
+                        }}
+                      >
+                        Edit Profile
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Edit Mode */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Full Name</label>
+                      <input
+                        type="text"
+                        value={myProfileEdit.name}
+                        onChange={(e) => setMyProfileEdit({ ...myProfileEdit, name: e.target.value })}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontFamily: 'inherit',
+                          boxSizing: 'border-box',
+                          transition: 'all 0.2s'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                        onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Address</label>
+                      <input
+                        type="email"
+                        value={myProfileEdit.email}
+                        onChange={(e) => setMyProfileEdit({ ...myProfileEdit, email: e.target.value })}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontFamily: 'inherit',
+                          boxSizing: 'border-box',
+                          transition: 'all 0.2s'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                        onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                      />
+                    </div>
+
+                    <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+                      <div style={{
+                        padding: '12px 16px',
+                        background: '#f3f4f6',
+                        borderRadius: '8px',
+                        marginBottom: '12px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onClick={() => setMyProfileEdit({ ...myProfileEdit, showPasswordChange: !myProfileEdit.showPasswordChange })}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#e5e7eb'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+                      >
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#374151', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {myProfileEdit.showPasswordChange ? '▼' : '▶'} Change Password
+                        </div>
+                      </div>
+
+                      {myProfileEdit.showPasswordChange && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+                          <input
+                            type="password"
+                            placeholder="New Password"
+                            value={myProfileEdit.newPassword}
+                            onChange={(e) => setMyProfileEdit({ ...myProfileEdit, newPassword: e.target.value })}
+                            style={{
+                              padding: '10px 12px',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '8px',
+                              fontSize: '14px',
+                              fontFamily: 'inherit',
+                              transition: 'all 0.2s'
+                            }}
+                            onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                          />
+                          <input
+                            type="password"
+                            placeholder="Confirm Password"
+                            value={myProfileEdit.confirmPassword}
+                            onChange={(e) => setMyProfileEdit({ ...myProfileEdit, confirmPassword: e.target.value })}
+                            style={{
+                              padding: '10px 12px',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '8px',
+                              fontSize: '14px',
+                              fontFamily: 'inherit',
+                              transition: 'all 0.2s'
+                            }}
+                            onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <button
+                        onClick={handleCancelEdit}
+                        style={{
+                          flex: 1,
+                          padding: '12px 16px',
+                          background: 'transparent',
+                          color: '#6b7280',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#f3f4f6';
+                          e.target.style.borderColor = '#9ca3af';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = 'transparent';
+                          e.target.style.borderColor = '#d1d5db';
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveMyProfile}
+                        style={{
+                          flex: 1,
+                          padding: '12px 16px',
+                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.2)';
+                        }}
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Toast Notification */}
+        {toast && (
+          <div style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            padding: '16px 20px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '600',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            zIndex: 2001,
+            backgroundColor: toast.type === 'success' ? '#10b981' : '#ef4444',
+            color: 'white',
+            animation: 'slideIn 0.3s ease-out'
+          }}>
+            {toast.message}
+          </div>
+        )}
+
+        {/* Approval Modal - Outside main container */}
+        {approvalInstructionsModal.isOpen && approvalInstructionsModal.account && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 3000
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '32px',
+          maxWidth: '600px',
+          width: '90%',
+          maxHeight: '85vh',
+          overflowY: 'auto',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)'
+        }}>
+          <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 'bold', color: '#1f2937' }}>
+            Approve Account & Set Instructions
+          </h2>
+          <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '14px' }}>
+            {approvalInstructionsModal.account.name} ({approvalInstructionsModal.account.email})
+          </p>
+
+          {/* Admin Access Option */}
+          <div style={{
+            padding: '12px',
+            marginBottom: '16px',
+            borderRadius: '8px',
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fee2e2'
+          }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
+              <input
+                type="checkbox"
+                checked={approvalInstructionsModal.grantAdmin}
+                onChange={(e) => setApprovalInstructionsModal(prev => ({ ...prev, grantAdmin: e.target.checked }))}
+                style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+              />
+              <span style={{ fontWeight: '600', color: '#991b1b' }}>
+                ⭐ Grant Administrator Access
+              </span>
+            </label>
+            <p style={{ margin: '4px 0 0 24px', fontSize: '12px', color: '#7f1d1d' }}>
+              Allows approval of other accounts and full system access
+            </p>
+          </div>
+
+          {/* Permissions Section */}
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h3 style={{ margin: '0', fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
+                Access Permissions
+              </h3>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setAllPermissions(true)}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '12px',
+                    backgroundColor: '#e0e7ff',
+                    color: '#4f46e5',
+                    border: '1px solid #c7d2fe',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: '500'
+                  }}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setAllPermissions(false)}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '12px',
+                    backgroundColor: '#f3f4f6',
+                    color: '#6b7280',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: '500'
+                  }}
+                >
+                  None
+                </button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              {Object.entries(approvalInstructionsModal.permissions || {}).map(([permission, isEnabled]) => (
+                <label key={permission} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '6px' }}>
+                  <input
+                    type="checkbox"
+                    checked={isEnabled}
+                    onChange={() => setApprovalInstructionsModal(prev => ({
+                      ...prev,
+                      permissions: { ...prev.permissions, [permission]: !isEnabled }
+                    }))}
+                    style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                  />
+                  <span style={{ fontSize: '13px', color: '#374151' }}>
+                    {permission.replace(/([A-Z])/g, ' $1').trim()}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Instructions Section */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
+              📋 Custom Instructions (Optional)
+            </label>
+            <p style={{ margin: '0 0 8px 0', fontSize: '12px', color: '#6b7280' }}>
+              Add custom instructions or welcome message to display when the user logs in
+            </p>
+            <textarea
+              value={approvalInstructionsModal.instructions}
+              onChange={(e) => setApprovalInstructionsModal(prev => ({ ...prev, instructions: e.target.value }))}
+              placeholder="e.g., Welcome to the team! Here are your first steps..."
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                fontFamily: 'inherit',
+                fontSize: '13px',
+                resize: 'vertical'
+              }}
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '24px' }}>
+            <button
+              onClick={() => setApprovalInstructionsModal({ isOpen: false, account: null, permissions: {}, grantAdmin: false, instructions: '' })}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmApproval}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              Approve Account
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Deny Account Modal - Outside main container */}
+    {denyModal.isOpen && denyModal.account && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 3000
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '32px',
+          maxWidth: '600px',
+          width: '90%',
+          maxHeight: '85vh',
+          overflowY: 'auto',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)'
+        }}>
+          <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 'bold', color: '#1f2937' }}>
+            Deny Account
+          </h2>
+          <p style={{ margin: '0 0 24px 0', color: '#6b7280', fontSize: '14px' }}>
+            {denyModal.account.name} ({denyModal.account.email})
+          </p>
+
+          {/* Preset Denial Reasons */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '12px', fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
+              📌 Quick Reasons
+            </label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+              {[
+                'Insufficient information',
+                'Policy violation',
+                'Account verification failed',
+                'Suspicious activity',
+                'Duplicate account',
+                'Incomplete application'
+              ].map(reason => (
+                <button
+                  key={reason}
+                  onClick={() => setDenyModal(prev => ({ ...prev, selectedReason: reason }))}
+                  style={{
+                    padding: '8px 12px',
+                    backgroundColor: denyModal.selectedReason === reason ? '#ef4444' : '#f3f4f6',
+                    color: denyModal.selectedReason === reason ? 'white' : '#374151',
+                    border: `1px solid ${denyModal.selectedReason === reason ? '#dc2626' : '#d1d5db'}`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (denyModal.selectedReason !== reason) {
+                      e.target.style.backgroundColor = '#e5e7eb';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (denyModal.selectedReason !== reason) {
+                      e.target.style.backgroundColor = '#f3f4f6';
+                    }
+                  }}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Message */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
+              💬 Custom Denial Message (Optional)
+            </label>
+            <p style={{ margin: '0 0 8px 0', fontSize: '12px', color: '#6b7280' }}>
+              Leave empty to use the selected reason above, or customize the message below
+            </p>
+            <textarea
+              value={denyModal.customMessage}
+              onChange={(e) => setDenyModal(prev => ({ ...prev, customMessage: e.target.value }))}
+              placeholder="Explain why the account was denied (optional)..."
+              style={{
+                width: '100%',
+                minHeight: '80px',
+                padding: '12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                fontFamily: 'inherit',
+                fontSize: '13px',
+                resize: 'vertical'
+              }}
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '24px' }}>
+            <button
+              onClick={() => setDenyModal({ isOpen: false, account: null, selectedReason: '', customMessage: '' })}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmDenial}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              Deny Account
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
         
         <style>{`
           @keyframes slideDown {
@@ -8285,7 +11612,669 @@ export default function StaffDashboard() {
               transform: translateX(-50%) translateY(0);
             }
           }
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(400px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
         `}</style>
+      </div>
+    )}
+
+    {/* Staff Permissions Modal - OUTSIDE overlay preview */}
+    {staffPermissionsModal.isOpen && staffPermissionsModal.member && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '32px',
+          maxWidth: '600px',
+          width: '90%',
+          maxHeight: '80vh',
+          overflowY: 'auto',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)'
+        }}>
+          <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 'bold', color: '#1f2937' }}>
+            Manage Staff Permissions
+          </h2>
+          <p style={{ margin: '0 0 16px 0', color: '#6b7280', fontSize: '14px' }}>
+            {staffPermissionsModal.member.name} ({staffPermissionsModal.member.email})
+          </p>
+
+          {/* Block User Section */}
+          <div style={{
+            padding: '16px',
+            marginBottom: '16px',
+            borderRadius: '8px',
+            backgroundColor: staffPermissionsModal.blocked ? '#fef2f2' : '#f9fafb',
+            border: `1px solid ${staffPermissionsModal.blocked ? '#fecaca' : '#e5e7eb'}`
+          }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '12px' }}>
+              <div 
+                onClick={() => setStaffPermissionsModal(prev => ({ ...prev, blocked: !prev.blocked }))}
+                style={{
+                  position: 'relative',
+                  width: '48px',
+                  height: '26px',
+                  backgroundColor: staffPermissionsModal.blocked ? '#ef4444' : '#d1d5db',
+                  borderRadius: '13px',
+                  transition: 'background-color 0.2s',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{
+                  position: 'absolute',
+                  top: '3px',
+                  left: staffPermissionsModal.blocked ? '25px' : '3px',
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: 'white',
+                  borderRadius: '50%',
+                  transition: 'left 0.2s',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                }} />
+              </div>
+              <div>
+                <span style={{ display: 'block', fontWeight: 'bold', color: staffPermissionsModal.blocked ? '#dc2626' : '#374151', fontSize: '14px' }}>
+                  🚫 Block User Account
+                </span>
+                <span style={{ display: 'block', fontSize: '12px', color: staffPermissionsModal.blocked ? '#b91c1c' : '#6b7280' }}>
+                  {staffPermissionsModal.blocked ? 'User will see a blocked message on login' : 'Prevent this user from logging in'}
+                </span>
+              </div>
+            </label>
+          </div>
+
+          {/* Admin Access Option */}
+          <div style={{
+            padding: '12px',
+            marginBottom: '16px',
+            borderRadius: '8px',
+            backgroundColor: '#fff7ed',
+            border: '1px solid #ffedd5'
+          }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
+              <input
+                type="checkbox"
+                checked={staffPermissionsModal.grantAdmin}
+                onChange={(e) => setStaffPermissionsModal(prev => ({ ...prev, grantAdmin: e.target.checked }))}
+                style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+              />
+              <span style={{ fontWeight: '600', color: '#9a3412' }}>
+                ⭐ Grant Approval Authority
+              </span>
+            </label>
+            <p style={{ margin: '4px 0 0 24px', fontSize: '12px', color: '#c2410c' }}>
+              Allows this user to approve new accounts and manage other staff
+            </p>
+          </div>
+
+          {/* Permissions Section */}
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h3 style={{ margin: '0', fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
+                Access Permissions
+              </h3>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => {
+                    const allEnabled = {};
+                    Object.keys(ALL_PERMISSIONS).forEach(k => {
+                      allEnabled[k] = true;
+                    });
+                    setStaffPermissionsModal(prev => ({ ...prev, permissions: allEnabled }));
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '12px',
+                    backgroundColor: '#e0e7ff',
+                    color: '#4f46e5',
+                    border: '1px solid #c7d2fe',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: '500'
+                  }}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => {
+                    const allDisabled = {};
+                    Object.keys(ALL_PERMISSIONS).forEach(k => {
+                      allDisabled[k] = false;
+                    });
+                    setStaffPermissionsModal(prev => ({ ...prev, permissions: allDisabled }));
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '12px',
+                    backgroundColor: '#fef2f2',
+                    color: '#dc2626',
+                    border: '1px solid #fecaca',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: '500'
+                  }}
+                >
+                  None
+                </button>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '12px'
+            }}>
+              {Object.entries(ALL_PERMISSIONS).map(([permKey, permLabel]) => {
+                const isEnabled = staffPermissionsModal.permissions[permKey] !== false;
+                return (
+                <label
+                  key={permKey}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: isEnabled ? '#dbeafe' : '#fef2f2',
+                    border: `1px solid ${isEnabled ? '#93c5fd' : '#fecaca'}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isEnabled}
+                    onChange={() => {
+                      setStaffPermissionsModal(prev => ({
+                        ...prev,
+                        permissions: {
+                          ...prev.permissions,
+                          [permKey]: !isEnabled
+                        }
+                      }));
+                    }}
+                    style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                  />
+                  <span style={{ fontSize: '13px', fontWeight: '500', color: isEnabled ? '#374151' : '#dc2626' }}>
+                    {permLabel}
+                  </span>
+                </label>
+              );})}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '24px' }}>
+            <button
+              onClick={() => setStaffPermissionsModal({ isOpen: false, member: null, permissions: {}, grantAdmin: false, blocked: false })}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('http://localhost:4000/staff/update-permissions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      employeeId: staffSession.id,
+                      targetEmployeeId: staffPermissionsModal.member.id,
+                      permissions: staffPermissionsModal.permissions,
+                      grantAdminAccess: staffPermissionsModal.grantAdmin,
+                      blocked: staffPermissionsModal.blocked
+                    })
+                  });
+
+                  if (res.ok) {
+                    const memberName = staffPermissionsModal.member.name;
+                    const wasBlocked = staffPermissionsModal.blocked;
+                    setStaffPermissionsModal({ isOpen: false, member: null, permissions: {}, grantAdmin: false, blocked: false });
+                    setToast({ 
+                      type: wasBlocked ? 'warning' : 'success', 
+                      message: wasBlocked 
+                        ? `${memberName} has been blocked. They will see a blocked message on login.` 
+                        : `Permissions updated for ${memberName}` 
+                    });
+                    // Reload staff members list
+                    const staffRes = await fetch(`http://localhost:4000/staff/all?employeeId=${staffSession.id}`);
+                    if (staffRes.ok) {
+                      const data = await staffRes.json();
+                      setStaffMembers(data.members || []);
+                    }
+                  } else {
+                    setToast({ type: 'error', message: 'Failed to update permissions' });
+                  }
+                } catch (err) {
+                  console.error('Update permissions failed:', err);
+                  setToast({ type: 'error', message: 'Error updating permissions' });
+                }
+              }}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: staffPermissionsModal.blocked ? '#ef4444' : '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              {staffPermissionsModal.blocked ? '🚫 Block & Save' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Staff Profile Modal - OUTSIDE overlay preview */}
+    {staffProfileModal.isOpen && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '32px',
+          maxWidth: '600px',
+          width: '90%',
+          maxHeight: '85vh',
+          overflowY: 'auto',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)'
+        }}>
+          <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 'bold', color: '#1f2937' }}>
+            👤 My Profile
+          </h2>
+          <p style={{ margin: '0 0 24px 0', color: '#6b7280', fontSize: '14px' }}>
+            Manage your account settings and permissions
+          </p>
+
+          {/* Account Information */}
+          <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
+              Account Information
+            </h3>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '12px', fontWeight: 'bold', color: '#6b7280', textTransform: 'uppercase' }}>
+                Employee ID
+              </label>
+              <div style={{ padding: '10px 12px', backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+                {staffSession?.id}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '12px', fontWeight: 'bold', color: '#6b7280', textTransform: 'uppercase' }}>
+                Role
+              </label>
+              <div style={{ padding: '10px 12px', backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+                {staffSession?.role === 'administrator' ? '⭐ Administrator' : '👤 Moderator'}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '12px', fontWeight: 'bold', color: '#6b7280', textTransform: 'uppercase' }}>
+                Name
+              </label>
+              <input
+                type="text"
+                value={staffProfileModal.name}
+                onChange={(e) => setStaffProfileModal(prev => ({ ...prev, name: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '12px', fontWeight: 'bold', color: '#6b7280', textTransform: 'uppercase' }}>
+                Email
+              </label>
+              <input
+                type="email"
+                value={staffProfileModal.email}
+                onChange={(e) => setStaffProfileModal(prev => ({ ...prev, email: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Password Section */}
+          <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+            <button
+              onClick={() => setStaffProfileModal(prev => ({ ...prev, showPasswordChange: !prev.showPasswordChange }))}
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#374151',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              🔑 Manage Passwords
+              <span>{staffProfileModal.showPasswordChange ? '▼' : '▶'}</span>
+            </button>
+
+            {staffProfileModal.showPasswordChange && (
+              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                
+                {/* Current Passwords Display */}
+                <div style={{ padding: '12px', backgroundColor: '#eff6ff', borderRadius: '6px', border: '1px solid #93c5fd' }}>
+                  <h4 style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: 'bold', color: '#1e40af' }}>
+                    📋 YOUR CURRENT PASSWORDS
+                  </h4>
+                  
+                  {[0, 1, 2].map((idx) => (
+                    <div key={`current-${idx}`} style={{ marginBottom: idx < 2 ? '12px' : '0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#374151', minWidth: '70px' }}>
+                          Password {idx + 1}:
+                        </span>
+                        <div style={{
+                          flex: 1,
+                          padding: '8px 12px',
+                          backgroundColor: 'white',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          fontSize: '13px',
+                          color: '#4b5563',
+                          fontFamily: 'monospace',
+                          wordBreak: 'break-all'
+                        }}>
+                          {staffProfileModal[`showCurrentPassword${idx + 1}`] ? staffProfileModal.currentPasswords[idx] || '(Not set)' : '••••••••'}
+                        </div>
+                        <button
+                          onClick={() => setStaffProfileModal(prev => ({
+                            ...prev,
+                            [`showCurrentPassword${idx + 1}`]: !prev[`showCurrentPassword${idx + 1}`]
+                          }))}
+                          style={{
+                            padding: '6px 12px',
+                            backgroundColor: '#e0e7ff',
+                            color: '#4f46e5',
+                            border: '1px solid #c7d2fe',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {staffProfileModal[`showCurrentPassword${idx + 1}`] ? '👁️ Hide' : '👁️ Show'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* New Passwords Input */}
+                <div>
+                  <h4 style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: 'bold', color: '#374151' }}>
+                    ✏️ UPDATE PASSWORDS (Optional - leave blank to keep current)
+                  </h4>
+                  
+                  {[1, 2, 3].map((num) => (
+                    <div key={`new-${num}`} style={{ marginBottom: num < 3 ? '12px' : '0' }}>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '12px', fontWeight: 'bold', color: '#6b7280', textTransform: 'uppercase' }}>
+                        New Password {num}
+                      </label>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type={staffProfileModal[`showPassword${num}`] ? 'text' : 'password'}
+                          value={staffProfileModal[`newPassword${num}`]}
+                          onChange={(e) => setStaffProfileModal(prev => ({ ...prev, [`newPassword${num}`]: e.target.value }))}
+                          placeholder={`Enter new password ${num}`}
+                          style={{
+                            flex: 1,
+                            padding: '10px 12px',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                        />
+                        <button
+                          onClick={() => setStaffProfileModal(prev => ({
+                            ...prev,
+                            [`showPassword${num}`]: !prev[`showPassword${num}`]
+                          }))}
+                          style={{
+                            padding: '10px 12px',
+                            backgroundColor: '#f3f4f6',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            color: '#374151',
+                            minWidth: '45px'
+                          }}
+                        >
+                          {staffProfileModal[`showPassword${num}`] ? '👁️' : '👁️‍🗨️'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => setStaffProfileModal({ 
+                isOpen: false, 
+                showPasswordChange: false, 
+                name: '', 
+                email: '', 
+                currentPasswords: ['', '', ''],
+                newPassword1: '',
+                newPassword2: '',
+                newPassword3: '',
+                showPassword1: false,
+                showPassword2: false,
+                showPassword3: false,
+                showCurrentPassword1: false,
+                showCurrentPassword2: false,
+                showCurrentPassword3: false
+              })}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#374151'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  // Prepare passwords array - only send if new password is provided
+                  const passwords = [];
+                  if (staffProfileModal.newPassword1) passwords.push(staffProfileModal.newPassword1);
+                  if (staffProfileModal.newPassword2) passwords.push(staffProfileModal.newPassword2);
+                  if (staffProfileModal.newPassword3) passwords.push(staffProfileModal.newPassword3);
+
+                  const res = await fetch('http://localhost:4000/staff/update-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      employeeId: staffSession.id,
+                      name: staffProfileModal.name,
+                      email: staffProfileModal.email,
+                      passwords: passwords.length > 0 ? passwords : undefined
+                    })
+                  });
+
+                  if (res.ok) {
+                    const data = await res.json();
+                    setStaffSession(data.employee);
+                    setStaffProfileModal({ 
+                      isOpen: false, 
+                      showPasswordChange: false, 
+                      name: '', 
+                      email: '', 
+                      currentPasswords: data.employee.passwords || ['', '', ''],
+                      newPassword1: '',
+                      newPassword2: '',
+                      newPassword3: '',
+                      showPassword1: false,
+                      showPassword2: false,
+                      showPassword3: false,
+                      showCurrentPassword1: false,
+                      showCurrentPassword2: false,
+                      showCurrentPassword3: false
+                    });
+                    setToast({ type: 'success', message: 'Profile updated successfully' });
+                  } else {
+                    setToast({ type: 'error', message: 'Failed to update profile' });
+                  }
+                } catch (err) {
+                  console.error('Update profile failed:', err);
+                  setToast({ type: 'error', message: 'Error updating profile' });
+                }
+              }}
+              style={{
+                padding: '10px 16px',
+                backgroundColor: '#4f46e5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Access Denied Modal */}
+    {accessDeniedModal.isOpen && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          padding: '32px',
+          maxWidth: '400px',
+          width: '90%',
+          textAlign: 'center',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)'
+        }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            margin: '0 auto 16px',
+            backgroundColor: '#fef2f2',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ fontSize: '32px' }}>🚫</span>
+          </div>
+          <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 'bold', color: '#dc2626' }}>
+            Access Denied
+          </h2>
+          <p style={{ margin: '0 0 24px 0', color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>
+            You don't have the clearance to access <strong style={{ color: '#374151' }}>{accessDeniedModal.pageName}</strong>.
+            <br /><br />
+            Contact your administrator to request access.
+          </p>
+          <button
+            onClick={() => setAccessDeniedModal({ isOpen: false, pageName: '' })}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '600',
+              width: '100%'
+            }}
+          >
+            OK, Got It
+          </button>
+        </div>
       </div>
     )}
     </>

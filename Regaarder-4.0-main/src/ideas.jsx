@@ -7,11 +7,12 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations.js';
 import FreeRequestSubmittedModal from './FreeRequestSubmittedModal.jsx';
+import BoostsModal from './BoostsModal.jsx';
 import {
   Home,
   Pencil,
   MoreHorizontal,
-  ChevronLeft,
+  MoveLeft,
   ChevronRight,
   User,
   ArrowRight,
@@ -1031,7 +1032,6 @@ const RecurrentVideoDetails = ({
         sanitizePriceInput={sanitizePriceInput}
         onEdit={() => setRecurrentStep(1)}
         onSaveReview={handleSaveReview}
-        selectedLanguage={selectedLanguage}
       />
     );
   if (recurrentStep === 8) return <SponsorConfirmation />;
@@ -1444,15 +1444,26 @@ const VideoLengthDropdown = ({ lengths, selectedLength, setSelectedLength, custo
                   <div className="text-xs text-gray-500">{getTranslation(len.duration, selectedLanguage)}</div>
                   <div className="text-xs text-gray-600 mt-1">{getTranslation(len.description, selectedLanguage)}</div>
                   {len.id === "custom" && selectedLength === "custom" && (
-                    <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                    <div className="mt-3 flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="text"
                         placeholder={getTranslation("Enter desired length (e.g. 45 mins)", selectedLanguage)}
                         value={customLength}
                         onChange={(e) => setCustomLength(e.target.value)}
-                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-soft)] focus:border-[var(--color-accent)] transition-all"
+                        className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-soft)] focus:border-[var(--color-accent)] transition-all"
                         autoFocus
                       />
+                      <button
+                        onClick={() => {
+                          if (customLength.trim()) {
+                            // Button click confirmed the input, parent will handle closing
+                          }
+                        }}
+                        className="px-3 py-3 bg-[var(--color-gold)] hover:bg-[var(--color-gold)]/90 text-white rounded-lg flex items-center justify-center transition-colors"
+                        title={getTranslation("Save", selectedLanguage)}
+                      >
+                        <Check className="w-5 h-5" />
+                      </button>
                     </div>
                   )}
                 </div>
@@ -1727,7 +1738,7 @@ const SeriesCalendar = ({ selectedDates, setSelectedDates, selectedLanguage = 'E
           }
           className="p-1 hover:bg-[var(--bg)] rounded-full"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-600" />
+          <MoveLeft className="w-5 h-5 text-gray-600" />
         </button>
         <span className="font-semibold text-gray-800">
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
@@ -2180,6 +2191,7 @@ const PrivacySettingsStep = ({ selectedPrivacy, setSelectedPrivacy, prevStepComp
       icon: Globe,
       desc: getTranslation("Visible to everyone", selectedLanguage),
       price: null,
+      cost: 0,
     },
     {
       id: "unlisted",
@@ -2187,13 +2199,15 @@ const PrivacySettingsStep = ({ selectedPrivacy, setSelectedPrivacy, prevStepComp
       icon: LinkIcon,
       desc: getTranslation("Only people with the link", selectedLanguage),
       price: "+$5.99",
+      cost: 5.99,
     },
     {
       id: "private",
       label: getTranslation("Private", selectedLanguage),
       icon: Lock,
       desc: getTranslation("Only you", selectedLanguage),
-      price: null,
+      price: "+$7.99",
+      cost: 7.99,
     },
   ];
 
@@ -2660,6 +2674,7 @@ const App = () => {
   const [pendingSubmission, setPendingSubmission] = useState(null); // { flow: 'one-time'|'series'|'recurrent'|'catalogue', nextStep: number }
   const [paymentAmount, setPaymentAmount] = useState(25); // default recommended preset (Most Popular)
   const [paymentRole, setPaymentRole] = useState("creator"); // 'creator' or 'expert'
+  const [privacyCost, setPrivacyCost] = useState(0); // Additional cost for private/unlisted video ($5.99 for unlisted, $7.99 for private)
   const PAYMENT_PRESETS = [15, 25, 50, 100];
   const [selectedCreator, setSelectedCreator] = useState(null);
   const [selectedCreatorImage, setSelectedCreatorImage] = useState(null); // Separate state for creator image
@@ -2670,6 +2685,8 @@ const App = () => {
   const [showCreatorModal, setShowCreatorModal] = useState(false); // For the ideas page creator selection modal
   const [showFreeRequestSubmittedModal, setShowFreeRequestSubmittedModal] = useState(false); // For free request submission confirmation
   const [currentFreeRequest, setCurrentFreeRequest] = useState(null); // Store request data for sharing
+  const [currentRequestIdForBoost, setCurrentRequestIdForBoost] = useState(null); // Track request ID for boost modal
+  const [showBoostsModal, setShowBoostsModal] = useState(false); // For boost requests modal
 
   // When focus mode is toggled on, ensure the chooser is expanded and focus the input.
   useEffect(() => {
@@ -2869,25 +2886,32 @@ const App = () => {
         }
 
         /* Exclude the main animated page title (keeps its larger size) */
-        .ideas-root .cream-glow-box h1 { font-size: 30px !important; line-height: 1.05 !important; }
+        .ideas-root .cream-glow-box h1 { font-size: clamp(20px, 6.5vw, 34px) !important; line-height: 1.1 !important; }
         
-        /* Payment modal revamp styles */
-        .payment-modal-panel { background: #ffffff; border-radius: 14px; padding: 28px; border: 1px solid rgba(15,23,42,0.04); box-shadow: 0 20px 40px rgba(2,6,23,0.08); }
-        .payment-modal-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
-        .payment-modal-title { font-size:18px; font-weight:700; color: #0f172a; margin:0; }
-        .payment-modal-sub { color:#6b7280; font-size:13px; margin-top:6px; }
-        .preset-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-        .preset-btn { min-width:92px; display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; border-radius:12px; font-weight:700; cursor:pointer; border:1px solid rgba(15,23,42,0.04); }
-        .preset-btn.bg-primary { background: linear-gradient(90deg, var(--color-primary), #7a3af0); color:white; box-shadow: 0 8px 20px rgba(122,58,240,0.18); }
-        .preset-btn.bg-gray { background:#fafafa; color:#0f172a; }
-        .preset-price { font-weight:800; }
-        .preset-badge { margin-left:6px; padding:4px 7px; background: rgba(15,23,42,0.04); border-radius:9999px; font-size:12px; font-weight:700; }
-        .amount-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-        .amount-input { width:96px; padding:10px 12px; border-radius:10px; border:1px solid rgba(15,23,42,0.06); }
-        .payment-cta { display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:12px 22px; border-radius:12px; background: linear-gradient(90deg, var(--color-primary), #7a3af0); color:white; font-weight:800; box-shadow: 0 10px 30px rgba(122,58,240,0.18); border: none; cursor: pointer; }
-        .modal-trust { display:flex; align-items:center; gap:10px; color:#6b7280; font-size:13px; margin-top:12px; }
-        .provider-list { margin-top:6px; display:flex; flex-direction:column; gap:8px; }
-        .provider-item { padding:10px 12px; border-radius:10px; border:1px solid transparent; cursor:default; }
+        /* Payment modal revamp styles - CLASSY & PREMIUM */
+        .payment-modal-panel { background: #ffffff; border-radius: 24px; padding: 40px; border: 1px solid rgba(15,23,42,0.04); box-shadow: 0 40px 80px -12px rgba(0, 0, 0, 0.12); width: 100%; max-width: 550px; margin: auto; }
+        .payment-modal-header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; margin-bottom: 24px; }
+        .payment-modal-title { font-size:24px; font-weight:800; letter-spacing: -0.02em; color: #1e293b; margin:0; line-height: 1.2; }
+        .payment-modal-sub { color:#64748b; font-size:15px; margin-top:8px; line-height: 1.6; }
+        
+        .preset-row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; margin-bottom: 24px; }
+        .preset-btn { flex: 1; min-width:110px; display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:16px 20px; border-radius:16px; font-weight:700; cursor:pointer; border:1px solid rgba(15,23,42,0.04); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: 18px; }
+        .preset-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+        .preset-btn:active { transform: translateY(0); }
+        
+        .preset-btn.bg-primary { background: linear-gradient(135deg, var(--color-primary), #7a3af0); color:white; box-shadow: 0 12px 25px -8px rgba(122,58,240,0.4); border: none; }
+        .preset-btn.bg-gray { background:#f8fafc; color:#0f172a; border-color: #e2e8f0; }
+        
+        .amount-row { display:flex; align-items:center; justify-content:space-between; gap:16px; background: #f8fafc; padding: 16px 20px; border-radius: 16px; margin-bottom: 24px; }
+        .amount-input { width:120px; padding:12px 16px; border-radius:12px; border:1px solid rgba(15,23,42,0.08); font-size: 18px; font-weight: 600; text-align: right; }
+        
+        .payment-cta { display:inline-flex; align-items:center; justify-content:center; gap:12px; padding:18px 32px; border-radius:18px; background: linear-gradient(135deg, var(--color-primary), #7a3af0); color:white; font-size: 18px; font-weight:800; box-shadow: 0 20px 40px -10px rgba(122,58,240,0.3); border: none; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
+        .payment-cta:hover { transform: translateY(-2px); box-shadow: 0 25px 50px -12px rgba(122,58,240,0.4); }
+        
+        .modal-trust { display:flex; align-items:center; justify-content: center; gap:8px; color:#64748b; font-size:13px; margin-top:20px; font-weight: 500; }
+        
+        /* Provider list improvements */
+        .provider-item { padding:14px 18px; border-radius:14px; border:1px solid transparent; cursor:default; transition: background 0.2s; }
         .provider-item.highlight { border-color: rgba(122,58,240,0.12); background: rgba(122,58,240,0.03); }
         .payment-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:18px; }
         
@@ -2981,7 +3005,36 @@ const App = () => {
     } catch(e) { console.warn('Failed to handle payment return', e); }
   }, []);
 
-  // Fetch creators from backend when chooser expands (only once)
+  // Load selectedCreator from localStorage when component mounts or when notified
+  useEffect(() => {
+    const SELECTED_CREATOR_KEY = 'ideas_selectedCreator_v1';
+    const checkLocalStorage = () => {
+        try {
+            const stored = localStorage.getItem(SELECTED_CREATOR_KEY);
+            if (stored) {
+                const creatorObj = JSON.parse(stored);
+                setSelectedCreator(creatorObj);
+                if (creatorObj.photoURL || creatorObj.image) {
+                    setSelectedCreatorImage(creatorObj.photoURL || creatorObj.image);
+                }
+                // Clear from localStorage so it doesn't persist across sessions
+                localStorage.removeItem(SELECTED_CREATOR_KEY);
+            }
+        } catch (e) {
+            console.warn('Failed to load selected creator', e);
+        }
+    };
+
+    // Check immediately on mount
+    checkLocalStorage();
+
+    // Also listen for event in case we are already mounted (SPA navigation)
+    const handler = () => checkLocalStorage();
+    window.addEventListener('ideas:creator_selected', handler);
+    return () => window.removeEventListener('ideas:creator_selected', handler);
+  }, []);
+
+  // Fetch creators from backend when chooser expands OR payment modal opens (only once)
   useEffect(() => {
     let cancelled = false;
     const loadCreators = async () => {
@@ -3002,9 +3055,9 @@ const App = () => {
         console.warn('Failed to load creators', e);
       }
     };
-    if (chooseCreatorExpanded) loadCreators();
+    if (chooseCreatorExpanded || paymentModalOpen) loadCreators();
     return () => { cancelled = true; };
-  }, [chooseCreatorExpanded]);
+  }, [chooseCreatorExpanded, paymentModalOpen]);
 
   // Filter creators so that a visible leading '@' is respected.
   const filteredCreators = (() => {
@@ -3426,6 +3479,16 @@ const App = () => {
   // PRIVACY STATE (Shared)
   const [selectedPrivacy, setSelectedPrivacy] = useState(null);
 
+  // Update privacy cost based on selected privacy level
+  useEffect(() => {
+    const privacyCosts = {
+      public: 0,
+      unlisted: 5.99,
+      private: 7.99,
+    };
+    setPrivacyCost(privacyCosts[selectedPrivacy] || 0);
+  }, [selectedPrivacy]);
+
   const [activeNav, setActiveNav] = useState("Ideas");
   // Modal state for floating preview (toggled by floating "See preview" button)
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
@@ -3464,7 +3527,7 @@ const App = () => {
   ];
 
   // Title Animation State (Unchanged)
-  const titles = [getTranslation('Book Your Next Video', selectedLanguage)];
+  const titles = [getTranslation('Book Your Next Videos', selectedLanguage)];
   const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
   const [titleVisible, setTitleVisible] = useState(true);
   const [sweepActive, setSweepActive] = useState(false);
@@ -3702,7 +3765,7 @@ const App = () => {
       else if (seriesStep === 6) {
         // Open payment modal before final success
         setPendingSubmission({ flow: "series", nextStep: 7 });
-        setPaymentAmount(Math.max(15, displayPrice || 0));
+        setPaymentAmount(Math.max(15, displayPrice || 35));
         setPaymentModalOpen(true);
       }
     } else if (isRecurrent) {
@@ -3713,7 +3776,7 @@ const App = () => {
       else if (recurrentStep === 5) setRecurrentStep(6); // To Review
       else if (recurrentStep === 6) {
         setPendingSubmission({ flow: "recurrent", nextStep: 7 });
-        setPaymentAmount(Math.max(15, displayPrice || 0));
+        setPaymentAmount(Math.max(15, displayPrice || 35));
         setPaymentModalOpen(true);
       }
     } else if (isCatalogue) {
@@ -3724,7 +3787,7 @@ const App = () => {
       else if (catalogueStep === 5) setCatalogueStep(6); // To Review
       else if (catalogueStep === 6) {
         setPendingSubmission({ flow: "catalogue", nextStep: 7 });
-        setPaymentAmount(Math.max(15, displayPrice || 0));
+        setPaymentAmount(Math.max(15, displayPrice || 50));
         setPaymentModalOpen(true);
       }
     } else {
@@ -3735,7 +3798,7 @@ const App = () => {
       else if (oneTimeStep === 4) setOneTimeStep(5); // To Review
       else if (oneTimeStep === 5) {
         setPendingSubmission({ flow: "one-time", nextStep: 6 });
-        setPaymentAmount(Math.max(15, displayPrice || 0));
+        setPaymentAmount(Math.max(15, displayPrice || 25));
         setPaymentModalOpen(true);
       }
     }
@@ -4686,7 +4749,7 @@ const App = () => {
               </div>
             </div>
           )}
-          <div className="relative">
+          <div className="relative z-0">
             <textarea
               id="description-input"
               ref={descriptionRef}
@@ -4734,7 +4797,8 @@ const App = () => {
         )}
 
         {description.length >= MIN_CHARS && title && title.length >= MIN_TITLE_CHARS && showFormatSection && (
-          <>
+          <div className="relative z-40">
+            <>
             {/* --- Main Question (moved above Examples box) */}
             <div className="mb-4 mt-6">
               <h2 className="text-gray-800 font-semibold text-base block tracking-tight">
@@ -4779,8 +4843,8 @@ const App = () => {
             )}
 
             {/* --- START: Delivery Type Dropdown (compact with icons) --- */}
-            <div className="mb-8">
-              <div className="relative">
+            <div className="mb-8 relative z-40">
+              <div className="relative z-40">
                 <button
                   type="button"
                   onClick={() => setDeliveryDropdownOpen((s) => !s)}
@@ -4843,7 +4907,8 @@ const App = () => {
               </div>
             </div>
             {/* --- END: Delivery Type Selection Cards --- */}
-          </>
+            </>
+          </div>
         )}
         {description.length >= MIN_CHARS && title && title.length >= MIN_TITLE_CHARS && (
           /* --- Dynamic Form Content based on Selection --- */
@@ -5508,528 +5573,244 @@ const App = () => {
         </div>
       )}
 
-      {/* Payment Modal (appears before final submission) */}
+      {/* Payment Page Overlay (Premium Apple-style Full Screen) */}
       {paymentModalOpen && (
-        <div className="fixed inset-0 z-[9999] overflow-y-auto">
-          <div
-            className="fixed inset-0 transition-opacity"
-            style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
-            onClick={() => {
-              setPaymentModalOpen(false);
-              setPendingSubmission(null);
-            }}
-          />
+        <div className="fixed inset-0 z-[9999] overflow-y-auto bg-white animate-fade-in">
+          {/* Back Button (Top Left) */}
+          <div className="absolute top-4 left-8 z-10">
+             <button
+                onClick={() => {
+                  setPaymentModalOpen(false);
+                  setPendingSubmission(null);
+                  trackEvent("payment_cancelled");
+                }}
+                className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <MoveLeft size={32} />
+              </button>
+          </div>
 
-          <div className="flex min-h-full items-center justify-center p-4">
-            <div
-              className="relative w-full max-w-4xl mx-auto px-6"
-              style={{ zIndex: 10000 }}
-            >
-              <div className="payment-modal-panel relative flex flex-col" style={{ maxHeight: '85vh' }}>
-                <div className="payment-modal-header flex-shrink-0">
-                  <div>
-                    <h3 className="payment-modal-title">{getTranslation('Complete Payment', selectedLanguage)}</h3>
-                    <p className="payment-modal-sub">{getTranslation('Minimum per request is', selectedLanguage)} <strong>$15.00</strong>. {getTranslation('Choose a preset or set a custom amount', selectedLanguage)}.</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setPaymentModalOpen(false);
-                      setPendingSubmission(null);
-                    }}
-                    className="text-gray-400 hover:text-gray-700 p-1"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Floating summary card (desktop) */}
-                <div className="hidden md:block" style={{ position: 'absolute', right: -20, top: -28 }}>
-                  <div className="rounded-xl p-4" style={{ width: 260, background: '#ffffff', border: '1px solid rgba(15,23,42,0.04)', boxShadow: '0 20px 40px rgba(2,6,23,0.08)' }}>
-                    <div className="text-xs text-gray-500">{getTranslation('Summary', selectedLanguage)}</div>
-                    <div className="mt-2 text-sm text-gray-500">{paymentRole === 'expert' ? getTranslation('Expert selected', selectedLanguage) : getTranslation('Creator selected', selectedLanguage)}</div>
-                    <div className="mt-3 font-extrabold text-2xl">${Number(paymentAmount * (paymentRole === 'expert' ? 1.3 : 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                    <div className="mt-3">
-                      <button
-                        onClick={() => {
-                          const base = paymentAmount;
-                          const withRole = paymentRole === "expert" ? Math.round(base * 1.3 * 100) / 100 : base;
-                          trackEvent("payment_confirmed", {
-                            amount: withRole,
-                            role: paymentRole,
-                            creator: selectedCreator ? selectedCreator.id : null,
-                          });
-                          handlePayment(); // Use the new handlePayment wrapper which calls backend
-                        }}
-                        className="payment-cta"
-                        style={{ width: '100%' }}
-                      >
-                        {getTranslation('Pay', selectedLanguage)} ${Number(paymentAmount * (paymentRole === 'expert' ? 1.3 : 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </button>
-                    </div>
-                    {/* FREE SUBMISSION BUTTON - Desktop */}
-                    <div className="mt-2">
-                      <button
-                        onClick={() => {
-                          trackEvent("free_submission_clicked");
-                          handleFreeSubmission();
-                        }}
-                        className="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-300 text-gray-600 font-medium hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all"
-                      >
-                        {getTranslation('Submit for Free', selectedLanguage)} ✨
-                      </button>
-                    </div>
-                    <div className="modal-trust mt-3" style={{ alignItems: 'center' }}>
-                      <span aria-hidden="true">🔒</span>
-                      <span style={{ marginLeft: 8 }}>{getTranslation('Secure payment • Instant delivery', selectedLanguage)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto min-h-0 pr-2 -mr-2 py-2">
-                  <div className="grid grid-cols-1 gap-6">
-                    {/* Preset Buttons */}
-                    <div className="flex gap-2 flex-wrap items-center justify-between">
-                      {PAYMENT_PRESETS.map((p) => (
-                        <button
-                          key={p}
-                          onClick={() => {
-                            setPaymentAmount(p);
-                            trackEvent("preset_selected", { preset: p });
-                          }}
-                          className={`preset-btn px-4 py-3 rounded-2xl font-semibold relative flex-1 min-w-0 ${paymentAmount === p
-                              ? "bg-primary text-white"
-                              : "bg-gray-50 text-gray-700 border border-gray-100"
-                            }`}
-                          style={
-                            paymentAmount === p
-                              ? {
-                                backgroundColor: "var(--color-primary)",
-                                color: "white",
-                              }
-                              : {}
-                          }
-                        >
-                          {"$" + p}
-                          {p === 25 && (
-                            <span className="most-popular-badge" aria-hidden="true">
-                              {getTranslation('Most popular', selectedLanguage)}
-                            </span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="text-sm text-gray-500 text-center">
-                      {getTranslation('Or set a custom amount', selectedLanguage)}
-                    </div>
-
-                    {/* Slider + input */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-medium text-gray-700">
-                          {getTranslation('Amount', selectedLanguage)}
-                        </label>
-                        <div className="text-lg font-bold text-gray-900">
-                          {"$" +
-                            Number(paymentAmount).toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                        </div>
-                      </div>
-                      <input
-                        type="range"
-                        min={15}
-                        max={5000}
-                        step={1}
-                        value={paymentAmount}
-                        onChange={(e) => {
-                          setPaymentAmount(Number(e.target.value));
-                          trackEvent("slider_changed", {
-                            amount: Number(e.target.value),
-                          });
-                        }}
-                        className="w-full"
-                      />
-
-                      <div className="flex items-center space-x-3">
-                        <input
-                          type="number"
-                          min={15}
-                          value={paymentAmount}
-                          onChange={(e) => {
-                            const v = Math.max(15, Number(e.target.value || 0));
-                            setPaymentAmount(v);
-                            trackEvent("custom_amount_input", { amount: v });
-                          }}
-                          className="p-2 border border-gray-200 rounded-lg w-40"
-                        />
-                        <div className="text-xs text-gray-500">{getTranslation('Min', selectedLanguage)} $15.00</div>
-                      </div>
-                    </div>
-
-                    {/* Role selection */}
-                    <div>
-                      <div className="text-sm font-medium text-gray-700 mb-2">
-                        {getTranslation('Choose provider level', selectedLanguage)}
-                      </div>
-                      <style>{`@keyframes pulseBrief{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.7;transform:scale(1.03)}}@keyframes tipHide{to{opacity:0}} .scroll-tip{display:inline-block;margin-bottom:6px;background:#000;color:#fff;border-radius:8px;padding:4px 8px;font-size:11px;animation:pulseBrief 1.6s ease-in-out 0s 3, tipHide .01s linear 6s forwards;}`}</style>
-                      <div className="scroll-tip">{getTranslation('Scroll to find creators', selectedLanguage)}</div>
-
-
-                      <div className="provider-carousel-wrap">
-                        <div className="provider-carousel">
-                          {/* Creator Selection Card - Redesigned with type selection */}
-                          <div
-                            className={`provider-card ${creatorSelectionType ? "selected" : ""}`}
-                            onClick={() => {
-                              setPaymentRole("creator");
-                            }}
-                            role="button"
-                            tabIndex={0}
-                          >
-                            <div className="card-info" style={{ width: '100%' }}>
-                              {/* If no selection type yet, show 3 options */}
-                              {!creatorSelectionType ? (
-                                <div className="space-y-3">
-                                  <div className="text-sm font-semibold text-gray-900 mb-3">
-                                    {getTranslation('Who should fulfill this?', selectedLanguage)}
-                                  </div>
-                                  
-                                  {/* Option 1: Specific Creator */}
-                                  <button
-                                    onClick={() => {
-                                      setCreatorSelectionType('specific');
-                                      setChooseCreatorFocused(true);
-                                    }}
-                                    className="w-full p-3 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-left transition-all"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <Target size={18} className="text-blue-600" />
-                                      <div className="font-medium text-gray-900 text-sm">{getTranslation('Specific Creator', selectedLanguage)}</div>
-                                    </div>
-                                    <div className="text-xs text-gray-500 mt-1 ml-7">{getTranslation('Search and select your preferred creator', selectedLanguage)}</div>
-                                  </button>
-
-                                  {/* Option 2: Any Creator */}
-                                  <button
-                                    onClick={() => {
-                                      setCreatorSelectionType('any');
-                                      trackEvent("creator_type_selected", { type: "any" });
-                                    }}
-                                    className="w-full p-3 rounded-xl border-2 border-gray-200 hover:border-green-400 hover:bg-green-50 text-left transition-all"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <Users size={18} className="text-green-600" />
-                                      <div className="font-medium text-gray-900 text-sm">{getTranslation('Any Creators', selectedLanguage)}</div>
-                                    </div>
-                                    <div className="text-xs text-gray-500 mt-1 ml-7">{getTranslation('Open to any creator willing to fulfill it', selectedLanguage)}</div>
-                                  </button>
-
-                                  {/* Option 3: Expert */}
-                                  <button
-                                    onClick={() => {
-                                      setCreatorSelectionType('expert');
-                                      trackEvent("creator_type_selected", { type: "expert" });
-                                    }}
-                                    className="w-full p-3 rounded-xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 text-left transition-all"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <Crown size={18} className="text-purple-600" />
-                                      <div className="font-medium text-gray-900 text-sm">{getTranslation('Expert', selectedLanguage)}</div>
-                                    </div>
-                                    <div className="text-xs text-gray-500 mt-1 ml-7">{getTranslation('I need specific expertise for this request', selectedLanguage)}</div>
-                                  </button>
-                                </div>
-                              ) : creatorSelectionType === 'specific' ? (
-                                /* Specific Creator View */
-                                <div className="space-y-3">
-                                  <button
-                                    onClick={() => setCreatorSelectionType(null)}
-                                    className="text-xs text-blue-600 hover:text-blue-700 font-medium mb-2"
-                                  >
-                                    ← {getTranslation('Change selection', selectedLanguage)}
-                                  </button>
-                                  
-                                  <div className="text-sm font-semibold text-gray-900">
-                                    {getTranslation('Choose Creator', selectedLanguage)}
-                                  </div>
-                                  
-                                  {/* Search Input */}
-                                  <div className="creator-search-row">
-                                    <div className="creator-search-input-wrap" style={{ paddingRight: creatorSearch ? 44 : 0 }}>
-                                      <span className="creator-search-prefix">@</span>
-                                      <input
-                                        ref={chooseCreatorInputRef}
-                                        type="text"
-                                        placeholder={getTranslation('Search creators', selectedLanguage)}
-                                        value={creatorSearch}
-                                        onChange={(e) =>
-                                          setCreatorSearch(
-                                            e.target.value.replace(/^@+/, "")
-                                          )
-                                        }
-                                        onKeyDown={(e) => {
-                                          if (e.key === "Enter") {
-                                            e.preventDefault();
-                                            saveCreatorFromInput(true);
-                                          }
-                                        }}
-                                        className="creator-search-input"
-                                        aria-label="Search creators"
-                                        autoFocus
-                                      />
-                                      {creatorSearch && (
-                                        <button
-                                          type="button"
-                                          className="creator-search-clear"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setCreatorSearch("");
-                                            try {
-                                              if (chooseCreatorInputRef.current)
-                                                chooseCreatorInputRef.current.focus();
-                                            } catch (err) { }
-                                          }}
-                                          aria-label="Clear search"
-                                        >
-                                          <X className="w-4 h-4" />
-                                        </button>
-                                      )}
-                                    </div>
-                                    <button
-                                      type="button"
-                                      className="creator-search-save"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        saveCreatorFromInput(true);
-                                      }}
-                                      aria-label="Save creator"
-                                    >
-                                      {getTranslation('Save', selectedLanguage)}
-                                    </button>
-                                  </div>
-
-                                  {/* Creator List */}
-                                  <div className="choose-creator-list max-h-64 overflow-y-auto">
-                                    {filteredCreators.length === 0 ? (
-                                      <div className="no-results flex flex-col items-center text-center p-4">
-                                        <div className="no-results-title text-sm font-normal">
-                                          {getTranslation('No creators found', selectedLanguage)}
-                                        </div>
-                                        <div className="no-results-sub text-xs text-gray-400 mt-1">
-                                          {getTranslation('Try a different username or clear your search.', selectedLanguage)}
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      filteredCreators.map((c) => (
-                                        <div
-                                          key={c.id}
-                                          className={`creator-row rounded-lg p-3 border-2 transition-all ${selectedCreator &&
-                                              selectedCreator.id === c.id
-                                              ? "border-blue-400 bg-blue-50 pulse-anim"
-                                              : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
-                                            }`}
-                                          onClick={() => {
-                                            setSelectedCreator(c);
-                                            setPaymentRole("creator");
-                                            trackEvent("creator_selected", {
-                                              creatorId: c.id,
-                                            });
-                                          }}
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "space-between",
-                                            cursor: "pointer",
-                                          }}
-                                        >
-                                          <div
-                                            style={{
-                                              display: "flex",
-                                              alignItems: "center",
-                                              gap: 12,
-                                              flex: 1,
-                                            }}
-                                          >
-                                            <div
-                                              className="creator-avatar flex-shrink-0"
-                                              role="button"
-                                              style={{ 
-                                                backgroundColor: c.photoURL ? 'transparent' : (c.fallbackColor || '#3b82f6'), 
-                                                color: c.photoURL ? 'inherit' : '#fff',
-                                                width: 48,
-                                                height: 48,
-                                                borderRadius: '50%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                overflow: 'hidden'
-                                              }}
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setProfileCreator(c);
-                                                setShowCreatorProfile(true);
-                                              }}
-                                            >
-                                              {c.photoURL ? (
-                                                <img
-                                                  src={c.photoURL}
-                                                  alt={c.displayName || c.name}
-                                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                />
-                                              ) : (
-                                                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                                                  {String(c.displayName || c.name).replace("@", "").charAt(0).toUpperCase()}
-                                                </div>
-                                              )}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                              <div className="creator-display font-semibold text-gray-900 truncate text-sm">
-                                                {c.name}
-                                              </div>
-                                              {c.bio && (
-                                                <div className="text-xs text-gray-500 truncate mt-0.5">
-                                                  {c.bio}
-                                                </div>
-                                              )}
-                                            </div>
-                                          </div>
-                                          <div
-                                            className="flex-shrink-0 text-right ml-2"
-                                            role="button"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setProfileCreator(c);
-                                              setShowCreatorProfile(true);
-                                            }}
-                                          >
-                                            <div className="text-sm font-bold text-gray-900">
-                                              {c.price ? `$${c.price}` : <span className="text-xs font-normal text-gray-400">{getTranslation('Not set', selectedLanguage)}</span>}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      ))
-                                    )}
-                                  </div>
-                                </div>
-                              ) : creatorSelectionType === 'any' ? (
-                                /* Any Creator View */
-                                <div className="space-y-3">
-                                  <button
-                                    onClick={() => setCreatorSelectionType(null)}
-                                    className="text-xs text-blue-600 hover:text-blue-700 font-medium mb-2"
-                                  >
-                                    ← {getTranslation('Change selection', selectedLanguage)}
-                                  </button>
-                                  
-                                  <div className="p-4 rounded-xl bg-green-50 border border-green-200">
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <Users size={18} className="text-green-600" />
-                                      <div className="text-sm font-semibold text-green-900">{getTranslation('Any Creators', selectedLanguage)}</div>
-                                    </div>
-                                    <div className="text-sm text-green-800">
-                                      {getTranslation('Your request is open to any creator who is interested and able to fulfill it. This increases your chances of getting it done quickly!', selectedLanguage)}
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : creatorSelectionType === 'expert' ? (
-                                /* Expert View */
-                                <div className="space-y-3">
-                                  <button
-                                    onClick={() => setCreatorSelectionType(null)}
-                                    className="text-xs text-blue-600 hover:text-blue-700 font-medium mb-2"
-                                  >
-                                    ← {getTranslation('Change selection', selectedLanguage)}
-                                  </button>
-                                  
-                                  <div className="space-y-3">
-                                    <div className="p-4 rounded-xl bg-purple-50 border border-purple-200">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <Crown size={18} className="text-purple-600" />
-                                        <div className="text-sm font-semibold text-purple-900">{getTranslation('Expert Required', selectedLanguage)}</div>
-                                      </div>
-                                      <div className="text-sm text-purple-800 mb-3">
-                                        {getTranslation("You are looking for someone with specific expertise to fulfill this request.", selectedLanguage)}
-                                      </div>
-                                      <input
-                                        type="text"
-                                        placeholder={getTranslation('e.g., Video Editor, Graphic Designer, Music Producer...', selectedLanguage)}
-                                        className="w-full p-2 rounded-lg border border-purple-200 text-sm placeholder-gray-400"
-                                        aria-label="Expert type"
-                                      />
-                                    </div>
-                                    <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800 flex gap-2">
-                                      <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
-                                      <span>{getTranslation("If no expert is available, we'll help you connect with the best available creator for this task.", selectedLanguage)}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : null}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* CTA */}
-                <div className="flex-shrink-0 pt-6 mt-4 border-t border-gray-100 bg-white">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex gap-3 w-full">
-                      {/* FREE SUBMISSION BUTTON - Mobile */}
-                      <button
-                        onClick={() => {
-                          trackEvent("free_submission_clicked");
-                          handleFreeSubmission();
-                        }}
-                        className="flex-1 px-4 py-4 rounded-xl border-2 border-dashed border-gray-300 text-gray-600 font-medium text-base hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all flex items-center justify-center gap-2"
-                      >
-                        <Sparkles size={16} />
-                        Free
-                      </button>
-                      <button
-                        onClick={() => {
-                          const base = paymentAmount;
-                          const withRole =
-                            paymentRole === "expert"
-                              ? Math.round(base * 1.3 * 100) / 100
-                              : base;
-                          trackEvent("payment_confirmed", {
-                            amount: withRole,
-                            role: paymentRole,
-                            creator: selectedCreator ? selectedCreator.id : null,
-                          });
-                          continuePendingSubmission(withRole);
-                        }}
-                        className="flex-1 px-4 py-4 rounded-xl text-white font-semibold text-base"
-                        style={{ backgroundColor: "var(--color-primary)" }}
-                      >
-                        {getTranslation('Pay', selectedLanguage)}{" "}
-                        {"$" +
-                          Number(
-                            paymentAmount * (paymentRole === "expert" ? 1.3 : 1)
-                          ).toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setPaymentModalOpen(false);
-                        setPendingSubmission(null);
-                        trackEvent("payment_cancelled");
-                      }}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors"
-                    >
-                      {getTranslation('Cancel', selectedLanguage)}
-                    </button>
-                  </div>
-                </div>
+          <div className="min-h-screen flex flex-col items-center pt-16 pb-20 px-6 max-w-lg mx-auto w-full">
+              {/* Header - Enhanced spacing and hierarchy */}
+              <div className="text-center mb-14">
+                <h2 className="text-4xl font-black text-gray-900 tracking-tighter mb-4">
+                  {getTranslation('Complete Payment', selectedLanguage)}
+                </h2>
+                <p className="text-base text-gray-500 leading-relaxed">
+                   {getTranslation('Secure your request with a payment to attract top creators.', selectedLanguage)}
+                </p>
               </div>
-            </div>
+
+              {/* Main Amount Display - Hero price, much more prominent */}
+              <div className="mb-14 text-center">
+                 <div className="text-7xl font-black text-gray-900 tracking-tighter mb-3 leading-none">
+                    ${Number((paymentAmount * (paymentRole === 'expert' ? 1.3 : 1)) + privacyCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                 </div>
+                 {paymentRole === 'expert' && (
+                    <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 text-xs font-bold uppercase tracking-wide">
+                       <Crown size={12} /> Expert multiplier active (1.3x)
+                    </span>
+                 )}
+              </div>
+
+              {/* Presets Grid - Glassmorphic + soft shadows */}
+              <div className="grid grid-cols-3 gap-4 w-full mb-12">
+                 {PAYMENT_PRESETS.slice(0, 3).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => {
+                        setPaymentAmount(p);
+                        trackEvent("preset_selected", { preset: p });
+                      }}
+                      className={`relative group flex flex-col items-center justify-center py-8 px-4 rounded-3xl transition-all duration-300 ${
+                        paymentAmount === p 
+                          ? 'bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-2xl shadow-blue-500/40 scale-110' 
+                          : 'bg-white/40 backdrop-blur-md border border-white/60 hover:shadow-xl hover:shadow-gray-200/50'
+                      }`}
+                    >
+                       <div className={`text-3xl font-black tracking-tight`}>
+                          ${p}
+                       </div>
+                       {p === 25 && (
+                          <div className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-400 rounded-full shadow-lg flex items-center justify-center">
+                             <span className="text-xl leading-none">✨</span>
+                          </div>
+                       )}
+                    </button>
+                 ))}
+              </div>
+
+              {/* Custom Amount - Ghost style input */}
+               <div className="w-full mb-14">
+                  <div className="relative">
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg font-bold">$</span>
+                    <input
+                      type="number"
+                      min={15}
+                      value={paymentAmount}
+                      onChange={(e) => {
+                        const v = Math.max(15, Number(e.target.value || 0));
+                        setPaymentAmount(v);
+                        trackEvent("custom_amount_input", { amount: v });
+                      }}
+                      className="w-full pl-11 pr-5 py-4 bg-transparent border-b-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 font-semibold text-gray-900 focus:outline-none transition-all text-lg placeholder-gray-300"
+                      placeholder="Custom amount"
+                    />
+                    <div className="absolute right-5 top-1/2 -translate-y-1/2 text-xs text-gray-400">Min $15</div>
+                  </div>
+              </div>
+
+              {/* Role / Creator Selection - Modern segmented control */}
+              <div className="w-full mb-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full p-1.5 shadow-md">
+                 <div className="grid grid-cols-2 gap-1">
+                    <button
+                       onClick={() => setPaymentRole('creator')}
+                       className={`py-3 px-6 rounded-full text-sm font-bold transition-all duration-200 ${
+                          paymentRole === 'creator' 
+                             ? 'bg-white text-gray-900 shadow-lg shadow-gray-200/50' 
+                             : 'text-gray-600 hover:text-gray-900'
+                       }`}
+                    >
+                       Standard
+                    </button>
+                    <button
+                       onClick={() => setPaymentRole('expert')}
+                       className={`py-3 px-6 rounded-full text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
+                          paymentRole === 'expert'
+                             ? 'bg-white text-purple-700 shadow-lg shadow-purple-200/50' 
+                             : 'text-gray-600 hover:text-gray-900'
+                       }`}
+                    >
+                       Expert <Crown size={16} />
+                    </button>
+                 </div>
+              </div>
+                
+              {/* Specific Creator Selector with Search */}
+              <div className="w-full mb-12">
+                 <div className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-4">Target Specific Creator (Optional)</div>
+                 {!selectedCreator ? (
+                    <>
+                       <div className="relative mb-3">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">@</span>
+                          <input
+                             ref={chooseCreatorInputRef}
+                             type="text"
+                             placeholder="Search creators..."
+                             value={creatorSearch}
+                             onChange={(e) => setCreatorSearch(e.target.value.replace(/^@+/, ""))}
+                             className="w-full pl-10 pr-10 py-3 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all placeholder-gray-400"
+                             autoFocus={chooseCreatorFocused}
+                          />
+                          {creatorSearch && (
+                             <button
+                                onClick={() => setCreatorSearch("")}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                             >
+                                <X size={18} />
+                             </button>
+                          )}
+                       </div>
+                       {creatorSearch && (
+                          <div className="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur-sm overflow-hidden">
+                             {filteredCreators.length > 0 ? (
+                                <div className="max-h-56 overflow-y-auto space-y-0">
+                                   {filteredCreators.slice(0, 8).map((c) => (
+                                      <button
+                                         key={c.id}
+                                         onClick={() => {
+                                            setSelectedCreator(c);
+                                            setCreatorSearch("");
+                                            trackEvent("creator_selected", { creatorId: c.id });
+                                         }}
+                                         className="w-full flex items-center gap-3 p-3 hover:bg-blue-50/50 transition-colors text-left border-b border-gray-100 last:border-b-0 active:scale-95"
+                                      >
+                                         <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white text-sm font-bold shadow-md">
+                                            {c.photoURL ? (
+                                               <img src={c.photoURL} alt="" className="w-full h-full object-cover" />
+                                            ) : (
+                                               c.name.charAt(0).toUpperCase()
+                                            )}
+                                         </div>
+                                         <div className="flex-1 min-w-0">
+                                            <div className="text-sm font-semibold text-gray-900 truncate">{c.displayName || c.name}</div>
+                                            {c.price && <div className="text-xs text-gray-500">${c.price}/request</div>}
+                                         </div>
+                                      </button>
+                                   ))}
+                                </div>
+                             ) : (
+                                <div className="p-6 text-center">
+                                   <div className="text-4xl mb-2">😕</div>
+                                   <div className="text-sm font-medium text-gray-600">No creators found</div>
+                                   <div className="text-xs text-gray-400 mt-1">Try a different search term</div>
+                                </div>
+                             )}
+                          </div>
+                       )}
+                    </>
+                 ) : (
+                    <div className="flex items-center justify-between w-full border border-blue-200 bg-gradient-to-r from-blue-50/80 to-purple-50/80 rounded-2xl p-4 backdrop-blur-sm">
+                       <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-400 flex-shrink-0 shadow-md flex items-center justify-center flex-none">
+                             {selectedCreator.photoURL ? (
+                                <img src={selectedCreator.photoURL} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                             ) : null}
+                             {!selectedCreator.photoURL && (
+                                <div className="w-full h-full flex items-center justify-center text-white text-sm font-bold">
+                                   {selectedCreator.name.charAt(0).toUpperCase()}
+                                </div>
+                             )}
+                          </div>
+                          <div className="min-w-0">
+                             <div className="text-sm font-bold text-gray-900">{selectedCreator.displayName || selectedCreator.name}</div>
+                             <div className="text-xs text-blue-600 font-semibold">Selected Creator</div>
+                          </div>
+                       </div>
+                       <button onClick={() => setSelectedCreator(null)} className="p-2 hover:bg-white/50 rounded-full transition-colors text-gray-400 hover:text-red-500 flex-shrink-0 active:scale-90">
+                          <X size={18} />
+                       </button>
+                    </div>
+                 )}
+              </div>
+
+              {/* Footer Actions */}
+              <div className="w-full mt-auto space-y-4">
+                 <a
+                    href="https://www.paypal.com/ncp/payment/L7D8KYJEZM35L"
+                    onClick={() => {
+                        const base = paymentAmount;
+                        const withRole = paymentRole === "expert" ? Math.round(base * 1.3 * 100) / 100 : base;
+                        trackEvent("payment_confirmed", {
+                           amount: withRole,
+                           role: paymentRole,
+                           creator: selectedCreator ? selectedCreator.id : null,
+                        });
+                    }}
+                    className="block w-full py-5 rounded-2xl bg-black text-white text-center font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl hover:shadow-3xl flex items-center justify-center gap-3 relative overflow-hidden group"
+                 >
+                    <div className="absolute inset-0 bg-gradient-to-r from-gray-800 to-black opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="relative flex items-center gap-2 tracking-tight">
+                       Pay with PayPal <ArrowRight size={20} />
+                    </span>
+                 </a>
+
+                 <div className="text-center">
+                    <button
+                        onClick={() => {
+                           trackEvent("free_submission_clicked");
+                           handleFreeSubmission();
+                        }}
+                        className="text-gray-500 font-semibold hover:text-gray-900 transition-colors py-3 px-4 rounded-lg hover:bg-gray-50 active:scale-95"
+                    >
+                       Submit for free (may take longer or be ignored)
+                    </button>
+                 </div>
+                 
+                 <div className="flex items-center justify-center gap-2 text-xs text-gray-400 mt-8 pt-6 border-t border-gray-100">
+                    <Lock size={12} /> Secure encrypted payment • Powered by PayPal
+                 </div>
+              </div>
           </div>
         </div>
       )}
@@ -6157,6 +5938,7 @@ const App = () => {
           }}
           onBoostRequest={() => {
             setShowFreeRequestSubmittedModal(false);
+            setCurrentRequestIdForBoost(currentFreeRequest?.id);
             setCurrentFreeRequest(null);
             setShowBoostsModal(true);
           }}
@@ -6167,6 +5949,21 @@ const App = () => {
             window.location.href = '/requests?filter=For You';
           }}
           requestData={currentFreeRequest}
+          selectedLanguage={selectedLanguage}
+        />
+      )}
+
+      {/* Boosts Modal for Free Request */}
+      {showBoostsModal && currentRequestIdForBoost && (
+        <BoostsModal
+          isOpen={showBoostsModal}
+          onClose={() => {
+            setShowBoostsModal(false);
+            setCurrentRequestIdForBoost(null);
+          }}
+          requestId={currentRequestIdForBoost}
+          detailedRank={{ totalInfluence: 0 }}
+          onGiveLikeFree={() => { /* optional */ }}
           selectedLanguage={selectedLanguage}
         />
       )}

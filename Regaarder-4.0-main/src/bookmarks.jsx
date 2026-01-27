@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 import React from 'react';
-import { Bookmark, MoreHorizontal, Search, History, Home, FileText, Pencil } from 'lucide-react';
+import { Bookmark, MoreHorizontal, Search, History, Home, FileText, Pencil, ChevronLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations';
 
 const GOLD_COLOR = '#CB8B04';
@@ -14,6 +15,7 @@ const formatSeconds = (s) => {
 };
 
 export default function BookmarksPage() {
+  const navigate = useNavigate();
   const [query, setQuery] = React.useState('');
   const [segments, setSegments] = React.useState([]);
   const [videos, setVideos] = React.useState([]);
@@ -107,11 +109,13 @@ export default function BookmarksPage() {
   return (
     <div className="flex justify-center min-h-screen w-full bg-white relative">
       <div className="w-full flex flex-col bg-white overflow-auto">
-        <header className="p-4 border-b border-gray-100 space-y-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2"><Bookmark className="w-5 h-5 text-gray-500" strokeWidth={1.5} /><span>{t('Bookmarks')}</span></h1>
-            <button className="p-2 text-gray-600 hover:text-gray-900" aria-label="More"><MoreHorizontal className="w-5 h-5" /></button>
+        <header className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20">
+          <div className="flex items-center space-x-4">
+            <ChevronLeft className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900" onClick={() => navigate(-1)} />
+            <h1 className="text-xl font-semibold text-gray-800">{t('Bookmarks')}</h1>
           </div>
+        </header>
+        <div className="p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md px-2 py-2 w-full max-w-md">
               <Search className="w-4 h-4 text-gray-500" />
@@ -119,7 +123,7 @@ export default function BookmarksPage() {
             </div>
             <p className="text-sm text-gray-500 ml-4 whitespace-nowrap">{segments.length + videos.length + requests.length} {t('items')}</p>
           </div>
-        </header>
+        </div>
 
         <main className="flex-grow flex flex-col items-center justify-start p-6 space-y-8">
           {/* 1. Timestamped segments */}

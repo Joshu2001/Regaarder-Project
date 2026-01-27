@@ -1,7 +1,8 @@
 /* eslint-disable no-empty */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ListPlus, Lightbulb, MoreHorizontal, Home, FileText, Pencil, Bookmark } from 'lucide-react';
+import { ListPlus, Lightbulb, MoreHorizontal, Home, FileText, Pencil, Bookmark, ChevronLeft } from 'lucide-react';
 import { useAppNavigate } from './navigation.js';
+import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations.js';
 
 // Storage helpers
@@ -68,7 +69,8 @@ export function removeFromPlaylist(playlistId, itemId) {
 
 // Page component (Watch History-style)
 export default function PlaylistPage() {
-  const navigate = useAppNavigate();
+  const navigate = useNavigate();
+  const appNavigate = useAppNavigate();
   const selectedLanguage = (typeof window !== 'undefined') ? window.localStorage.getItem('regaarder_language') || 'English' : 'English';
   const t = (key) => getTranslation(key, selectedLanguage);
 
@@ -136,13 +138,16 @@ export default function PlaylistPage() {
   return (
     <div className="flex justify-center min-h-screen w-full bg-white relative">
       <div className="w-full flex flex-col bg-white overflow-hidden">
-        <header className="p-4 border-b border-gray-100 space-y-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2"><ListPlus className="w-5 h-5 text-gray-500" strokeWidth={1.5} /><span>{t('Playlist')}</span></h1>
-            <div className="flex items-center">
-              <button onClick={create} className="text-sm font-medium hover:opacity-80 transition" style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px', marginLeft: 'auto' }}>{t('New')}</button>
+        <header className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20">
+          <div className="flex items-center space-x-4 justify-between">
+            <div className="flex items-center space-x-4">
+              <ChevronLeft className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900" onClick={() => navigate(-1)} />
+              <h1 className="text-xl font-semibold text-gray-800">{t('Playlist')}</h1>
             </div>
+            <button onClick={create} className="text-sm font-medium hover:opacity-80 transition" style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px' }}>{t('New')}</button>
           </div>
+        </header>
+        <div className="p-4 space-y-3 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md px-2 py-2 w-full max-w-md">
               <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -152,7 +157,7 @@ export default function PlaylistPage() {
               {lists.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </div>
-        </header>
+        </div>
 
         <main className="flex-grow flex flex-col items-center justify-start p-6 space-y-6">
           {lists.length > 0 && (

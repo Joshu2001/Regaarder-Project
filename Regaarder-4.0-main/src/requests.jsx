@@ -12,7 +12,7 @@ import {
     Home, MoreHorizontal, FileText, Clock, DollarSign, Search,
     TrendingUp, Heart, MessageSquare, ChevronsUp, Bookmark, Pin, ChevronDown, ChevronUp, Lightbulb,
     X, Send, ThumbsUp, Zap, Pencil, ThumbsDown, Flag, Share2, HeartOff, SlidersHorizontal, Calendar, CheckCircle2,
-    User, Check, Sparkles, Trophy, Rocket, Gem, CreditCard, Award, Eye, EyeOff
+    User, Check, Sparkles, Trophy, Rocket, Gem, CreditCard, Award, Eye, EyeOff, Crown, Megaphone, Trash2
 } from 'lucide-react';
 
 // --- Component Data ---
@@ -1280,7 +1280,7 @@ const Toast = ({ message, isVisible, onClose, actionLabel, onAction, variant = '
 
 
 // --- Reusable Component for a Single Request Card ---
-const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onTogglePin, pulseActive = false, onOpenProfile, selectedLanguage = 'English', initialBookmarked = false, onBookmarkChange = null }) => {
+const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onTogglePin, pulseActive = false, onOpenProfile, selectedLanguage = 'English', initialBookmarked = false, adminSelections = {}, onBookmarkChange = null }) => {
     const goldColor = 'var(--color-gold)';
     const lightGreyBg = customColors['--color-neutral-light-bg']; // UPDATED
 
@@ -1341,8 +1341,14 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
     const [actionToast, setActionToast] = useState({ visible: false, message: '' });
     // Edit state (only available to the request creator when not claimed)
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [editTitle, setEditTitle] = useState(request.title || '');
     const [editDescription, setEditDescription] = useState(request.description || '');
+    const [editLength, setEditLength] = useState(request.meta?.selectedVideoLength || '');
+    const [editPrivacy, setEditPrivacy] = useState(request.meta?.selectedPrivacy || 'public');
+    const [editFormat, setEditFormat] = useState(request.meta?.selectedFormat || 'one-time');
+    const [showLengthDropdown, setShowLengthDropdown] = useState(false);
+    const [showFormatDropdown, setShowFormatDropdown] = useState(false);
 
     // Sync claimed state when request prop changes
     useEffect(() => {
@@ -1351,7 +1357,10 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
         // keep edit fields in sync if the request prop changes
         try { setEditTitle(request.title || ''); } catch (e) { }
         try { setEditDescription(request.description || ''); } catch (e) { }
-    }, [request.claimed, request.claimedBy, request.title, request.description]);
+        try { setEditLength(request.meta?.selectedVideoLength || ''); } catch (e) { }
+        try { setEditPrivacy(request.meta?.selectedPrivacy || 'public'); } catch (e) { }
+        try { setEditFormat(request.meta?.selectedFormat || 'one-time'); } catch (e) { }
+    }, [request.claimed, request.claimedBy, request.title, request.description, request.meta]);
 
     // State for Avatar Fallback
     const [showFallback, setShowFallback] = useState(false);
@@ -1378,6 +1387,8 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
             }
         } catch (e) { }
     }, [request.id]);
+
+
 
 
     useEffect(() => {
@@ -2083,6 +2094,26 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
     // If card has been fully hidden, don't render
     if (!isVisible) return null;
 
+    // Utility function to convert hex to rgba
+    const hexToRgba = (hex, alpha = 1) => {
+        if (!hex) return `rgba(0,0,0,${alpha})`;
+        const h = hex.replace('#', '');
+        const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
+    // Determine border color based on boost status AND admin selection
+    const accentColor = '#9333ea'; // Purple accent
+    const isBoosted = (request.boosts || 0) >= 1;
+    // Use state for admin selections (updated in real-time via storage listener)
+    const isAdminSelected = adminSelections[request.id] || false;
+    const useAccentBorder = isBoosted || isAdminSelected;
+    const borderColor = useAccentBorder ? accentColor : '#d1d5db'; // Lighter grey outline by default, purple if boosted or selected
+    const borderWidth = useAccentBorder ? '2px' : '1px'; // Thicker border when boosted or selected
+    const backgroundColor = useAccentBorder ? hexToRgba(accentColor, 0.05) : '#ffffff'; // Light purple tint if boosted or selected
 
     const claimButtonStyle = {
         position: 'absolute',
@@ -2129,8 +2160,8 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
         backgroundColor: lightGreyBg, // UPDATED
         color: goldColor,
         fontWeight: '600',
-        padding: '3px 8px 3px 6px',
-        borderRadius: '6px',
+        padding: '3px 10px',
+        borderRadius: '20px', // Pill shape for pro look
         fontSize: '12px',
         display: 'inline-flex',
         alignItems: 'center',
@@ -2198,8 +2229,10 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
 
                 {/* Card surface moves as a single element (includes border + shadow) */}
                 <div
-                    className={`bg-white p-5 pb-4 pr-12 rounded-3xl border border-gray-50 relative z-10 ${pulseActive ? 'pinned-pulse' : ''}`}
+                    className={`p-5 pb-4 pr-12 rounded-3xl relative z-10 ${pulseActive ? 'pinned-pulse' : ''}`}
                     style={{
+                        backgroundColor: backgroundColor,
+                        border: `${borderWidth} solid ${borderColor}`,
                         boxShadow: '0 10px 30px rgba(2,6,23,0.07), 0 -4px 12px rgba(2,6,23,0.03)',
                         transform: transformStyle,
                         opacity: isRemoving ? 0 : 1,
@@ -2343,6 +2376,40 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                                 {getTranslation('Trending', selectedLanguage)}
                             </div>
                         )}
+                        {isBoosted && (
+                            <div style={{
+                                backgroundColor: accentColor,
+                                color: 'white',
+                                fontWeight: '600',
+                                padding: '3px 10px',
+                                borderRadius: '20px',
+                                fontSize: '12px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                zIndex: 5,
+                                marginLeft: '6px'
+                            }}>
+                                <Megaphone className="w-4 h-4 mr-1" />
+                                {getTranslation('Boosted', selectedLanguage)}
+                            </div>
+                        )}
+                        {isAdminSelected && !isBoosted && (
+                            <div style={{
+                                backgroundColor: accentColor,
+                                color: 'white',
+                                fontWeight: '600',
+                                padding: '3px 10px',
+                                borderRadius: '20px',
+                                fontSize: '12px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                zIndex: 5,
+                                marginLeft: '6px'
+                            }}>
+                                <Crown className="w-4 h-4 mr-1" />
+                                Admin Selected
+                            </div>
+                        )}
                         <div style={fundingBadgeStyle}>
                             ${Number(request.funding || 0).toFixed(2)}
                         </div>
@@ -2435,17 +2502,17 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                             </button>
 
                             <div>
-                                <p className="text-xs font-semibold text-gray-800">{(request.creator && request.creator.name) ? (request.creator.name === 'Anonymous' ? 'Anonymous' : request.creator.name) : request.company}</p>
-                                <p className="text-xs text-gray-600">{request.timeAgo}</p>
+                                <p className="text-sm font-medium text-gray-900">{(request.creator && request.creator.name) ? (request.creator.name === 'Anonymous' ? 'Anonymous' : request.creator.name) : request.company}</p>
+                                <p className="text-xs text-gray-500">{request.timeAgo}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Request Title and Description */}
-                    <h2 className="text-lg font-extrabold text-gray-900 mb-2 leading-tight">
+                    <h2 className="text-lg font-medium text-gray-900 mb-2 leading-tight">
                         {highlight(request.title)}
                     </h2>
-                    <p className="text-sm text-gray-800 mb-4">
+                    <p className="text-[15px] leading-relaxed text-gray-600 mb-4">
                         {highlight(displayedDescriptionRaw)}
                     </p>
 
@@ -2553,11 +2620,15 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                                 />
                             </button>
 
-                            {/* Lightbulb Button - Now opens the Suggestions Modal */}
+                            {/* Lightbulb Button - Now opens the Suggestions Modal with accent color styling */}
                             <button
                                 onClick={handleOpenSuggestions}
                                 onTouchEnd={(e) => e.stopPropagation()}
-                                className="flex items-center justify-center p-2.5 h-9 w-9 rounded-full bg-white hover:bg-gray-100 transition-colors ring-1 ring-gray-200 hover:shadow-md text-gray-500"
+                                className="flex items-center justify-center p-2.5 h-10 w-10 rounded-full transition-colors focus:outline-none"
+                                style={{
+                                    backgroundColor: auth?.user?.accentColor ? `${auth.user.accentColor}20` : 'rgba(147, 51, 234, 0.12)', // 12% opacity using hex alpha approximation (20 for ~12%) or fallback
+                                    color: auth?.user?.accentColor || '#9333ea'
+                                }}
                             >
                                 <Lightbulb className="w-5 h-5" />
                             </button>
@@ -2570,42 +2641,130 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                                         <h3 className="text-lg font-bold mb-2">Edit request</h3>
                                         <p className="text-sm text-gray-600 mb-4">Update your request details. Changes are visible to everyone.</p>
 
-                                        <div className="space-y-3">
-                                            <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full px-3 py-2 border rounded-md" />
-                                            <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} className="w-full px-3 py-2 border rounded-md" rows={6} />
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Title</label>
+                                                <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-shadow" placeholder="Request title" />
+                                            </div>
+                                            
+                                            <div>
+                                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Description</label>
+                                                <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-shadow" rows={4} placeholder="Describe what you want..." />
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-5">
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Duration</label>
+                                                    <div className="relative">
+                                                        <button 
+                                                            onClick={() => setShowLengthDropdown(!showLengthDropdown)}
+                                                            className="w-full text-left bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 text-gray-700 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all font-semibold cursor-pointer text-[15px] hover:border-purple-300 hover:from-purple-50 flex items-center justify-between"
+                                                        >
+                                                            <span>{editLength || 'Any duration'}</span>
+                                                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showLengthDropdown ? 'rotate-180' : ''}`} />
+                                                        </button>
+                                                        {showLengthDropdown && (
+                                                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-2xl shadow-xl z-50">
+                                                                {[
+                                                                    { value: '', label: 'Any duration' },
+                                                                    { value: 'Short (< 2 min)', label: 'Short (< 2 min)' },
+                                                                    { value: 'Medium (2-5 min)', label: 'Medium (2-5 min)' },
+                                                                    { value: 'Long (5+ min)', label: 'Long (5+ min)' }
+                                                                ].map((opt) => (
+                                                                    <button
+                                                                        key={opt.value}
+                                                                        onClick={() => { setEditLength(opt.value); setShowLengthDropdown(false); }}
+                                                                        className={`w-full text-left px-4 py-3 font-medium transition-colors ${editLength === opt.value ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                                                                    >
+                                                                        {opt.label}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Format</label>
+                                                    <div className="relative">
+                                                        <button 
+                                                            onClick={() => setShowFormatDropdown(!showFormatDropdown)}
+                                                            className="w-full text-left bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 text-gray-700 py-3 px-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all font-semibold cursor-pointer text-[15px] hover:border-purple-300 hover:from-purple-50 flex items-center justify-between"
+                                                        >
+                                                            <span>{editFormat === 'one-time' ? 'One-Time' : editFormat === 'series' ? 'Series' : editFormat === 'recurrent' ? 'Recurrent' : editFormat === 'catalogue' ? 'Catalogue' : 'One-Time'}</span>
+                                                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showFormatDropdown ? 'rotate-180' : ''}`} />
+                                                        </button>
+                                                        {showFormatDropdown && (
+                                                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-2xl shadow-xl z-50">
+                                                                {[
+                                                                    { value: 'one-time', label: 'One-Time' },
+                                                                    { value: 'recurrent', label: 'Recurrent' },
+                                                                    { value: 'series', label: 'Series' },
+                                                                    { value: 'catalogue', label: 'Catalogue' }
+                                                                ].map((opt) => (
+                                                                    <button
+                                                                        key={opt.value}
+                                                                        onClick={() => { setEditFormat(opt.value); setShowFormatDropdown(false); }}
+                                                                        className={`w-full text-left px-4 py-3 font-medium transition-colors ${editFormat === opt.value ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                                                                    >
+                                                                        {opt.label}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div className="flex justify-end space-x-3 mt-4">
-                                            <button onClick={() => setShowEditModal(false)} className="px-4 py-2 rounded-full bg-gray-100">Cancel</button>
-                                            <button
+                                        <div className="flex justify-between items-center mt-8 pt-5 border-t border-gray-100">
+                                            <button 
                                                 onClick={async () => {
-                                                    // persist to backend
-                                                    const token = localStorage.getItem('regaarder_token');
-                                                    const BACKEND = `${window.location.protocol}//${window.location.hostname}:4000`;
-                                                    try {
-                                                        const res = await fetch(`${BACKEND}/requests/${request.id}`, {
-                                                            method: 'PUT',
-                                                            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-                                                            body: JSON.stringify({ title: editTitle, description: editDescription })
-                                                        });
-                                                        if (!res.ok) {
-                                                            const err = await res.json().catch(() => ({ error: 'Update failed' }));
-                                                            throw new Error(err.error || 'Update failed');
-                                                        }
-                                                        const body = await res.json();
-                                                        // broadcast update so other parts of the app refresh
-                                                        try { window.dispatchEvent(new CustomEvent('request:updated', { detail: { request: body.request } })); } catch (e) { }
-                                                        setShowEditModal(false);
-                                                        setActionToast({ visible: true, message: 'Request updated' });
-                                                    } catch (err) {
-                                                        console.error('Update failed', err);
-                                                        setActionToast({ visible: true, message: err.message || 'Update failed' });
-                                                    }
+                                                    setShowDeleteConfirm(true);
                                                 }}
-                                                className="px-4 py-2 rounded-full" style={{ backgroundColor: 'var(--color-gold)', color: '#fff' }}
+                                                className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                                                title="Delete Request"
                                             >
-                                                Save
+                                                <Trash2 size={18} />
                                             </button>
+
+                                            <div className="flex space-x-3">
+                                                <button onClick={() => setShowEditModal(false)} className="px-6 py-2.5 rounded-full bg-gray-100 font-semibold text-gray-600 hover:bg-gray-200 transition-colors text-[15px]">Cancel</button>
+                                                <button
+                                                    onClick={async () => {
+                                                        const token = localStorage.getItem('regaarder_token');
+                                                        const BACKEND = `${window.location.protocol}//${window.location.hostname}:4000`;
+                                                        try {
+                                                            const meta = { 
+                                                                ...(request.meta || {}), 
+                                                                selectedVideoLength: editLength, 
+                                                                selectedFormat: editFormat,
+                                                                selectedPrivacy: editPrivacy 
+                                                            };
+                                                            
+                                                            const res = await fetch(`${BACKEND}/requests/${request.id}`, {
+                                                                method: 'PUT',
+                                                                headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                                                                body: JSON.stringify({ title: editTitle, description: editDescription, meta })
+                                                            });
+                                                            if (!res.ok) {
+                                                                const err = await res.json().catch(() => ({ error: 'Update failed' }));
+                                                                throw new Error(err.error || 'Update failed');
+                                                            }
+                                                            const body = await res.json();
+                                                            try { window.dispatchEvent(new CustomEvent('request:updated', { detail: { request: body.request } })); } catch (e) { }
+                                                            setShowEditModal(false);
+                                                            setActionToast({ visible: true, message: 'Request updated' });
+                                                        } catch (err) {
+                                                            console.error('Update failed', err);
+                                                            setActionToast({ visible: true, message: err.message || 'Update failed' });
+                                                        }
+                                                    }}
+                                                    className="px-7 py-2.5 rounded-full font-semibold shadow-lg shadow-purple-200 hover:shadow-purple-300 transition-all text-[15px] transform active:scale-95" 
+                                                    style={{ backgroundColor: 'var(--color-gold)', color: '#fff' }}
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>,
@@ -2679,6 +2838,64 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
                 selectedLanguage={selectedLanguage}
             />
 
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-8 animate-in fade-in scale-in">
+                        <div className="flex items-center justify-center w-12 h-12 mx-auto rounded-full bg-red-100 mb-6">
+                            <Trash2 className="w-6 h-6 text-red-600" />
+                        </div>
+                        <h3 className="text-center text-lg font-bold text-gray-900 mb-2">Delete Request?</h3>
+                        <p className="text-center text-gray-600 mb-8 leading-relaxed">
+                            This will permanently delete your request. This action cannot be undone.
+                        </p>
+                        <div className="space-y-3">
+                            <button
+                                onClick={async () => {
+                                    const token = localStorage.getItem('regaarder_token');
+                                    const BACKEND = `${window.location.protocol}//${window.location.hostname}:4000`;
+                                    try {
+                                        const res = await fetch(`${BACKEND}/requests/${request.id}`, {
+                                            method: 'DELETE',
+                                            headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+                                        });
+                                        
+                                        if (!res.ok) {
+                                            const err = await res.json().catch(() => ({ error: 'Delete failed' }));
+                                            // Check specifically for the in-progress error
+                                            if (res.status === 400 || err.error.includes('progress')) {
+                                                setShowDeleteConfirm(false);
+                                                setActionToast({ visible: true, message: 'This request is currently in progress and cannot be deleted.' });
+                                                return;
+                                            }
+                                            throw new Error(err.error || 'Delete failed');
+                                        }
+                                        
+                                        setShowDeleteConfirm(false);
+                                        setShowEditModal(false);
+                                        // Broadcast delete event
+                                        try { window.dispatchEvent(new CustomEvent('request:deleted', { detail: { requestId: request.id } })); } catch (e) { }
+                                        setActionToast({ visible: true, message: 'Request deleted successfully' });
+                                    } catch (err) {
+                                        console.error('Delete failed', err);
+                                        setShowDeleteConfirm(false);
+                                        setActionToast({ visible: true, message: err.message || 'Delete failed' });
+                                    }
+                                }}
+                                className="w-full px-4 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 active:scale-95 transition-all"
+                            >
+                                Yes, delete it
+                            </button>
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="w-full px-4 py-3 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 active:scale-95 transition-all"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <Toast
                 message={swipeToast.message}
                 isVisible={swipeToast.visible}
@@ -2828,7 +3045,7 @@ const RequestCard = ({ request, detailedRank, searchQuery, isPinned = false, onT
 
 
 // --- Profile Dialog Component (matching home.jsx) ---
-const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData = null, selectedLanguage = 'English' }) => {
+const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData = null, selectedLanguage = 'English', onNavigateToIdeas = null }) => {
     const currentYear = new Date().getFullYear();
     const [loadedProfileData, setLoadedProfileData] = useState(null);
 
@@ -2983,7 +3200,43 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                         </button>
                         {isCreator && (
                             <button
-                                onClick={() => console.log(`Request video from ${name}`)}
+                                onClick={async (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+
+                                    // Create creator object immediately
+                                    const key = 'ideas_selectedCreator_v1';
+                                    const creatorObj = {
+                                        id: data.id || (data.handle || data.tag || String(data.name || '').replace(/^@+/, '')).toLowerCase(),
+                                        name: data.handle ? `@${data.handle}` : (data.name || ''),
+                                        handle: data.handle,
+                                        image: data.image || null
+                                    };
+                                    window.localStorage.setItem(key, JSON.stringify(creatorObj));
+
+                                    // If parent provided navigation handler, use it (preferred path)
+                                    if (onNavigateToIdeas && typeof onNavigateToIdeas === 'function') {
+                                        onNavigateToIdeas();
+                                        return;
+                                    }
+
+                                    // Fallback: Close modal and navigate
+                                    if (onClose) onClose();
+                                    
+                                    // Yield to let React process the close
+                                    await new Promise(r => setTimeout(r, 10));
+
+                                    // Dispatch event
+                                    window.dispatchEvent(new CustomEvent('ideas:creator_selected'));
+                                    
+                                    // Navigate
+                                    if (window.setFooterTab) {
+                                        window.setFooterTab('ideas');
+                                        window.history.pushState({}, '', '/ideas');
+                                    } else {
+                                        window.location.href = '/ideas';
+                                    }
+                                }}
                                 className="w-full py-3 rounded-xl border-2 font-semibold transition-all hover:bg-gray-50"
                                 style={{
                                     borderColor: 'var(--color-gold)',
@@ -3057,6 +3310,14 @@ export default function RequestsFeed() {
         }
     });
     const [showHideClaimedHint, setShowHideClaimedHint] = useState(false);
+    const [adminSelections, setAdminSelections] = useState(() => {
+        try {
+            const saved = localStorage.getItem('requestAccentColorSelection');
+            return saved ? JSON.parse(saved) : {};
+        } catch (e) {
+            return {};
+        }
+    });
     const filterDropdownRef = useRef(null);
 
     // Initialize hint visibility on component mount
@@ -3072,6 +3333,50 @@ export default function RequestsFeed() {
                 localStorage.setItem('hideClaimedHintCount', String(newCount));
             }
         } catch (e) { }
+    }, []);
+
+    // Listen for admin selection changes and polling
+    useEffect(() => {
+        // Poll localStorage for admin selections every 500ms
+        const interval = setInterval(() => {
+            try {
+                const saved = localStorage.getItem('requestAccentColorSelection');
+                const updated = saved ? JSON.parse(saved) : {};
+                setAdminSelections(prev => {
+                    const newStr = JSON.stringify(updated);
+                    const prevStr = JSON.stringify(prev);
+                    return newStr !== prevStr ? updated : prev;
+                });
+            } catch (e) {}
+        }, 500);
+
+        // Listen for custom event from admin panel
+        const handleAdminSelectionChanged = (e) => {
+            if (e.detail) {
+                setAdminSelections(e.detail);
+            }
+        };
+
+        // Listen for storage changes from other tabs/windows
+        const handleStorageChange = (e) => {
+            if (e.key === 'requestAccentColorSelection') {
+                try {
+                    const updated = e.newValue ? JSON.parse(e.newValue) : {};
+                    setAdminSelections(updated);
+                } catch (err) {
+                    console.error('Failed to parse admin selections:', err);
+                }
+            }
+        };
+
+        window.addEventListener('adminSelectionChanged', handleAdminSelectionChanged);
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('adminSelectionChanged', handleAdminSelectionChanged);
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     // Sync active filter with URL param when location changes (client-side navigation)
@@ -3688,6 +3993,38 @@ export default function RequestsFeed() {
         setProfileData(null);
     };
 
+    // Handler to navigate to Ideas page with creator pre-selected
+    const handleNavigateToIdeas = () => {
+        const creatorData = profileData || {};
+        const key = 'ideas_selectedCreator_v1';
+        const creatorObj = {
+            id: creatorData.id || (creatorData.handle || creatorData.tag || String(creatorData.name || '').replace(/^@+/, '')).toLowerCase(),
+            name: creatorData.handle ? `@${creatorData.handle}` : (creatorData.name || ''),
+            handle: creatorData.handle,
+            image: creatorData.image || null
+        };
+        window.localStorage.setItem(key, JSON.stringify(creatorObj));
+        
+        // Close the modal immediately and synchronously
+        setIsProfileOpen(false);
+        setProfileUser(null);
+        setProfileIsCreator(false);
+        setProfileData(null);
+        
+        // Dispatch event for Ideas page
+        window.dispatchEvent(new CustomEvent('ideas:creator_selected'));
+        
+        // Navigate to Ideas
+        setTimeout(() => {
+            if (window.setFooterTab) {
+                window.setFooterTab('ideas');
+                window.history.pushState({}, '', '/ideas');
+            } else {
+                window.location.href = '/ideas';
+            }
+        }, 50);
+    };
+
     // Toggle pin for a request: sets pinned flag and reorders pinned items to the top
     const togglePin = (requestId) => {
         setRankedRequests(prev => {
@@ -4034,12 +4371,13 @@ export default function RequestsFeed() {
     }, [rankedRequests, searchQuery]);
 
     const filterButtonStyle = (active) => ({
-        backgroundColor: active ? 'var(--color-neutral-light-bg)' : 'transparent',
+        backgroundColor: active ? 'transparent' : 'transparent',
         color: active ? 'var(--color-gold)' : '#6b7280',
-        borderColor: active ? 'var(--color-gold-light)' : '#e5e7eb',
+        borderColor: active ? 'var(--color-gold)' : '#d1d5db',
         boxShadow: active ? '0 0 6px rgba(var(--color-gold-rgb), 0.25)' : 'none',
         textShadow: active ? '0 0 6px rgba(var(--color-gold-rgb), 0.35)' : 'none',
-        transition: 'all .25s cubic-bezier(.4,0,.2,1)'
+        transition: 'all .25s cubic-bezier(.4,0,.2,1)',
+        fontWeight: active ? '600' : '500'
     });
 
 
@@ -4528,6 +4866,7 @@ export default function RequestsFeed() {
                                 onOpenProfile={handleOpenProfile}
                                 selectedLanguage={selectedLanguage}
                                 initialBookmarked={bookmarkedReqSet.has(String(req.id))}
+                                adminSelections={adminSelections}
                                 onBookmarkChange={(id, next) => {
                                     setBookmarkedReqSet(prev => {
                                         const copy = new Set(Array.from(prev));
@@ -4546,8 +4885,7 @@ export default function RequestsFeed() {
                     onClose={() => setShowNudgeModal(false)}
                     onBoostRequest={() => {
                         setShowNudgeModal(false);
-                        // Open BoostsModal for this request - similar to other modals
-                        // This would need integration with your BoostsModal
+                        setShowBoostsModal(true);
                     }}
                     onInviteFriends={() => {
                         setShowNudgeModal(false);
@@ -4573,6 +4911,7 @@ export default function RequestsFeed() {
                     onClose={handleCloseProfile}
                     profileData={profileData}
                     selectedLanguage={selectedLanguage}
+                    onNavigateToIdeas={handleNavigateToIdeas}
                 />
             )}
         </div>

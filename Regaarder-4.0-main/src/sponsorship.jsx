@@ -32,44 +32,28 @@ const formatPrice = (monthly, billingPeriod = 'monthly', discount = 0.17) => {
 // Ala carte items (from provided images)
 const alaCarteItems = [
     {
-        title: 'Video Quality - Up to 1440p',
-        priceMonthly: 3.99,
-        description: 'Unlock 1440p video resolution for high-definition viewing',
-    },
-    {
-        title: 'Video Quality - Up to 2160p (4K)',
+        title: 'Enhanced Video Quality',
         priceMonthly: 5.99,
         description: 'Unlock 2160p 4K video resolution for ultra-clear viewing',
+        ctaLink: 'https://www.paypal.com/ncp/payment/2MUUTGHSEFBDQ'
     },
     {
-        title: 'Extra Paid Requests',
+        title: 'Get extra paid requests',
         priceMonthly: 4.99,
         description: 'Add 5 extra paid requests per day to your quota',
+        ctaLink: 'https://www.paypal.com/ncp/payment/EKWD47465NG9A'
     },
     {
-        title: 'High-Value Request Access',
+        title: 'Claim higher-value requests',
         priceMonthly: 7.99,
         description: 'Unlock ability to claim requests valued over $150',
+        ctaLink: 'https://www.paypal.com/ncp/payment/B8EM4PUUEPBUJ'
     },
     {
-        title: 'Priority Request Visibility',
+        title: 'Priority request placement',
         priceMonthly: 5.99,
         description: 'Boost your requests to top of feed (no decay)',
-    },
-    {
-        title: 'Creator Direct Access',
-        priceMonthly: 9.99,
-        description: 'Direct messaging with verified creators',
-    },
-    {
-        title: 'Enhanced Analytics',
-        priceMonthly: 6.99,
-        description: 'Detailed request performance & engagement metrics',
-    },
-    {
-        title: 'Extended Response Window',
-        priceMonthly: 3.99,
-        description: 'Increase creator response time from 48hrs to 72hrs',
+        ctaLink: 'https://www.paypal.com/ncp/payment/792V9E7JJK28S'
     }
 ];
 
@@ -173,7 +157,7 @@ const BottomBar = () => {
     );
 };
 
-const PlanCard = ({ title, priceMonthly, oldPriceMonthly, features = [], cta, themeColor = ACCENT_COLOR, badge = null, savingLabel = null, billingPeriod = 'monthly', annualDiscount = 0.17, onCtaClick = null }) => {
+const PlanCard = ({ title, subtitle = null, priceMonthly, oldPriceMonthly, features = [], cta, ctaLink = null, themeColor = ACCENT_COLOR, badge = null, savingLabel = null, billingPeriod = 'monthly', annualDiscount = 0.17, onCtaClick = null }) => {
     const displayPrice = (monthly) => formatPrice(monthly, billingPeriod, annualDiscount);
 
     const periodLabel = billingPeriod === 'daily' ? '/dy' : billingPeriod === 'monthly' ? '/mo' : '/yr';
@@ -192,7 +176,10 @@ const PlanCard = ({ title, priceMonthly, oldPriceMonthly, features = [], cta, th
             )}
 
             <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">{title}</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">{title}</h2>
+                {subtitle && (
+                    <p className="text-sm text-gray-500 mb-3">{subtitle}</p>
+                )}
                 <div className="flex items-baseline space-x-2">
                     {oldPriceMonthly && (
                         <div className="text-lg text-gray-400 line-through">
@@ -212,41 +199,77 @@ const PlanCard = ({ title, priceMonthly, oldPriceMonthly, features = [], cta, th
             </div>
 
             {/* Features list */}
-            <ul className="space-y-3 mb-8 pb-8 border-b border-gray-200">
+            <div className="mb-8 pb-8 border-b border-gray-200">
                 {features.map((f, i) => {
-                    // Support both string features and feature objects with icons
                     const isObject = typeof f === 'object' && f !== null;
                     const featureText = isObject ? f.text : f;
                     const Icon = isObject ? f.icon : null;
-                    const isAllowed = isObject ? f.allowed : true;
+                    const isAllowed = isObject ? f.allowed !== false : true;
+                    const section = isObject ? f.section : null;
+                    const isBold = isObject ? f.bold : false;
+                    const isSmall = isObject ? f.small : false;
+                    const isSubtle = isObject ? f.subtle : false;
                     
+                    // Skip section headers from being rendered as features
+                    if (section === 'Limits' && isSmall) {
+                        // Render limits as small grey text without icon
+                        return (
+                            <div key={i} className="text-xs text-gray-500 leading-relaxed mb-1">
+                                • {featureText}
+                            </div>
+                        );
+                    }
+                    
+                    if (section === 'Core Access' && isBold) {
+                        // Render core access items with bullet, bold text, no icon
+                        return (
+                            <div key={i} className="flex items-start space-x-2 mb-2">
+                                <span className="text-gray-900 font-semibold text-sm">📌</span>
+                                <span className="text-gray-900 font-semibold text-sm leading-relaxed">{featureText}</span>
+                            </div>
+                        );
+                    }
+                    
+                    // Regular features with icons (Capabilities, Visibility, Quality)
                     return (
-                        <li key={i} className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 pt-1">
+                        <div key={i} className="flex items-start space-x-3 mb-3">
+                            <div className="flex-shrink-0 pt-0.5">
                                 {Icon ? (
-                                    <Icon size={20} style={{ color: themeColor }} />
+                                    <Icon size={18} style={{ color: isSubtle ? '#D1D5DB' : themeColor, opacity: isSubtle ? 0.7 : 1 }} />
                                 ) : (
-                                    <svg className="w-5 h-5" style={{ color: themeColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4.5 h-4.5" style={{ color: themeColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
                                 )}
                             </div>
-                            <span className={`leading-relaxed ${isObject && !isAllowed ? 'text-gray-400' : 'text-gray-700'}`}>
+                            <span className={`text-sm leading-relaxed ${!isAllowed ? 'text-gray-400' : 'text-gray-700'}`}>
                                 {featureText}
                             </span>
-                        </li>
+                        </div>
                     );
                 })}
-            </ul>
+            </div>
 
             {/* CTA Button */}
-            <button 
-                onClick={() => onCtaClick && onCtaClick()} 
-                className="w-full py-3 px-4 rounded-xl text-white font-semibold transition-all duration-200 hover:opacity-90 active:scale-95"
-                style={{ backgroundColor: themeColor }}
-            >
-                {cta}
-            </button>
+            {ctaLink ? (
+                <a 
+                    href={ctaLink}
+                    className="block w-full py-4 px-4 rounded-2xl text-white font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center text-base shadow-lg hover:shadow-xl overflow-hidden group relative"
+                    style={{ backgroundColor: themeColor }}
+                >
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity bg-white" />
+                    <span className="relative">{cta}</span>
+                </a>
+            ) : (
+                <button 
+                    onClick={() => onCtaClick && onCtaClick()} 
+                    className="w-full py-4 px-4 rounded-2xl text-white font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-base shadow-lg hover:shadow-xl overflow-hidden group relative"
+                    style={{ backgroundColor: themeColor }}
+                >
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity bg-white" />
+                    <span className="relative">{cta}</span>
+                </button>
+            )}
         </div>
     );
 };
@@ -333,15 +356,24 @@ const Sponsorships = () => {
             title: t('Starter (Free)'),
             priceMonthly: 0,
             features: [
-                { text: t('1 active free request at a time'), icon: FileText },
-                { text: t('Max 3 paid requests active at a time'), icon: FileText },
-                { text: t('Max $150 total value for paid requests'), icon: Gift },
+                // Section 1: Core Access (bold, no icons)
+                { text: t('1 active free request at a time'), section: 'Core Access', bold: true },
+                { text: t('Up to 3 paid requests active'), section: 'Core Access', bold: true },
+                
+                // Section 2: Capabilities (with icons)
                 { text: t('Target specific creators'), icon: Users, allowed: false },
-                { text: t('Boosting available'), icon: TrendingDown, allowed: false },
-                { text: t('Invite contributors (viral growth)'), icon: Users, allowed: true },
-                { text: 'Visibility may decay over time', icon: TrendingDown },
-                { text: t('Video quality limited to: 360p maximum'), icon: MonitorPlay },
-                { text: t('Upgrade for higher resolutions'), icon: MonitorPlay, allowed: false },
+                { text: t('Boosting available'), icon: Zap, allowed: false },
+                { text: t('Contributor pooling'), icon: Users, allowed: true },
+                
+                // Section 3: Visibility (softer icon)
+                { text: t('Visibility rotates over time'), icon: Eye, subtle: true },
+                
+                // Section 4: Quality (with icon)
+                { text: t('Video quality up to 360p'), icon: MonitorPlay },
+                
+                // Section 5: Limits (small grey text, no icon)
+                { text: t('Paid request total capped at $150'), section: 'Limits', small: true },
+                { text: t('Higher resolutions available with upgrades'), section: 'Limits', small: true },
             ],
             cta: t('Start Free'),
             themeColor: ACCENT_COLOR,
@@ -353,20 +385,30 @@ const Sponsorships = () => {
             oldPriceMonthly: 14.99,
             savingLabel: `Save $${(14.99 - 8.24).toFixed(2)}`,
             features: [
-                { text: t('Unlimited free requests (with decay)'), icon: FileText },
-                { text: t('Up to 5 active paid requests'), icon: FileText },
-                { text: t('No hard cap on request value'), icon: Gift },
+                // Section 1: Core Access (bold, no icons)
+                { text: t('Unlimited free requests (with decay)'), section: 'Core Access', bold: true },
+                { text: t('Up to 5 active paid requests'), section: 'Core Access', bold: true },
+                
+                // Section 2: Capabilities (with icons)
                 { text: t('Target specific creators'), icon: Users, allowed: true },
                 { text: t('Boosting available'), icon: Zap, allowed: true },
                 { text: t('Contributor pooling enabled'), icon: Users, allowed: true },
+                
+                // Section 3: Visibility & Timing (with icons)
                 { text: t('Priority visibility (slower decay)'), icon: Eye, allowed: true },
                 { text: t('Repost faster after no response'), icon: RotateCw, allowed: true },
                 { text: t('Priority creator matching'), icon: Sparkles, allowed: true },
+                
+                // Section 4: Experience (with icons)
                 { text: t('No ads'), icon: Ban, allowed: true },
                 { text: t('Faster request response'), icon: Zap, allowed: true },
                 { text: t('Video quality up to 1080p'), icon: MonitorPlay, allowed: true },
+                
+                // Section 5: Value (bold highlight)
+                { text: t('No hard cap on request value'), section: 'Value', bold: true },
             ],
-            cta: t('Grab Flash Deal'),
+            cta: t('Get Pro at 45% Off'),
+            ctaLink: 'https://www.paypal.com/ncp/payment/MEG5CS6MEUE5S',
             themeColor: ACCENT_COLOR,
             badge: { label: t('FLASH DEAL -45% OFF'), color: ACCENT_COLOR }
         },
@@ -375,13 +417,20 @@ const Sponsorships = () => {
             title: t('Starter Creator'),
             priceMonthly: 0,
             features: [
-                { text: t('Max 3 paid requests per day'), icon: FileText },
-                { text: t('Daily paid value cap: $150–$200'), icon: Gift },
-                { text: t('Unlimited free requests (optional)'), icon: Star, allowed: true },
-                { text: t('Claim high-value requests (> $150)'), icon: Lock, allowed: false },
+                // Section 1: Core Access (bold, no icons)
+                { text: t('Max 3 paid requests per day'), section: 'Core Access', bold: true },
+                { text: t('Unlimited free requests (optional)'), section: 'Core Access', bold: true },
+                
+                // Section 2: Capabilities (with icons)
+                { text: t('Claim high-value requests (>$150)'), icon: Lock, allowed: false },
+                { text: t('Creator dashboard & monetization'), icon: BarChart3, allowed: true },
+                
+                // Section 3: Visibility (with icons)
                 { text: t('Standard visibility in feed'), icon: Eye },
                 { text: t('Standard response window'), icon: Clock },
-                { text: t('Creator dashboard & monetization'), icon: BarChart3, allowed: true },
+                
+                // Section 4: Limits (small grey text, no icon)
+                { text: t('Daily paid value capped at $150–$200'), section: 'Limits', small: true },
             ],
             cta: t('Start Creating'),
             themeColor: ACCENT_COLOR,
@@ -389,23 +438,34 @@ const Sponsorships = () => {
         },
         {
             type: 'creator',
-            title: t('Pro Creator'),
+            title: t('Creator Pro'),
             priceMonthly: 14.99,
+            subtitle: t('Priority Plan'),
             features: [
-                { text: t('All in Starter Creator'), icon: Star, allowed: true },
-                { text: t('Up to 15 paid requests per day'), icon: FileText },
-                { text: t('No daily value cap'), icon: Gift, allowed: true },
+                // Section 1: Core Access (bold, no icons)
+                { text: t('Up to 15 paid requests per day'), section: 'Core Access', bold: true },
+                { text: t('No daily value cap'), section: 'Core Access', bold: true },
+                
+                // Section 2: Capabilities (with icons)
                 { text: t('High-value requests unlocked'), icon: Unlock, allowed: true },
+                { text: t('Claim & manage requests'), icon: RotateCw, allowed: true },
+                { text: t('Queue management (accept/defer)'), icon: Target, allowed: true },
+                
+                // Section 3: Visibility & Reach (with icons)
                 { text: t('Targeted requests with priority access'), icon: Target, allowed: true },
                 { text: t('Boosted requests with priority'), icon: Zap, allowed: true },
-                { text: t('Queue management (accept/defer)'), icon: RotateCw, allowed: true },
                 { text: t('Higher algorithmic trust weight'), icon: TrendingDown, allowed: true },
-                { text: t('Add Merch links & other links in video'), icon: Share2, allowed: true },
+                
+                // Section 4: Tools & Access (with icons)
+                { text: t('Add merch links & other links in video'), icon: Share2, allowed: true },
                 { text: t('Direct access to sponsors'), icon: Users, allowed: true },
                 { text: t('Priority support'), icon: Headphones, allowed: true },
-                { text: t('Up to 80% revenue share'), icon: Percent, allowed: true },
+                
+                // Section 5: Revenue (bold highlight)
+                { text: t('Up to 80% revenue share'), section: 'Revenue', bold: true },
             ],
-            cta: t('Get Pro Creator'),
+            cta: t('Unlock Priority Access'),
+            ctaLink: 'https://www.paypal.com/ncp/payment/3CC5LWA3A8MCJ',
             themeColor: ACCENT_COLOR,
             badge: { label: t('BEST VALUE'), color: ACCENT_COLOR }
         }
@@ -471,7 +531,7 @@ const Sponsorships = () => {
                 </div>
 
                 {/* Billing toggle (Daily / Monthly / Annual) */}
-                <div className="flex justify-center mb-8">
+                <div className="flex justify-center mb-6">
                     <div 
                         className="inline-flex items-center gap-1 p-1 rounded-full"
                         style={{ backgroundColor: '#F3F4F6' }}
@@ -560,51 +620,65 @@ const Sponsorships = () => {
                         </>
                     ) : (
                         <>
-                            <div className="text-center mt-2 mb-4">
-                                <div className="h-1 w-16 mx-auto mb-3" style={{ backgroundColor: ACCENT_COLOR }} />
-                                <h2 className="text-2xl font-bold" style={{ color: ACCENT_COLOR }}>{t('Build Your Own Plan')}</h2>
-                                <p className="text-sm text-gray-500">{t('Pick only the features you need without committing to a full plan')}</p>
+                            <div className="text-center mt-2 mb-8">
+                                <div className="h-1 w-16 mx-auto mb-4" style={{ backgroundColor: ACCENT_COLOR }} />
+                                <h2 className="text-xl font-bold text-gray-900" style={{ color: ACCENT_COLOR }}>{t('Build Your Own Plan')}</h2>
+                                <p className="text-xs text-gray-500 mt-2 leading-relaxed">{t('Pick only the features you need without committing to a full plan')}</p>
                             </div>
                             {alaCarteItems.map((a, aIdx) => {
                                 const idx = aIdx; // separate index space for ala carte
                                 const displayPrice = formatPrice(a.priceMonthly, billingPeriod, ANNUAL_DISCOUNT);
                                 const periodLabel = billingPeriod === 'daily' ? '/day' : (billingPeriod === 'monthly' ? '/month' : '/year');
                                 const isSelected = selectedAlaCarte.includes(a.title);
+                                const hasLink = a.ctaLink;
+                                
                                 return (
                                     <div key={a.title} ref={el => cardRefs.current[idx] = el} data-idx={idx} className={`transform transition duration-700 ease-out ${visibleIdx[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-                                        <div
-                                            onClick={() => toggleAlaCarteSelection(a.title)}
-                                            role="button"
-                                            tabIndex={0}
-                                            onKeyDown={(e) => { if (e.key === 'Enter') toggleAlaCarteSelection(a.title); }}
-                                            className="rounded-2xl border p-6 bg-white"
-                                            style={{ borderColor: isSelected ? ACCENT_COLOR : '#E5E7EB', borderWidth: isSelected ? 2 : 1, cursor: 'pointer' }}
-                                            aria-pressed={isSelected}
-                                        >
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center space-x-4">
-                                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: HIGHLIGHT_COLOR }}>
-                                                        <div className="w-6 h-6 rounded" style={{ backgroundColor: ACCENT_COLOR, opacity: 0.3 }} />
+                                        {hasLink ? (
+                                            <a 
+                                                href={a.ctaLink}
+                                                className="block rounded-2xl border p-5 bg-white hover:shadow-lg transition-shadow duration-200"
+                                                style={{ borderColor: '#E5E7EB' }}
+                                            >
+                                                <div className="flex items-start justify-between gap-4">
+                                                    <div className="flex-1">
+                                                        <h3 className="font-semibold text-sm leading-snug text-gray-900 mb-1">{a.title}</h3>
+                                                        <p className="text-xs text-gray-500 leading-relaxed">{a.description}</p>
                                                     </div>
-                                                    <div>
-                                                        <div className="font-semibold text-lg">{a.title}</div>
-                                                        <div className="text-sm text-gray-500">{a.description}</div>
+                                                    <div className="text-right flex flex-col items-end flex-shrink-0">
+                                                        <div className="text-lg font-bold" style={{ color: ACCENT_COLOR }}>{displayPrice}</div>
+                                                        <div className="text-xs text-gray-500">{periodLabel}</div>
+                                                        <div className="mt-3">
+                                                            <div className="text-xs font-semibold px-2.5 py-1 rounded text-white" style={{ backgroundColor: ACCENT_COLOR }}>Go</div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="text-right flex flex-col items-end">
-                                                    <div className="text-2xl font-bold" style={{ color: ACCENT_COLOR }}>{displayPrice}</div>
-                                                    <div className="text-xs text-gray-500">{periodLabel}</div>
-                                                    <div className="mt-2">
-                                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white`} style={isSelected ? { backgroundColor: ACCENT_COLOR } : { border: `2px solid ${ACCENT_COLOR}`, backgroundColor: '#fff' }}>{isSelected ? '✓' : ''}</div>
+                                            </a>
+                                        ) : (
+                                            <div
+                                                onClick={() => toggleAlaCarteSelection(a.title)}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => { if (e.key === 'Enter') toggleAlaCarteSelection(a.title); }}
+                                                className="rounded-2xl border p-5 bg-white transition-all duration-200"
+                                                style={{ borderColor: isSelected ? ACCENT_COLOR : '#E5E7EB', borderWidth: isSelected ? 2 : 1, cursor: 'pointer' }}
+                                                aria-pressed={isSelected}
+                                            >
+                                                <div className="flex items-start justify-between gap-4">
+                                                    <div className="flex-1">
+                                                        <h3 className="font-semibold text-sm leading-snug text-gray-900 mb-1">{a.title}</h3>
+                                                        <p className="text-xs text-gray-500 leading-relaxed">{a.description}</p>
+                                                    </div>
+                                                    <div className="text-right flex flex-col items-end flex-shrink-0">
+                                                        <div className="text-lg font-bold" style={{ color: ACCENT_COLOR }}>{displayPrice}</div>
+                                                        <div className="text-xs text-gray-500">{periodLabel}</div>
+                                                        <div className="mt-3">
+                                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-xs`} style={isSelected ? { backgroundColor: ACCENT_COLOR } : { border: `2px solid ${ACCENT_COLOR}`, backgroundColor: '#fff' }}>{isSelected ? '✓' : ''}</div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <div className="mt-4 text-sm text-gray-500 flex items-center">
-                                                <div className="w-5 h-5 rounded-full border border-gray-300 mr-3" />
-                                                <div>{isSelected ? 'Selected' : 'Tap to select'}</div>
-                                            </div>
-                                        </div>
+                                        )}
                                     </div>
                                 );
                             })}

@@ -193,7 +193,6 @@ const MorePage = () => {
       { icon: CreditCard, label: 'Payment Methods', href: '#' },
       { icon: Bell, label: 'Notifications', href: '/notifications?from=more', badge: notifCount },
       { icon: Settings, label: 'Help & Support', href: '#' },
-      { icon: Shield, label: 'Staff', href: '#', isStaff: true },
     ];
 
     return (

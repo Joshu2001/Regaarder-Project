@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
 import * as eventBus from './eventbus.js';
 import Videoplayer from './Videoplayer.jsx';
+import StaffLoginModal from './StaffLoginModal.jsx';
 // Updated Lucide imports: Added Video, Sparkles, Pin, Bookmark, Info, EyeOff, Flag
 import { X, Menu, Bell, Settings, Search, Star, TrendingUp, Trophy, Home, FileText, Lightbulb, MoreHorizontal, MoreVertical, Heart, ThumbsDown, HeartOff, Eye, MessageSquare, Share, Share2, Palette, Shield, Globe, Gift, DollarSign, Users, Monitor, BookOpen, History, Scissors, Zap, CreditCard, Crown, Tag, User, Folder, Shuffle, Camera, Pencil, ShoppingBag, Video, Sparkles, Pin, Bookmark, Info, EyeOff, Flag, Check, AlertCircle, AlertTriangle, Sun, Moon, ChevronDown, ChevronLeft, ChevronRight, ListPlus, Music, Clock, Dumbbell } from 'lucide-react';
 import { useTheme } from './ThemeContext.jsx';
@@ -1517,6 +1518,7 @@ const CollapsibleSectionHeader = ({ title, isExpanded, onToggle, collapsed }) =>
 
 const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, currentLanguageFlag, onOpenCreator, navigateTo, selectedLanguage = 'English' }) => {
     const auth = useAuth();
+    const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(() => {
         try {
             return localStorage.getItem('sidebarCollapsed') === '1';
@@ -1524,6 +1526,7 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
             return false;
         }
     });
+    const [showStaffLogin, setShowStaffLogin] = useState(false);
 
     // State for collapsible sections
     const [expandedSections, setExpandedSections] = useState(() => {
@@ -1566,7 +1569,8 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
     };
 
     return (
-        // 1. Backdrop (Fades in/out)
+        <>
+        {/* 1. Backdrop (Fades in/out) */}
         <div
             className={`fixed inset-0 z-40 transition-opacity duration-300 ${isDrawerOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}
@@ -1736,11 +1740,23 @@ const SideDrawer = ({ isDrawerOpen, onClose, onOpenTheme, onOpenLanguage, curren
                             {/* Advertise with Us now uses the Sparkles icon */}
                             <DrawerItem iconName="sparkles" label={getTranslation('Advertise with Us', selectedLanguage)} isGold={true} onClick={() => { try { navigateTo('/advertisewithus'); } catch (e) { console.warn('Navigation to advertisewithus failed', e); } }} collapsed={collapsed} />
                             <DrawerItem iconName="policies" label={getTranslation('Policies', selectedLanguage)} isGold={true} onClick={() => { try { navigateTo('/policies'); } catch (e) { console.warn('Navigation to policies failed', e); } }} collapsed={collapsed} />
+                            <DrawerItem iconName="shield" label={getTranslation('Staff', selectedLanguage)} isGold={true} onClick={() => setShowStaffLogin(true)} collapsed={collapsed} />
                         </div>
                     )}
                 </div>
             </div>
         </div>
+
+        {/* Staff Login Modal */}
+        <StaffLoginModal
+            isOpen={showStaffLogin}
+            onClose={() => setShowStaffLogin(false)}
+            onLoginSuccess={(employee) => {
+                setShowStaffLogin(false);
+                navigate('/staff');
+            }}
+        />
+        </>
     );
 };
 
@@ -2103,7 +2119,7 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                     </div>
 
                     {/* Action buttons */}
-                    <div className="mt-6 space-y-3">
+                    <div className="mt-6 space-y-3 flex flex-col">
                         {isFollowing ? (
                             <button
                                 onClick={async (e) => {
@@ -2201,24 +2217,41 @@ const ProfileDialog = ({ name, username, isCreator = false, onClose, profileData
                             </button>
                         )}
                         {isCreator && (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setRequestActive(true);
-                                    setTimeout(() => {
-                                        navigate('/ideas.jsx');
-                                    }, 150);
-                                }}
-                                className={`w-full py-3 rounded-xl border-2 font-semibold transition-all duration-150 hover:bg-gray-50`}
-                                style={{
-                                    borderColor: 'var(--color-gold)',
-                                    color: 'var(--color-gold)',
-                                    transform: requestActive ? 'scale(0.95)' : 'scale(1)',
-                                    opacity: requestActive ? 0.9 : 1
-                                }}
-                            >
-                                {getTranslation('Request Video', selectedLanguage)}
-                            </button>
+                            <div className="px-3">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setRequestActive(true);
+                                        setTimeout(() => {
+                                            // Store creator data in localStorage for ideas page
+                                            const creatorData = {
+                                                id: creatorId || username || name,
+                                                name: name,
+                                                handle: username,
+                                                displayName: name,
+                                                photoURL: loadedProfileData?.avatar,
+                                                image: loadedProfileData?.avatar
+                                            };
+                                            try {
+                                                localStorage.setItem('ideas_selectedCreator_v1', JSON.stringify(creatorData));
+                                            } catch (err) {
+                                                console.error('Error saving creator to localStorage:', err);
+                                            }
+                                            onClose();
+                                            navigate('/ideas');
+                                        }, 150);
+                                    }}
+                                    className={`w-full py-3 rounded-xl border-2 font-semibold transition-all duration-150 hover:bg-gray-50`}
+                                    style={{
+                                        borderColor: 'var(--color-gold)',
+                                        color: 'var(--color-gold)',
+                                        transform: requestActive ? 'scale(0.95)' : 'scale(1)',
+                                        opacity: requestActive ? 0.9 : 1
+                                    }}
+                                >
+                                    {getTranslation('Request Video', selectedLanguage)}
+                                </button>
+                            </div>
                         )}
                     </div>
 
@@ -2708,6 +2741,7 @@ const Toast = ({ show, type = 'info', title, message, onClose }) => {
 const App = ({ overrideMiniPlayerData = null }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const auth = useAuth();
 
     // State is lifted here to manage filtering based on search
     const [searchTerm, setSearchTerm] = useState('');
@@ -3721,7 +3755,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                 onNotInterested={handleNotInterested} // <-- pass not interested handler
                                 selectedLanguage={selectedLanguage} // pass current language
                                 onAddToPlaylistStart={(v) => { setPlaylistTargetVideo(v); setIsPlaylistPickerOpen(true); }}
-                                onVideoClick={() => {
+                                onVideoClick={async () => {
                                     // Store all current videos in localStorage for discover modal to use
                                     // Normalize the videos to ensure consistent property names
                                     try {
@@ -3735,22 +3769,40 @@ const App = ({ overrideMiniPlayerData = null }) => {
                                         localStorage.setItem('discoverAllVideos', JSON.stringify(normalizedVideos));
                                     } catch (e) { }
 
+                                    // Fetch the latest video data from backend to ensure ads are up-to-date
+                                    let freshVideo = video;
+                                    try {
+                                        const BACKEND = (window && window.__BACKEND_URL__) || `${window.location.protocol}//${window.location.hostname}:4000`;
+                                        const freshResponse = await fetch(`${BACKEND}/videos/${encodeURIComponent(video.id)}`);
+                                        if (freshResponse.ok) {
+                                            const freshData = await freshResponse.json();
+                                            if (freshData && freshData.id) {
+                                                freshVideo = freshData;
+                                                console.log('Refreshed video data for ads:', freshVideo.id);
+                                            }
+                                        }
+                                    } catch (e) {
+                                        console.warn('Could not refresh video data:', e);
+                                        // Use stale video if fetch fails
+                                    }
+
                                     // Overlays are now part of the video object from the backend
-                                    const overlays = video.overlays || [];
+                                    const overlays = freshVideo.overlays || [];
 
                                     // Show fullscreen videoplayer as overlay (seamless transition)
                                     const initialVideoData = {
-                                        id: video.id || '',
-                                        title: video.title || '',
-                                        author: video.author || '',
-                                        requester: video.requester || '',
-                                        videoUrl: video.videoUrl || '',
-                                        imageUrl: video.imageUrl || '',
-                                        views: video.views || 0,
-                                        likes: video.likes || 0,
-                                        comments: video.comments || 0,
-                                        duration: video.duration || 0,
+                                        id: freshVideo.id || '',
+                                        title: freshVideo.title || '',
+                                        author: freshVideo.author || '',
+                                        requester: freshVideo.requester || '',
+                                        videoUrl: freshVideo.videoUrl || '',
+                                        imageUrl: freshVideo.imageUrl || '',
+                                        views: freshVideo.views || 0,
+                                        likes: freshVideo.likes || 0,
+                                        comments: freshVideo.comments || 0,
+                                        duration: freshVideo.duration || 0,
                                         overlays: overlays,
+                                        ads: freshVideo.ads || {},
                                     };
                                     
                                     setFullscreenPlayerData({
@@ -4645,14 +4697,22 @@ const SearchBar = ({ searchTerm, setSearchTerm, navigate, onFocusChange, selecte
             const creatorObj = {
                 id: creator.id || creator.handle || String(creator.name || '').replace(/^@+/, '').toLowerCase(),
                 name: creator.handle ? `@${creator.handle}` : (creator.name || ''),
+                displayName: creator.name || creator.handle || '',
                 handle: creator.handle,
-                image: creator.image || null
+                image: creator.image || creator.photoURL || null,
+                photoURL: creator.image || creator.photoURL || null,
+                price: creator.price || 0
             };
             try { window.localStorage.setItem(SELECTED_CREATOR_KEY, JSON.stringify(creatorObj)); } catch (e) { }
         } catch (e) { console.warn('persist creator failed', e); }
         if (onFocusChange) try { onFocusChange(false); } catch (e) { }
-        // navigate to ideas page so user can type request immediately
-        try { window.location.href = '/ideas.jsx'; } catch (e) { if (navigate) navigate('/ideas'); }
+        // navigate to ideas page so user can type request immediately with creator selected
+        try { 
+            if (navigate) navigate('/ideas');
+            else window.location.href = '/ideas';
+        } catch (e) { 
+            window.location.href = '/ideas';
+        }
     };
 
     const onKeyDown = (e) => {
@@ -4753,16 +4813,47 @@ const TabPills = ({ activeTab, setActiveTab, selectedLanguage = 'English' }) => 
     const currentTab = activeTab || 'Recommended';
     const setTab = setActiveTab || (() => { });
 
-    const tabs = [
+    const staticTabs = [
         { name: 'Recommended', icon: 'star' },
         { name: 'Trending Now', icon: 'chart' },
         { name: 'New', icon: 'clock' },
+    ];
+    // Default categories if fetch fails + dynamic ones
+    const [tabs, setTabs] = useState([
+        ...staticTabs,
         { name: 'Travel', icon: 'globe' },
         { name: 'Education', icon: 'book' },
         { name: 'Entertainment', icon: 'film' },
         { name: 'Music', icon: 'music' },
         { name: 'Sports', icon: 'dumbbell' },
-    ];
+    ]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+             try {
+                 const res = await fetch('http://localhost:4000/categories');
+                 if (res.ok) {
+                     const catList = await res.json();
+                     // Map to tabs structure
+                     const catTabs = catList.map(name => {
+                         // Try to map existing icons, else 'folder'
+                         const lower = name.toLowerCase();
+                         let icon = 'folder';
+                         if(lower === 'travel') icon = 'globe';
+                         else if(lower === 'education') icon = 'book';
+                         else if(lower === 'entertainment') icon = 'film';
+                         else if(lower === 'music') icon = 'music';
+                         else if(lower === 'sports') icon = 'dumbbell';
+                         
+                         return { name, icon };
+                     });
+                     
+                     setTabs([...staticTabs, ...catTabs]);
+                 }
+             } catch(e) { console.error("Failed to load categories", e); }
+        };
+        fetchCategories();
+    }, []);
 
     return (
 

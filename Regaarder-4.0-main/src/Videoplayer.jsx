@@ -5,7 +5,370 @@ import { useTheme } from './ThemeContext.jsx';
 import { getTranslation } from './translations.js';
 import * as eventBus from './eventbus.js';
 import { PlayerContext } from './PlayerProvider.jsx';
+import FeedbackModal from './FeedbackModal.jsx'; // Feedback Modal
 import { Compass, Star, TrendingUp, Clock, Globe, BookOpen, Music, Dumbbell, Video } from 'lucide-react';
+
+// CTA Overlay Component with Timing
+const CTAOverlay = ({ cta }) => {
+	const [isVisible, setIsVisible] = useState(false);
+
+	useEffect(() => {
+		const delay = (cta.overlayCtaDelay || 0) * 1000;
+		const duration = (cta.overlayCtaDuration || 3) * 1000;
+
+		const showTimer = setTimeout(() => {
+			setIsVisible(true);
+		}, delay);
+
+		const hideTimer = setTimeout(() => {
+			setIsVisible(false);
+		}, delay + duration);
+
+		return () => {
+			clearTimeout(showTimer);
+			clearTimeout(hideTimer);
+		};
+	}, [cta.overlayCtaDelay, cta.overlayCtaDuration]);
+
+	if (!isVisible) return null;
+
+	return (
+		<div
+			style={{
+				width: '100%',
+				padding: '12px 16px',
+				background: 'rgba(0,0,0,0.8)',
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				gap: 8,
+				animation: 'fadeIn 0.3s ease-in'
+			}}
+		>
+			<style>{`
+				@keyframes fadeIn {
+					from { opacity: 0; }
+					to { opacity: 1; }
+				}
+				@keyframes pulse-chevron {
+					0%, 100% { transform: translateY(0px); opacity: 0.6; }
+					50% { transform: translateY(8px); opacity: 1; }
+				}
+				.pulse-chevron {
+					animation: pulse-chevron 1.5s ease-in-out infinite;
+				}
+			`}</style>
+
+			{/* Pulsing Chevron Down */}
+			<div className="pulse-chevron" style={{ fontSize: 24, color: cta.overlayCtaColor || '#4B9EFF' }}>
+				v
+			</div>
+
+			{/* CTA Content */}
+			{cta.overlayCtaType === 'text' ? (
+				<button
+					onClick={(e) => {
+						e.stopPropagation();
+						if (cta.link) {
+							window.open(cta.link, '_blank');
+						}
+					}}
+					style={{
+						width: '100%',
+						padding: '12px 16px',
+						background: cta.overlayCtaColor || '#4B9EFF',
+						color: '#fff',
+						border: 'none',
+						borderRadius: 8,
+						fontSize: 14,
+						fontWeight: 700,
+						cursor: 'pointer',
+						transition: 'all 0.2s ease'
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.transform = 'translateY(-2px)';
+						e.currentTarget.style.boxShadow = '0 4px 12px rgba(75, 158, 255, 0.3)';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.transform = 'translateY(0)';
+						e.currentTarget.style.boxShadow = 'none';
+					}}
+				>
+					{cta.overlayCtaText}
+				</button>
+			) : cta.overlayCtaType === 'image' ? (
+				<img
+					src={cta.overlayCtaMedia}
+					alt="CTA"
+					onClick={() => {
+						if (cta.link) window.open(cta.link, '_blank');
+					}}
+					style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: 8, cursor: 'pointer' }}
+				/>
+			) : cta.overlayCtaType === 'gif' ? (
+				<img
+					src={cta.overlayCtaMedia}
+					alt="CTA GIF"
+					onClick={() => {
+						if (cta.link) window.open(cta.link, '_blank');
+					}}
+					style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: 8, cursor: 'pointer' }}
+				/>
+			) : cta.overlayCtaType === 'video' ? (
+				<video
+					src={cta.overlayCtaMedia}
+					autoPlay
+					loop
+					onClick={() => {
+						if (cta.link) window.open(cta.link, '_blank');
+					}}
+					style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: 8, cursor: 'pointer', background: '#000' }}
+				/>
+			) : null}
+		</div>
+	);
+};
+
+// Video Ad Overlay Component with Preloading State and Exit Transitions
+const VideoAdOverlay = ({ ad, forceLandscapeCss }) => {
+	const [videoReady, setVideoReady] = useState(false);
+	const [hasError, setHasError] = useState(false);
+	const [isClosing, setIsClosing] = useState(false);
+	const [shouldRender, setShouldRender] = useState(true);
+
+	// Determine transition effect
+	const transitionEffect = ad.overlayExitTransition || 'fade';
+	const effectList = ['fade', 'dissolve', 'blinds', 'wilt'];
+	const selectedEffect = transitionEffect === 'random' 
+		? effectList[Math.floor(Math.random() * effectList.length)]
+		: transitionEffect;
+
+	useEffect(() => {
+		setVideoReady(false);
+		setHasError(false);
+		setIsClosing(false);
+		setShouldRender(true);
+	}, [ad.overlayVideoUrl]);
+
+	const isYouTube = (url) => url && (url.includes('youtube.com') || url.includes('youtu.be'));
+	const getYouTubeId = (url) => {
+		let id = '';
+		if (url.includes('youtu.be/')) {
+			id = url.split('youtu.be/')[1].split('?')[0];
+		} else if (url.includes('youtube.com')) {
+			try { id = new URL(url).searchParams.get('v') || ''; } catch { }
+		}
+		return id;
+	};
+
+	const handleClose = () => {
+		setIsClosing(true);
+		// Remove component after transition completes
+		setTimeout(() => setShouldRender(false), 600);
+	};
+
+	if (!shouldRender) return null;
+
+	const renderBadge = (isPlayerContext) => {
+		if (ad.overlayBadgeType === 'none') return null;
+		if (isPlayerContext && !ad.overlayBadgePosition?.includes('-player')) return null;
+		if (!isPlayerContext && ad.overlayBadgePosition?.includes('-player')) return null;
+
+		const badgePos = ad.overlayBadgePosition || (isPlayerContext ? 'top-left-player' : 'top-left-video');
+
+		let badgeStyle = {
+			position: 'absolute',
+			zIndex: 601,
+			pointerEvents: 'none'
+		};
+
+		if (badgePos.includes('top')) badgeStyle.top = 12;
+		if (badgePos.includes('bottom')) badgeStyle.bottom = 12;
+		if (badgePos.includes('left')) badgeStyle.left = 12;
+		if (badgePos.includes('right')) badgeStyle.right = 12;
+
+		return (
+			<div style={badgeStyle}>
+				{ad.overlayBadgeType === 'sponsoredBy' && ad.overlayBadgeLogo ? (
+					<div style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: 8,
+						background: ad.overlayBadgeColor || '#000',
+						padding: '6px 12px',
+						borderRadius: 6,
+						color: '#fff',
+						fontSize: 12,
+						fontWeight: 600,
+						opacity: 0.95
+					}}>
+						<span>Sponsored by</span>
+						<img src={ad.overlayBadgeLogo} alt="sponsor" style={{
+							height: 20,
+							maxWidth: 80,
+							objectFit: 'contain'
+						}} />
+					</div>
+				) : (
+					<div style={{
+						background: ad.overlayBadgeColor || '#ff0000',
+						padding: '6px 12px',
+						borderRadius: 6,
+						color: '#fff',
+						fontSize: 12,
+						fontWeight: 700,
+						letterSpacing: '0.5px',
+						opacity: 0.95,
+						minWidth: 45,
+						textAlign: 'center'
+					}}>
+						AD
+					</div>
+				)}
+			</div>
+		);
+	};
+
+	const getExitAnimation = () => {
+		const baseStyles = {
+			transition: 'all 0.5s cubic-bezier(0.4, 0, 1, 1)',
+			transformOrigin: 'center center'
+		};
+
+		if (!isClosing) return { ...baseStyles, opacity: 1, transform: 'scale(1)' };
+
+		switch (selectedEffect) {
+			case 'fade':
+				return { ...baseStyles, opacity: 0 };
+			case 'dissolve':
+				return { ...baseStyles, opacity: 0, transform: 'scale(0.95)' };
+			case 'blinds':
+				return { ...baseStyles, opacity: 0, transform: 'scaleY(0)', transformOrigin: 'top center' };
+			case 'wilt':
+				return { ...baseStyles, opacity: 0, transform: 'rotateX(90deg) scaleY(0)', transformOrigin: 'center center' };
+			default:
+				return { ...baseStyles, opacity: 0 };
+		}
+	};
+
+	return (
+		<div
+			style={{
+				position: 'fixed',
+				inset: forceLandscapeCss ? 'auto' : 0,
+				top: forceLandscapeCss ? '50%' : 0,
+				left: forceLandscapeCss ? '50%' : 0,
+				transform: forceLandscapeCss ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+				width: forceLandscapeCss ? '100vh' : '100vw',
+				height: forceLandscapeCss ? '100vw' : '100vh',
+				zIndex: 600,
+				background: '#000',
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				justifyContent: 'center',
+				pointerEvents: 'auto',
+				opacity: isClosing ? 0 : 1,
+				transition: 'opacity 0.5s cubic-bezier(0.4, 0, 1, 1)'
+			}}
+			onClick={() => {
+				if (ad.link) window.open(ad.link, '_blank');
+			}}
+		>
+			{/* Inner content - only fade in on video ready, but overlay always stays opaque */}
+			<div style={{
+				opacity: videoReady || isYouTube(ad.overlayVideoUrl) ? 1 : 0,
+				transition: 'opacity 0.3s ease-out',
+				width: '100%',
+				height: '100%',
+				display: 'flex',
+				flexDirection: 'column',
+				position: 'relative',
+				pointerEvents: videoReady || isYouTube(ad.overlayVideoUrl) ? 'auto' : 'none',
+				...getExitAnimation()
+			}}>
+				{/* Player Context Badge */}
+				{renderBadge(true)}
+
+				<div style={{ flex: 1, width: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+					
+					{/* Video Wrapper */}
+					<div style={{ position: 'relative', maxWidth: '100%', maxHeight: '100%', display: 'flex', justifyContent: 'center' }}>
+						
+						{/* Video Context Badge */}
+						{renderBadge(false)}
+
+						{/* Video Content */}
+						{ad.overlayVideoUrl ? (() => {
+							const youtubeId = getYouTubeId(ad.overlayVideoUrl);
+							if (isYouTube(ad.overlayVideoUrl) && youtubeId) {
+								return (
+									<iframe
+										width="100%"
+										height="100%"
+										src={`https://www.youtube.com/embed/${youtubeId}?modestbranding=1&controls=1&fs=1&autoplay=1`}
+										frameBorder="0"
+										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+										allowFullScreen
+										style={{ background: '#000' }}
+										onLoad={() => setVideoReady(true)}
+									/>
+								);
+							} else {
+								return (
+									<video
+										src={ad.overlayVideoUrl}
+										autoPlay
+										muted={false}
+										playsInline
+										onCanPlay={() => setVideoReady(true)}
+										onLoadedData={() => setVideoReady(true)}
+										onError={(e) => {
+											console.error("Ad video failed to load", e);
+											setHasError(true);
+											setVideoReady(true);
+										}}
+										style={{
+											maxWidth: '100%',
+											maxHeight: '100vh',
+											width: 'auto',
+											height: 'auto',
+											background: '#000',
+											display: 'block'
+										}}
+									/>
+								);
+							}
+						})() : (
+							<div
+								ref={(el) => { if (el && !videoReady) setVideoReady(true); }}
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'center',
+									justifyContent: 'center',
+									width: '100%',
+									height: '100%',
+									background: '#1a1a1a'
+								}}
+							>
+								{/* Play button icon */}
+								<div style={{ fontSize: 64, marginBottom: 16 }}>▶️</div>
+								<div style={{ fontSize: 16, lineHeight: 1.6, fontWeight: 600, color: '#fff' }}>
+									<div style={{ marginBottom: 8 }}>{ad.overlayAdText || 'Advertisement'}</div>
+									<div style={{ fontSize: 13, opacity: 0.8 }}>{ad.overlayBtnText || 'Watch Now'}</div>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* Optional CTA with Timing Support - stays inside overlay, within fade container */}
+				{(ad.overlayCtaText || ad.overlayCtaMedia) && <CTAOverlay cta={ad} />}
+			</div>
+		</div>
+	);
+};
 
 const VideoPlayer = () => {
 	const navigate = useNavigate();
@@ -655,12 +1018,236 @@ const VideoCard = ({ item, idx, filtered, onVideoClick, setToastMessage, toastTi
 	);
 };
 
+// BottomAdPreviewBar Component - renders animated bottom ad with text rotation
+function BottomAdPreviewBar({ profileName, profileAvatar, textItems, textInterval, textAnimation, cardAnimation, cardEffect, link, borderColor, cardExitAnimation, duration }) {
+	const [currentTextIndex, setCurrentTextIndex] = useState(0);
+	const [isCardVisible, setIsCardVisible] = useState(true);
+
+	// Debug: log the ad data
+	useEffect(() => {
+		console.log('BottomAdPreviewBar received:', {
+			profileName,
+			textItems,
+			textItemsLength: textItems?.length,
+			textAnimation,
+			cardAnimation,
+			cardEffect,
+			borderColor,
+			cardExitAnimation,
+			duration
+		});
+	}, [profileName, textItems, textAnimation, cardAnimation, cardEffect, borderColor, cardExitAnimation, duration]);
+
+	// Rotate text items at specified interval
+	useEffect(() => {
+		if (!textItems || textItems.length === 0) return;
+		if (textItems.length === 1) return; // No rotation if only one item
+
+		const interval = setInterval(() => {
+			setCurrentTextIndex(prev => (prev + 1) % textItems.length);
+		}, textInterval || 5000);
+
+		return () => clearInterval(interval);
+	}, [textItems, textInterval]);
+
+	const getTextAnimation = () => {
+		const animations = {
+			fade: 'fadeInText 0.5s ease-in-out',
+			slideLeft: 'slideLeftText 0.5s ease-in-out',
+			slideRight: 'slideRightText 0.5s ease-in-out',
+			bounce: 'bounceText 0.5s ease-in-out',
+			scale: 'scaleText 0.5s ease-in-out'
+		};
+		return animations[textAnimation] || animations.fade;
+	};
+
+	const getCardAnimation = () => {
+		const animations = {
+			fade: 'fadeInCard 0.5s ease-in-out',
+			lineFirst: 'linefirstCard 0.6s ease-in-out',
+			slideDown: 'slideDownCard 0.5s ease-in-out',
+			bounceIn: 'bounceInCard 0.6s ease-in-out',
+			scaleUp: 'scaleUpCard 0.5s ease-in-out'
+		};
+		
+		let baseAnimation = animations[cardAnimation] || animations.fade;
+		
+		// If card effect exists and is not 'none', chain it after card entry (0.5s delay)
+		if (cardEffect && cardEffect !== 'none') {
+			const effectDurations = {
+				pulse: '2s',
+				shake: '2s',
+				glow: '2s',
+				float: '2s',
+				rotate: '2s'
+			};
+			const effectDuration = effectDurations[cardEffect] || '2s';
+			baseAnimation = `${baseAnimation}, ${cardEffect} ${effectDuration} ease-in-out 0.5s infinite`;
+		}
+		
+		// Add exit animation if specified - use actual duration, default to 30s
+		if (cardExitAnimation && cardExitAnimation !== 'none') {
+			const exitAnimations = {
+				fadeOut: 'fadeOut',
+				slideOut: 'slideOut',
+				scaleDown: 'scaleDown',
+				bounceOut: 'bounceOut',
+				rotateOut: 'rotateOut'
+			};
+			const exitAnimName = exitAnimations[cardExitAnimation] || 'fadeOut';
+			const adDuration = duration || 30; // Use actual ad duration, default 30s
+			baseAnimation = `${baseAnimation}, ${exitAnimName} 0.5s ease-in-out ${adDuration}s forwards`;
+		}
+		
+		return baseAnimation;
+	};
+
+	const textAnimationStyle = getTextAnimation();
+	const cardAnimationStyle = getCardAnimation();
+	
+	// Handle textItems in multiple formats: array of strings or array of objects with text property
+	let currentText = '';
+	if (textItems && textItems.length > 0) {
+		const item = textItems[currentTextIndex];
+		if (typeof item === 'string') {
+			currentText = item;
+		} else if (item && typeof item === 'object') {
+			currentText = item.text || item.content || '';
+		}
+	}
+
+	return (
+		<div
+			style={{
+				animation: cardAnimationStyle,
+				display: 'flex',
+				alignItems: 'center',
+				gap: '12px',
+				backgroundColor: 'rgba(255, 255, 255, 0.12)',
+				borderRadius: '8px',
+				padding: '12px 14px',
+				minWidth: '280px',
+				flex: '0 0 auto',
+				borderTop: `2px solid ${borderColor || 'rgba(255, 255, 255, 0.2)'}`,
+				border: '1.5px solid rgba(255, 255, 255, 0.25)',
+				cursor: link ? 'pointer' : 'default',
+				transition: 'all 200ms ease',
+				opacity: 1,
+				position: 'relative'
+			}}
+			onClick={() => {
+				if (link) window.open(link, '_blank');
+			}}
+		>
+			{/* Ad Avatar/Logo */}
+			{profileAvatar && (
+				<div
+					style={{
+						width: '52px',
+						height: '52px',
+						borderRadius: '6px',
+						backgroundColor: '#333',
+						backgroundImage: `url('${profileAvatar}')`,
+						backgroundSize: 'cover',
+						backgroundPosition: 'center',
+						flexShrink: 0,
+						border: '1px solid rgba(255, 255, 255, 0.1)'
+					}}
+				/>
+			)}
+
+			{/* Ad Content */}
+			<div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+				{/* Ad Name */}
+				<div
+					style={{
+						fontSize: '13px',
+						fontWeight: '600',
+						color: '#ffffff',
+						whiteSpace: 'nowrap',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis'
+					}}
+				>
+					{profileName || 'Sponsored'}
+				</div>
+				{/* Ad Text with animation */}
+				<div
+					key={currentTextIndex}
+					style={{
+						fontSize: '12px',
+						color: 'rgba(255, 255, 255, 0.75)',
+						whiteSpace: 'nowrap',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+						lineHeight: '1.2',
+						animation: textAnimationStyle,
+						minHeight: '16px'
+					}}
+				>
+					{currentText || 'Check out our offer'}
+				</div>
+			</div>
+
+			{/* CTA Arrow */}
+			<div
+				style={{
+					color: 'rgba(255, 255, 255, 0.7)',
+					fontSize: '18px',
+					flexShrink: 0,
+					display: 'flex',
+					alignItems: 'center'
+				}}
+			>
+				→
+			</div>
+		</div>
+	);
+}
+
 // --- Main Component ---
 
 export default function MobileVideoPlayer({ discoverItems = null, initialVideo = null, onChevronDown = null } = {}) {
 
 	const selectedLanguage = typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English';
 	const auth = useAuth();
+    
+    // Feedback logic for Requester (User)
+    const [showRequesterFeedback, setShowRequesterFeedback] = useState(false);
+
+    useEffect(() => {
+        try {
+            // Check if current video is a request made by this user
+            // We assume 'videoInfo' or 'currentVideo' has requesterName 
+            // AND we only show if not already given feedback
+            // Since we don't have perfect signal, we'll mimic: if user viewing has same name as requester
+            if (videoInfo && auth.user && 
+                (videoInfo.requesterName === auth.user.name || videoInfo.requesterName === auth.user.username)) {
+                
+                const feedbackKey = `feedback_requester_${videoInfo.id || 'current'}`;
+                if (!localStorage.getItem(feedbackKey)) {
+                     // Show after delay to ensure they watched a bit
+                     const t = setTimeout(() => {
+                         setShowRequesterFeedback(true);
+                     }, 3000); 
+                     return () => clearTimeout(t);
+                }
+            }
+        } catch (e) {
+            console.error('Feedback check failed', e);
+        }
+    }, [videoInfo, auth.user]);
+
+    const handleRequesterFeedbackSubmit = (answers) => {
+        try {
+            console.log('Requester Feedback:', answers);
+            if (videoInfo) {
+                const feedbackKey = `feedback_requester_${videoInfo.id || 'current'}`;
+                localStorage.setItem(feedbackKey, JSON.stringify(answers));
+            }
+        } catch(e) {}
+    };
+
 	const { accentColor: themeAccentColor } = useTheme(); // Get theme accent color
 	const [searchParams] = useSearchParams();
 	
@@ -690,6 +1277,27 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			return '360p'; // Free/Starter default
 		} catch (e) {
 			return '360p'; // Fallback to 360p for safety
+		}
+	};
+
+	// Helper function to check if user has a paid plan
+	const hasPaidPlan = () => {
+		try {
+			if (!auth || !auth.user) return false;
+			// Check if user has any paid subscription tier
+			if (auth.user.subscription) {
+				const sub = auth.user.subscription;
+				const paidTiers = ['pro', 'Pro', 'Pro Creator', 'premium', 'Premium', 'creator', 'Creator'];
+				return paidTiers.includes(sub.tier) || (sub.isActive && sub.tier && sub.tier !== 'free' && sub.tier !== 'Free');
+			}
+			// Also check if user has userPlan from subscriptions page
+			if (auth.user.userPlan && auth.user.userPlan.tier) {
+				const paidTiers = ['pro', 'Pro', 'Pro Creator', 'premium', 'Premium', 'creator', 'Creator'];
+				return paidTiers.includes(auth.user.userPlan.tier) || (auth.user.userPlan.isActive && auth.user.userPlan.tier !== 'free' && auth.user.userPlan.tier !== 'Free');
+			}
+			return false;
+		} catch (e) {
+			return false;
 		}
 	};
 	
@@ -842,8 +1450,71 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	const [visibleOverlays, setVisibleOverlays] = useState([]);
 
 	// NEW: Video ads (bottom panel ads that appear at specific times)
+	// Initialize with test ads so they show immediately
+	const defaultTestAds = [
+		{
+			id: 'test-ad-1',
+			type: 'bottom',
+			profileName: 'Tesla Motors',
+			profileAvatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Tesla_T_symbol.svg/200px-Tesla_T_symbol.svg.png',
+			text: 'Order your New car now!',
+			link: 'https://www.tesla.com',
+			startTime: 0,
+			duration: 99999
+		},
+		{
+			id: 'test-ad-2',
+			type: 'bottom',
+			profileName: 'Nike',
+			profileAvatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/200px-Logo_NIKE.svg.png',
+			text: 'Just Do It - Shop Now',
+			link: 'https://www.nike.com',
+			startTime: 0,
+			duration: 99999
+		},
+		{
+			id: 'test-ad-video-1',
+			type: 'video',
+			videoAdTitle: 'Premium Tech Gadget',
+			videoAdCtaText: 'Discover Now',
+			videoAdCtaColor: '#0b74de',
+			videoAdLink: 'https://example.com',
+			startTime: 5,
+			duration: 30
+		},
+		{
+			id: 'test-ad-default2-1',
+			type: 'default2',
+			default2Title: 'Exclusive Deal',
+			default2Description: 'Get 50% off today only',
+			default2BgColor: '#ffffff',
+			default2TextColor: '#111827',
+			default2LineColor: '#d946ef',
+			default2Logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/100px-Google_2015_logo.svg.png',
+			default2Link: 'https://example.com',
+			startTime: 10,
+			duration: 30
+		},
+		{
+			id: 'test-ad-overlay-1',
+			type: 'overlay',
+			overlayAdCompanyName: 'Breaking News',
+			overlayAdEmoji: '🔥',
+			overlayAdBgColor: '#E41E24',
+			overlayAdTextColor: '#ffffff',
+			overlayAdPosition: 'bottom',
+			overlayTextAnimation: 'marquee',
+			overlayAdOpacity: 0.95,
+			overlayAdText: 'Live Updates: 🎬 Check out our latest announcement now!',
+			link: 'https://example.com',
+			startTime: 15,
+			duration: 30
+		}
+	];
 	const [videoAds, setVideoAds] = useState([]);
 	const [visibleAds, setVisibleAds] = useState([]);
+	const [dismissedAdIds, setDismissedAdIds] = useState([]);
+
 
 	// NEW: orientation + natural aspect
 	const [orientation, setOrientation] = useState("landscape"); // "landscape" (16:9 default) or "portrait" (9:16)
@@ -1504,33 +2175,23 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			allAds = [...allAds, ...videoInfo.ads];
 		}
 		
-		// TEST: Add sample ads for debugging
-		if (allAds.length === 0 && videoInfo) {
-			allAds = [
-				{
-					id: 'test-ad-1',
-					profileName: 'Tesla Motors',
-					profileAvatar: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.VoVBbSBay_bsfT2EC5U4-wHaHa%3Fpid%3DApi&f=1&ipt=da75805acbc19e9813e65fc68c7a5203b828250f01c4fc38d1a0a86b039784a0&ipo=images',
-					text: 'Order your New car now!',
-					link: 'https://www.tesla.com',
-					startTime: 0,
-					duration: 5
-				}
-			];
-		}
-		
 		// Debug: log when ads are loaded
-		if (allAds.length > 0) {
-			console.log('Loaded ads:', allAds);
-		}
+		console.log('Loaded ads:', allAds.length, allAds);
 		
 		setVideoAds(allAds);
+
+		// Optimize: Immediately show ads with start time 0 to prevent homepage glitch
+		const instantAds = allAds.filter(ad => (ad.startTime || 0) === 0);
+		if (instantAds.length > 0) {
+			console.log('Immediate ad display for:', instantAds);
+			setVisibleAds(instantAds);
+		}
 	}, [videoInfo]);
 
 	// Update visible ads based on current playback time
 	useEffect(() => {
+		// Wait for videoRef to be available before checking ads
 		if (!videoRef.current) {
-			setVisibleAds([]);
 			return;
 		}
 
@@ -1541,8 +2202,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			return currentTime >= startTime && currentTime < endTime;
 		});
 
-		console.log('Checking visible ads at time', currentTime, 'out of', videoAds.length, 'total ads');
-		setVisibleAds(visible);
+		console.log('Checking visible ads at time', currentTime, 'out of', videoAds.length, 'total ads, visible:', visible.length);
+		if (visible.length > 0) {
+			setVisibleAds(visible);
+		}
 	}, [videoAds]);
 
 	// Update visible ads on timeupdate
@@ -1669,6 +2332,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	const [showBookmarkModal, setShowBookmarkModal] = useState(false);
 	const [bookmarkLabel, setBookmarkLabel] = useState('');
 	const [bookmarkTime, setBookmarkTime] = useState(0);
+	const [bookmarkStartTime, setBookmarkStartTime] = useState(0);
+	const [bookmarkEndTime, setBookmarkEndTime] = useState(0);
+	const [bookmarkShareSegment, setBookmarkShareSegment] = useState(false);
 
 	// current video's bookmarks (for rendering markers on the progress bar)
 	const [currentVideoBookmarks, setCurrentVideoBookmarks] = useState([]);
@@ -1721,14 +2387,24 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			const v = videoRef.current;
 			const t = v ? Math.floor(v.currentTime || 0) : Math.floor(progress * duration || 0);
 			setBookmarkTime(t);
+			setBookmarkStartTime(Math.max(0, t - 5)); // Default 5 sec before current
+			setBookmarkEndTime(Math.min(duration, t + 15)); // Default 15 sec after current
 			setBookmarkLabel('');
+			setBookmarkShareSegment(false);
 			setShowBookmarkModal(true);
 		} catch { }
 	};
 
 	const saveBookmark = () => {
 		try {
-			const b = { id: Date.now(), time: bookmarkTime, label: (bookmarkLabel || '').trim() };
+			const b = { 
+				id: Date.now(), 
+				time: bookmarkTime, 
+				label: (bookmarkLabel || '').trim(),
+				startTime: bookmarkStartTime,
+				endTime: bookmarkEndTime,
+				shareSegment: bookmarkShareSegment
+			};
 			const list = loadBookmarksFor(videoUrl);
 			const next = [b, ...list];
 			saveBookmarksFor(videoUrl, next);
@@ -1967,14 +2643,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	const onQuickBookmark = (e) => {
 		e?.stopPropagation?.();
 		try {
-			const v = videoRef.current;
-			const t = v ? Math.floor(v.currentTime || 0) : Math.floor(progress * duration || 0);
-			setBookmarkTime(t);
-			setBookmarkLabel('');
-			// show the quick-centered bookmark modal
-			setShowQuickBookmarkModal(true);
-			// keep quick card visible briefly while modal animates in
-			scheduleHideQuickCard(2200);
+			openBookmarkModalAtCurrent();
 		} catch { }
 	};
 
@@ -2376,8 +3045,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 		return lum > 0.6 ? "#000" : "#fff";
 	};
 	const accentColor = progressColor;
-	// Bookmark accent (gold/mustard) used specifically for the Bookmark modal
-	const bookmarkAccent = '#d4a017';
+	// Bookmark accent (purple) used specifically for the Bookmark modal
+	const bookmarkAccent = '#9333ea';
 	// slightly reduce border alpha so accents feel dimmer
 	const accentBorder = hexToRgba(progressColor, 0.06);
 	const accentText = getContrastColor(progressColor);
@@ -2623,11 +3292,11 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	const [doubleTap, setDoubleTap] = usePref('doubleTap', true);
 
 	// New: show Watch Together button after a delay (3s)
-	const [showWatchTogether, setShowWatchTogether] = useState(false);
+	const [showWatchTogether, setShowWatchTogether] = useState(false); // Disabled - set to always false
 	// transient fade state when hiding the inline Watch Together button
 	const [watchFading, setWatchFading] = useState(false);
 	// NEW: floating mode states for the Watch Together floating action
-	const [isFloatingMode, setIsFloatingMode] = useState(false); // when true, inline button hides and floating button appears
+	const [isFloatingMode, setIsFloatingMode] = useState(false); // Disabled - set to always false
 	const [floatVisible, setFloatVisible] = useState(false); // whether floating button is visible (true after floating starts)
 	const [collapsed, setCollapsed] = useState(false); // collapsed -> show chevron
 	const [collapsedSide, setCollapsedSide] = useState("left"); // where the chevron sits when collapsed
@@ -2650,6 +3319,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	const floatBtnRef = useRef(null);
 	const rafRef = useRef(null);
 	useEffect(() => {
+		// Watch Together floating logic disabled
+		/*
 		const t = setTimeout(() => {
 			// Switch to floating Watch Together icon after delay
 			setIsFloatingMode(true);
@@ -2657,6 +3328,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			setShowWatchTogether(false);
 		}, 3000);
 		return () => clearTimeout(t);
+		*/
 	}, []);
 
 	// When inline button appears, after 7s fade it out (skip when floating mode is active)
@@ -3780,9 +4452,37 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					@keyframes vx-toast-in { 0% { transform: translateX(-50%) translateY(-10px); opacity: 0 } 100% { transform: translateX(-50%) translateY(0); opacity: 1 } }
 					/* White pulsing dot for Watch Together floating button */
 					@keyframes wt-pulse { 0% { transform: scale(1); opacity: 0.9 } 50% { transform: scale(1.6); opacity: 0.0 } 100% { transform: scale(1); opacity: 0.0 } }
+					
+					/* Bottom Ad Text Animations */
+					@keyframes fadeInText { 0% { opacity: 0; } 100% { opacity: 1; } }
+					@keyframes slideLeftText { 0% { transform: translateX(20px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+					@keyframes slideRightText { 0% { transform: translateX(-20px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+					@keyframes bounceText { 0% { transform: translateY(10px); opacity: 0; } 60% { transform: translateY(-5px); opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
+					@keyframes scaleText { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+					
+					/* Bottom Ad Card Animations */
+					@keyframes fadeInCard { 0% { opacity: 0; } 100% { opacity: 1; } }
+					@keyframes linefirstCard { 0% { background-image: linear-gradient(90deg, transparent 0%, transparent 100%); opacity: 0; } 30% { background-image: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%); opacity: 1; } 100% { background-image: linear-gradient(90deg, transparent 0%, transparent 100%); opacity: 1; } }
+					@keyframes slideDownCard { 0% { transform: translateY(-20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+					@keyframes bounceInCard { 0% { transform: scale(0.85); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+					@keyframes scaleUpCard { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+					
+					/* Card Effect Animations */
+					@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.02); opacity: 0.95; } 100% { transform: scale(1); opacity: 1; } }
+					@keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-2px); } 50% { transform: translateX(2px); } 75% { transform: translateX(-2px); } 100% { transform: translateX(0); } }
+					@keyframes glow { 0% { box-shadow: 0 0 8px rgba(139, 92, 246, 0.3); } 50% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.6); } 100% { box-shadow: 0 0 8px rgba(139, 92, 246, 0.3); } }
+					@keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-4px); } 100% { transform: translateY(0); } }
+					@keyframes rotate { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(1deg) scale(1.01); } 100% { transform: rotate(0deg) scale(1); } }
+					
+					/* Bottom Ad Exit Animations */
+					@keyframes fadeOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1); } }
+					@keyframes slideOut { 0% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(100%); } }
+					@keyframes scaleDown { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.7); } }
+					@keyframes bounceOut { 0% { opacity: 1; transform: translateY(0) scale(1); } 50% { opacity: 1; transform: translateY(-10px) scale(1.05); } 100% { opacity: 0; transform: translateY(-30px) scale(0.8); } }
+					@keyframes rotateOut { 0% { opacity: 1; transform: rotate(0deg) scale(1); } 100% { opacity: 0; transform: rotate(15deg) scale(0.8); } }
 				`}</style>
 
-			{gestureHintVisible && (
+			{false && gestureHintVisible && (
 				<div aria-hidden style={{ position: 'fixed', left: 0, right: 0, bottom: '30%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, pointerEvents: 'none' }}>
 					<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
 						<div className="bg-black rounded-xl px-4 py-3 min-w-[220px] sm:min-w-[280px] max-w-[420px] flex flex-col items-center justify-center gap-1.5" style={{
@@ -3839,7 +4539,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				</div>
 			)}
 			{/* Quick Options onboarding hint (long-press) */}
-			{quickOptionsHintVisible && (
+			{false && quickOptionsHintVisible && (
 				<div aria-hidden style={{ position: 'fixed', left: 0, right: 0, bottom: '30%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200, pointerEvents: 'none' }}>
 					<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
 						<div style={{
@@ -3875,6 +4575,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				</div>
 			)}
 			{/* 1. Top Icon Row */}
+			{/* Hide top controls if fullscreen overlay or video player overlay is visible */}
+			{!visibleAds.some(ad => ad.type === 'overlay' && (ad.overlayAdPosition === 'fullscreen' || ad.overlayAdPosition === 'videoPlayer')) && (
 				<div
 					// backdrop overlay for top controls (auto-hideable)
 					className="w-full flex items-center justify-between"
@@ -3905,9 +4607,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					border: darkMode ? "1px solid rgba(255,255,255,0.02)" : "1px solid rgba(0,0,0,0.06)",
 					// slightly stronger bottom divider to match the progress bar hairline
 					borderBottom: darkMode ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.12)",
-					boxShadow: darkMode ? "inset 0 1px 0 rgba(255,255,255,0.01), 0 6px 16px rgba(0,0,0,0.48)" : "inset 0 1px 0 rgba(255,255,255,0.6), 0 6px 18px rgba(0,0,0,0.06)",
-					backdropFilter: "blur(2px)",
-					WebkitBackdropFilter: "blur(2px)"
+					boxShadow: "none",
+					backdropFilter: "none",
+					WebkitBackdropFilter: "none"
 				}}
 			>
 				<button
@@ -3990,7 +4692,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				</button>
 
 					{/* Watch Together in Top Bar Left (Physical Top) */}
-					{(!isFloatingMode && (showWatchTogether || watchFading)) && (
+					{(!isFloatingMode && (showWatchTogether || watchFading) && !visibleAds.some(ad => ad.type === 'overlay' && (ad.overlayAdPosition === 'fullscreen' || ad.overlayAdPosition === 'videoPlayer'))) && (
 						<button
 							className="flex items-center text-white pl-3 pr-4 py-1.5 rounded-full text-sm font-medium"
 							onClick={(e) => performWatchTogether(e)}
@@ -4112,6 +4814,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						<PictureInPicture2 />
 					</button>
 
+
+
 					{/* Options button */}
 					<button
 						className={`p-1.5 rounded-full hover:bg-white/10`}
@@ -4123,7 +4827,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 						<Ellipsis />
 					</button>
 				</div>
-			</div>
+				</div>
+			)}
 
 			{/* 2. Title & Metadata Section */}
 			{/* Always keep this block in the DOM to preserve layout.
@@ -4150,30 +4855,34 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				}}
 			>
 				{/* Title Row with Chevron Right */}
-				<div className="flex items-start justify-between">
-					<h1 className="text-white text-lg font-normal leading-snug tracking-wide max-w-[90%]">
-						{videoTitle}
-					</h1>
-					<button className="pt-1 text-gray-300">
-						<ChevronRight />
-					</button>
-				</div>
+				{!visibleAds.some(ad => ad.type === 'overlay' && (ad.overlayAdPosition === 'fullscreen' || ad.overlayAdPosition === 'videoPlayer')) && (
+					<>
+						<div className="flex items-start justify-between">
+							<h1 className="text-white text-lg font-normal leading-snug tracking-wide max-w-[90%]">
+								{videoTitle}
+							</h1>
+							<button className="pt-1 text-gray-300">
+								<ChevronRight />
+							</button>
+						</div>
 
-				{/* Author & Badge Row */}
-				<div className="flex items-center mt-3 space-x-3">
-					<span className="text-gray-400 text-sm underline decoration-gray-500 underline-offset-2">
-						{creatorName}
-					</span>
-					<span
-						className="bg-[#1e2736] text-xs px-2.5 py-1 rounded-[6px] font-medium tracking-wide"
-						style={{ color: accentColor }}
-					>
-						Requested
-					</span>
-				</div>
+						{/* Author & Badge Row */}
+						<div className="flex items-center mt-3 space-x-3">
+							<span className="text-gray-400 text-sm underline decoration-gray-500 underline-offset-2">
+								{creatorName}
+							</span>
+							<span
+								className="bg-[#1e2736] text-xs px-2.5 py-1 rounded-[6px] font-medium tracking-wide"
+								style={{ color: accentColor }}
+							>
+								Requested
+							</span>
+						</div>
+					</>
+				)}
 
 				{/* Floating watch-together button (appears after timeout) */}
-				{isFloatingMode && (
+				{isFloatingMode && !visibleAds.some(ad => ad.type === 'overlay' && (ad.overlayAdPosition === 'fullscreen' || ad.overlayAdPosition === 'videoPlayer')) && (
 					<>
 						{/* collapsed chevron (when user swiped it away) */}
 						{collapsed && (
@@ -4247,35 +4956,6 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				onPointerMove={onCenterPointerMove}
 				onPointerUp={onCenterPointerUp}
 			>
-				{/* Ambient gradients sampled from video dominant color (non-interactive) */}
-				<div
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: 0,
-						right: 0,
-						height: 140,
-						top: '14%',
-						pointerEvents: 'none',
-						zIndex: 9,
-						background: `linear-gradient(180deg, ${hexToRgba(dominantColor, 0.32)}, rgba(0,0,0,0))`,
-						transition: 'background 420ms linear, opacity 420ms linear'
-					}}
-				/>
-				<div
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: 0,
-						right: 0,
-						height: 160,
-						bottom: '14%',
-						pointerEvents: 'none',
-						zIndex: 9,
-						background: `linear-gradient(0deg, ${hexToRgba(dominantColor, 0.32)}, rgba(0,0,0,0))`,
-						transition: 'background 420ms linear, opacity 420ms linear'
-					}}
-				/>
 				{/* --- actual video element behind the controls (updated) --- */}
 				<div
 					// center wrapper slightly higher so video sits closer to the "Watch Together" button
@@ -4574,6 +5254,8 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 			</div>
 
 			{/* 4. Bottom Controls */}
+			{/* Hide bottom controls if fullscreen overlay or video player overlay is visible */}
+			{!visibleAds.some(ad => ad.type === 'overlay' && (ad.overlayAdPosition === 'fullscreen' || ad.overlayAdPosition === 'videoPlayer')) && (
 			<div
 				className="w-full flex flex-col pb-2"
 				style={{
@@ -4870,123 +5552,645 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					</div>
 				</div>
 			</div>
+			)}
 
-			{/* 5. Bottom Ads Panel - displays ads at specific video times */}
-			{visibleAds && visibleAds.length > 0 && (
+{/* 5. Ad Rendering by Type - displays ads with their custom designs */}
+		{!hasPaidPlan() && visibleAds && visibleAds.length > 0 && (
+			<>
+				{/* Video Ads (9/16 aspect ratio overlay) */}
+				{visibleAds
+					.filter(ad => ad.type === 'video')
+					.map((ad) => (
+						<div
+							key={ad.id || `video-ad-${Math.random()}`}
+							onClick={() => {
+								if (ad.videoAdLink) {
+									window.open(ad.videoAdLink, '_blank');
+								}
+							}}
+							style={{
+								position: 'fixed',
+								inset: forceLandscapeCss ? 'auto' : 0,
+								top: forceLandscapeCss ? '50%' : 0,
+								left: forceLandscapeCss ? '50%' : 0,
+								width: forceLandscapeCss ? '100vh' : '100vw',
+								height: forceLandscapeCss ? '100vw' : '100vh',
+								transform: forceLandscapeCss ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+								background: 'rgba(0, 0, 0, 0.95)',
+								zIndex: 50,
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								padding: 20,
+								cursor: 'pointer'
+							}}
+						>
+							<div
+								style={{
+									width: '100%',
+									maxWidth: 400,
+									background: '#000',
+									borderRadius: 12,
+									position: 'relative',
+									display: 'flex',
+									flexDirection: 'column',
+									aspectRatio: 9/16,
+									overflow: 'hidden',
+									boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8)'
+								}}
+								onClick={(e) => e.stopPropagation()}
+							>
+								{/* Video Playing Area with Overlay */}
+								<div
+									style={{
+										flex: 1,
+										background: 'linear-gradient(135deg, #111827 0%, #1f2937 100%)',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										color: '#6b7280',
+										fontSize: 14,
+										position: 'relative',
+										overflow: 'hidden'
+									}}
+								>
+									{/* Video Ad Overlay */}
+									<div
+										style={{
+											position: 'absolute',
+											inset: '40px 20px',
+											background: `linear-gradient(135deg, ${ad.videoAdCtaColor || '#3b82f6'} 0%, ${ad.videoAdCtaColor ? `${ad.videoAdCtaColor}dd` : '#1e40af'} 100%)`,
+											borderRadius: 12,
+											display: 'flex',
+											flexDirection: 'column',
+											alignItems: 'center',
+											justifyContent: 'center',
+											padding: '20px',
+											boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+											zIndex: 10,
+											border: '2px solid rgba(255, 255, 255, 0.1)'
+										}}
+									>
+										{/* Video Placeholder */}
+										<div
+											style={{
+												width: '100%',
+												height: '120px',
+												background: 'rgba(0, 0, 0, 0.3)',
+												borderRadius: 8,
+												marginBottom: 16,
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+												color: '#90caf9',
+												fontWeight: 600,
+												fontSize: 14
+											}}
+										>
+											🎬 Ad Video
+										</div>
+
+										{/* Title */}
+										<div
+											style={{
+												color: 'white',
+												fontSize: 16,
+												fontWeight: 700,
+												marginBottom: 12,
+												textAlign: 'center'
+											}}
+										>
+											{ad.videoAdTitle || 'Your Ad Title'}
+										</div>
+
+										{/* CTA Button */}
+										<button
+											style={{
+												padding: '12px 24px',
+												background: ad.videoAdCtaColor || '#0b74de',
+												color: 'white',
+												border: 'none',
+												borderRadius: 8,
+												fontSize: 14,
+												fontWeight: 700,
+												cursor: 'pointer',
+												transition: 'all 0.2s ease',
+												boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+											}}
+											onMouseEnter={(e) => {
+												e.target.style.transform = 'translateY(-2px)';
+												e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.4)';
+											}}
+											onMouseLeave={(e) => {
+												e.target.style.transform = 'translateY(0)';
+												e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+											}}
+											onClick={() => {
+												if (ad.videoAdLink) {
+													window.open(ad.videoAdLink, '_blank');
+												}
+											}}
+										>
+											{ad.videoAdCtaText || 'Learn More'}
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					))}
+
+				{/* Default 2 Ads (card-based with corner button) */}
+				{visibleAds
+					.filter(ad => ad.type === 'default2')
+					.map((ad) => (
+						<div
+							key={ad.id || `default2-ad-${Math.random()}`}
+							onClick={() => {
+								if (ad.default2Link) {
+									window.open(ad.default2Link, '_blank');
+								}
+							}}
+							style={{
+								position: 'fixed',
+								inset: forceLandscapeCss ? 'auto' : 0,
+								top: forceLandscapeCss ? '50%' : 0,
+								left: forceLandscapeCss ? '50%' : 0,
+								width: forceLandscapeCss ? '100vh' : '100vw',
+								height: forceLandscapeCss ? '100vw' : '100vh',
+								transform: forceLandscapeCss ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+								background: 'rgba(0, 0, 0, 0.95)',
+								zIndex: 50,
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								padding: 20,
+								cursor: 'pointer'
+							}}
+						>
+							<div
+								style={{
+									width: '100%',
+									maxWidth: 400,
+									maxHeight: '90vh',
+									overflowY: 'auto',
+									background: '#000',
+									borderRadius: 12,
+									position: 'relative',
+									display: 'flex',
+									flexDirection: 'column',
+									aspectRatio: 9/16,
+									boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8)'
+								}}
+								onClick={(e) => e.stopPropagation()}
+							>
+								{/* Video Background Area with Corner Button */}
+								<div
+									style={{
+										flex: 1,
+										background: '#1a1a1a',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										color: '#6b7280',
+										fontSize: 14,
+										position: 'relative'
+									}}
+								>
+									Video Content Area
+
+									{/* Corner Button */}
+									<button
+										style={{
+											position: 'absolute',
+											bottom: 20,
+											right: 16,
+											padding: '10px 16px',
+											background: ad.default2BgColor || '#ffffff',
+											color: ad.default2TextColor || '#111827',
+											border: `2px solid ${ad.default2LineColor || '#d946ef'}`,
+											borderRadius: 8,
+											fontSize: 13,
+											fontWeight: 700,
+											cursor: 'pointer',
+											boxShadow: `0 4px 12px ${ad.default2LineColor || '#d946ef'}40`,
+											whiteSpace: 'nowrap',
+											zIndex: 10,
+											transition: 'all 0.2s ease'
+										}}
+										onMouseEnter={(e) => {
+											e.target.style.transform = 'translateY(-2px)';
+											e.target.style.boxShadow = `0 6px 16px ${ad.default2LineColor || '#d946ef'}60`;
+										}}
+										onMouseLeave={(e) => {
+											e.target.style.transform = 'translateY(0)';
+											e.target.style.boxShadow = `0 4px 12px ${ad.default2LineColor || '#d946ef'}40`;
+										}}
+										onClick={() => {
+											if (ad.default2Link) {
+												window.open(ad.default2Link, '_blank');
+											}
+										}}
+									>
+										Visit Link
+									</button>
+								</div>
+
+								{/* Cards Container */}
+								<div
+									style={{
+										background: '#000',
+										padding: '16px',
+										borderTop: `3px solid ${ad.default2LineColor || '#d946ef'}`
+									}}
+								>
+									{[1, 2].map((i) => (
+										<div
+											key={i}
+											style={{
+												marginBottom: i === 1 ? 12 : 0,
+												padding: '12px 14px',
+												background: ad.default2BgColor || '#ffffff',
+												border: `2px solid ${ad.default2LineColor || '#d946ef'}`,
+												borderLeft: `3px solid ${ad.default2LineColor || '#d946ef'}`,
+												borderRadius: 8,
+												display: 'flex',
+												alignItems: 'center',
+												gap: 10,
+												cursor: 'pointer',
+												transition: 'all 0.2s ease',
+												minHeight: '70px'
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = ad.default2BgColor || '#f5f5f5';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = ad.default2BgColor || '#ffffff';
+											}}
+											onClick={() => {
+												if (ad.default2Link) {
+													window.open(ad.default2Link, '_blank');
+												}
+											}}
+										>
+											{/* Logo */}
+											{ad.default2Logo && (
+												<img
+													src={ad.default2Logo}
+													alt="logo"
+													style={{
+														width: 50,
+														height: 50,
+														borderRadius: 8,
+														objectFit: 'cover',
+														flexShrink: 0
+													}}
+													onError={(e) => e.target.style.display = 'none'}
+												/>
+											)}
+
+											{/* Text Content */}
+											<div style={{ flex: 1, minWidth: 0 }}>
+												<div
+													style={{
+														fontSize: 13,
+														fontWeight: 700,
+														color: ad.default2TextColor || '#111827',
+														marginBottom: 4
+													}}
+												>
+													{ad.default2Title || 'Card Title'}
+												</div>
+												<div
+													style={{
+														fontSize: 12,
+														color: ad.default2TextColor || '#6b7280'
+													}}
+												>
+													{ad.default2Description || 'Card description'}
+												</div>
+											</div>
+
+											{/* Arrow */}
+											<div
+												style={{
+													fontSize: 20,
+													color: ad.default2LineColor || '#d946ef',
+													flexShrink: 0
+												}}
+											>
+												→
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
+					))}
+
+				{/* Overlay Ads (News Ticker) - Hidden for paid plan users */}
+				{!hasPaidPlan() && visibleAds
+					.filter(ad => ad.type === 'overlay')
+					.map((ad) => {
+						const position = ad.overlayAdPosition || 'bottom';
+						const isBottom = position === 'bottom';
+						const isTop = position === 'top';
+						const isFullscreen = position === 'fullscreen';
+						const isVideoOverlay = position === 'videoOverlay';
+						const isVideoPlayer = position === 'videoPlayer';
+
+						return isFullscreen ? (
+							// Full Screen Banner
+							<div
+								key={ad.id || `overlay-ad-${Math.random()}`}
+								style={{
+									position: 'fixed',
+									inset: forceLandscapeCss ? 'auto' : 0,
+									top: forceLandscapeCss ? '50%' : 0,
+									left: forceLandscapeCss ? '50%' : 0,
+									width: forceLandscapeCss ? '100vh' : '100vw',
+									height: forceLandscapeCss ? '100vw' : '100vh',
+									transform: forceLandscapeCss ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+									background: ad.overlayAdBgColor || '#E41E24',
+									zIndex: 50,
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'center',
+									justifyContent: 'center',
+									padding: 40,
+									cursor: 'pointer',
+									opacity: ad.overlayAdOpacity || 1,
+									textAlign: 'center'
+								}}
+								onClick={() => {
+									if (ad.link) {
+										window.open(ad.link, '_blank');
+									}
+								}}
+							>
+								{/* Profile Picture Area */}
+							<div
+								style={{
+									width: 120,
+									height: 120,
+									borderRadius: '12px',
+									background: 'rgba(255,255,255,0.15)',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									marginBottom: 24,
+									border: '2px solid rgba(255,255,255,0.3)',
+									overflow: 'hidden'
+								}}
+							>
+									{ad.overlayProfileUrl ? (
+										<img src={ad.overlayProfileUrl} alt="Company" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+									) : (
+										<span style={{ fontSize: 40, opacity: 0.6 }}>📷</span>
+									)}
+								</div>
+
+								{/* Text Items */}
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										gap: 16,
+										alignItems: 'center',
+										justifyContent: 'center',
+										color: ad.overlayAdTextColor || '#fff',
+										textAlign: 'center',
+										maxWidth: '85%'
+									}}
+								>
+									{ad.overlayAdTextItems && ad.overlayAdTextItems.length > 0 ? (
+										ad.overlayAdTextItems.map((item, idx) => (
+											<div
+												key={idx}
+												style={{
+													fontSize: 28,
+													fontWeight: 700,
+													lineHeight: 1.3
+												}}
+											>
+												{item.text}
+											</div>
+										))
+									) : (
+										<div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.3 }}>
+											{ad.overlayAdText || 'Important Announcement'}
+										</div>
+									)}
+								</div>
+
+								{/* CTA Button */}
+								<button
+									style={{
+										padding: '14px 40px',
+										background: '#fff',
+										color: ad.overlayAdBgColor || '#E41E24',
+										border: 'none',
+										borderRadius: 8,
+										fontSize: 16,
+										fontWeight: 700,
+										cursor: 'pointer',
+										marginTop: 16,
+										transition: 'all 0.2s ease',
+										boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+									}}
+									onMouseEnter={(e) => {
+										e.target.style.transform = 'translateY(-2px)';
+										e.target.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2)';
+									}}
+									onMouseLeave={(e) => {
+										e.target.style.transform = 'translateY(0)';
+										e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+									}}
+									onClick={(e) => {
+										e.stopPropagation();
+										if (ad.link) {
+											window.open(ad.link, '_blank');
+										}
+									}}
+								>
+									{ad.overlayBtnText || 'Learn More'}
+								</button>
+							</div>
+						) : isVideoPlayer ? (
+							<VideoAdOverlay key={ad.id || `video-player-ad-${Math.random()}`} ad={ad} forceLandscapeCss={forceLandscapeCss} />
+						) : (
+							// Ticker Style (Top, Bottom, or Video Overlay)
+							<div
+								key={ad.id || `overlay-ticker-${Math.random()}`}
+								style={{
+									position: 'fixed',
+									...(isTop && (forceLandscapeCss ? {
+										top: '50%',
+										left: '50%',
+										right: 'auto',
+										width: '100vh',
+										transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 50%))'
+									} : {
+										top: 0,
+										left: 0,
+										right: 0
+									})),
+									...(isBottom && (forceLandscapeCss ? {
+										top: '50%',
+										left: '50%',
+										right: 'auto',
+										width: '100vh',
+										transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(50vw - 50% - 100px))'
+									} : {
+										bottom: 100,
+										left: 0,
+										right: 0
+									})),
+									...(isVideoOverlay && (forceLandscapeCss ? {
+										top: '50%',
+										left: '50%',
+										bottom: 'auto',
+										right: 'auto',
+										transform: 'translate(-50%, -50%) rotate(90deg)',
+										maxWidth: '90vh'
+									} : {
+										bottom: '50%',
+										left: '50%',
+										transform: 'translateX(-50%)',
+										maxWidth: '90%'
+									})),
+									zIndex: 40,
+									background: ad.overlayAdBgColor || '#E41E24',
+									color: ad.overlayAdTextColor || '#fff',
+									padding: '12px 16px',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 12,
+									overflow: 'hidden',
+									opacity: ad.overlayAdOpacity || 1,
+									boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+									borderRadius: isVideoOverlay ? 8 : 0,
+									cursor: 'pointer'
+								}}
+								onClick={() => {
+									if (ad.link) {
+										window.open(ad.link, '_blank');
+									}
+								}}
+							>
+								{/* Emoji Badge */}
+								<div
+									style={{
+										background: ad.overlayBrandBgColor || ad.overlayAdBgColor || '#E41E24',
+										color: ad.overlayBrandTextColor || ad.overlayAdTextColor || '#fff',
+										padding: '6px 10px',
+										borderRadius: 6,
+										fontWeight: 700,
+										fontSize: 16,
+										whiteSpace: 'nowrap',
+										flexShrink: 0,
+										opacity: ad.overlayTagOpacity || 1
+									}}
+								>
+									{ad.overlayAdEmoji || '⚡'}
+								</div>
+
+								{/* Scrolling Text */}
+								<div
+									style={{
+										flex: 1,
+										overflow: 'hidden',
+										whiteSpace: 'nowrap'
+									}}
+								>
+									{ad.overlayTextAnimation === 'marquee' || !ad.overlayTextAnimation ? (
+										<style>{`
+											@keyframes marquee-${ad.id} {
+												0% { transform: translateX(100%); }
+												100% { transform: translateX(-100%); }
+											}
+										`}</style>
+									) : null}
+									<div
+										style={{
+											display: 'flex',
+											gap: 40,
+											animation: ad.overlayTextAnimation === 'marquee' || !ad.overlayTextAnimation ? `marquee-${ad.id} 20s linear infinite` : 'none',
+											opacity: ad.overlayTextAnimation === 'fade' ? 'var(--fade-opacity, 1)' : 1,
+											fontSize: 14,
+											fontWeight: 600
+										}}
+									>
+										{ad.overlayAdTextItems && ad.overlayAdTextItems.length > 0
+											? ad.overlayAdTextItems.map((item, idx) => (
+													<span key={idx} style={{ whiteSpace: 'nowrap' }}>
+														{item.text}
+													</span>
+												))
+											: <span>{ad.overlayAdText || 'Important Update'}</span>}
+										{/* Repeat for seamless loop */}
+										{ad.overlayAdTextItems && ad.overlayAdTextItems.length > 0
+											? ad.overlayAdTextItems.map((item, idx) => (
+													<span key={`repeat-${idx}`} style={{ whiteSpace: 'nowrap' }}>
+														{item.text}
+													</span>
+												))
+											: <span>{ad.overlayAdText || 'Important Update'}</span>}
+									</div>
+								</div>
+							</div>
+						);
+					})}
+
+				{/* Bottom Ads - Using BottomAdPreviewBar with text rotation and animations - Hidden for paid plan users */}
+				{!hasPaidPlan() && visibleAds.filter(ad => !ad.type || ad.type === 'bottom').length > 0 && (
 				<div
 					style={{
 						position: 'fixed',
-						bottom: 'calc(env(safe-area-inset-bottom, 20px) + 120px)',
+						bottom: 'calc(env(safe-area-inset-bottom, 20px) + 90px)',
 						left: 0,
 						right: 0,
 						zIndex: 38,
 						backgroundColor: 'rgba(0, 0, 0, 0.95)',
-						borderTop: '2px solid rgba(255, 0, 255, 0.6)',
+						borderTop: `2px solid ${visibleAds.filter(ad => !ad.type || ad.type === 'bottom')[0]?.borderColor || 'rgba(255, 255, 255, 0.2)'}`,
 						borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
 						padding: '12px 16px',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '12px',
-						maxHeight: '140px',
+						maxHeight: '180px',
 						overflowX: 'auto',
-						overflowY: 'hidden',
+						overflowY: 'auto',
 						scrollBehavior: 'smooth',
 						boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.5)'
 					}}
 				>
-					{visibleAds.map((ad) => (
-						<div
-							key={ad.id || `ad-${Math.random()}`}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '10px',
-								backgroundColor: 'rgba(255, 255, 255, 0.08)',
-								borderRadius: '8px',
-								padding: '10px 12px',
-								minWidth: '240px',
-								flex: '0 0 auto',
-								border: '1px solid rgba(255, 255, 255, 0.12)',
-								cursor: 'pointer',
-								transition: 'all 200ms ease',
-								hover: 'background-color: rgba(255, 255, 255, 0.15)'
-							}}
-							onClick={() => {
-								if (ad.link) {
-									window.open(ad.link, '_blank');
-								}
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
-								e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-								e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-							}}
-						>
-							{/* Ad Avatar/Logo */}
-							{(ad.profileAvatar || ad.avatar) && (
-								<div
-									style={{
-										width: '48px',
-										height: '48px',
-										borderRadius: '6px',
-										backgroundColor: '#333',
-										backgroundImage: `url('${ad.profileAvatar || ad.avatar}')`,
-										backgroundSize: 'cover',
-										backgroundPosition: 'center',
-										flexShrink: 0,
-										border: '1px solid rgba(255, 255, 255, 0.1)'
-									}}
-								/>
-							)}
-							
-							{/* Ad Content */}
-							<div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-								{/* Ad Name */}
-								<div
-									style={{
-										fontSize: '13px',
-										fontWeight: '600',
-										color: '#ffffff',
-										whiteSpace: 'nowrap',
-										overflow: 'hidden',
-										textOverflow: 'ellipsis'
-									}}
-								>
-									{ad.profileName || ad.name || 'Sponsored'}
-								</div>
-								{/* Ad Text */}
-								<div
-									style={{
-										fontSize: '12px',
-										color: 'rgba(255, 255, 255, 0.7)',
-										whiteSpace: 'nowrap',
-										overflow: 'hidden',
-										textOverflow: 'ellipsis',
-										lineHeight: '1.2'
-									}}
-								>
-									{ad.text || 'Check out our offer'}
-								</div>
-							</div>
-							
-							{/* CTA Arrow */}
-							<div
-								style={{
-									color: 'rgba(255, 255, 255, 0.6)',
-									fontSize: '16px',
-									flexShrink: 0,
-									display: 'flex',
-									alignItems: 'center'
-								}}
-							>
-								→
-							</div>
-						</div>
-					))}
+					{/* Get visible bottom ads + next upcoming ad in timeframe */}
+					{(() => {
+						const bottomAds = visibleAds.filter(ad => !ad.type || ad.type === 'bottom');
+						
+						// Show current ads (with full animations)
+						const adsToShow = bottomAds.slice(0, 2); // Show max 2: current + preview
+						
+						return adsToShow.map((ad, idx) => (
+							<BottomAdPreviewBar
+								key={ad.id || `ad-${idx}`}
+								profileName={ad.profileName || ad.name}
+								profileAvatar={ad.profileAvatar || ad.avatar}
+								textItems={ad.textItems || (ad.text ? [{ text: ad.text }] : [])}
+								textInterval={ad.textInterval || 5000}
+								textAnimation={ad.textAnimation || 'fade'}
+								cardAnimation={ad.cardAnimation || 'fade'}
+								cardEffect={ad.cardEffect || 'none'}
+								cardExitAnimation={ad.cardExitAnimation || 'fadeOut'}
+								borderColor={ad.borderColor || 'rgba(255, 255, 255, 0.2)'}
+								duration={ad.duration || 30}
+								link={ad.link}
+							/>
+						));
+					})()}
 				</div>
+				)}
+			</>
 			)}
 
 			{/* Modal: Options dialog (carbon copy style) */}
@@ -4994,7 +6198,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				<div
 					className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center"
 					onClick={() => setShowMenu(false)}
-					style={{ backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}
+					style={{ backdropFilter: "none", WebkitBackdropFilter: "none", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}
 				>
 					{/* bottom sheet container (larger, comments-style) */}
 					<div
@@ -5063,9 +6267,9 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 										toastTimerRef.current = setTimeout(() => setToastMessage(''), 1400);
 									} catch { }
 								}}
-								aria-pressed={bookmarked}
+								aria-pressed={false}
 								style={{
-									background: bookmarked ? "rgba(0,0,0,0.06)" : "transparent",
+									background: "transparent",
 									outline: 'none',
 									boxShadow: 'none',
 									border: 'none',
@@ -5074,9 +6278,30 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								onPointerDown={(e) => { try { e.currentTarget.style.outline = 'none'; } catch { } }}
 							>
 								<div className="w-10 h-10 flex items-center justify-center text-gray-900">
-									{bookmarked ? <BookmarkFilled /> : <Bookmark />}
+									<Bookmark />
 								</div>
-								<span className="text-gray-900">{bookmarked ? getTranslation('Bookmarked', selectedLanguage) : getTranslation('Bookmark', selectedLanguage)}</span>
+								<span className="text-gray-900">{getTranslation('Bookmark', selectedLanguage)}</span>
+							</button>
+
+							{/* Bookmark Moment (New) */}
+							<button
+								className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+								onClick={() => {
+									setShowMenu(false);
+									openBookmarkModalAtCurrent();
+								}}
+								style={{
+									background: "transparent",
+									outline: 'none',
+									boxShadow: 'none',
+									border: 'none',
+									WebkitTapHighlightColor: 'transparent'
+								}}
+							>
+								<div className="w-10 h-10 flex items-center justify-center text-gray-900" style={{ color: bookmarkAccent }}>
+									<Bookmark />
+								</div>
+								<span className="text-gray-900">{getTranslation('Bookmark Moment', selectedLanguage)}</span>
 							</button>
 
 							{/* Share row (uniform icon wrapper) */}
@@ -5642,7 +6867,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				<div
 					className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
 					onClick={() => setShowShareModal(false)}
-					style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}
+					style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "none", WebkitBackdropFilter: "none", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}
 				>
 					<div
 						className="modal-dialog w-full max-w-md rounded-2xl p-4 shadow-xl backdrop-blur-sm flex flex-col mx-4"
@@ -5769,6 +6994,7 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 							<div className="flex items-center justify-between mb-4">
 								<SocialButton bg="#e6f0ff" label="Facebook" onClick={() => shareToFacebook(videoUrl)}>
+									{/* Fixed Facebook Icon */}
 									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" role="img">
 										<path d="M22 12a10 10 0 1 0-11.5 9.86v-6.99H8.9v-2.87h1.6V9.41c0-1.57.93-2.45 2.36-2.45.68 0 1.39.12 1.39.12v1.53h-.78c-.77 0-1.01.48-1.01.98v1.17h1.72l-.28 2.87h-1.44v6.99A10 10 0 0 0 22 12z" fill="#1877F2" />
 									</svg>
@@ -5894,60 +7120,6 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 								<div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold" style={{ color: accentText }}>$</div>
 							</div>
 							<div>
-
-								{/* Bookmark This Moment modal */}
-								{showBookmarkModal && (
-									<div className="fixed inset-0 flex items-end sm:items-center justify-center" onClick={() => setShowBookmarkModal(false)} style={{ zIndex: 720, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}>
-										<div
-											className="w-full max-w-md rounded-t-2xl p-4 shadow-xl flex flex-col mx-4"
-											onClick={(e) => e.stopPropagation()}
-											role="dialog"
-											aria-modal="true"
-											aria-label="Bookmark This Moment"
-											style={{ background: '#fbfbfd', border: '1px solid rgba(0,0,0,0.04)', position: 'relative', maxHeight: window.innerHeight * 0.52, overflow: 'hidden' }}
-										>
-											{/* Header */}
-											<div className="flex items-start gap-3 mb-3">
-												<div className="w-11 h-11 rounded-xl flex items-center justify-center border" style={{ background: '#fbfbfd', borderColor: 'rgba(0,0,0,0.04)' }}>
-													<div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ color: bookmarkAccent, fontWeight: 700 }}>
-														<Bookmark />
-													</div>
-												</div>
-												<div style={{ flex: 1 }}>
-													<div className="text-black text-xl font-semibold">{getTranslation('Bookmark This Moment', selectedLanguage)}</div>
-													<div className="text-black text-sm">{getTranslation('Save this timestamp at', selectedLanguage)} <strong>{formatTime(bookmarkTime)}</strong> {getTranslation('for quick access later', selectedLanguage)}</div>
-												</div>
-												<button onClick={() => setShowBookmarkModal(false)} className="absolute right-4 top-3 text-gray-600 p-1 rounded-full hover:bg-gray-100">✕</button>
-											</div>
-
-											{/* Input */}
-											<div className="mb-3">
-												<div className="text-black font-semibold mb-2">{getTranslation('Label (optional)', selectedLanguage)}</div>
-												<input
-													name="bookmarkLabel"
-													value={bookmarkLabel}
-													onChange={(e) => setBookmarkLabel(e.target.value)}
-													placeholder={getTranslation('Best scene, Important moment...', selectedLanguage)}
-													className="w-full px-3 py-2 rounded-xl"
-													style={{ background: '#ffffff', border: '1px solid #e6e6e6', color: '#111' }}
-												/>
-											</div>
-
-											{/* Actions */}
-											<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-												<button
-													className="px-4 py-3 rounded-lg w-full flex items-center justify-center"
-													style={{ background: bookmarkAccent, color: '#fff', fontWeight: 700 }}
-													onClick={saveBookmark}
-												>
-													<span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8 }}><Bookmark /></span>
-													{getTranslation('Save Bookmark', selectedLanguage)}
-												</button>
-												<button className="px-4 py-3 rounded-lg w-full" style={{ background: 'transparent', color: '#111', border: '1px solid #e6e6e6' }} onClick={() => setShowBookmarkModal(false)}>{getTranslation('Cancel', selectedLanguage)}</button>
-											</div>
-										</div>
-									</div>
-								)}
 								<div className="text-gray-300 text-sm">{getTranslation('Show your appreciation for', selectedLanguage)} @{creatorName}'s {getTranslation('amazing content', selectedLanguage)}</div>
 							</div>
 						</div>
@@ -6004,6 +7176,198 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 				</div>
 			)}
 
+
+			{/* Bookmark This Moment modal */}
+			{showBookmarkModal && (
+			<div className="fixed inset-0 flex items-start sm:items-center justify-center pt-24 sm:pt-0" onClick={() => setShowBookmarkModal(false)} style={{ zIndex: 720, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }}>
+				<div
+					className="w-full max-w-md rounded-2xl shadow-2xl flex flex-col mx-4 overflow-hidden"
+					onClick={(e) => e.stopPropagation()}
+					role="dialog"
+					aria-modal="true"
+					aria-label="Bookmark This Moment"
+					style={{ background: 'linear-gradient(135deg, #fbfbfd 0%, #f9f9fc 100%)', border: '1px solid rgba(147,51,234,0.08)', position: 'relative', maxHeight: '85vh', animation: 'modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
+				>
+					{/* Header */}
+					<div className="px-5 py-5 border-b border-gray-100 flex items-start gap-4 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+						<div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${bookmarkAccent}12`, border: `1.5px solid ${bookmarkAccent}20` }}>
+							<div className="w-6 h-6 flex items-center justify-center" style={{ color: bookmarkAccent, fontWeight: 700 }}>
+								<Bookmark />
+							</div>
+						</div>
+						<div style={{ flex: 1 }}>
+							<div className="text-gray-900 text-xl font-bold tracking-tight">{getTranslation('Bookmark This Moment', selectedLanguage)}</div>
+							<div className="text-gray-600 text-sm mt-0.5">{getTranslation('Save this timestamp at', selectedLanguage)} <span style={{ color: bookmarkAccent, fontWeight: 600 }}>{formatTime(bookmarkTime)}</span></div>
+						</div>
+					</div>
+
+					{/* Scrollable Content */}
+					<div className="px-5 py-6 space-y-6 overflow-y-auto custom-scrollbar">
+						{/* Label Input */}
+						<div>
+							<label className="text-gray-900 font-semibold text-sm mb-2 block">{getTranslation('Label (optional)', selectedLanguage)}</label>
+							<input
+								name="bookmarkLabel"
+								value={bookmarkLabel}
+								onChange={(e) => setBookmarkLabel(e.target.value)}
+								placeholder={getTranslation('Best scene, Important moment...', selectedLanguage)}
+								className="w-full px-4 py-3 rounded-xl text-sm transition-all focus:outline-none focus:ring-2 bg-white border border-gray-200 text-gray-900 placeholder-gray-400"
+								style={{ outlineColor: bookmarkAccent }}
+								onFocus={(e) => e.target.style.borderColor = bookmarkAccent}
+								onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+							/>
+						</div>
+
+						{/* Segment Selection */}
+						<div>
+							<div className="text-gray-900 font-semibold text-sm mb-3 flex items-center justify-between">
+								<span>{getTranslation('Segment (optional)', selectedLanguage)}</span>
+								<span className="text-xs text-gray-500 font-normal bg-gray-100 px-2 py-1 rounded-md">Previewing video frame</span>
+							</div>
+							
+							{/* Visual Timeline */}
+							<div className="mb-4 p-4 rounded-xl bg-gray-50/80 border border-gray-100">
+								<div 
+									className="relative h-14 bg-white rounded-lg overflow-hidden border cursor-pointer shadow-sm group"
+									style={{ borderColor: `${bookmarkAccent}40` }}
+									onClick={(e) => {
+										const rect = e.currentTarget.getBoundingClientRect();
+										const clickPos = (e.clientX - rect.left) / rect.width;
+										const clickTime = Math.max(0, Math.min(duration, clickPos * duration));
+										
+										// Seek video to preview frame
+										if (videoRef.current) {
+											videoRef.current.currentTime = clickTime;
+											// Pause if playing to verify frame
+											// videoRef.current.pause(); 
+											// setIsPlaying(false);
+										}
+
+										// If click is closer to start, move start time; otherwise move end time
+										const distToStart = Math.abs(clickTime - bookmarkStartTime);
+										const distToEnd = Math.abs(clickTime - bookmarkEndTime);
+										
+										if (distToStart < distToEnd) {
+											setBookmarkStartTime(Math.min(clickTime, bookmarkEndTime));
+										} else {
+											setBookmarkEndTime(Math.max(clickTime, bookmarkStartTime));
+										}
+									}}
+								>
+									{/* Progress background */}
+									<div className="absolute inset-0 flex">
+										<div style={{ width: `${(bookmarkStartTime / duration) * 100}%`, background: '#f3f4f6' }} />
+										<div style={{ width: `${((bookmarkEndTime - bookmarkStartTime) / duration) * 100}%`, background: `${bookmarkAccent}15` }} />
+										<div style={{ flex: 1, background: '#f3f4f6' }} />
+									</div>
+									
+									{/* Start marker */}
+									<div 
+										className="absolute top-0 h-full w-1 hover:w-1.5 transition-all z-10"
+										style={{ left: `${(bookmarkStartTime / duration) * 100}%`, background: bookmarkAccent }}
+									/>
+									
+									{/* End marker */}
+									<div 
+										className="absolute top-0 h-full w-1 hover:w-1.5 transition-all z-10"
+										style={{ left: `${(bookmarkEndTime / duration) * 100}%`, background: bookmarkAccent }}
+									/>
+									
+									{/* Detailed Time labels inside bar */}
+									<div className="absolute inset-0 flex items-center justify-between px-3 text-[10px] font-bold pointer-events-none select-none" style={{ color: bookmarkAccent }}>
+										<span className="bg-white/80 px-1 rounded">{formatTime(bookmarkStartTime)}</span>
+										<span className="bg-white/80 px-1 rounded">{formatTime(bookmarkEndTime)}</span>
+									</div>
+								</div>
+								<div className="text-center mt-2 text-[10px] text-gray-400">Click timeline to adjust & preview frame</div>
+							</div>
+
+							{/* Time inputs */}
+							<div className="grid grid-cols-2 gap-4 mb-4">
+								<div>
+									<label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">Start Time</label>
+									<div className="relative">
+										<input
+											type="number"
+											min="0"
+											max={duration}
+											step="0.1"
+											value={bookmarkStartTime.toFixed(1)}
+											onChange={(e) => {
+												const val = Math.max(0, Math.min(duration, parseFloat(e.target.value) || 0));
+												setBookmarkStartTime(val);
+												if (videoRef.current) videoRef.current.currentTime = val;
+											}}
+											className="w-full px-3 py-2.5 rounded-lg text-sm bg-white border border-gray-200 text-center font-mono"
+											style={{ color: '#111' }}
+										/>
+									</div>
+								</div>
+								<div>
+									<label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">End Time</label>
+									<div className="relative">
+										<input
+											type="number"
+											min="0"
+											max={duration}
+											step="0.1"
+											value={bookmarkEndTime.toFixed(1)}
+											onChange={(e) => {
+												const val = Math.max(0, Math.min(duration, parseFloat(e.target.value) || 0));
+												setBookmarkEndTime(val);
+												if (videoRef.current) videoRef.current.currentTime = val;
+											}}
+											className="w-full px-3 py-2.5 rounded-lg text-sm bg-white border border-gray-200 text-center font-mono"
+											style={{ color: '#111' }}
+										/>
+									</div>
+								</div>
+							</div>
+
+							{/* Duration & Loop */}
+							<div className="flex items-center gap-4">
+								<div className="px-3 py-1.5 bg-gray-100 rounded-md text-xs font-medium text-gray-600">
+									Duration: {formatTime(bookmarkEndTime - bookmarkStartTime)}
+								</div>
+								
+								<label className="flex-1 flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border hover:border-purple-200" style={{ background: bookmarkShareSegment ? `${bookmarkAccent}08` : '#fff', border: `1px solid ${bookmarkShareSegment ? `${bookmarkAccent}40` : '#e5e7eb'}` }}>
+									<input
+										type="checkbox"
+										checked={bookmarkShareSegment}
+										onChange={(e) => setBookmarkShareSegment(e.target.checked)}
+										className="w-4 h-4 rounded cursor-pointer"
+										style={{ accentColor: bookmarkAccent }}
+									/>
+									<div>
+										<div className="text-xs font-bold text-gray-800 uppercase tracking-wide">Loop Segment</div>
+									</div>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					{/* Footer Actions */}
+					<div className="px-5 py-5 border-t border-gray-200/50 bg-gray-50/50 flex flex-col gap-3 sm:flex-row sm:gap-3 sticky bottom-0 z-10 backdrop-blur-md">
+						<button
+							className="flex-1 px-4 py-3.5 rounded-xl w-full flex items-center justify-center font-bold text-sm transition-all hover:shadow-lg active:scale-95 shadow-md"
+							style={{ background: bookmarkAccent, color: '#fff' }}
+							onClick={saveBookmark}
+						>
+							<span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 8 }}><Bookmark size={18} strokeWidth={2.5} /></span>
+							{getTranslation('Save Bookmark', selectedLanguage)}
+						</button>
+						<button 
+							className="flex-1 px-4 py-3.5 rounded-xl w-full font-bold text-sm transition-all hover:bg-gray-200 active:scale-95"
+							style={{ background: '#fff', color: '#4b5563', border: '1px solid #e5e7eb' }} 
+							onClick={() => setShowBookmarkModal(false)}
+						>
+							{getTranslation('Cancel', selectedLanguage)}
+						</button>
+					</div>
+				</div>
+			</div>
+		)}
+
 			{/* Quick-action floating card (shown on long-press) */}
 			{showQuickCard && (
 				<div
@@ -6035,7 +7399,11 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					<button onClick={onQuickDislike} aria-label="Dislike" className="p-1 rounded-lg" style={{ background: 'transparent', border: disliked ? '1px solid #ef4444' : 'none', borderRadius: 8, padding: 6, color: disliked ? '#ef4444' : (darkMode ? '#fff' : '#111') }}>
 						<HeartOff />
 					</button>
-					<button onClick={onQuickBookmark} aria-label="Bookmark" className="p-1 rounded-lg" style={{ background: 'transparent', border: 'none', color: bookmarkAccent }}>
+					<button onClick={() => {
+						setShowQuickCard(false);
+						if (quickCardTimerRef.current) clearTimeout(quickCardTimerRef.current);
+						openBookmarkModalAtCurrent();
+					}} aria-label="Bookmark Moment" className="p-1 rounded-lg" style={{ background: 'transparent', border: 'none', color: bookmarkAccent }}>
 						<Bookmark />
 					</button>
 					{/* Lock toggle moved into quick actions when not locked */}
@@ -6732,6 +8100,20 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 					</div>
 				</div>
 			</div>
+
+            {/* Requester Feedback Modal */}
+            <FeedbackModal
+                isOpen={showRequesterFeedback}
+                onClose={() => setShowRequesterFeedback(false)}
+                onSubmit={handleRequesterFeedbackSubmit}
+                title={getTranslation('How was your requesting experience?', selectedLanguage)}
+                questions={[
+                    { id: 'request_ease', type: 'likert', label: getTranslation('How easy was it to make the request?', selectedLanguage) },
+                    { id: 'speed', type: 'likert', label: getTranslation('Was it completed fast enough?', selectedLanguage) },
+                    { id: 'satisfaction', type: 'likert', label: getTranslation('Overall Satisfaction', selectedLanguage) },
+                    { id: 'changes', type: 'text', label: getTranslation('Any changes you would like to see?', selectedLanguage), placeholder: 'Your suggestions...' }
+                ]}
+            />
 
 		</div>
 	);

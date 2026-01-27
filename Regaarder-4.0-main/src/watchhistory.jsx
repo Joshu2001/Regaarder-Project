@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 import React from 'react';
-import { History, Lightbulb, Home, FileText, MoreHorizontal, Pencil, CheckCircle, Search } from 'lucide-react';
+import { History, Lightbulb, Home, FileText, MoreHorizontal, Pencil, CheckCircle, Search, ChevronLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations.js';
 
 // Get selected language
@@ -139,6 +140,7 @@ export function clearWatchHistory() {
 
 // Main App Component
 const App = () => {
+  const navigate = useNavigate();
   // State for active navigation tab (initial state is 'Requests' from the last image)
   const [activeTab, setActiveTab] = React.useState('Requests');
   // State for controlling the visibility of the Toast notification
@@ -285,14 +287,16 @@ const App = () => {
       <div className="w-full flex flex-col bg-white overflow-x-hidden">
 
         {/* === 1. Header === */}
-        <header className="p-4 border-b border-gray-100 space-y-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2"><History className="w-5 h-5 text-gray-500" strokeWidth={1.5} /><span>{t('Watch History')}</span></h1>
-            <div className="flex items-center gap-2">
-              <button onClick={handleClearAll} className={`text-sm font-medium hover:opacity-80 transition duration-150`} style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px' }}>{t('Clear All')}</button>
-              <button className="p-2 text-gray-600 hover:text-gray-900" aria-label="More"><MoreHorizontal className="w-5 h-5" /></button>
-            </div>
+        <header className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20">
+          <div className="flex items-center space-x-4">
+            <ChevronLeft className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900" onClick={() => navigate(-1)} />
+            <h1 className="text-xl font-semibold text-gray-800">{t('Watch History')}</h1>
           </div>
+        </header>
+
+        {/* Clear All Button and Search Section */}
+        <div className="p-4 space-y-3 border-b border-gray-100">
+          <button onClick={handleClearAll} className={`text-sm font-medium hover:opacity-80 transition duration-150`} style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px' }}>{t('Clear All')}</button>
           <div className="flex items-center justify-between">
             <div className="flex items-center bg-gray-50 border border-gray-200 rounded-md px-2 py-2 w-full max-w-md">
               <Search className="w-4 h-4 text-gray-500" />
@@ -300,7 +304,7 @@ const App = () => {
             </div>
             <p className="text-sm text-gray-500 ml-4 whitespace-nowrap">{(history || []).length} {t('videos')}</p>
           </div>
-        </header>
+        </div>
 
         {/* === 2. Scrollable Content Area === */}
         <main className="flex-grow flex flex-col items-center justify-start p-6 space-y-6 pb-24">

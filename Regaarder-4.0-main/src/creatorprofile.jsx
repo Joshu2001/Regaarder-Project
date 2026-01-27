@@ -3666,7 +3666,6 @@ const App = () => {
                         setPreviewWelcomeData(data);
                         setShowWelcomePopup(true);
                     }}
-                    selectedLanguage={selectedLanguage}
                 />
             )}
             {showSponsorPopup && <SponsorPopup isOpen={showSponsorPopup} isPreview={isPreviewMode} onClose={() => setShowSponsorPopup(false)} profile={profile} selectedLanguage={selectedLanguage} />}

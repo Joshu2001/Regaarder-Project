@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 export default function StaffLoginModal({ isOpen, onClose, onLoginSuccess }) {
@@ -9,6 +9,10 @@ export default function StaffLoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [showPassword3, setShowPassword3] = useState(false);
+  const [nextEmployeeId, setNextEmployeeId] = useState(null);
+  const [statusCheckEmail, setStatusCheckEmail] = useState('');
+  const [accountStatus, setAccountStatus] = useState(null);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
 
   // Login form
   const [loginData, setLoginData] = useState({
@@ -20,13 +24,92 @@ export default function StaffLoginModal({ isOpen, onClose, onLoginSuccess }) {
 
   // Signup form
   const [signupData, setSignupData] = useState({
-    employeeId: '',
     name: '',
     email: '',
     password1: '',
     password2: '',
     password3: ''
   });
+
+  // Fetch next employee ID when switching to signup mode
+  useEffect(() => {
+    if (mode === 'signup' && nextEmployeeId === null) {
+      fetchNextEmployeeId();
+    }
+  }, [mode]);
+
+  const fetchNextEmployeeId = async () => {
+    try {
+      const res = await fetch('http://localhost:4000/staff/next-employee-id');
+      const data = await res.json();
+      if (data.nextEmployeeId) {
+        setNextEmployeeId(data.nextEmployeeId);
+      }
+    } catch (err) {
+      console.error('Error fetching next employee ID:', err);
+    }
+  };
+
+  const checkAccountStatus = async (email) => {
+    if (!email || !email.includes('@')) {
+      setError('Please enter a valid email');
+      return;
+    }
+
+    setIsCheckingStatus(true);
+    try {
+      const res = await fetch('http://localhost:4000/staff/check-account-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+      
+      if (data.status === 'approved') {
+        setAccountStatus({
+          status: 'approved',
+          message: `✅ ${data.message}`,
+          type: 'success',
+          employeeId: data.employeeId
+        });
+      } else if (data.status === 'pending') {
+        setAccountStatus({
+          status: 'pending',
+          message: `⏳ ${data.message}`,
+          type: 'info'
+        });
+      } else if (data.status === 'denied') {
+        setAccountStatus({
+          status: 'denied',
+          message: `❌ ${data.message}`,
+          type: 'error'
+        });
+      } else {
+        setAccountStatus({
+          status: 'not_found',
+          message: `❓ ${data.message}`,
+          type: 'info'
+        });
+      }
+    } catch (err) {
+      setError('Failed to check status');
+      console.error('Error checking account status:', err);
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  };
+
+  // Auto-poll for status when signup is successful
+  useEffect(() => {
+    if (accountStatus?.status === 'pending' && statusCheckEmail) {
+      const interval = setInterval(() => {
+        checkAccountStatus(statusCheckEmail);
+      }, 3000); // Check every 3 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [accountStatus?.status, statusCheckEmail]);
 
   const handleLogin = async () => {
     setError('');
@@ -68,7 +151,7 @@ export default function StaffLoginModal({ isOpen, onClose, onLoginSuccess }) {
     setError('');
     setSuccessMessage('');
 
-    if (!signupData.employeeId || !signupData.name || !signupData.email || 
+    if (!signupData.name || !signupData.email || 
         !signupData.password1 || !signupData.password2 || !signupData.password3) {
       setError('All fields are required');
       return;
@@ -94,18 +177,21 @@ export default function StaffLoginModal({ isOpen, onClose, onLoginSuccess }) {
         return;
       }
 
-      setSuccessMessage('Account request submitted. Awaiting admin approval.');
-      setTimeout(() => {
-        setMode('login');
-        setSignupData({
-          employeeId: '',
-          name: '',
-          email: '',
-          password1: '',
-          password2: '',
-          password3: ''
-        });
-      }, 2000);
+      // Store email and start status checking
+      setStatusCheckEmail(signupData.email);
+      setSuccessMessage('Account request submitted. Awaiting Executive approval.');
+      
+      // Start checking status
+      checkAccountStatus(signupData.email);
+      
+      // Don't auto-switch mode anymore, let user see status updates
+      setSignupData({
+        name: '',
+        email: '',
+        password1: '',
+        password2: '',
+        password3: ''
+      });
     } catch (err) {
       setError('Connection error');
       console.error(err);
@@ -188,6 +274,28 @@ export default function StaffLoginModal({ isOpen, onClose, onLoginSuccess }) {
             fontSize: '14px'
           }}>
             {successMessage}
+          </div>
+        )}
+
+        {accountStatus && (
+          <div style={{
+            padding: '12px',
+            backgroundColor: accountStatus.type === 'success' ? '#dcfce7' : 
+                            accountStatus.type === 'error' ? '#fee2e2' : '#dbeafe',
+            border: accountStatus.type === 'success' ? '1px solid #86efac' : 
+                   accountStatus.type === 'error' ? '1px solid #fca5a5' : '1px solid #7dd3fc',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            color: accountStatus.type === 'success' ? '#16a34a' : 
+                   accountStatus.type === 'error' ? '#dc2626' : '#0369a1',
+            fontSize: '14px'
+          }}>
+            {accountStatus.message}
+            {accountStatus.status === 'pending' && (
+              <div style={{ fontSize: '12px', marginTop: '8px', opacity: 0.8 }}>
+                Checking status... (refreshes every 3 seconds)
+              </div>
+            )}
           </div>
         )}
 
@@ -348,19 +456,17 @@ export default function StaffLoginModal({ isOpen, onClose, onLoginSuccess }) {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <input
-              type="text"
-              placeholder="Employee ID"
-              value={signupData.employeeId}
-              onChange={(e) => setSignupData({ ...signupData, employeeId: e.target.value })}
-              style={{
-                padding: '12px',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontFamily: 'inherit'
-              }}
-            />
+            <div style={{
+              padding: '12px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              backgroundColor: '#f9fafb',
+              color: '#666'
+            }}>
+              Employee ID: <strong>{nextEmployeeId || 'Loading...'}</strong>
+            </div>
             <input
               type="text"
               placeholder="Full Name"

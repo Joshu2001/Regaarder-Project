@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Home, FileText, Pencil, MoreHorizontal, Lightbulb } from 'lucide-react';
+import { Home, FileText, Pencil, MoreHorizontal, Lightbulb, ChevronLeft } from 'lucide-react';
 import { useAppNavigate } from './navigation.js';
+import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations.js';
 
 const selectedLanguage = typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English';
@@ -73,7 +74,8 @@ function formatDate(iso) {
 }
 
 export default function LikedVideos() {
-  const navigate = useAppNavigate();
+  const navigate = useNavigate();
+  const appNavigate = useAppNavigate();
   const [items, setItems] = useState(() => loadLikedVideos());
   const [videoIndex, setVideoIndex] = useState({});
   const [query, setQuery] = useState('');
@@ -154,38 +156,49 @@ export default function LikedVideos() {
 
   return (
     <div style={{ minHeight: '100vh', background: dark ? '#0e0e0e' : '#f9fafb' }}>
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold" style={{ color: dark ? '#fff' : '#111' }}>{t('Liked Videos')}</h1>
-          {items.length > 0 && (
-            <button
-              onClick={() => { clearLikedVideos(); setItems([]); }}
-              className="text-sm font-medium hover:opacity-80 transition duration-150"
-              style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px' }}
-            >
-              {t('Clear All')}
-            </button>
-          )}
+      <div className="max-w-4xl mx-auto">
+        {/* Header with back button */}
+        <div className="bg-white border-b" style={{ borderColor: dark ? '#1a1a1a' : '#e5e7eb' }}>
+          <div className="px-4 py-4 sticky top-0 z-20 flex items-center space-x-4">
+            <ChevronLeft className="w-6 h-6 cursor-pointer transition hover:opacity-75" style={{ color: dark ? '#fff' : '#374151' }} onClick={() => navigate(-1)} />
+            <h1 className="text-xl font-semibold" style={{ color: dark ? '#fff' : '#111' }}>{t('Liked Videos')}</h1>
+          </div>
         </div>
 
-        <div className="mt-4 flex gap-3 items-center">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t('Search liked videos')}
-            className="flex-1 px-3 py-2 rounded-md"
-            style={{ background: dark ? '#0b0b0b' : '#fff', color: dark ? '#fff' : '#111', border: '1px solid ' + (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)') }}
-          />
-          <span className="text-sm" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>{filtered.length} {filtered.length === 1 ? t('video') : t('videos')}</span>
+        {/* Clear All Button and Search */}
+        <div className="px-4 py-4" style={{ borderBottom: `1px solid ${dark ? '#1a1a1a' : '#e5e7eb'}` }}>
+          {items.length > 0 && (
+            <div className="mb-4">
+              <button
+                onClick={() => { clearLikedVideos(); setItems([]); }}
+                className="text-sm font-medium hover:opacity-80 transition duration-150"
+                style={{ color: '#FFFFFF', backgroundColor: 'var(--color-gold)', padding: '6px 12px', borderRadius: '6px' }}
+              >
+                {t('Clear All')}
+              </button>
+            </div>
+          )}
+
+          <div className="flex gap-3 items-center">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t('Search liked videos')}
+              className="flex-1 px-3 py-2 rounded-md"
+              style={{ background: dark ? '#0b0b0b' : '#fff', color: dark ? '#fff' : '#111', border: '1px solid ' + (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)') }}
+            />
+            <span className="text-sm" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>{filtered.length} {filtered.length === 1 ? t('video') : t('videos')}</span>
+          </div>
         </div>
 
         {items.length > 0 && (
-          <div className="mt-3 rounded-lg p-3 flex items-center gap-2" style={{ background: dark ? 'rgba(250,204,21,0.08)' : '#FEF9C3', border: '1px solid ' + (dark ? 'rgba(250,204,21,0.25)' : '#FDE68A') }}>
+          <div className="mt-3 rounded-lg p-3 flex items-center gap-2 mx-4" style={{ background: dark ? 'rgba(250,204,21,0.08)' : '#FEF9C3', border: '1px solid ' + (dark ? 'rgba(250,204,21,0.25)' : '#FDE68A') }}>
             <Lightbulb className="w-4 h-4" style={{ color: '#ca8a04' }} />
             <div className="text-xs" style={{ color: dark ? '#fcd34d' : '#92400E' }}>{t('Swipe left to remove from Liked Videos')}</div>
           </div>
         )}
 
+        <div className="px-4 py-6">
         <div className="mt-5 w-full space-y-4">
           {filtered.length === 0 && (
             <div className="text-sm" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>{t('No likes yet. Tap the heart in the player to add videos here.')}</div>
@@ -263,6 +276,7 @@ export default function LikedVideos() {
               </div>
             );
           })}
+        </div>
         </div>
       </div>
       <BottomBar />
