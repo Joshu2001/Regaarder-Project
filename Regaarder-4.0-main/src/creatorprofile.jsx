@@ -739,9 +739,9 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
                     {/* Stats Row */}
                     <div className="flex space-x-2 mb-2">
-                        <StatCard label={getTranslation("Followers", selectedLanguage)} value={profile.followers || profile.followerCount || "0"} selectedLanguage={selectedLanguage} />
-                        <StatCard label={getTranslation("Views", selectedLanguage)} value={profile.views || "0"} selectedLanguage={selectedLanguage} />
-                        <StatCard label={getTranslation("Comments", selectedLanguage)} value={profile.comments || "0"} selectedLanguage={selectedLanguage} />
+                        <StatCard label={getTranslation("Followers", selectedLanguage)} value={profile.followers || profile.followerCount || 0} selectedLanguage={selectedLanguage} />
+                        <StatCard label={getTranslation("Views", selectedLanguage)} value={profile.views || 0} selectedLanguage={selectedLanguage} />
+                        <StatCard label={getTranslation("Comments", selectedLanguage)} value={profile.comments || 0} selectedLanguage={selectedLanguage} />
                     </div>
                 </div>
 
@@ -1671,6 +1671,17 @@ const AllVideos = ({ selectedCTAs, profileName, onCTAClick, selectedLanguage = '
         getTranslation('Turn your request into part of {name}\'s collection', selectedLanguage).replace('{name}', profileName)
     ];
 
+    // Reset message index when user exits and returns to page
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                setMessageIndex(0);
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, []);
+
     useEffect(() => {
         if (messages.length <= 1) return;
         const messageInterval = setInterval(() => {
@@ -1699,7 +1710,7 @@ const AllVideos = ({ selectedCTAs, profileName, onCTAClick, selectedLanguage = '
 
     return (
         <div className="mb-24">
-            <h2 className="text-xl font-normal text-gray-900 mb-4 px-1">{getTranslation('All Videos (0)', selectedLanguage)}</h2>
+            <h2 className="text-xl font-normal text-gray-900 mb-4 px-1">{getTranslation('All Videos', selectedLanguage)}</h2>
 
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center text-center min-h-[280px] justify-center">
                 <div className="mb-6 text-gray-400">
