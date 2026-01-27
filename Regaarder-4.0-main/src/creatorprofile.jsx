@@ -1072,7 +1072,7 @@ const FeaturedVideo = ({ isPreviewMode, video, onUpload, onDelete, selectedLangu
                         }}
                     />
                     {/* Play/Pause Button in Center */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20 hover:bg-black/40">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             onClick={() => {
                                 if (videoRef.current) {
@@ -1140,7 +1140,37 @@ const FeaturedVideo = ({ isPreviewMode, video, onUpload, onDelete, selectedLangu
     );
 };
 
-const AllVideosPopup = ({ videos, onClose, onDelete, isPreview = false, selectedLanguage = 'English' }) => {
+const AllVideosPopup = ({ videos, creatorId, onClose, onDelete, isPreview = false, selectedLanguage = 'English' }) => {
+    const [allVideos, setAllVideos] = useState(videos);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        // Fetch all videos from backend
+        const fetchAllVideos = async () => {
+            if (!creatorId) return;
+            setIsLoading(true);
+            try {
+                const BACKEND = import.meta.env.VITE_BACKEND || 'http://localhost:5000';
+                const response = await fetch(`${BACKEND}/videos/${creatorId}`, {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setAllVideos(data.videos || []);
+                } else {
+                    setAllVideos(videos);
+                }
+            } catch (err) {
+                console.error('Failed to fetch videos:', err);
+                setAllVideos(videos);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        fetchAllVideos();
+    }, [creatorId]);
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
@@ -1148,43 +1178,53 @@ const AllVideosPopup = ({ videos, onClose, onDelete, isPreview = false, selected
                 <div className="flex justify-between items-center mb-6">
                     <div>
                         <h2 className="text-xl font-bold text-gray-900">{getTranslation('All Videos', selectedLanguage)}</h2>
-                        <p className="text-gray-500 text-sm">{videos.length} videos</p>
+                        <p className="text-gray-500 text-sm">{isLoading ? 'Loading...' : allVideos.length} videos</p>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                         <Icon name="x" size={24} />
                     </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    {videos.map((video) => (
-                        <div key={video.id} className="relative group">
-                            {/* 16:9 format */}
-                            <div className="relative aspect-video rounded-xl overflow-hidden bg-gray-200 shadow-sm">
-                                <img src={video.image} alt={video.title} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                        <div className="text-gray-400">{getTranslation('Loading videos...', selectedLanguage)}</div>
+                    </div>
+                ) : allVideos.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-4">
+                        {allVideos.map((video) => (
+                            <div key={video.id} className="relative group">
+                                {/* 16:9 format */}
+                                <div className="relative aspect-video rounded-xl overflow-hidden bg-gray-200 shadow-sm">
+                                    <img src={video.image || video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
 
-                                {/* Delete Button */}
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onDelete(video.id);
-                                    }}
-                                    className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-red-500 transition backdrop-blur-sm"
-                                >
-                                    <Icon name="x" size={12} />
-                                </button>
+                                    {/* Delete Button */}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDelete(video.id);
+                                        }}
+                                        className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-red-500 transition backdrop-blur-sm"
+                                    >
+                                        <Icon name="x" size={12} />
+                                    </button>
 
-                                <div className="absolute bottom-2 left-2">
-                                    <div className="flex items-center text-white text-xs font-medium drop-shadow-md bg-black/40 px-1.5 py-0.5 rounded-md backdrop-blur-sm">
-                                        <Icon name="eye" size={10} className="mr-1" />
-                                        {video.views}
+                                    <div className="absolute bottom-2 left-2">
+                                        <div className="flex items-center text-white text-xs font-medium drop-shadow-md bg-black/40 px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+                                            <Icon name="eye" size={10} className="mr-1" />
+                                            {video.views || 0}
+                                        </div>
                                     </div>
                                 </div>
+                                <h3 className="text-gray-900 text-sm font-medium mt-2 leading-tight line-clamp-2">{video.title}</h3>
                             </div>
-                            <h3 className="text-gray-900 text-sm font-medium mt-2 leading-tight line-clamp-2">{video.title}</h3>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center py-12">
+                        <div className="text-gray-400">{getTranslation('No videos yet', selectedLanguage)}</div>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -1989,13 +2029,10 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                 {/* Header */}
                 <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[var(--color-gold)] font-semibold text-xl">$</span>
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
+                        <span className="text-[var(--color-gold)] font-semibold text-lg">$</span>
+                        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
                     </div>
                     <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1">{getTranslation("Show your appreciation and support {name}'s work", selectedLanguage).replace('{name}', profile.name)}</p>
-                    <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
-                        <Icon name="x" size={24} />
-                    </button>
                 </div>
 
                 <div className="overflow-y-auto p-5 pt-2 space-y-4 scrollbar-hide flex-1">
@@ -3712,7 +3749,7 @@ const App = () => {
                     selectedLanguage={selectedLanguage}
                 />
             )}
-            {showAllVideos && <AllVideosPopup videos={videos} isPreview={isPreviewMode} onClose={() => setShowAllVideos(false)} onDelete={handleDeleteVideo} selectedLanguage={selectedLanguage} />}
+            {showAllVideos && <AllVideosPopup videos={videos} creatorId={profile.id} isPreview={isPreviewMode} onClose={() => setShowAllVideos(false)} onDelete={handleDeleteVideo} selectedLanguage={selectedLanguage} />}
 
             {/* Scrollable Container */}
             <div className="h-screen overflow-y-auto pb-20 scrollbar-hide">
