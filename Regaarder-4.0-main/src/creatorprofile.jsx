@@ -1985,7 +1985,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
             <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
-            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[85vh] flex flex-col overflow-hidden">
                 {/* Header */}
                 <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
                     <div className="flex items-center gap-2 mb-1">
@@ -1998,7 +1998,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                     </button>
                 </div>
 
-                <div className="overflow-y-auto p-6 pt-2 space-y-6 scrollbar-hide">
+                <div className="overflow-y-auto p-5 pt-2 space-y-4 scrollbar-hide flex-1">
                     {/* Creator Card */}
                     <div className="bg-gray-50 rounded-2xl p-4 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
@@ -2012,8 +2012,8 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
 
                     {/* Quick Amount */}
                     <div>
-                        <h3 className="text-gray-600 text-sm sm:text-base mb-3 font-medium">{getTranslation('Quick Amount', selectedLanguage)}</h3>
-                        <div className="grid grid-cols-3 gap-3">
+                        <h3 className="text-gray-600 text-sm mb-2 font-medium">{getTranslation('Quick Amount', selectedLanguage)}</h3>
+                        <div className="grid grid-cols-3 gap-2">
                             {quickAmounts.map((amount) => {
                                 const active = selectedAmount === amount;
                                 return (
@@ -2023,11 +2023,8 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                                             setSelectedAmount(amount);
                                             setCustomAmount('');
                                         }}
-                                        className={`rounded-xl py-4 flex flex-col items-center justify-center transition-colors border ${active ? 'bg-[#173A66] text-white border-[#173A66]' : 'bg-gray-50 hover:bg-gray-100 border-gray-100'}`}>
-                                        <div className={`flex items-center mb-1 ${active ? 'text-white' : 'text-[var(--color-gold)]'}`}>
-                                            <Icon name="coins" size={16} className="mr-1" />
-                                        </div>
-                                        <span className={`font-semibold ${active ? 'text-white' : 'text-gray-900'}`}>${amount}</span>
+                                        className={`rounded-xl py-3 flex flex-col items-center justify-center transition-colors border text-sm ${active ? 'bg-[#173A66] text-white border-[#173A66]' : 'bg-gray-50 hover:bg-gray-100 border-gray-100'}`}>
+                                        <span className={`font-semibold`}>${amount}</span>
                                     </button>
                                 );
                             })}
@@ -2036,9 +2033,9 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
 
                     {/* Custom Amount */}
                     <div>
-                        <h3 className="text-gray-600 text-sm sm:text-base mb-3 font-medium">{getTranslation('Custom Amount', selectedLanguage)}</h3>
-                        <div className="flex gap-3">
-                            <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
+                        <h3 className="text-gray-600 text-sm mb-2 font-medium">{getTranslation('Custom Amount', selectedLanguage)}</h3>
+                        <div className="flex gap-2">
+                            <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
                                 <span className="text-gray-400 mr-2 text-lg">$</span>
                                 <input
                                     type="number"
@@ -2047,37 +2044,38 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                                         setCustomAmount(e.target.value);
                                         setSelectedAmount(null);
                                     }}
-                                    className="bg-transparent w-full outline-none text-gray-900 font-semibold text-lg"
-                                    placeholder={getTranslation('Enter amount', selectedLanguage)}
+                                    className="bg-transparent w-full outline-none text-gray-900 font-semibold text-sm"
+                                    placeholder={getTranslation('Amount', selectedLanguage)}
                                 />
                             </div>
-                            <button
-                                onClick={() => {
-                                    const amt = amountSelected();
-                                    if (!amt) return;
-                                    // Navigate to PayPal payment page in full screen
-                                    setShowPayPal(true);
-                                }}
-                                disabled={!isActive}
-                                className={`px-6 py-2 rounded-xl text-sm transition-colors ${isActive ? 'bg-[var(--color-gold-light-bg)] text-black font-semibold hover:bg-[var(--color-gold-darker)]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                                {getTranslation('Continue', selectedLanguage)}
-                            </button>
                         </div>
                     </div>
 
-                    {/* Support Info */}
-                    <div className="bg-[var(--color-gold-cream)]/50 rounded-2xl p-4 flex gap-4 border border-[var(--color-gold-cream)]">
-                        <div className="mt-1 text-[var(--color-gold)]">
-                            <div className="w-8 h-8 bg-[var(--color-gold-cream)] rounded-lg flex items-center justify-center">
-                                <span className="font-bold text-lg">$</span>
+                    {/* Support Info - condensed */}
+                    <div className="bg-[var(--color-gold-cream)]/40 rounded-xl p-3 flex gap-3 border border-[var(--color-gold-cream)]/50 text-xs">
+                        <div className="text-[var(--color-gold)] flex-shrink-0">
+                            <div className="w-6 h-6 bg-[var(--color-gold-cream)] rounded-md flex items-center justify-center">
+                                <span className="font-bold text-sm">$</span>
                             </div>
                         </div>
                         <div>
-                            <h4 className="font-semibold text-gray-900 text-sm mb-1">{getTranslation('Support Creators', selectedLanguage)}</h4>
-                            <p className="text-gray-500 text-xs leading-relaxed">
-                                {getTranslation('Tips go directly to creators to support their work and encourage more great content. 100% of your tip goes to the creator.', selectedLanguage)}
-                            </p>
+                            <p className="text-gray-900 font-medium mb-0.5">{getTranslation('100% to creator', selectedLanguage)}</p>
+                            <p className="text-gray-500 leading-snug">{getTranslation('No fees, goes directly to support their work', selectedLanguage)}</p>
                         </div>
+                    </div>
+
+                    {/* Primary CTA */}
+                    <div className="sticky bottom-0 pt-3 bg-white border-t border-gray-100">
+                        <button
+                            onClick={() => {
+                                const amt = amountSelected();
+                                if (!amt) return;
+                                setShowPayPal(true);
+                            }}
+                            disabled={!isActive}
+                            className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-colors focus:outline-none ${isActive ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                            {isActive ? `${getTranslation('Continue', selectedLanguage)} \u2014 $${amountSelected() || '0'}` : getTranslation('Select an amount', selectedLanguage)}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -2383,7 +2381,7 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
             <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
-            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[85vh] flex flex-col overflow-hidden">
                 {/* Header */}
                 <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
                     <div className="text-center px-4">
@@ -2396,9 +2394,9 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                 </div>
 
                 {/* Scrollable Content */}
-                <div className="overflow-y-auto p-6 pt-2 space-y-4 scrollbar-hide pb-20">
-                    {/* Compact tier cards: reduce cognitive load and highlight price */}
-                    <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="overflow-y-auto p-5 pt-2 space-y-3 scrollbar-hide flex-1">
+                    {/* Compact tier cards */}
+                    <div className="grid grid-cols-3 gap-2 mb-3">
                         {tiers.map((tier) => {
                             const active = selectedTier === tier.name;
                             return (
@@ -2408,30 +2406,26 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                                     onClick={() => setSelectedTier(tier.name)}
                                     aria-pressed={active}
                                     aria-label={`${tier.name} tier ${tier.price} dollars per month`}
-                                    className={`relative p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-shadow focus:outline-none ${active ? 'bg-[#173A66] text-white shadow-lg ring-2 ring-[#173A66]' : 'bg-white border border-gray-200 hover:shadow-sm hover:bg-gray-50'} focus:ring-2 focus:ring-[#173A66] focus:ring-offset-2`}>
+                                    className={`relative p-3 rounded-xl flex flex-col items-center justify-center text-center transition-shadow focus:outline-none ${active ? 'bg-[#173A66] text-white shadow-lg ring-2 ring-[#173A66]' : 'bg-white border border-gray-200 hover:shadow-sm hover:bg-gray-50'} focus:ring-2 focus:ring-[#173A66] focus:ring-offset-2`}>
                                     {tier.popular && (
-                                        <div className="absolute -top-2 right-2 text-[10px] bg-[var(--color-gold-cream)] text-[var(--color-gold)] px-2 py-0.5 rounded-full font-bold">{getTranslation('Popular', selectedLanguage)}</div>
+                                        <div className="absolute -top-1.5 right-1 text-[9px] bg-[var(--color-gold-cream)] text-[var(--color-gold)] px-1.5 py-0.5 rounded-full font-bold">{getTranslation('Popular', selectedLanguage)}</div>
                                     )}
-                                    <div className="text-sm font-medium truncate">{tier.name}</div>
-                                    <div className={`text-2xl font-extrabold mt-2 ${active ? 'text-white' : 'text-gray-900'}`}>${tier.price}</div>
-                                    <div className={`text-xs mt-2 ${active ? 'text-white/90' : 'text-gray-500'}`}>{tier.perks[0]}{tier.perks.length > 1 ? ` • +${tier.perks.length - 1}` : ''}</div>
+                                    <div className="text-xs font-medium truncate">{tier.name}</div>
+                                    <div className={`text-lg font-extrabold mt-1 ${active ? 'text-white' : 'text-gray-900'}`}>${tier.price}</div>
                                 </button>
                             );
                         })}
                     </div>
 
-                    {/* Custom monthly amount (lower emphasis) */}
-                    <div className="mb-4">
-                        <div className="flex items-center justify-between mb-2">
-                            <div>
-                                <h3 className="font-semibold text-gray-900">{getTranslation('Custom Monthly Support', selectedLanguage)}</h3>
-                                <p className="text-gray-500 text-xs">{getTranslation('Pick any amount — monthly', selectedLanguage)}</p>
-                            </div>
-                            <div className="text-xs text-gray-400">{getTranslation('Secure & recurring', selectedLanguage)}</div>
+                    {/* Custom monthly amount */}
+                    <div className="mb-2">
+                        <div className="flex items-center justify-between mb-1.5">
+                            <h3 className="font-medium text-gray-900 text-sm">{getTranslation('Custom Amount', selectedLanguage)}</h3>
+                            <div className="text-xs text-gray-400">{getTranslation('/month', selectedLanguage)}</div>
                         </div>
-                        <div className="flex gap-3">
-                            <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 flex items-center focus-within:border-[#173A66] transition-colors">
-                                <span className="text-gray-400 mr-2 text-lg">$</span>
+                        <div className="flex gap-2">
+                            <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 flex items-center focus-within:border-[#173A66] transition-colors">
+                                <span className="text-gray-400 mr-2 text-sm">$</span>
                                 <input
                                     type="number"
                                     value={customMonthlyAmount}
@@ -2439,55 +2433,49 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                                         setCustomMonthlyAmount(e.target.value);
                                         setSelectedTier(null);
                                     }}
-                                    className="bg-transparent w-full outline-none text-gray-900 font-medium text-lg"
+                                    className="bg-transparent w-full outline-none text-gray-900 font-medium text-sm"
                                     placeholder="0"
                                 />
-                            </div>
-                            <div className="w-36 flex-shrink-0 flex items-center justify-center">
-                                <div className="text-xs text-gray-500">{getTranslation('/month', selectedLanguage)}</div>
                             </div>
                         </div>
                     </div>
 
-                    {/* One-time Tip (low emphasis) */}
-                    <div className="mb-4 border border-gray-200 rounded-2xl p-4 bg-white shadow-sm">
-                        <div className="flex items-center justify-between mb-3">
-                            <div>
-                                <h3 className="font-semibold text-gray-900">{getTranslation('One-time Tip', selectedLanguage)}</h3>
-                                <p className="text-gray-500 text-xs">{getTranslation('Enter an amount to send right now', selectedLanguage)}</p>
-                            </div>
-                            <div className="text-xs text-gray-400">{getTranslation('Secure', selectedLanguage)}</div>
+                    {/* One-time Tip - optional */}
+                    <div className="mb-2 border border-gray-200 rounded-xl p-3 bg-white shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-medium text-gray-900 text-sm">{getTranslation('One-time Tip', selectedLanguage)}</h3>
+                            <div className="text-xs text-gray-400">{getTranslation('Optional', selectedLanguage)}</div>
                         </div>
 
-                        <div className="flex gap-3 items-center">
-                            <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 flex items-center focus-within:border-[#173A66] transition-colors">
-                                <span className="text-gray-400 mr-2 text-lg">$</span>
+                        <div className="flex gap-2 items-center">
+                            <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 flex items-center focus-within:border-[#173A66] transition-colors">
+                                <span className="text-gray-400 mr-2 text-sm">$</span>
                                 <input
                                     type="number"
                                     value={oneTimeAmount}
                                     onChange={(e) => setOneTimeAmount(e.target.value)}
-                                    className="bg-transparent w-full outline-none text-gray-900 font-medium text-lg"
-                                    placeholder={getTranslation('Enter amount', selectedLanguage)}
+                                    className="bg-transparent w-full outline-none text-gray-900 font-medium text-sm"
+                                    placeholder="0"
                                 />
                             </div>
                             <button
                                 type="button"
                                 onClick={() => processPayment('one-time', oneTimeAmount)}
                                 disabled={!oneTimeAmount || Number(oneTimeAmount) <= 0}
-                                className={`px-4 py-2 rounded-xl text-sm transition-colors ${oneTimeAmount && Number(oneTimeAmount) > 0 ? 'bg-[var(--color-gold-light-bg)] text-black font-semibold hover:bg-[var(--color-gold-darker)]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                                className={`px-3 py-2 rounded-lg text-xs transition-colors ${oneTimeAmount && Number(oneTimeAmount) > 0 ? 'bg-[var(--color-gold-light-bg)] text-black font-semibold hover:bg-[var(--color-gold-darker)]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
                                 {getTranslation('Send', selectedLanguage)}
                             </button>
                         </div>
                     </div>
 
-                    {/* Primary full-width CTA: shows selected amount, reduces choice overload and guides users to conversion */}
-                    <div className="sticky bottom-0 pt-4 bg-transparent">
+                    {/* Primary CTA */}
+                    <div className="sticky bottom-0 pt-3 bg-white border-t border-gray-100">
                         <button
                             type="button"
                             onClick={() => processPayment('monthly', selectedPrice)}
                             disabled={!isMonthlyActive}
-                            className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#173A66] focus:ring-offset-2 ${isMonthlyActive ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                            {isMonthlyActive ? `${getTranslation('Continue', selectedLanguage)} — $${selectedPrice} / ${getTranslation('month', selectedLanguage)}` : getTranslation('Choose a monthly support amount', selectedLanguage)}
+                            className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-colors focus:outline-none ${isMonthlyActive ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                            {isMonthlyActive ? `${getTranslation('Continue', selectedLanguage)} \u2014 $${selectedPrice} / ${getTranslation('mo', selectedLanguage)}` : getTranslation('Select amount', selectedLanguage)}
                         </button>
                     </div>
                 </div>
