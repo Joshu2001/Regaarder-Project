@@ -4716,6 +4716,20 @@ const SearchBar = ({ searchTerm, setSearchTerm, navigate, onFocusChange, selecte
     };
 
     const onKeyDown = (e) => {
+        // Handle Enter key to navigate directly to @handle if entered
+        if (e.key === 'Enter' && !showDropdown) {
+            e.preventDefault();
+            const term = searchTerm.trim();
+            // Check if user typed @handle format
+            if (term.startsWith('@')) {
+                const handle = term.substring(1);
+                if (handle.length > 0) {
+                    // Navigate directly to creator profile with request modal
+                    window.location.href = `/@${handle}?request=true`;
+                    return;
+                }
+            }
+        }
         if (!showDropdown) return;
         if (e.key === 'ArrowDown') {
             e.preventDefault();

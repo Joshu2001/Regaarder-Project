@@ -392,7 +392,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
         : "Your idea → {creator}'s next video";
 
     const handleShare = async () => {
-        const url = `${window.location.origin}/@${profile?.handle || 'user'}`;
+        const url = `${window.location.origin}/@${profile?.handle || 'user'}?request=true`;
         const successData = { title: "Link Copied", subtitle: "Profile link copied to clipboard" };
 
         const onCopySuccess = () => {
@@ -1721,7 +1721,7 @@ const AboutSection = ({ profile, onUpdate, isPreviewMode, selectedLanguage = 'En
 const ShareProfile = ({ profile, onCopy, selectedLanguage = 'English' }) => {
     const handleCopy = async () => {
         // Construct the profile URL (using current origin + handle for demo)
-        const url = `${window.location.origin}/@${profile?.handle || 'user'}?shared=true`;
+        const url = `${window.location.origin}/@${profile?.handle || 'user'}?request=true`;
 
         const successData = { title: "Link Copied", subtitle: "Profile link copied to clipboard" };
 
@@ -2704,6 +2704,16 @@ const App = () => {
         return () => clearTimeout(timer);
     }, [isPreviewMode, isSharedLink]);
 
+    // Check for request parameter to auto-open welcome popup
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search || '');
+        const requestParam = params.get('request') === 'true';
+        if (requestParam && !isSharedLink) {
+            setIsPreviewMode(true);
+            setIsSharedLink(true);
+        }
+    }, [isSharedLink]);
+
     // Hydrate profile and featured video from query params (public view) or demo auth stored in localStorage
     useEffect(() => {
         const tryLoad = async () => {
@@ -2711,8 +2721,13 @@ const App = () => {
                 const params = new URLSearchParams(window.location.search || '');
                 const id = params.get('id');
                 const handle = params.get('handle') || params.get('h');
-                const isSharedLink = params.get('shared') === 'true';
+                // Extract handle from /@handle URL pattern
+                const pathHandle = window.location.pathname.startsWith('/@') ? window.location.pathname.slice(2).split('?')[0] : null;
+                const isSharedLink = params.get('shared') === 'true' || params.get('request') === 'true';
                 const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                
+                // Use handle from URL path, query params, or default
+                const finalHandle = pathHandle || handle;
                 
                 // If this is a shared link, enable shared preview mode
                 if (isSharedLink) {
@@ -2789,9 +2804,9 @@ const App = () => {
                     } catch (e) { /* ignore fetch error and fall back */ }
                 }
 
-                if (handle) {
+                if (finalHandle) {
                     try {
-                        const user = await fetchUserWithStats(null, handle);
+                        const user = await fetchUserWithStats(null, finalHandle);
                         if (user) {
                             setProfile(prev => ({ ...prev, ...user }));
                             if (user.introVideo) setFeaturedVideo({ url: user.introVideo });

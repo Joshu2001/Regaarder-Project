@@ -129,6 +129,7 @@ function App() {
           <Route path="/advertisewithus" element={<AdvertiseWithUs />} />
           <Route path="/creatordashboard" element={<CreatorDashboard />} />
           <Route path="/creatorprofile" element={<CreatorProfile />} />
+          <Route path="/:handle" element={<CreatorProfile />} />
           <Route path="/userprofile" element={<UserProfile />} />
           
           {/* Additional sidebar routes - they can redirect to home or show placeholder */}

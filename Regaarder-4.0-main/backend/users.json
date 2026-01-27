@@ -56,7 +56,7 @@
     "createdAt": "2026-01-05T03:56:39.609Z",
     "token": "64e741630c9e393f02c2f07adea5568a",
     "isCreator": true,
-    "creatorSince": "2026-01-12T08:24:51.780Z",
+    "creatorSince": "2026-01-27T12:04:13.269Z",
     "image": "http://localhost:4000/uploads/intro-1769337726157-181930.png",
     "following": [
       "user-1767585399609",
@@ -1196,7 +1196,8 @@
     "lastWarning": "2026-01-20T04:53:02.875Z",
     "shadowBanned": true,
     "shadowBannedAt": "2026-01-22T13:48:48.345Z",
-    "shadowBanReason": "Content violates platform guidelines"
+    "shadowBanReason": "Content violates platform guidelines",
+    "handle": "paul"
   },
   {
     "id": "user-1768222892161",
