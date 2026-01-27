@@ -2149,7 +2149,7 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
             `}</style>
             {/* Use a plain black backdrop when opened from preview mode (no blur) */}
             <div className={isPreview || isSharedLink ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={!isSharedLink ? onClose : undefined}></div>
-            <div className="relative bg-white rounded-xl w-full max-w-none p-6 sm:p-8 shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col items-center">
+            <div className="relative bg-white rounded-xl w-full max-w-md mx-4 px-6 py-8 sm:px-6 sm:py-8 shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col items-center">
                 {!isPreview && !isSharedLink && (
                     <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                         <Icon name="x" size={24} />
