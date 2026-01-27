@@ -1037,6 +1037,7 @@ const ActionCard = ({ title, progress, missingFields, icon, isPopup, onClick, on
 
 const FeaturedVideo = ({ isPreviewMode, video, onUpload, onDelete, selectedLanguage }) => {
     const fileInputRef = useRef(null);
+    const videoRef = useRef(null);
 
     const handleUploadClick = () => {
         fileInputRef.current.click();
@@ -1057,10 +1058,40 @@ const FeaturedVideo = ({ isPreviewMode, video, onUpload, onDelete, selectedLangu
             {video ? (
                 <div className="relative bg-black rounded-2xl overflow-hidden shadow-sm border border-gray-100 aspect-video group">
                     <video
+                        ref={videoRef}
                         src={video.url}
-                        controls
-                        className="w-full h-full object-contain bg-black"
+                        className="w-full h-full object-contain bg-black cursor-pointer"
+                        onClick={() => {
+                            if (videoRef.current) {
+                                if (videoRef.current.paused) {
+                                    videoRef.current.play();
+                                } else {
+                                    videoRef.current.pause();
+                                }
+                            }
+                        }}
                     />
+                    {/* Play/Pause Button in Center */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20 hover:bg-black/40">
+                        <button
+                            onClick={() => {
+                                if (videoRef.current) {
+                                    if (videoRef.current.paused) {
+                                        videoRef.current.play();
+                                    } else {
+                                        videoRef.current.pause();
+                                    }
+                                }
+                            }}
+                            className="p-4 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-sm transition-all"
+                        >
+                            {videoRef.current && !videoRef.current.paused ? (
+                                <Icon name="pause" size={32} className="text-white" />
+                            ) : (
+                                <Icon name="play" size={32} className="text-white" />
+                            )}
+                        </button>
+                    </div>
                     {!isPreviewMode && (
                         <button
                             onClick={onDelete}
@@ -3345,29 +3376,7 @@ const App = () => {
         .filter(cat => !['custom', 'default', 'premium', 'personal', 'action', 'weekend', 'conversational', 'playful'].includes(cat.id))
         .map(cat => ({ value: cat.name, label: cat.name }));
 
-    const [videos, setVideos] = useState([
-        {
-            id: 1,
-            title: "Why We Procrastinate...",
-            fullTitle: "Why We Procrastinate even when we have a tight deadline",
-            views: "856K",
-            image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
-        },
-        {
-            id: 2,
-            title: "The Science of Motivation -...",
-            fullTitle: "The Science of Motivation - How habits shape our actions",
-            views: "623K",
-            image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
-        },
-        {
-            id: 3,
-            title: "Social Proof Experiment: 24...",
-            fullTitle: "Social Proof Experiment: 24 strangers, 1 surprising result",
-            views: "912K",
-            image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
-        }
-    ]);
+    const [videos, setVideos] = useState([]);
 
     // Attempt to source published videos from `creatordashboard.jsx` if that file exists
     // This uses a dynamic import so the app won't crash if the file is absent.
