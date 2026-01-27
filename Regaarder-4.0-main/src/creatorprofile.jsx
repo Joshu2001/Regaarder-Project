@@ -843,7 +843,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                 </button>
                             ) : (
                                 <button
-                                    className={`flex-grow bg-[var(--color-gold)] text-black font-semibold py-2.5 rounded-xl text-base shadow-sm flex items-center justify-center hover:bg-[var(--color-gold-darker)] transition ${followActive ? 'scale-95 opacity-90' : ''}`}
+                                    className={`flex-grow bg-[#00d4d4] text-black font-semibold py-2.5 rounded-xl text-base shadow-sm flex items-center justify-center hover:bg-[#00b8b8] transition ${followActive ? 'scale-95 opacity-90' : ''}`}
                                     onClick={handleFollow}
                                 >
                                     <Icon name="heart" size={18} className="mr-2" />
@@ -870,7 +870,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                     // clear active state shortly after so it doesn't persist
                                     setTimeout(() => setCtaActive(false), 420);
                                 }}
-                                className={`w-full shimmer-gold text-black font-medium py-2.5 px-4 rounded-xl text-base shadow-sm hover:opacity-90 transition flex items-center justify-center ${ctaActive ? 'scale-95 opacity-90' : ''}`}
+                                className={`w-full shimmer-gold text-black font-medium py-4 px-4 rounded-xl text-base shadow-sm hover:opacity-90 transition flex items-center justify-center ${ctaActive ? 'scale-95 opacity-90' : ''}`}
                             >
                                 <Icon name="video" size={18} className="mr-2 flex-shrink-0" />
                                 <span className={`text-center leading-tight transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
