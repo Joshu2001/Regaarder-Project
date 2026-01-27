@@ -57,13 +57,13 @@
     "token": "64e741630c9e393f02c2f07adea5568a",
     "isCreator": true,
     "creatorSince": "2026-01-12T08:24:51.780Z",
-    "image": "http://localhost:4000/uploads/intro-1768318495477-184494.png",
+    "image": "http://localhost:4000/uploads/intro-1769337726157-181930.png",
     "following": [
       "user-1767585399609",
       "user-1766857658728"
     ],
     "streak": 1,
-    "lastStreakDate": "2026-01-21",
+    "lastStreakDate": "2026-01-27",
     "bio": "",
     "categories": [
       {
@@ -1187,7 +1187,7 @@
         ]
       }
     ],
-    "introVideo": "http://localhost:4000/uploads/intro-1768318508169-486426.mp4",
+    "introVideo": "http://localhost:4000/uploads/intro-1769337727265-229504.mp4",
     "lastClaimReset": "2026-01-14",
     "dailyClaimCount": 1,
     "dailyClaimEarnings": 133,
@@ -1195,8 +1195,8 @@
     "warnings": 7,
     "lastWarning": "2026-01-20T04:53:02.875Z",
     "shadowBanned": true,
-    "shadowBannedAt": "2026-01-20T05:55:58.358Z",
-    "shadowBanReason": "Low-quality or repetitive content"
+    "shadowBannedAt": "2026-01-22T13:48:48.345Z",
+    "shadowBanReason": "Content violates platform guidelines"
   },
   {
     "id": "user-1768222892161",
@@ -1205,6 +1205,8 @@
     "passwordHash": "$2a$10$DT1NEPWdFf7USjWrbGuE9ePrBsqZu7DwgCLdWj2Vp/ugA7.j5IS8.",
     "createdAt": "2026-01-12T13:01:32.161Z",
     "passwordChangedAt": "2026-01-12T13:01:32.161Z",
-    "token": "04d4d6e2429906b4c1738691c5064034"
+    "token": "4ae1e5109e9b416df1585699cb95a7c1",
+    "streak": 1,
+    "lastStreakDate": "2026-01-25"
   }
 ]

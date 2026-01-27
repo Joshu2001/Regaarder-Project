@@ -26,6 +26,7 @@ const DATA_FILE = path.join(__dirname, 'users.json');
 const SPONSORS_FILE = path.join(__dirname, 'sponsors.json');
 const REQUESTS_FILE = path.join(__dirname, 'requests.json');
 const VIDEOS_FILE = path.join(__dirname, 'videos.json');
+const CATEGORIES_FILE = path.join(__dirname, 'categories.json');
 
 const crypto = require('crypto');
 const multer = require('multer');
@@ -1154,6 +1155,8 @@ app.post('/staff/send-promotion', (req, res) => {
 app.post('/staff/apply-overlay-ad', (req, res) => {
   try {
     const { employeeId, videoIds, ad } = req.body || {};
+    console.log('Apply overlay request:', { employeeId, videoIds, adKeys: ad ? Object.keys(ad) : null });
+    
     if (parseInt(employeeId) !== 1000) return res.status(403).json({ error: 'Unauthorized' });
     if (!videoIds || !Array.isArray(videoIds) || videoIds.length === 0) {
       return res.status(400).json({ error: 'No videos selected' });
@@ -1165,7 +1168,7 @@ app.post('/staff/apply-overlay-ad', (req, res) => {
 
     videos.forEach((v) => {
       if (videoIds.includes(v.id)) {
-        if (!v.ads) v.ads = [];
+        if (!v.ads) v.ads = {};
         if (!v.ads.overlays) v.ads.overlays = [];
         v.ads.overlays.push({
           id: `overlay-${Date.now()}-${Math.random().toString(36).substr(2,9)}`,
@@ -1180,6 +1183,7 @@ app.post('/staff/apply-overlay-ad', (req, res) => {
 
     try {
       fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2), 'utf8');
+      console.log(`Successfully applied overlay to ${updated.length} videos`);
     } catch (e) {
       console.error('write videos error:', e);
       return res.status(500).json({ error: 'Failed to save' });
@@ -1188,7 +1192,7 @@ app.post('/staff/apply-overlay-ad', (req, res) => {
     return res.json({ success: true, applied: updated.length, videos: updated });
   } catch (err) {
     console.error('apply-overlay-ad error', err);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
@@ -1207,8 +1211,13 @@ app.post('/staff/apply-bottom-ad', (req, res) => {
 
     videos.forEach((v) => {
       if (videoIds.includes(v.id)) {
-        if (!v.ads) v.ads = [];
-        if (!v.ads.bottom) v.ads.bottom = [];
+        // Ensure ads is an object (not an array) with bottom and overlays arrays
+        if (!v.ads || Array.isArray(v.ads)) {
+          v.ads = { bottom: [], overlays: [] };
+        }
+        if (!Array.isArray(v.ads.bottom)) {
+          v.ads.bottom = [];
+        }
         v.ads.bottom.push({
           id: `bottom-${Date.now()}-${Math.random().toString(36).substr(2,9)}`,
           type: 'bottom',
@@ -1216,6 +1225,7 @@ app.post('/staff/apply-bottom-ad', (req, res) => {
           appliedAt: new Date().toISOString(),
           appliedBy: employeeId
         });
+        console.log(`Applied bottom ad to video ${v.id}:`, v.ads);
         updated.push(v);
       }
     });
@@ -1230,6 +1240,78 @@ app.post('/staff/apply-bottom-ad', (req, res) => {
     return res.json({ success: true, applied: updated.length, videos: updated });
   } catch (err) {
     console.error('apply-bottom-ad error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /staff/remove-ad-from-video - remove ads from a video
+app.post('/staff/remove-ad-from-video', (req, res) => {
+  try {
+    const { employeeId, videoId, adType, adId } = req.body || {};
+    if (parseInt(employeeId) !== 1000) return res.status(403).json({ error: 'Unauthorized' });
+    if (!videoId || !adType) {
+      return res.status(400).json({ error: 'videoId and adType are required' });
+    }
+
+    const videos = readVideos();
+    const videoIdx = videos.findIndex(v => String(v.id) === String(videoId));
+    
+    if (videoIdx === -1) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    const video = videos[videoIdx];
+    let removed = 0;
+
+    // Initialize ads object if needed
+    if (!video.ads || Array.isArray(video.ads)) {
+      video.ads = { bottom: [], overlays: [] };
+    }
+
+    // Remove specific ad by ID, or all ads of a type
+    if (adType === 'bottom' && Array.isArray(video.ads.bottom)) {
+      if (adId) {
+        // Remove specific ad by ID
+        const initialLength = video.ads.bottom.length;
+        video.ads.bottom = video.ads.bottom.filter(ad => ad.id !== adId);
+        removed = initialLength - video.ads.bottom.length;
+        console.log(`Removed 1 bottom ad (${adId}) from video ${videoId}`);
+      } else {
+        // Remove all bottom ads
+        removed = video.ads.bottom.length;
+        video.ads.bottom = [];
+        console.log(`Removed all ${removed} bottom ads from video ${videoId}`);
+      }
+    } else if (adType === 'overlay' && Array.isArray(video.ads.overlays)) {
+      if (adId) {
+        // Remove specific ad by ID
+        const initialLength = video.ads.overlays.length;
+        video.ads.overlays = video.ads.overlays.filter(ad => ad.id !== adId);
+        removed = initialLength - video.ads.overlays.length;
+        console.log(`Removed 1 overlay ad (${adId}) from video ${videoId}`);
+      } else {
+        // Remove all overlay ads
+        removed = video.ads.overlays.length;
+        video.ads.overlays = [];
+        console.log(`Removed all ${removed} overlay ads from video ${videoId}`);
+      }
+    } else if (adType === 'all') {
+      removed = (video.ads.bottom?.length || 0) + (video.ads.overlays?.length || 0);
+      video.ads.bottom = [];
+      video.ads.overlays = [];
+      console.log(`Removed ${removed} total ads from video ${videoId}`);
+    }
+
+    try {
+      fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2), 'utf8');
+    } catch (e) {
+      console.error('write videos error:', e);
+      return res.status(500).json({ error: 'Failed to save' });
+    }
+
+    return res.json({ success: true, removed: removed, video: video });
+  } catch (err) {
+    console.error('remove-ad-from-video error', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });
@@ -1364,6 +1446,54 @@ app.get('/users/handle/:handle', (req, res) => {
 });
 
 // Requests endpoints: list and create
+
+// --- Categories API ---
+app.get('/categories', (req, res) => {
+    try {
+        if (!fs.existsSync(CATEGORIES_FILE)) {
+            // Default if missing
+            return res.json(['Travel', 'Education', 'Entertainment', 'Music', 'Sports']);
+        }
+        const data = fs.readFileSync(CATEGORIES_FILE, 'utf8');
+        const categories = JSON.parse(data);
+        res.json(categories);
+    } catch (err) {
+        console.error('Error reading categories:', err);
+        res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+});
+
+app.post('/categories', (req, res) => {
+    try {
+        // Simple auth check? (req.user shouldn't be here unless authMiddleware used)
+        const { category } = req.body;
+        if (!category || typeof category !== 'string' || !category.trim()) {
+            return res.status(400).json({ error: 'Invalid category name' });
+        }
+        
+        const catName = category.trim();
+        let categories = [];
+        
+        if (fs.existsSync(CATEGORIES_FILE)) {
+             categories = JSON.parse(fs.readFileSync(CATEGORIES_FILE, 'utf8'));
+        } else {
+             categories = ['Travel', 'Education', 'Entertainment', 'Music', 'Sports'];
+        }
+
+        // Case-insensitive duplicate check
+        const exists = categories.some(c => c.toLowerCase() === catName.toLowerCase());
+        if (!exists) {
+            categories.push(catName); // Add in original case
+            fs.writeFileSync(CATEGORIES_FILE, JSON.stringify(categories, null, 2));
+        }
+
+        res.json(categories);
+    } catch (err) {
+        console.error('Error saving category:', err);
+        res.status(500).json({ error: 'Failed to save category' });
+    }
+});
+
 app.get('/requests', (req, res) => {
   try {
     let requests = readRequests();
@@ -1811,7 +1941,7 @@ app.put('/requests/:id', authMiddleware, (req, res) => {
     if (existing.claimed) return res.status(400).json({ error: 'Cannot edit a claimed request' });
 
     // Accept a small set of editable fields
-    const allowed = ['title', 'description', 'imageUrl', 'funding', 'amount', 'company'];
+    const allowed = ['title', 'description', 'imageUrl', 'funding', 'amount', 'company', 'meta'];
     allowed.forEach(k => {
       if (typeof body[k] !== 'undefined') requests[idx][k] = body[k];
     });
@@ -1824,8 +1954,70 @@ app.put('/requests/:id', authMiddleware, (req, res) => {
   }
 });
 
+app.delete('/requests/:id', authMiddleware, (req, res) => {
+  try {
+    const requestId = req.params.id;
+    const requests = readRequests();
+    const idx = requests.findIndex(r => String(r.id) === String(requestId));
+    if (idx === -1) return res.status(404).json({ error: 'Request not found' });
+
+    const existing = requests[idx];
+    // Only the creating user may delete
+    if (!existing.createdBy || existing.createdBy !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+    
+    // Constraint: Cannot delete if claimed/in-progress
+    // We check both specific 'claimed' flag and if there is a 'creator' object that is not the requester themselves (which shouldn't happen for claimed requests usually, but just in case)
+    // Actually, based on logic elsewhere: request.creator is populated with the profile of the person who fulfilled it OR the requester? 
+    // Wait, let's look at requests.json again. 
+    // "creator": { "id": "...", "name": "Paul" } seems to be the REQUESTER usually.
+    // "claimedBy": { "id": "...", "name": "..." } ??
+    // I need to check how "claimed" is stored.
+    
+    // In src/requests.jsx: 
+    // isClaimed = request.claimedBy || (request.status === 'in-progress' || request.status === 'completed');
+    
+    const isClaimed = existing.claimedBy || existing.claimed || (existing.status && ['in-progress', 'completed', 'claimed'].includes(existing.status));
+
+    if (isClaimed) {
+         return res.status(400).json({ error: 'Request is in progress and cannot be deleted' });
+    }
+
+    // Proceed to delete
+    requests.splice(idx, 1);
+    writeRequests(requests);
+    
+    // Also remove any related comments/reactions if needed, but for now just the request
+    return res.json({ success: true, message: 'Request deleted' });
+
+  } catch (err) {
+    console.error('delete request error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Serve uploaded static files
 app.use('/uploads', express.static(UPLOAD_DIR));
+
+// Upload overlay media (video/image/gif) - for staff dashboard
+app.post('/staff/upload-overlay-media', (req, res) => {
+  upload.single('media')(req, res, function (err) {
+    if (err) {
+      console.error('overlay media upload error', err && err.message ? err.message : err);
+      if (err.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ error: 'File too large (max 100MB)' });
+      if (err.message === 'Unsupported file type') return res.status(415).json({ error: 'Unsupported file type. Use images, GIFs, or videos.' });
+      return res.status(400).json({ error: err.message || 'Upload failed' });
+    }
+
+    try {
+      if (!req.file) return res.status(400).json({ error: 'Missing file' });
+      const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      return res.json({ success: true, url, filename: req.file.filename });
+    } catch (err2) {
+      console.error('overlay media upload error', err2);
+      return res.status(500).json({ error: 'Server error' });
+    }
+  });
+});
 
 // Upload intro video for creator profile
 app.post('/creator/intro-video', authMiddleware, (req, res) => {
@@ -2011,6 +2203,28 @@ app.get('/videos', (req, res) => {
     return res.json({ success: true, videos });
   } catch (err) {
     console.error('get videos error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get a single video by ID (including fresh ads data)
+app.get('/videos/:id', (req, res) => {
+  try {
+    const videoId = req.params.id;
+    console.log(`GET /videos/${videoId}`);
+    
+    const videos = readVideos();
+    const video = videos.find(v => String(v.id) === String(videoId));
+    
+    if (!video) {
+      console.log(`Video not found: ${videoId}`);
+      return res.status(404).json({ error: 'Video not found' });
+    }
+    
+    console.log(`Found video: ${video.title}, ads:`, video.ads);
+    return res.json(video);
+  } catch (err) {
+    console.error('get video by id error', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });
@@ -2952,8 +3166,17 @@ app.post('/staff/login', (req, res) => {
       return res.status(401).json({ error: 'Employee not found' });
     }
 
-    if (employee.status !== 'active') {
-      return res.status(401).json({ error: 'Account inactive' });
+    // Check if account is blocked
+    if (employee.status === 'blocked') {
+      return res.status(403).json({ 
+        error: 'Account blocked',
+        blocked: true,
+        message: employee.blockMessage || 'Your account has been blocked by an administrator. Please contact support if you believe this is an error.'
+      });
+    }
+
+    if (employee.status !== 'active' && employee.status !== 'approved') {
+      return res.status(401).json({ error: 'Account inactive or pending approval' });
     }
 
     // Check all 3 passwords
@@ -2971,7 +3194,9 @@ app.post('/staff/login', (req, res) => {
         id: employee.id,
         name: employee.name,
         email: employee.email,
-        role: employee.role
+        role: employee.role,
+        permissions: employee.permissions || {},
+        isAdmin: employee.approvalAuthority || false
       }
     });
   } catch (err) {
@@ -2980,32 +3205,111 @@ app.post('/staff/login', (req, res) => {
   }
 });
 
+// Check account approval status
+app.post('/staff/check-account-status', (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const staff = readStaff();
+    
+    // Check if account is already approved
+    const approved = staff.employees.find(e => e.email === email);
+    if (approved) {
+      return res.json({ 
+        status: 'approved',
+        employeeId: approved.id,
+        message: 'Account has been approved!'
+      });
+    }
+    
+    // Check if still pending
+    const pending = staff.pendingAccounts.find(p => p.email === email);
+    if (pending) {
+      return res.json({ 
+        status: 'pending',
+        message: 'Account request is pending. Awaiting staff approval.'
+      });
+    }
+    
+    // Check notifications for denial
+    if (staff.notifications) {
+      const denial = staff.notifications.find(n => 
+        n.metadata?.isDenial && 
+        n.metadata?.denialEmail === email
+      );
+      if (denial) {
+        return res.json({ 
+          status: 'denied',
+          message: denial.message
+        });
+      }
+    }
+    
+    return res.json({ 
+      status: 'not_found',
+      message: 'Account not found.'
+    });
+  } catch (err) {
+    console.error('Check account status error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Create staff account (requires approval)
+// Get next available Employee ID (for new account signup)
+app.get('/staff/next-employee-id', (req, res) => {
+  try {
+    const staff = readStaff();
+    
+    // Find the highest existing employee ID
+    let maxId = 1000; // Start from 1000
+    
+    staff.employees.forEach(e => {
+      if (e.id > maxId) maxId = e.id;
+    });
+    
+    staff.pendingAccounts.forEach(p => {
+      if (p.employeeId > maxId) maxId = p.employeeId;
+    });
+    
+    const nextId = maxId + 1;
+    return res.json({ nextEmployeeId: nextId });
+  } catch (err) {
+    console.error('Get next employee ID error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.post('/staff/create-account', (req, res) => {
   try {
-    const { employeeId, password1, password2, password3, name, email } = req.body;
+    const { password1, password2, password3, name, email } = req.body;
 
-    if (!employeeId || !password1 || !password2 || !password3 || !name || !email) {
+    if (!password1 || !password2 || !password3 || !name || !email) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const staff = readStaff();
 
-    // Check if employee already exists
-    const exists = staff.employees.find(e => e.id === parseInt(employeeId));
-    if (exists) {
-      return res.status(400).json({ error: 'Employee ID already exists' });
-    }
+    // Auto-generate next employee ID
+    let maxId = 1000; // Start from 1000
+    
+    staff.employees.forEach(e => {
+      if (e.id > maxId) maxId = e.id;
+    });
+    
+    staff.pendingAccounts.forEach(p => {
+      if (p.employeeId > maxId) maxId = p.employeeId;
+    });
+    
+    const newEmployeeId = maxId + 1;
 
-    // Check if pending request exists
-    const pending = staff.pendingAccounts.find(p => p.employeeId === parseInt(employeeId));
-    if (pending) {
-      return res.status(400).json({ error: 'Pending request already exists' });
-    }
-
-    // Create pending account
+    // Create pending account with auto-generated ID
     const newPending = {
-      employeeId: parseInt(employeeId),
+      employeeId: newEmployeeId,
       name,
       email,
       passwords: [password1, password2, password3],
@@ -3016,7 +3320,7 @@ app.post('/staff/create-account', (req, res) => {
     staff.pendingAccounts.push(newPending);
     writeStaff(staff);
 
-    return res.json({ success: true, message: 'Account request submitted for approval' });
+    return res.json({ success: true, message: 'Account request submitted for approval', employeeId: newEmployeeId });
   } catch (err) {
     console.error('Create account error:', err);
     return res.status(500).json({ error: 'Server error' });
@@ -3040,45 +3344,367 @@ app.get('/staff/pending-accounts', (req, res) => {
   }
 });
 
-// Approve/Deny account (admin only - ID 1000)
+// Approve/Deny account (admin/approval authority only)
 app.post('/staff/approve-account', (req, res) => {
   try {
-    const { employeeId, pendingId, approve } = req.body;
-
-    if (parseInt(employeeId) !== 1000) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
+    const { employeeId, pendingId, approve, permissions = {}, grantAdminAccess = false, denialReason = '', approvalInstructions = '' } = req.body;
 
     const staff = readStaff();
-    const pendingIdx = staff.pendingAccounts.findIndex(p => p.employeeId === parseInt(pendingId));
+    const approver = staff.employees.find(e => e.id === parseInt(employeeId));
 
+    // Check authorization: must be admin (1000) or have approval permissions
+    if (!approver || (!approver.approvalAuthority && parseInt(employeeId) !== 1000)) {
+      return res.status(403).json({ error: 'Unauthorized: you do not have approval authority' });
+    }
+
+    const pendingIdx = staff.pendingAccounts.findIndex(p => p.employeeId === parseInt(pendingId));
     if (pendingIdx === -1) {
       return res.status(404).json({ error: 'Pending account not found' });
     }
 
+    const pending = staff.pendingAccounts[pendingIdx];
+    let assignedEmployeeId = pending.employeeId;
+
     if (approve) {
-      // Add to employees
-      const pending = staff.pendingAccounts[pendingIdx];
-      const nextId = Math.max(...staff.employees.map(e => e.id)) + 1;
-      
-      staff.employees.push({
-        id: pending.employeeId,
+      // Assign sequential employee ID if admin or auto-assign enabled
+      if (parseInt(employeeId) === 1000 || pending.autoAssignId) {
+        assignedEmployeeId = Math.max(1000, ...staff.employees.map(e => e.id)) + 1;
+      }
+
+      // Create new employee with permissions
+      const newEmployee = {
+        id: assignedEmployeeId,
         name: pending.name,
         email: pending.email,
-        role: 'moderator',
+        role: grantAdminAccess ? 'administrator' : 'moderator',
         passwords: pending.passwords,
         createdAt: new Date().toISOString(),
-        status: 'active'
-      });
+        status: 'active',
+        permissions: permissions || {
+          videos: true,
+          requests: true,
+          comments: true,
+          reports: true,
+          users: true,
+          creators: true,
+          shadowDeleted: true,
+          approvals: false,
+          promotions: false,
+          templates: true,
+          ads: false
+        },
+        approvalAuthority: grantAdminAccess || false,
+        approvedBy: parseInt(employeeId),
+        approvedAt: new Date().toISOString()
+      };
+
+      staff.employees.push(newEmployee);
+
+      // Create notification for the new employee with approval instructions
+      const notification = {
+        id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        userId: assignedEmployeeId,
+        type: 'staff_action',
+        title: 'Account Approved',
+        message: `Your account has been approved! Your Employee ID is ${assignedEmployeeId}.`,
+        metadata: {
+          approvedBy: approver.name,
+          permissions: permissions,
+          employeeId: assignedEmployeeId,
+          instructions: approvalInstructions,
+          isApprovalInstructions: true
+        },
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!staff.notifications) staff.notifications = [];
+      staff.notifications.push(notification);
+    } else {
+      // Create denial notification with reason
+      const notification = {
+        id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        userId: pending.employeeId,
+        type: 'staff_action',
+        title: 'Account Denied',
+        message: denialReason || 'Your account request has been denied.',
+        metadata: {
+          deniedBy: approver.name,
+          denialReason: denialReason,
+          denialEmail: pending.email,
+          isDenial: true
+        },
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!staff.notifications) staff.notifications = [];
+      staff.notifications.push(notification);
     }
 
     // Remove from pending
     staff.pendingAccounts.splice(pendingIdx, 1);
     writeStaff(staff);
 
-    return res.json({ success: true, message: approve ? 'Account approved' : 'Account denied' });
+    return res.json({ 
+      success: true, 
+      message: approve ? 'Account approved' : 'Account denied',
+      employeeId: assignedEmployeeId 
+    });
   } catch (err) {
     console.error('Approve account error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update staff member permissions (admin only)
+app.post('/staff/update-permissions', (req, res) => {
+  try {
+    const { employeeId, targetEmployeeId, permissions, grantAdminAccess, blocked } = req.body;
+
+    if (!employeeId || !targetEmployeeId) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const staff = readStaff();
+    const admin = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    // Check authorization: must be admin (1000) or have approval authority
+    if (!admin || (!admin.approvalAuthority && parseInt(employeeId) !== 1000)) {
+      return res.status(403).json({ error: 'Unauthorized: you do not have permission to modify staff' });
+    }
+
+    const targetEmployee = staff.employees.find(e => e.id === parseInt(targetEmployeeId));
+    if (!targetEmployee) {
+      return res.status(404).json({ error: 'Target employee not found' });
+    }
+
+    // Update permissions
+    if (permissions) {
+      targetEmployee.permissions = permissions;
+    }
+
+    // Update admin access
+    if (grantAdminAccess !== undefined) {
+      targetEmployee.approvalAuthority = grantAdminAccess;
+      if (grantAdminAccess) {
+        targetEmployee.role = 'administrator';
+      } else {
+        targetEmployee.role = 'moderator';
+      }
+    }
+
+    // Handle blocking/unblocking
+    if (blocked !== undefined) {
+      const wasBlocked = targetEmployee.status === 'blocked';
+      targetEmployee.status = blocked ? 'blocked' : 'approved';
+      
+      // If blocking the user, add a notification/message they'll see on login attempt
+      if (blocked && !wasBlocked) {
+        targetEmployee.blockedAt = new Date().toISOString();
+        targetEmployee.blockedBy = parseInt(employeeId);
+        targetEmployee.blockMessage = 'Your account has been blocked by an administrator. Please contact support if you believe this is an error.';
+      } else if (!blocked && wasBlocked) {
+        // Unblocking - clear block info
+        delete targetEmployee.blockedAt;
+        delete targetEmployee.blockedBy;
+        delete targetEmployee.blockMessage;
+      }
+    }
+
+    // Add audit log
+    targetEmployee.lastPermissionUpdate = {
+      updatedBy: parseInt(employeeId),
+      updatedAt: new Date().toISOString(),
+      grantedAdminAccess: grantAdminAccess,
+      permissions: permissions,
+      blocked: blocked
+    };
+
+    writeStaff(staff);
+
+    return res.json({ 
+      success: true, 
+      message: blocked ? 'Staff member has been blocked' : 'Staff permissions updated successfully',
+      employee: targetEmployee 
+    });
+  } catch (err) {
+    console.error('Update staff permissions error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get staff member permissions endpoint
+app.get('/staff/member/:memberId', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+    const targetMemberId = req.params.memberId;
+
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const requester = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    if (!requester) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Only allow admins or approval authority to view other members' details
+    if (parseInt(employeeId) !== 1000 && !requester.approvalAuthority) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const targetMember = staff.employees.find(e => e.id === parseInt(targetMemberId));
+    if (!targetMember) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    return res.json({ 
+      success: true,
+      member: {
+        id: targetMember.id,
+        name: targetMember.name,
+        email: targetMember.email,
+        role: targetMember.role,
+        permissions: targetMember.permissions,
+        approvalAuthority: targetMember.approvalAuthority,
+        status: targetMember.status,
+        createdAt: targetMember.createdAt
+      }
+    });
+  } catch (err) {
+    console.error('Get staff member error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// List all staff members (admin only)
+app.get('/staff/all', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const requester = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    if (!requester || (!requester.approvalAuthority && parseInt(employeeId) !== 1000)) {
+      return res.status(403).json({ error: 'Forbidden: you do not have permission to view all staff' });
+    }
+
+    const members = staff.employees.map(e => ({
+      id: e.id,
+      name: e.name,
+      email: e.email,
+      role: e.role,
+      permissions: e.permissions,
+      approvalAuthority: e.approvalAuthority,
+      status: e.status,
+      createdAt: e.createdAt,
+      approvedBy: e.approvedBy
+    }));
+
+    return res.json({ success: true, members });
+  } catch (err) {
+    console.error('List staff members error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update staff member's own profile
+app.post('/staff/update-profile', (req, res) => {
+  try {
+    const { employeeId, name, email, passwords } = req.body;
+
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const employee = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    if (!employee) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    // Update name if provided
+    if (name && name.trim()) {
+      employee.name = name.trim();
+    }
+
+    // Update email if provided
+    if (email && email.trim()) {
+      employee.email = email.trim();
+    }
+
+    // Update passwords if provided
+    if (passwords && Array.isArray(passwords) && passwords.length > 0) {
+      // Replace all passwords with new ones
+      employee.passwords = passwords.filter(p => p && p.trim()).map(p => p.trim());
+      employee.updatedPasswordAt = new Date().toISOString();
+    }
+
+    employee.lastUpdated = new Date().toISOString();
+    writeStaff(staff);
+
+    return res.json({ 
+      success: true, 
+      message: 'Profile updated successfully',
+      employee: {
+        id: employee.id,
+        name: employee.name,
+        email: employee.email,
+        role: employee.role,
+        passwords: employee.passwords || [],
+        permissions: employee.permissions,
+        approvalAuthority: employee.approvalAuthority,
+        status: employee.status
+      }
+    });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get staff member's own profile
+app.get('/staff/profile', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const employee = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    if (!employee) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    return res.json({ 
+      success: true,
+      employee: {
+        id: employee.id,
+        name: employee.name,
+        email: employee.email,
+        role: employee.role,
+        permissions: employee.permissions,
+        approvalAuthority: employee.approvalAuthority,
+        status: employee.status,
+        createdAt: employee.createdAt,
+        passwordCount: (employee.passwords || []).length,
+        lastUpdated: employee.lastUpdated,
+        updatedPasswordAt: employee.updatedPasswordAt
+      }
+    });
+  } catch (err) {
+    console.error('Get profile error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });
@@ -4193,6 +4819,92 @@ app.get('/staff/user-metrics', (req, res) => {
     return res.json({ metrics: userMetrics });
   } catch (err) {
     console.error('Get user metrics error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get staff notifications (for approval notifications and account updates)
+app.get('/staff/notifications', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const employee = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    if (!employee) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Get notifications for this employee
+    const notifications = (staff.notifications || []).filter(n => n.userId === parseInt(employeeId));
+
+    return res.json({ notifications, employee });
+  } catch (err) {
+    console.error('Get staff notifications error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Mark staff notification as read
+app.post('/staff/notifications/:id/read', (req, res) => {
+  try {
+    const { employeeId } = req.body;
+    const notificationId = req.params.id;
+
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const employee = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    if (!employee) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const notification = (staff.notifications || []).find(n => n.id === notificationId && n.userId === parseInt(employeeId));
+
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
+
+    notification.read = true;
+    writeStaff(staff);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('Mark notification read error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete staff notification
+app.delete('/staff/notifications/:id', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+    const notificationId = req.params.id;
+
+    if (!employeeId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const staff = readStaff();
+    const employee = staff.employees.find(e => e.id === parseInt(employeeId));
+
+    if (!employee) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    staff.notifications = (staff.notifications || []).filter(n => !(n.id === notificationId && n.userId === parseInt(employeeId)));
+    writeStaff(staff);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('Delete notification error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });

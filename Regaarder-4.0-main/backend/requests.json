@@ -1,5 +1,77 @@
 [
   {
+    "id": "req_1769337567922",
+    "title": "Sorror",
+    "description": "kgprgmrkmgkmre;gk;rgm;'kr;gw",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Alle",
+    "companyInitial": "A",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1768222892161",
+      "name": "Alle",
+      "email": "alle@alle.com"
+    },
+    "createdBy": "user-1768222892161",
+    "createdAt": "2026-01-25T10:39:28.071Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": null,
+      "selectedPrivacy": "public"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-25T10:43:01.228Z",
+    "currentStep": 5,
+    "updatedAt": "2026-01-25T10:49:45.174Z"
+  },
+  {
+    "id": "req_1769331073714",
+    "title": "Mars sur terre",
+    "description": "kkg'tmykmyk;ymek",
+    "likes": 0,
+    "comments": 0,
+    "boosts": 0,
+    "amount": 0,
+    "funding": 0,
+    "isTrending": false,
+    "isSponsored": false,
+    "company": "Alle",
+    "companyInitial": "A",
+    "companyColor": "bg-gray-400",
+    "imageUrl": "",
+    "creator": {
+      "id": "user-1768222892161",
+      "name": "Alle",
+      "email": "alle@alle.com"
+    },
+    "createdBy": "user-1768222892161",
+    "createdAt": "2026-01-25T08:51:13.763Z",
+    "meta": {
+      "selectedTones": [],
+      "selectedVideoLength": null,
+      "selectedPrivacy": "unlisted"
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-25T08:51:43.445Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-25T08:54:01.224Z"
+  },
+  {
     "id": "req_1768657702084",
     "title": "Je te Benirai Seigneur",
     "description": "rf[oheroigh[ehgihrhr[gkoerkg\\wkokgwokgkq mrk[i]0- 4i3 r9j3-jr-9j34-r j rji jfj4]jj4tj3j4t]-9jt4 39]tj 3",
@@ -302,8 +374,8 @@
       "name": "Paul"
     },
     "claimedAt": "2026-01-17T15:16:54.355Z",
-    "currentStep": 5,
-    "updatedAt": "2026-01-18T16:03:39.754Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-25T10:19:34.738Z",
     "hidden": true,
     "hiddenReason": "hh",
     "hiddenBy": 1000,
@@ -782,7 +854,15 @@
       "selectedTones": [],
       "selectedVideoLength": null,
       "selectedPrivacy": "public"
-    }
+    },
+    "claimed": true,
+    "claimedBy": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "claimedAt": "2026-01-25T08:29:40.743Z",
+    "currentStep": 6,
+    "updatedAt": "2026-01-25T08:33:08.406Z"
   },
   {
     "id": "req_test_1768359486635",
@@ -913,7 +993,7 @@
     },
     "claimedAt": "2026-01-13T15:33:19.462Z",
     "currentStep": 6,
-    "updatedAt": "2026-01-13T15:37:47.188Z"
+    "updatedAt": "2026-01-25T10:39:51.487Z"
   },
   {
     "id": "req_1767780460031",

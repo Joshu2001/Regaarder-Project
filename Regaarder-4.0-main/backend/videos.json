@@ -1,5 +1,109 @@
 [
   {
+    "id": "1769337727642-5aw2vbfj4",
+    "title": "CLI test 2",
+    "author": "Paul",
+    "authorId": "paul@regaarder.com",
+    "requester": "Community",
+    "time": "0:05",
+    "imageUrl": "http://localhost:4000/uploads/intro-1769337726157-181930.png",
+    "videoUrl": "http://localhost:4000/uploads/intro-1769337727265-229504.mp4",
+    "date": "Just now",
+    "category": "comics",
+    "format": "one-time",
+    "appearance": "public",
+    "pinned": false,
+    "pinnedDays": null,
+    "bookmarked": false,
+    "timestamp": 1769337727642,
+    "likes": "0",
+    "dislikes": "0",
+    "views": "0",
+    "comments": "0",
+    "shares": "0",
+    "retentionRate": "0",
+    "retentionPercentage": "0%",
+    "overlays": []
+  },
+  {
+    "id": "1769336374625-x7glglkqo",
+    "title": "je ne suis",
+    "author": "Paul",
+    "authorId": "paul@regaarder.com",
+    "requester": "Joshuar",
+    "time": "0:05",
+    "imageUrl": "http://localhost:4000/uploads/intro-1769336371177-976874.png",
+    "videoUrl": "http://localhost:4000/uploads/intro-1769336372440-348813.mp4",
+    "date": "Just now",
+    "category": "History",
+    "format": "one-time",
+    "appearance": "public",
+    "pinned": false,
+    "pinnedDays": null,
+    "bookmarked": false,
+    "timestamp": 1769336374625,
+    "likes": "0",
+    "dislikes": "0",
+    "views": "0",
+    "comments": "0",
+    "shares": "0",
+    "retentionRate": "0",
+    "retentionPercentage": "0%",
+    "overlays": []
+  },
+  {
+    "id": "1769331239210-r9j1cemk2",
+    "title": "Mars sur terre",
+    "author": "Paul",
+    "authorId": "paul@regaarder.com",
+    "requester": "Alle",
+    "time": "0:05",
+    "imageUrl": "http://localhost:4000/uploads/intro-1769331238566-990043.png",
+    "videoUrl": "http://localhost:4000/uploads/intro-1769331238953-156344.mp4",
+    "date": "Just now",
+    "category": "Entertainment",
+    "format": "one-time",
+    "appearance": "public",
+    "pinned": false,
+    "pinnedDays": null,
+    "bookmarked": false,
+    "timestamp": 1769331239236,
+    "likes": "0",
+    "dislikes": "0",
+    "views": "0",
+    "comments": "0",
+    "shares": "0",
+    "retentionRate": "0",
+    "retentionPercentage": "0%",
+    "overlays": []
+  },
+  {
+    "id": "1769329988326-rma11733v",
+    "title": "knaipnitn",
+    "author": "Paul",
+    "authorId": "paul@regaarder.com",
+    "requester": "Joshuar",
+    "time": "0:05",
+    "imageUrl": "http://localhost:4000/uploads/intro-1769329986055-92220.png",
+    "videoUrl": "http://localhost:4000/uploads/intro-1769329987918-494006.mp4",
+    "date": "Just now",
+    "category": "Education",
+    "format": "one-time",
+    "appearance": "public",
+    "pinned": false,
+    "pinnedDays": null,
+    "bookmarked": false,
+    "timestamp": 1769329988326,
+    "likes": "0",
+    "dislikes": "0",
+    "views": "0",
+    "comments": "0",
+    "shares": "0",
+    "retentionRate": "0",
+    "retentionPercentage": "0%",
+    "overlays": []
+  },
+  {
     "id": "1768835100749-34tq5nn1u",
     "title": "Lefrere",
     "author": "Joshuar",
@@ -40,7 +144,51 @@
     "hiddenReason": null,
     "hiddenBy": null,
     "hiddenAt": null,
-    "ads": []
+    "ads": {
+      "bottom": [],
+      "overlays": [
+        {
+          "id": "overlay-1769328953658-kvd3g3lgk",
+          "type": "overlay",
+          "overlayAdCompanyName": "hh",
+          "overlayAdText": "",
+          "overlayAdTextItems": [
+            {
+              "id": 1769133835383,
+              "text": "",
+              "duration": 5
+            }
+          ],
+          "overlayAdEmoji": "⚡",
+          "overlayAdBgColor": "#E41E24",
+          "overlayAdTextColor": "#fff",
+          "overlayBrandBgColor": "#ffffff",
+          "overlayBrandTextColor": "#000000",
+          "overlayAdOpacity": 1,
+          "overlayTagOpacity": 1,
+          "overlayAdPosition": "videoPlayer",
+          "overlayBtnText": "Learn More",
+          "overlayProfileUrl": "",
+          "overlayVideoUrl": "http://localhost:4000/uploads/intro-1769133731669-778882.mp4",
+          "overlayExitTransition": "fade",
+          "overlayBadgeType": "ad",
+          "overlayBadgeColor": "#ff0000",
+          "overlayBadgeLogo": "",
+          "overlayBadgePosition": "top-left-video",
+          "overlayCtaText": "",
+          "overlayCtaColor": "#4B9EFF",
+          "overlayCtaType": "text",
+          "overlayCtaMedia": "",
+          "overlayCtaDelay": 0,
+          "overlayCtaDuration": 3,
+          "overlayTextAnimation": "marquee",
+          "startTime": 5,
+          "duration": 30,
+          "appliedAt": "2026-01-25T08:15:53.658Z",
+          "appliedBy": 1000
+        }
+      ]
+    }
   },
   {
     "id": "1768834941791-toh8qpe73",
@@ -82,7 +230,8 @@
     "hidden": false,
     "hiddenReason": null,
     "hiddenBy": null,
-    "hiddenAt": null
+    "hiddenAt": null,
+    "ads": []
   },
   {
     "id": "1768716793172-4lw88hmuz",
@@ -119,7 +268,10 @@
     "shadowDeletedBy": 1000,
     "shadowDeletedAt": "2026-01-19T13:07:45.924Z",
     "shadowDeleteReason": "Report action: Offensive language",
-    "ads": []
+    "ads": {
+      "bottom": [],
+      "overlays": []
+    }
   },
   {
     "id": "1768710959607-g8v4uvc0n",
@@ -193,7 +345,8 @@
     "hidden": false,
     "hiddenReason": null,
     "hiddenBy": null,
-    "hiddenAt": null
+    "hiddenAt": null,
+    "ads": []
   },
   {
     "id": "1768705640199-5oejvnutu",
@@ -540,7 +693,7 @@
     "timestamp": 1767451174283,
     "likes": "0",
     "dislikes": "0",
-    "views": "0",
+    "views": "1",
     "comments": "0",
     "shares": "0",
     "retentionRate": "0",

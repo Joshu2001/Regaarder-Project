@@ -1,5 +1,342 @@
 [
   {
+    "id": "n-1769338185176",
+    "requestId": "req_1769337567922",
+    "text": "Update for \"Sorror\": Published ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T10:49:45.176Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 5,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769338182575",
+    "requestId": "req_1769337567922",
+    "text": "Update for \"Sorror\": Preview Ready ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T10:49:42.575Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 4,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769338180122",
+    "requestId": "req_1769337567922",
+    "text": "Update for \"Sorror\": In Production ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T10:49:40.122Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 3,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769337785671",
+    "requestId": "req_1769337567922",
+    "text": "Update for \"Sorror\": Under Review ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T10:43:05.671Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 2,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769337591490",
+    "requestId": "req_1766845475803",
+    "text": "Update for \"sthth\": Completed ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1767585399609"
+    },
+    "createdAt": "2026-01-25T10:39:51.490Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 6,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769336374740",
+    "requestId": "req_1768386652237",
+    "text": "Update for \"je ne suis\": Completed  - Uploaded video:360 fight.mp4 thumb:blob:http://localhost:5173/6275c31c-abee-4baf-83c0-6e1e1d0ce74a",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-25T10:19:34.740Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 6,
+      "message": "Uploaded video:360 fight.mp4 thumb:blob:http://localhost:5173/6275c31c-abee-4baf-83c0-6e1e1d0ce74a"
+    }
+  },
+  {
+    "id": "n-1769331241238",
+    "requestId": "req_1769331073714",
+    "text": "Update for \"Mars sur terre\": Completed  - patience please",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T08:54:01.238Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 6,
+      "message": "patience please"
+    }
+  },
+  {
+    "id": "n-1769331241150",
+    "requestId": "req_1769331073714",
+    "text": "Update for \"Mars sur terre\": Completed  - Uploaded video:paaralax man.mp4 thumb:blob:http://localhost:5173/c65637ae-b306-4e18-a69c-11ecac57d832",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T08:54:01.150Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 6,
+      "message": "Uploaded video:paaralax man.mp4 thumb:blob:http://localhost:5173/c65637ae-b306-4e18-a69c-11ecac57d832"
+    }
+  },
+  {
+    "id": "n-1769331125329",
+    "requestId": "req_1769331073714",
+    "text": "Update for \"Mars sur terre\": Published  - patience please",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T08:52:05.329Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 5,
+      "message": "patience please"
+    }
+  },
+  {
+    "id": "n-1769331122124",
+    "requestId": "req_1769331073714",
+    "text": "Update for \"Mars sur terre\": Preview Ready  - patience please",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T08:52:02.124Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 4,
+      "message": "patience please"
+    }
+  },
+  {
+    "id": "n-1769331109398",
+    "requestId": "req_1769331073714",
+    "text": "Update for \"Mars sur terre\": In Production ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T08:51:49.398Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 3,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769331107089",
+    "requestId": "req_1769331073714",
+    "text": "Update for \"Mars sur terre\": Under Review ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1768222892161"
+    },
+    "createdAt": "2026-01-25T08:51:47.089Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 2,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769329988408",
+    "requestId": "req_1768360434961",
+    "text": "Update for \"knaipnitn\": Completed  - Uploaded video:360 fight 2.mp4 thumb:blob:http://localhost:5173/a1e213fa-b17b-4feb-8733-2dba97915d2b",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-25T08:33:08.408Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 6,
+      "message": "Uploaded video:360 fight 2.mp4 thumb:blob:http://localhost:5173/a1e213fa-b17b-4feb-8733-2dba97915d2b"
+    }
+  },
+  {
+    "id": "n-1769329795604",
+    "requestId": "req_1768360434961",
+    "text": "Update for \"knaipnitn\": Published ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-25T08:29:55.604Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 5,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769329793095",
+    "requestId": "req_1768360434961",
+    "text": "Update for \"knaipnitn\": Preview Ready ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-25T08:29:53.095Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 4,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769329790596",
+    "requestId": "req_1768360434961",
+    "text": "Update for \"knaipnitn\": In Production ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-25T08:29:50.596Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 3,
+      "message": ""
+    }
+  },
+  {
+    "id": "n-1769329787981",
+    "requestId": "req_1768360434961",
+    "text": "Update for \"knaipnitn\": Under Review ",
+    "from": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "to": {
+      "id": "user-1766857658728"
+    },
+    "createdAt": "2026-01-25T08:29:47.981Z",
+    "type": "status_update",
+    "metadata": {
+      "step": 2,
+      "message": ""
+    }
+  },
+  {
+    "id": "notif-1769089383163-s47lw4xo9",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "promotion",
+    "title": "special christmas",
+    "message": "gointg throughdfj j;wfjwbfbjbobbbob  h",
+    "icon": "gift",
+    "reason": "",
+    "createdAt": "2026-01-22T13:43:03.163Z",
+    "read": true,
+    "requiresAcknowledgment": true,
+    "meta": {
+      "promotionType": "offer",
+      "ctaText": "Learn More",
+      "ctaIcon": "megaphone",
+      "ctaColor": "#3b82f6",
+      "ctaUrl": null
+    },
+    "ctaText": "Learn More",
+    "ctaIcon": "megaphone",
+    "ctaColor": "#3b82f6",
+    "ctaUrl": null
+  },
+  {
     "id": "notif-1768927983091-hadik0h3o",
     "to": {
       "id": "user-1767585399609",
@@ -780,7 +1117,7 @@
     "icon": "gift",
     "reason": "",
     "createdAt": "2026-01-20T07:56:51.071Z",
-    "read": false,
+    "read": true,
     "requiresAcknowledgment": true,
     "meta": {
       "promotionType": "offer"
@@ -2284,7 +2621,27 @@
     "icon": "shadowban",
     "reason": "Low-quality or repetitive content",
     "createdAt": "2026-01-20T05:55:37.126Z",
-    "read": false,
+    "read": true,
+    "requiresAcknowledgment": true
+  },
+  {
+    "id": "notif-1769089728352-yozec6tt1",
+    "to": {
+      "id": "user-1767585399609",
+      "name": "Paul"
+    },
+    "from": {
+      "id": "staff",
+      "name": "Moderation Team"
+    },
+    "type": "staff_action",
+    "action": "shadowban",
+    "title": "Shadow Ban Applied",
+    "message": "Your account visibility has been restricted due to community guideline violations.\n\nReason: Content violates platform guidelines",
+    "icon": "shadowban",
+    "reason": "Content violates platform guidelines",
+    "createdAt": "2026-01-22T13:48:48.352Z",
+    "read": true,
     "requiresAcknowledgment": true
   }
 ]
