@@ -1038,6 +1038,7 @@ const ActionCard = ({ title, progress, missingFields, icon, isPopup, onClick, on
 const FeaturedVideo = ({ isPreviewMode, video, onUpload, onDelete, selectedLanguage }) => {
     const fileInputRef = useRef(null);
     const videoRef = useRef(null);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const handleUploadClick = () => {
         fileInputRef.current.click();
@@ -1050,6 +1051,22 @@ const FeaturedVideo = ({ isPreviewMode, video, onUpload, onDelete, selectedLangu
             onUpload({ url: videoUrl, file: file });
         }
     };
+
+    useEffect(() => {
+        const videoElement = videoRef.current;
+        if (!videoElement) return;
+
+        const handlePlay = () => setIsPlaying(true);
+        const handlePause = () => setIsPlaying(false);
+
+        videoElement.addEventListener('play', handlePlay);
+        videoElement.addEventListener('pause', handlePause);
+
+        return () => {
+            videoElement.removeEventListener('play', handlePlay);
+            videoElement.removeEventListener('pause', handlePause);
+        };
+    }, []);
 
     return (
         <div className="mb-8">
@@ -1078,14 +1095,23 @@ const FeaturedVideo = ({ isPreviewMode, video, onUpload, onDelete, selectedLangu
                                 if (videoRef.current) {
                                     if (videoRef.current.paused) {
                                         videoRef.current.play();
+                                        setIsPlaying(true);
                                     } else {
                                         videoRef.current.pause();
+                                        setIsPlaying(false);
                                     }
+                                }
+                            }}
+                            onMouseEnter={() => {
+                                if (videoRef.current && !videoRef.current.paused) {
+                                    setIsPlaying(true);
+                                } else if (videoRef.current && videoRef.current.paused) {
+                                    setIsPlaying(false);
                                 }
                             }}
                             className="p-4 bg-white/20 hover:bg-white/30 rounded-full backdrop-blur-sm transition-all"
                         >
-                            {videoRef.current && !videoRef.current.paused ? (
+                            {isPlaying ? (
                                 <Icon name="pause" size={32} className="text-white" />
                             ) : (
                                 <Icon name="play" size={32} className="text-white" />
@@ -2029,8 +2055,8 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                 {/* Header */}
                 <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[var(--color-gold)] font-semibold text-lg">$</span>
-                        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
+                        <span className="text-[var(--color-gold)] font-semibold text-xl">$</span>
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
                     </div>
                     <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1">{getTranslation("Show your appreciation and support {name}'s work", selectedLanguage).replace('{name}', profile.name)}</p>
                 </div>
