@@ -1964,6 +1964,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
     const quickAmounts = [5, 10, 25, 50, 100];
     const [customAmount, setCustomAmount] = useState('');
     const [selectedAmount, setSelectedAmount] = useState(null);
+    const [showPayPal, setShowPayPal] = useState(false);
 
     const amountSelected = () => {
         // prefer selectedAmount (quick buttons) but allow customAmount if provided
@@ -1973,6 +1974,20 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
     };
 
     const isActive = !!amountSelected();
+
+    // If showing PayPal, display it in full screen
+    if (showPayPal) {
+        return (
+            <div className="fixed inset-0 z-[70] w-full h-full bg-white">
+                <iframe
+                    src="https://www.paypal.com/ncp/payment/LABFRAJUV5B9J"
+                    className="w-full h-full border-0"
+                    title="PayPal Payment"
+                    allow="payment"
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
@@ -2045,11 +2060,10 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                             </div>
                             <button
                                 onClick={() => {
-                                    // placeholder continue action
                                     const amt = amountSelected();
                                     if (!amt) return;
-                                    // For now, just close and show a toast could be added
-                                    onClose();
+                                    // Navigate to PayPal payment page in full screen
+                                    setShowPayPal(true);
                                 }}
                                 disabled={!isActive}
                                 className={`px-6 py-2 rounded-xl text-sm transition-colors ${isActive ? 'bg-[var(--color-gold-light-bg)] text-black font-semibold hover:bg-[var(--color-gold-darker)]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
