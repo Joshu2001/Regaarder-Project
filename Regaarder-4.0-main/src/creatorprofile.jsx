@@ -680,12 +680,14 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                             <Icon name={isPreviewMode ? "pencilLine" : "eye"} size={24} style={{ width: 24, height: 24 }} />
                         </button>
                     )}
-                    <button
-                        className="w-11 h-11 flex items-center justify-center bg-black/20 rounded-full backdrop-blur-sm hover:bg-black/30 transition"
-                        onClick={handleShare}
-                    >
-                        <Icon name={isCopied ? "check" : "share"} size={24} />
-                    </button>
+                    {!isSharedLink && (
+                        <button
+                            className="w-11 h-11 flex items-center justify-center bg-black/20 rounded-full backdrop-blur-sm hover:bg-black/30 transition"
+                            onClick={handleShare}
+                        >
+                            <Icon name={isCopied ? "check" : "share"} size={24} />
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -760,7 +762,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                 WebkitTextFillColor: 'transparent',
                                 backgroundClip: 'text'
                             }}>{profile.name}</h1>
-                            {isPreviewMode ? (
+                            {isPreviewMode && !isSharedLink ? (
                                 <div className="text-white text-xs font-bold px-2 py-1 rounded-md flex items-center shadow-sm" style={{
                                     background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)'
                                 }}>
@@ -768,7 +770,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                     {getTranslation('Preview Mode', selectedLanguage)}
                                 </div>
                             ) : (
-                                <EditIcon onClick={() => setEditingField('name')} />
+                                !isSharedLink && <EditIcon onClick={() => setEditingField('name')} />
                             )}
                         </div>
                     )}
