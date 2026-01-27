@@ -2368,15 +2368,12 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
     const isMonthlyActive = !!selectedTier || Number(customMonthlyAmount) > 0;
     const selectedPrice = selectedTier ? (tiers.find(t => t.name === selectedTier)?.price || null) : (Number(customMonthlyAmount) > 0 ? customMonthlyAmount : null);
 
-    // Placeholder payment integration helper.
-    // Replace this with real payment integration (Stripe, Paddle, etc.).
+    // Process payment and redirect to PayPal
     const processPayment = (mode, amount) => {
         if (!amount || Number(amount) <= 0) return;
         try {
-            // Example: open checkout page with query params. Integrate your real checkout here.
-            const profileId = encodeURIComponent(profile.handle || profile.name || 'creator');
-            const url = `https://example.com/checkout?mode=${mode}&amount=${amount}&profile=${profileId}`;
-            window.open(url, '_blank');
+            // Redirect to PayPal payment page with full device dimensions
+            window.location.href = "https://www.paypal.com/ncp/payment/XWKNU42XM5ZPQ";
         } catch (e) {
             console.error('payment error', e);
         }
