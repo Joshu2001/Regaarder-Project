@@ -843,7 +843,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                 </button>
                             ) : (
                                 <button
-                                    className={`flex-grow bg-[#00d4d4] text-black font-semibold py-2.5 rounded-xl text-base shadow-sm flex items-center justify-center hover:bg-[#00b8b8] transition ${followActive ? 'scale-95 opacity-90' : ''}`}
+                                    className={`flex-grow bg-[var(--color-gold)] text-black font-semibold py-2.5 rounded-xl text-base shadow-sm flex items-center justify-center hover:bg-[var(--color-gold-darker)] transition ${followActive ? 'scale-95 opacity-90' : ''}`}
                                     onClick={handleFollow}
                                 >
                                     <Icon name="heart" size={18} className="mr-2" />
