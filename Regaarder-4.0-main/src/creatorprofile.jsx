@@ -1663,7 +1663,23 @@ const AllVideos = ({ selectedCTAs, profileName, onCTAClick, selectedLanguage = '
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isVisible, setIsVisible] = useState(true);
     const [ctaActive, setCtaActive] = useState(false);
+    const [messageIndex, setMessageIndex] = useState(0);
     const navigate = useNavigate();
+
+    const messages = [
+        getTranslation('Your idea could become the next video here', selectedLanguage),
+        getTranslation('Turn your request into part of {name}\'s collection', selectedLanguage).replace('{name}', profileName)
+    ];
+
+    useEffect(() => {
+        if (messages.length <= 1) return;
+        const messageInterval = setInterval(() => {
+            setMessageIndex((prev) => (prev + 1) % messages.length);
+        }, 5000);
+        return () => clearInterval(messageInterval);
+    }, [messages.length, profileName]);
+
+    const currentMessage = messages[messageIndex];
 
     useEffect(() => {
         if (selectedCTAs.length <= 1) return;
@@ -1683,13 +1699,13 @@ const AllVideos = ({ selectedCTAs, profileName, onCTAClick, selectedLanguage = '
 
     return (
         <div className="mb-24">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight mb-4 px-1">{getTranslation('All Videos (0)', selectedLanguage)}</h2>
+            <h2 className="text-xl font-normal text-gray-900 mb-4 px-1">{getTranslation('All Videos (0)', selectedLanguage)}</h2>
 
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center text-center min-h-[280px] justify-center">
                 <div className="mb-6 text-gray-400">
                     <Icon name="video" size={48} strokeWidth={1.5} />
                 </div>
-                <h3 className="text-gray-400 text-lg mb-10">{getTranslation('Full video catalog coming soon', selectedLanguage)}</h3>
+                <h3 className="text-gray-400 text-lg mb-10">{currentMessage}</h3>
 
                 <button
                     onClick={() => {
