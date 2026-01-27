@@ -4,6 +4,19 @@ import { X, Menu, Bell, Settings, Search, Star, TrendingUp, Trophy, Home, FileTe
 import { useNavigate } from 'react-router-dom';
 import { getTranslation } from './translations';
 
+// Utility function to format numbers as 1k, 1m, etc.
+const formatNumber = (num) => {
+    if (!num || num === 0) return '0';
+    const number = parseInt(num) || 0;
+    if (number >= 1000000) {
+        return (number / 1000000).toFixed(1).replace(/\.0$/, '') + 'm';
+    }
+    if (number >= 1000) {
+        return (number / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    }
+    return number.toString();
+};
+
 // (removed incorrect self-referential inline CSS vars)
 
 const CustomPencilLine = ({ size = 24, className = '', ...props }) => (
@@ -323,7 +336,7 @@ const StatCard = ({ label, value, selectedLanguage = 'English' }) => (
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'
         }}>
-            {value}
+            {formatNumber(value)}
         </div>
     </div>
 );
@@ -463,6 +476,11 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
 
             if (res.ok) {
                 setTimeout(() => setIsFollowing(!isFollowing), 120);
+                // Update follower count
+                const newFollowerCount = isFollowing 
+                    ? Math.max(0, (profile.followers || 0) - 1)
+                    : (profile.followers || 0) + 1;
+                onUpdate('followers', newFollowerCount);
                 if (onShowToast) {
                     onShowToast({
                         title: isFollowing ? getTranslation("Unfollowed", selectedLanguage) : getTranslation("Following!", selectedLanguage),
