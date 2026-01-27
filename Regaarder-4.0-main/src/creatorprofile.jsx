@@ -2057,6 +2057,30 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
     const navigate = useNavigate();
     const [ctaActive, setCtaActive] = useState(false);
 
+    const handleMainCTA = () => {
+        // Store creator data in localStorage for ideas page
+        const creatorData = {
+            id: profile.id || profile.handle || profile.name,
+            name: profile.name,
+            handle: profile.handle,
+            displayName: profile.name,
+            photoURL: profile.image,
+            image: profile.image,
+            price: profile.price || 0
+        };
+        try {
+            localStorage.setItem('ideas_selectedCreator_v1', JSON.stringify(creatorData));
+        } catch (e) {
+            console.warn('Failed to store creator data:', e);
+        }
+
+        // show a brief active state so users perceive the press, then navigate
+        setCtaActive(true);
+        setTimeout(() => {
+            navigate('/ideas');
+        }, 120);
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-0">
             <style>{`
@@ -2125,16 +2149,8 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
                 )}
 
                 <button
-                    className={`relative overflow-hidden w-full bg-[var(--color-gold)] text-white font-semibold py-4 rounded-full text-lg tracking-wide shadow-md hover:bg-[var(--color-gold-darker)] transition flex items-center justify-center mb-4 ${ctaActive ? 'scale-95 opacity-90' : ''} ${isSharedLink ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    onClick={() => {
-                        if (isSharedLink) return;
-                        // show a brief active state so users perceive the press, then navigate
-                        setCtaActive(true);
-                        setTimeout(() => {
-                            navigate('/ideas.jsx');
-                        }, 120);
-                    }}
-                    disabled={isSharedLink}
+                    className={`relative overflow-hidden w-full bg-[var(--color-gold)] text-white font-semibold py-4 rounded-full text-lg tracking-wide shadow-md hover:bg-[var(--color-gold-darker)] transition flex items-center justify-center mb-4 ${ctaActive ? 'scale-95 opacity-90' : ''}`}
+                    onClick={handleMainCTA}
                     aria-label={ctaText}
                 >
                     <div
@@ -2148,16 +2164,14 @@ const WelcomePopup = ({ isOpen, onClose, profile, onBecomeSponsor, onSendTip, cu
                 <div className="flex gap-3 w-full mb-4 flex-nowrap">
                     <button
                         onClick={onSendTip}
-                        disabled={isSharedLink}
-                        className={`flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide ${isSharedLink ? 'opacity-50 cursor-not-allowed hover:bg-white' : ''}`}
+                        className={`flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide`}
                     >
                         <Icon name="heart" size={18} className="mr-2 flex-shrink-0" />
                         <span className="truncate">{getTranslation('Send Tip', selectedLanguage)}</span>
                     </button>
                     <button
                         onClick={onBecomeSponsor}
-                        disabled={isSharedLink}
-                        className={`flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide ${isSharedLink ? 'opacity-50 cursor-not-allowed hover:bg-white' : ''}`}
+                        className={`flex-1 min-w-0 border border-gray-200 rounded-full py-2 sm:py-3 flex items-center justify-center font-medium text-gray-700 hover:bg-gray-50 transition text-sm tracking-wide`}
                     >
                         <Icon name="star" size={18} className="mr-2 flex-shrink-0" />
                         <span className="truncate">{getTranslation('Become a Sponsor', selectedLanguage)}</span>

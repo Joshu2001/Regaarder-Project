@@ -3017,6 +3017,9 @@ const App = () => {
                 if (creatorObj.photoURL || creatorObj.image) {
                     setSelectedCreatorImage(creatorObj.photoURL || creatorObj.image);
                 }
+                // Set minimum payment amount based on creator's price
+                const minAmount = (creatorObj.price && Number(creatorObj.price) > 0) ? Math.max(15, Number(creatorObj.price)) : 15;
+                setPaymentAmount(minAmount);
                 // Clear from localStorage so it doesn't persist across sessions
                 localStorage.removeItem(SELECTED_CREATOR_KEY);
             }
@@ -3898,6 +3901,13 @@ const App = () => {
     console.log('🟢 Title:', title);
     console.log('🟢 Description:', description);
     console.log('🟢 Amount:', paymentAmount);
+    
+    // 0. Validate minimum amount based on creator price
+    const creatorMinimum = (selectedCreator && selectedCreator.price && Number(selectedCreator.price) > 0) ? Number(selectedCreator.price) : 15;
+    if (paymentAmount < creatorMinimum) {
+        showToast(`Minimum amount for this creator is $${creatorMinimum}. Please increase the amount.`);
+        return;
+    }
     
     // 1. Validate auth - removed to allow anonymous requests
     // if (!auth.user) {
@@ -5642,22 +5652,30 @@ const App = () => {
 
               {/* Custom Amount - Ghost style input */}
                <div className="w-full mb-14">
-                  <div className="relative">
-                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg font-bold">$</span>
-                    <input
-                      type="number"
-                      min={15}
-                      value={paymentAmount}
-                      onChange={(e) => {
-                        const v = Math.max(15, Number(e.target.value || 0));
-                        setPaymentAmount(v);
-                        trackEvent("custom_amount_input", { amount: v });
-                      }}
-                      className="w-full pl-11 pr-5 py-4 bg-transparent border-b-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 font-semibold text-gray-900 focus:outline-none transition-all text-lg placeholder-gray-300"
-                      placeholder="Custom amount"
-                    />
-                    <div className="absolute right-5 top-1/2 -translate-y-1/2 text-xs text-gray-400">Min $15</div>
-                  </div>
+                  {(() => {
+                    // Calculate minimum based on creator's price or fallback to $15
+                    const creatorMinimum = (selectedCreator && selectedCreator.price && Number(selectedCreator.price) > 0) 
+                      ? Math.max(15, Number(selectedCreator.price)) 
+                      : 15;
+                    return (
+                      <div className="relative">
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg font-bold">$</span>
+                        <input
+                          type="number"
+                          min={creatorMinimum}
+                          value={paymentAmount}
+                          onChange={(e) => {
+                            const v = Math.max(creatorMinimum, Number(e.target.value || 0));
+                            setPaymentAmount(v);
+                            trackEvent("custom_amount_input", { amount: v });
+                          }}
+                          className="w-full pl-11 pr-5 py-4 bg-transparent border-b-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 font-semibold text-gray-900 focus:outline-none transition-all text-lg placeholder-gray-300"
+                          placeholder="Custom amount"
+                        />
+                        <div className="absolute right-5 top-1/2 -translate-y-1/2 text-xs text-gray-400">Min ${creatorMinimum}</div>
+                      </div>
+                    );
+                  })()}
               </div>
 
               {/* Role / Creator Selection - Modern segmented control */}
