@@ -1752,6 +1752,21 @@ app.post('/requests/:id/comments', authMiddleware, (req, res) => {
       if (vidIdx !== -1) {
         videos[vidIdx].comments = (Number(videos[vidIdx].comments) || 0) + 1;
         writeVideos(videos);
+        
+        // Also increment the creator's total comments in the user object
+        const video = videos[vidIdx];
+        if (video.authorId || video.author || video.authorEmail) {
+          const users = readUsers();
+          const creatorIdx = users.findIndex(u => 
+            u.id === video.authorId || 
+            u.email === video.authorEmail ||
+            (u.name && u.name.toLowerCase() === (video.author || '').toLowerCase())
+          );
+          if (creatorIdx !== -1) {
+            users[creatorIdx].comments = (users[creatorIdx].comments || 0) + 1;
+            writeUsers(users);
+          }
+        }
       }
     } catch (e) {}
 
@@ -2603,6 +2618,21 @@ app.post('/watch/history', (req, res) => {
         if (vidIdx !== -1) {
           videos[vidIdx].views = String(Number(videos[vidIdx].views || 0) + 1);
           writeVideos(videos);
+          
+          // Also increment the creator's total views in the user object
+          const video = videos[vidIdx];
+          if (video.authorId || video.author || video.authorEmail) {
+            const users = readUsers();
+            const creatorIdx = users.findIndex(u => 
+              u.id === video.authorId || 
+              u.email === video.authorEmail ||
+              (u.name && u.name.toLowerCase() === (video.author || '').toLowerCase())
+            );
+            if (creatorIdx !== -1) {
+              users[creatorIdx].views = (users[creatorIdx].views || 0) + 1;
+              writeUsers(users);
+            }
+          }
         }
       } catch (e) {
         console.warn('Failed to increment video views:', e);

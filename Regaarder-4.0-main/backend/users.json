@@ -7,7 +7,7 @@
     "createdAt": "2025-12-27T17:47:38.728Z",
     "token": "65d79fe4c4d4c361802ea7ab88eee331",
     "isCreator": true,
-    "creatorSince": "2026-01-27T23:41:36.166Z",
+    "creatorSince": "2026-01-27T23:46:58.866Z",
     "image": "http://localhost:4000/uploads/intro-1768835099597-749836.png",
     "price": "788",
     "bio": "Christ is King",
@@ -1197,7 +1197,8 @@
     "shadowBanned": true,
     "shadowBannedAt": "2026-01-22T13:48:48.345Z",
     "shadowBanReason": "Content violates platform guidelines",
-    "handle": "paul"
+    "handle": "paul",
+    "followers": 1
   },
   {
     "id": "user-1768222892161",
