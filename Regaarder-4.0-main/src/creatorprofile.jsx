@@ -1975,18 +1975,11 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
 
     const isActive = !!amountSelected();
 
-    // If showing PayPal, display it in full screen
+    // If showing PayPal, navigate to the payment page
     if (showPayPal) {
-        return (
-            <div className="fixed inset-0 z-[70] w-full h-full bg-white">
-                <iframe
-                    src="https://www.paypal.com/ncp/payment/LABFRAJUV5B9J"
-                    className="w-full h-full border-0"
-                    title="PayPal Payment"
-                    allow="payment"
-                />
-            </div>
-        );
+        // Redirect to PayPal payment page in the same window
+        window.location.href = "https://www.paypal.com/ncp/payment/LABFRAJUV5B9J";
+        return null;
     }
 
     return (
