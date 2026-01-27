@@ -1636,7 +1636,7 @@ const AllVideos = ({ selectedCTAs, profileName, onCTAClick, selectedLanguage = '
                         // clear active state shortly after so it doesn't persist
                         setTimeout(() => setCtaActive(false), 420);
                     }}
-                    className={`w-full shimmer-gold text-black font-medium py-3.5 rounded-xl text-base shadow-sm hover:opacity-90 transition flex items-center justify-center ${ctaActive ? 'scale-95 opacity-90' : ''}`}
+                    className={`w-full shimmer-gold text-black font-medium py-4 rounded-xl text-base shadow-sm hover:opacity-90 transition flex items-center justify-center ${ctaActive ? 'scale-95 opacity-90' : ''}`}
                 >
                     <span className={`transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
                         {ctaText}
@@ -2383,14 +2383,11 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
             <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
             <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[85vh] flex flex-col overflow-hidden">
                 {/* Header */}
-                <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
+                <div className="p-4 pb-3 border-b border-gray-50 bg-white z-10 relative">
                     <div className="text-center px-4">
                         <h2 className="text-lg sm:text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight leading-tight">{getTranslation('Become a Sponsor', selectedLanguage)}</h2>
                         <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1 max-w-[90%] mx-auto">{getTranslation('Support {name} and get exclusive perks', selectedLanguage).replace('{name}', profile.name)}</p>
                     </div>
-                    <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
-                        <Icon name="x" size={24} />
-                    </button>
                 </div>
 
                 {/* Scrollable Content */}
