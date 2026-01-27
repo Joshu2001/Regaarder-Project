@@ -2386,6 +2386,16 @@ app.post('/follow', authMiddleware, (req, res) => {
 
     // Add to following list (use creator's ID)
     users[userIndex].following.push(creator.id);
+    
+    // Increment creator's follower count
+    const creatorIndex = users.findIndex(u => u.id === creator.id);
+    if (creatorIndex !== -1) {
+      if (!users[creatorIndex].followers) {
+        users[creatorIndex].followers = 0;
+      }
+      users[creatorIndex].followers = (users[creatorIndex].followers || 0) + 1;
+    }
+    
     writeUsers(users);
 
     return res.json({ success: true, creatorId: creator.id });
@@ -2420,6 +2430,16 @@ app.post('/unfollow', authMiddleware, (req, res) => {
 
     // Remove from following list (use creator's ID)
     users[userIndex].following = users[userIndex].following.filter(id => id !== creator.id);
+    
+    // Decrement creator's follower count
+    const creatorIndex = users.findIndex(u => u.id === creator.id);
+    if (creatorIndex !== -1) {
+      if (!users[creatorIndex].followers) {
+        users[creatorIndex].followers = 0;
+      }
+      users[creatorIndex].followers = Math.max(0, (users[creatorIndex].followers || 0) - 1);
+    }
+    
     writeUsers(users);
 
     return res.json({ success: true, creatorId: creator.id });

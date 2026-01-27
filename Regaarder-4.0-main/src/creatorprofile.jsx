@@ -2058,13 +2058,6 @@ const Toast = ({ data, onClose }) => {
                 <h4 className="font-semibold text-sm text-gray-900 leading-tight">{data.title}</h4>
                 {data.subtitle && <p className="text-gray-600 text-xs mt-0.5 leading-snug">{data.subtitle}</p>}
             </div>
-            <button
-                onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
-                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center hover:bg-gray-200/50 transition-colors"
-                aria-label="Dismiss notification"
-            >
-                <Icon name="x" size={14} className="text-gray-400" />
-            </button>
         </div>
     );
 };
