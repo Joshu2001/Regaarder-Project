@@ -410,7 +410,7 @@ const BottomBar = () => {
                                 return;
                             }
                             if (tabName === 'Ideas') {
-                                window.location.href = '/ideas.jsx';
+                                window.location.href = '/ideas';
                                 return;
                             }
                             if (tabName === 'More') {
@@ -1934,7 +1934,7 @@ const StartCollaboration = ({ setCurrentPage, ACCENT_COLOR }) => {
                 return;
             }
             if (selectedOption === 'post_sponsored') {
-                try { window.location.href = '/ideas.jsx'; } catch (e) { setCurrentPage('Ideas'); }
+                try { window.location.href = '/ideas'; } catch (e) { setCurrentPage('Ideas'); }
                 return;
             }
             if (selectedOption === 'sponsor_user_requests') {

@@ -3930,7 +3930,7 @@ const App = () => {
                 };
                 window.localStorage.setItem(key, JSON.stringify(creatorObj));
             } catch (e) { /* ignore storage errors */ }
-            window.location.href = '/ideas.jsx';
+            window.location.href = '/ideas';
         } catch (e) {
             console.warn('Navigation failed', e);
         }

@@ -305,7 +305,7 @@ const BottomBar = () => {
     try {
       if (tabName === 'Home') { window.location.href = '/home.jsx'; return; }
       if (tabName === 'Requests') { window.location.href = '/requests.jsx'; return; }
-      if (tabName === 'Ideas') { window.location.href = '/ideas.jsx'; return; }
+      if (tabName === 'Ideas') { window.location.href = '/ideas'; return; }
       if (tabName === 'More') { window.location.href = '/more.jsx'; return; }
     } catch (e) { console.warn('Navigation failed', e); }
   };

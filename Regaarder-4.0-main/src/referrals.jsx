@@ -63,7 +63,7 @@ const BottomBar = () => {
                                 return;
                             }
                             if (tabName === 'Ideas') {
-                                window.location.href = '/ideas.jsx';
+                                window.location.href = '/ideas';
                                 return;
                             }
                             if (tabName === 'More') {

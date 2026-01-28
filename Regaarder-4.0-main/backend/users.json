@@ -56,8 +56,8 @@
     "createdAt": "2026-01-05T03:56:39.609Z",
     "token": "64e741630c9e393f02c2f07adea5568a",
     "isCreator": true,
-    "creatorSince": "2026-01-28T02:10:29.343Z",
-    "image": "http://localhost:4000/uploads/intro-1769337726157-181930.png",
+    "creatorSince": "2026-01-28T02:33:15.385Z",
+    "image": "http://localhost:4000/uploads/intro-1769567593224-795236.jpg",
     "following": [
       "user-1767585399609",
       "user-1766857658728"
@@ -1199,7 +1199,7 @@
     "shadowBanReason": "Content violates platform guidelines",
     "handle": "paul",
     "followers": 1,
-    "pricingType": "Series",
+    "pricingType": "Recurrent",
     "price": "50",
     "tag": "Entertainment"
   },
