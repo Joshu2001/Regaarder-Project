@@ -762,16 +762,16 @@ const SupportPage = ({ selectedLanguage = 'English' }) => {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
       <div className="w-full max-w-xl flex flex-col flex-1" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="bg-white border-b border-gray-100 p-3 sticky top-0 z-20">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => navigate(-1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               >
                 <ChevronLeft size={20} className="text-gray-700" />
               </button>
-              <h1 className="text-xl font-semibold text-gray-900">{t.myTickets}</h1>
+              <h1 className="text-lg font-semibold text-gray-900 whitespace-nowrap">{t.myTickets}</h1>
             </div>
             <button
               onClick={() => {
@@ -782,10 +782,10 @@ const SupportPage = ({ selectedLanguage = 'English' }) => {
                 setError('');
                 setView('form');
               }}
-              className="px-4 py-2 rounded-lg font-semibold text-white text-xs"
+              className="px-3 py-1.5 rounded-lg font-semibold text-white text-xs flex-shrink-0"
               style={{ backgroundColor: 'var(--color-gold)' }}
             >
-              {t.newTicket}
+              + Ticket
             </button>
           </div>
         </div>
