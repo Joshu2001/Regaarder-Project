@@ -26,6 +26,7 @@ const Playlist = lazy(() => import('./playlists.jsx'));
 const Referrals = lazy(() => import('./referrals.jsx'));
 const Policies = lazy(() => import('./policies.jsx'));
 const StaffDashboard = lazy(() => import('./StaffDashboard.jsx'));
+const SupportPage = lazy(() => import('./SupportPage.jsx'));
 
 // Main footer tab switcher component
 function FooterTabSwitcher() {
@@ -98,6 +99,129 @@ function App() {
     return () => { try { off(); } catch (e) {} try { off2(); } catch (e) {} };
   }, []);
 
+  // Handle payment success/failure callback from PayPal
+  useEffect(() => {
+    const handlePaymentCallback = async () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const paymentSuccess = params.get('payment_success');
+        const paymentFailed = params.get('payment_failed');
+        
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) return;
+
+        // Get backend URL
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        const backendUrl = window.__BACKEND_URL__ || `${protocol}//${hostname}:4000`;
+
+        // Get pending payment session
+        const pendingSession = localStorage.getItem('pending_payment_session');
+        if (!pendingSession) return;
+
+        const session = JSON.parse(pendingSession);
+        const sessionId = session.sessionId;
+
+        // Handle payment success
+        if (paymentSuccess === 'true') {
+          console.log('🟢 Processing payment success for session:', sessionId);
+          
+          try {
+            const response = await fetch(`${backendUrl}/payment/success`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+              },
+              body: JSON.stringify({
+                sessionId: sessionId,
+                transactionId: params.get('transaction_id') || `paypal_${Date.now()}`
+              })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log('✅ Payment processed successfully:', data);
+              
+              // Clear payment session and show success
+              localStorage.removeItem('pending_payment_session');
+              
+              // Show success toast/notification
+              if (window.showToast) {
+                window.showToast({
+                  title: 'Payment Successful! 🎉',
+                  subtitle: `You now have access to ${session.tier} benefits!`
+                });
+              }
+
+              // Clean URL
+              const url = new URL(window.location.href);
+              url.searchParams.delete('payment_success');
+              url.searchParams.delete('transaction_id');
+              window.history.replaceState({}, '', url);
+
+              // Redirect to subscriptions page to show active subscription
+              setTimeout(() => {
+                window.location.href = '/subscriptions';
+              }, 1500);
+            } else {
+              throw new Error('Payment success callback failed');
+            }
+          } catch (error) {
+            console.error('❌ Payment success processing error:', error);
+            // Still clear the URL even if callback fails
+            const url = new URL(window.location.href);
+            url.searchParams.delete('payment_success');
+            window.history.replaceState({}, '', url);
+          }
+        }
+
+        // Handle payment failure
+        if (paymentFailed === 'true') {
+          console.log('❌ Processing payment failure for session:', sessionId);
+          
+          try {
+            await fetch(`${backendUrl}/payment/failure`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+              },
+              body: JSON.stringify({
+                sessionId: sessionId,
+                reason: params.get('failure_reason') || 'User cancelled payment'
+              })
+            });
+          } catch (error) {
+            console.error('Payment failure logging error:', error);
+          }
+
+          // Show failure message
+          if (window.showToast) {
+            window.showToast({
+              title: 'Payment Cancelled',
+              subtitle: 'Your payment was not completed. Please try again.'
+            });
+          }
+
+          // Clean URL
+          const url = new URL(window.location.href);
+          url.searchParams.delete('payment_failed');
+          url.searchParams.delete('failure_reason');
+          window.history.replaceState({}, '', url);
+
+          // Remove pending session
+          localStorage.removeItem('pending_payment_session');
+        }
+      } catch (error) {
+        console.error('Payment callback handling error:', error);
+      }
+    };
+
+    // Run callback handler on component mount and URL change
+    handlePaymentCallback();
+  }, []);
+
   return (
     <BrowserRouter>
       {isPending ? (
@@ -145,6 +269,7 @@ function App() {
           <Route path="/myfolders" element={<Navigate to="/playlist" replace />} />
           <Route path="/policies" element={<Policies />} />
           <Route path="/staff" element={<StaffDashboard />} />
+          <Route path="/support" element={<SupportPage />} />
           <Route path="/upgradetopremium" element={<Home />} />
           <Route path="/settings" element={<Settings />} />
           

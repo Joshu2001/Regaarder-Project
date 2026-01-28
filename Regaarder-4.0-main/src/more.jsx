@@ -206,6 +206,9 @@ const MorePage = () => {
                 return setShowStaffLogin(true);
               }
               // Allow Help & Support to be public; protect everything else
+              if (item.label === 'Help & Support') {
+                return navigate('/support');
+              }
               if (item.label !== 'Help & Support' && !auth?.user) return auth.openAuthModal();
               // If the user is signed-in but hasn't completed creator onboarding, gate Creator Profile
               if (item.label === 'Creator Profile' && auth?.user && !auth.user.isCreator) {

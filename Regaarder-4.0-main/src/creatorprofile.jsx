@@ -2556,19 +2556,77 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
     const [selectedTier, setSelectedTier] = useState(null);
     const [customMonthlyAmount, setCustomMonthlyAmount] = useState('');
     const [oneTimeAmount, setOneTimeAmount] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [paymentError, setPaymentError] = useState(null);
     const isMonthlyActive = !!selectedTier || Number(customMonthlyAmount) > 0;
     const selectedPrice = selectedTier ? (tiers.find(t => t.name === selectedTier)?.price || null) : (Number(customMonthlyAmount) > 0 ? customMonthlyAmount : null);
 
+    // Get backend URL dynamically
+    const getBackendUrl = () => {
+        if (window && window.__BACKEND_URL__) return window.__BACKEND_URL__;
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        return `${protocol}//${hostname}:4000`;
+    };
+
     // Process payment and redirect to PayPal
-    const processPayment = (mode, amount) => {
+    const processPayment = async (mode, amount) => {
         if (!amount || Number(amount) <= 0) return;
+        setIsProcessing(true);
+        setPaymentError(null);
+
         try {
-            // Redirect to PayPal payment page with full device dimensions
+            const backendUrl = getBackendUrl();
+            const token = localStorage.getItem('authToken');
+
+            if (!token) {
+                setPaymentError(getTranslation('Please log in to continue', selectedLanguage));
+                setIsProcessing(false);
+                return;
+            }
+
+            // Initialize payment session with backend
+            const initResponse = await fetch(`${backendUrl}/payment/init`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    amount: Number(amount),
+                    paymentType: 'subscription',
+                    subscriptionTier: selectedTier || 'custom',
+                    paymentMode: mode === 'monthly' ? 'monthly' : 'one-time'
+                })
+            });
+
+            if (!initResponse.ok) {
+                throw new Error('Failed to initialize payment session');
+            }
+
+            const initData = await initResponse.json();
+            const sessionId = initData.sessionId;
+
+            // Store payment session data in localStorage for callback handling
+            localStorage.setItem('pending_payment_session', JSON.stringify({
+                sessionId,
+                amount: Number(amount),
+                tier: selectedTier || 'custom',
+                mode: mode === 'monthly' ? 'monthly' : 'one-time',
+                timestamp: Date.now()
+            }));
+
+            console.log('✅ Payment session initialized:', sessionId);
+
+            // Redirect to PayPal payment page
+            // In production, this would be dynamic based on actual PayPal setup
+            // For now, this is the static PayPal payment link
             window.location.href = "https://www.paypal.com/ncp/payment/XWKNU42XM5ZPQ";
-        } catch (e) {
-            console.error('payment error', e);
+        } catch (error) {
+            console.error('Payment initialization error:', error);
+            setPaymentError(error.message || getTranslation('Payment failed. Please try again.', selectedLanguage));
+            setIsProcessing(false);
         }
-        onClose();
     };
 
     return (
@@ -2585,6 +2643,13 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
 
                 {/* Scrollable Content */}
                 <div className="overflow-y-auto p-5 pt-2 space-y-3 scrollbar-hide flex-1">
+                    {/* Error message */}
+                    {paymentError && (
+                        <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex gap-3">
+                            <Icon name="alert-circle" size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
+                            <p className="text-red-700 text-sm">{paymentError}</p>
+                        </div>
+                    )}
                     {/* Compact tier cards */}
                     <div className="grid grid-cols-3 gap-2 mb-3">
                         {tiers.map((tier) => {
@@ -2651,9 +2716,9 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                             <button
                                 type="button"
                                 onClick={() => processPayment('one-time', oneTimeAmount)}
-                                disabled={!oneTimeAmount || Number(oneTimeAmount) <= 0}
-                                className={`px-3 py-2 rounded-lg text-xs transition-colors ${oneTimeAmount && Number(oneTimeAmount) > 0 ? 'bg-[var(--color-gold-light-bg)] text-black font-semibold hover:bg-[var(--color-gold-darker)]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                                {getTranslation('Send', selectedLanguage)}
+                                disabled={!oneTimeAmount || Number(oneTimeAmount) <= 0 || isProcessing}
+                                className={`px-3 py-2 rounded-lg text-xs transition-colors ${oneTimeAmount && Number(oneTimeAmount) > 0 && !isProcessing ? 'bg-[var(--color-gold-light-bg)] text-black font-semibold hover:bg-[var(--color-gold-darker)]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                                {isProcessing ? getTranslation('Processing...', selectedLanguage) : getTranslation('Send', selectedLanguage)}
                             </button>
                         </div>
                     </div>
@@ -2663,9 +2728,9 @@ const SponsorPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                         <button
                             type="button"
                             onClick={() => processPayment('monthly', selectedPrice)}
-                            disabled={!isMonthlyActive}
-                            className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-colors focus:outline-none ${isMonthlyActive ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                            {isMonthlyActive ? `${getTranslation('Continue', selectedLanguage)} \u2014 $${selectedPrice} / ${getTranslation('mo', selectedLanguage)}` : getTranslation('Select amount', selectedLanguage)}
+                            disabled={!isMonthlyActive || isProcessing}
+                            className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-colors focus:outline-none ${isMonthlyActive && !isProcessing ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                            {isProcessing ? `${getTranslation('Processing', selectedLanguage)}...` : isMonthlyActive ? `${getTranslation('Continue', selectedLanguage)} \u2014 $${selectedPrice} / ${getTranslation('mo', selectedLanguage)}` : getTranslation('Select amount', selectedLanguage)}
                         </button>
                     </div>
                 </div>

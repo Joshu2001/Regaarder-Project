@@ -54,7 +54,7 @@
     "name": "Paul",
     "passwordHash": "$2a$10$3scbR.60iq4sY22opnPw8O8Ar0GvjkLI7i2GdYaWLhH0PbLyVLKnS",
     "createdAt": "2026-01-05T03:56:39.609Z",
-    "token": "64e741630c9e393f02c2f07adea5568a",
+    "token": "413b511b09ae758ef51f04acd8a12703",
     "isCreator": true,
     "creatorSince": "2026-01-28T02:33:15.385Z",
     "image": "http://localhost:4000/uploads/intro-1769567593224-795236.jpg",
@@ -1210,8 +1210,20 @@
     "passwordHash": "$2a$10$DT1NEPWdFf7USjWrbGuE9ePrBsqZu7DwgCLdWj2Vp/ugA7.j5IS8.",
     "createdAt": "2026-01-12T13:01:32.161Z",
     "passwordChangedAt": "2026-01-12T13:01:32.161Z",
-    "token": "4ae1e5109e9b416df1585699cb95a7c1",
+    "token": "7dd1b909742066bfda3a20daab8a0198",
     "streak": 1,
     "lastStreakDate": "2026-01-25"
+  },
+  {
+    "id": "user-1769577843824",
+    "email": "lex@regaarder.com",
+    "name": "Lex",
+    "passwordHash": "$2a$10$SxzV.G/TFcUsDNZ2pZ8Kle2Fe6gMZM0zDA4KOWylKwL.3L0XcoliC",
+    "referralCode": "FF9A5173",
+    "referrerId": null,
+    "referralCount": 0,
+    "createdAt": "2026-01-28T05:24:03.824Z",
+    "passwordChangedAt": "2026-01-28T05:24:03.824Z",
+    "token": "eba2803c75214fce8d89991ed4004ac9"
   }
 ]

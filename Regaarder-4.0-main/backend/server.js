@@ -4959,5 +4959,693 @@ app.delete('/staff/notifications/:id', (req, res) => {
   }
 });
 
+// =====================================================
+// PAYMENT PROCESSING ENDPOINTS
+// =====================================================
+
+// Initialize payment session before redirecting to PayPal
+app.post('/payment/init', authMiddleware, (req, res) => {
+  const { amount, paymentType, subscriptionTier, paymentMode } = req.body || {};
+  
+  if (!amount || Number(amount) <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
+
+  try {
+    const users = readUsers();
+    const user = users.find(u => u.id === req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Create payment session record
+    const paymentSession = {
+      id: `payment_${Date.now()}_${req.user.id}`,
+      userId: req.user.id,
+      amount: Number(amount),
+      paymentType: paymentType || 'tip', // 'tip', 'subscription', 'boost', etc.
+      subscriptionTier: subscriptionTier || null,
+      paymentMode: paymentMode || 'one-time', // 'one-time' or 'monthly'
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 15 * 60000).toISOString() // 15 minute window
+    };
+
+    // Store payment session in user record
+    if (!user.paymentSessions) user.paymentSessions = [];
+    user.paymentSessions.push(paymentSession);
+    
+    writeUsers(users);
+
+    return res.json({ 
+      success: true, 
+      sessionId: paymentSession.id,
+      message: 'Payment session initialized. Please proceed with PayPal payment.'
+    });
+  } catch (err) {
+    console.error('Payment init error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Handle payment success callback (called when user returns from PayPal)
+app.post('/payment/success', authMiddleware, (req, res) => {
+  const { sessionId, transactionId } = req.body || {};
+  
+  if (!sessionId) {
+    return res.status(400).json({ error: 'Missing session ID' });
+  }
+
+  try {
+    const users = readUsers();
+    const user = users.find(u => u.id === req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Find payment session
+    const sessionIdx = (user.paymentSessions || []).findIndex(s => s.id === sessionId);
+    if (sessionIdx === -1) {
+      return res.status(404).json({ error: 'Payment session not found' });
+    }
+
+    const session = user.paymentSessions[sessionIdx];
+
+    // Check if session is still valid
+    if (session.status !== 'pending') {
+      return res.status(400).json({ error: 'Payment session already processed' });
+    }
+
+    if (new Date(session.expiresAt) < new Date()) {
+      return res.status(400).json({ error: 'Payment session expired' });
+    }
+
+    // Mark session as successful
+    session.status = 'success';
+    session.transactionId = transactionId || `manual_${Date.now()}`;
+    session.completedAt = new Date().toISOString();
+
+    // Process subscription if applicable
+    if (session.paymentType === 'subscription' && session.subscriptionTier) {
+      const tier = session.subscriptionTier.toLowerCase();
+      
+      // Update user subscription
+      user.subscriptionTier = tier;
+      user.subscriptionStartDate = new Date().toISOString();
+      user.subscriptionActive = true;
+      user.paymentMode = session.paymentMode;
+      
+      // Set subscription expiry (1 month from now for monthly, 1 year for yearly)
+      const expiryDate = new Date();
+      if (session.paymentMode === 'monthly') {
+        expiryDate.setMonth(expiryDate.getMonth() + 1);
+      } else {
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      }
+      user.subscriptionExpiryDate = expiryDate.toISOString();
+      
+      // Grant subscription benefits
+      user.subscriptionBenefits = getSubscriptionBenefits(tier);
+    }
+
+    // Track payment in payment history
+    if (!user.paymentHistory) user.paymentHistory = [];
+    user.paymentHistory.push({
+      sessionId: session.id,
+      amount: session.amount,
+      type: session.paymentType,
+      paymentMode: session.paymentMode,
+      transactionId: session.transactionId,
+      completedAt: session.completedAt
+    });
+
+    writeUsers(users);
+
+    return res.json({ 
+      success: true, 
+      message: 'Payment processed successfully',
+      subscription: user.subscriptionTier ? {
+        tier: user.subscriptionTier,
+        active: user.subscriptionActive,
+        expiryDate: user.subscriptionExpiryDate,
+        benefits: user.subscriptionBenefits
+      } : null
+    });
+  } catch (err) {
+    console.error('Payment success error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Handle payment failure
+app.post('/payment/failure', authMiddleware, (req, res) => {
+  const { sessionId, reason } = req.body || {};
+  
+  if (!sessionId) {
+    return res.status(400).json({ error: 'Missing session ID' });
+  }
+
+  try {
+    const users = readUsers();
+    const user = users.find(u => u.id === req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Find payment session
+    const sessionIdx = (user.paymentSessions || []).findIndex(s => s.id === sessionId);
+    if (sessionIdx === -1) {
+      return res.status(404).json({ error: 'Payment session not found' });
+    }
+
+    const session = user.paymentSessions[sessionIdx];
+
+    // Mark session as failed
+    session.status = 'failed';
+    session.failureReason = reason || 'User cancelled';
+    session.failedAt = new Date().toISOString();
+
+    writeUsers(users);
+
+    return res.json({ 
+      success: true, 
+      message: 'Payment failure recorded',
+      sessionId: session.id
+    });
+  } catch (err) {
+    console.error('Payment failure error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get user subscription status and benefits
+app.get('/payment/subscription', authMiddleware, (req, res) => {
+  try {
+    const users = readUsers();
+    const user = users.find(u => u.id === req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isSubscriptionActive = user.subscriptionActive && 
+      (!user.subscriptionExpiryDate || new Date(user.subscriptionExpiryDate) > new Date());
+
+    return res.json({ 
+      success: true, 
+      subscription: {
+        active: isSubscriptionActive,
+        tier: user.subscriptionTier || null,
+        paymentMode: user.paymentMode || null,
+        startDate: user.subscriptionStartDate || null,
+        expiryDate: user.subscriptionExpiryDate || null,
+        benefits: user.subscriptionBenefits || getSubscriptionBenefits(user.subscriptionTier)
+      }
+    });
+  } catch (err) {
+    console.error('Get subscription error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Cancel subscription
+app.post('/payment/subscription/cancel', authMiddleware, (req, res) => {
+  try {
+    const users = readUsers();
+    const user = users.find(u => u.id === req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Mark subscription as cancelled
+    user.subscriptionActive = false;
+    user.subscriptionCancelledAt = new Date().toISOString();
+
+    writeUsers(users);
+
+    return res.json({ 
+      success: true, 
+      message: 'Subscription cancelled successfully'
+    });
+  } catch (err) {
+    console.error('Cancel subscription error', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Helper function: Get subscription benefits based on tier
+function getSubscriptionBenefits(tier) {
+  const benefits = {
+    'support': [
+      'Early access to videos',
+      'Supporter badge',
+      'Direct support access'
+    ],
+    'enthusiast': [
+      'All Support perks',
+      'Monthly Q&A access',
+      'Name in credits',
+      'Exclusive content'
+    ],
+    'patron': [
+      'All Enthusiast perks',
+      '1-on-1 consultation (quarterly)',
+      'Custom video request priority',
+      'VIP access to events'
+    ]
+  };
+
+  return benefits[tier?.toLowerCase()] || [];
+}
+
+// ========== SUPPORT TICKETS SYSTEM ==========
+
+const SUPPORT_TICKETS_FILE = path.join(__dirname, 'support_tickets.json');
+
+// Helper function to check if user is staff
+function isUserStaff(userId) {
+  try {
+    const staff = readStaff();
+    return staff.employees && staff.employees.some(emp => emp.id === parseInt(userId));
+  } catch (e) {
+    return false;
+  }
+}
+
+function readSupportTickets() {
+  try {
+    if (fs.existsSync(SUPPORT_TICKETS_FILE)) {
+      const data = fs.readFileSync(SUPPORT_TICKETS_FILE, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (e) {
+    console.error('Error reading support tickets:', e);
+  }
+  return [];
+}
+
+function writeSupportTickets(tickets) {
+  try {
+    fs.writeFileSync(SUPPORT_TICKETS_FILE, JSON.stringify(tickets, null, 2));
+  } catch (e) {
+    console.error('Error writing support tickets:', e);
+  }
+}
+
+// Submit a new support ticket (no auth required - customers can submit without logging in)
+app.post('/support/ticket', upload.array('file_', 5), (req, res) => {
+  try {
+    const { title, description, userId, userEmail } = req.body;
+
+    // Validation
+    if (!title || !description) {
+      return res.status(400).json({ error: 'Title and description are required' });
+    }
+
+    if (title.length > 100 || description.length > 2000) {
+      return res.status(400).json({ error: 'Title or description exceeds length limit' });
+    }
+
+    // Get user info (from request body or as anonymous)
+    const users = readUsers();
+    let userInfo = { id: userId || 'anonymous', email: userEmail || 'unknown@example.com' };
+    
+    // If user is authenticated, use their info instead
+    if (req.user) {
+      const user = users.find(u => u.id === req.user.id);
+      if (user) {
+        userInfo = { id: user.id, email: user.email };
+      }
+    }
+
+    // Limit check: Check how many open tickets this user already has
+    const tickets = readSupportTickets();
+    const existingOpenTickets = tickets.filter(t => 
+      t.userEmail === userInfo.email && 
+      ['open', 'in-progress'].includes(t.status)
+    );
+
+    if (existingOpenTickets.length >= 5) {
+      return res.status(400).json({ 
+        error: 'You already have 5 open support tickets. Please resolve existing tickets before submitting a new one.' 
+      });
+    }
+
+    // Create ticket with a better unique ID
+    // Format: 'ticket_' + timestamp + '_' + random string
+    const uniqueId = `ticket_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    const users_list = readUsers();
+    const user = users_list.find(u => u.id === userInfo.id);
+    const ticket = {
+      id: uniqueId,
+      userId: userInfo.id,
+      userName: user?.username || 'Unknown User',
+      userEmail: userInfo.email,
+      title: title.trim(),
+      description: description.trim(),
+      status: 'open', // open, in-progress, resolved, closed
+      priority: 'normal',
+      attachments: (req.files || []).map(f => ({
+        filename: f.filename,
+        originalName: f.originalname,
+        size: f.size,
+        path: `/uploads/${f.filename}`
+      })),
+      responses: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    // Save to file
+    const allTickets = readSupportTickets();
+    allTickets.push(ticket);
+    writeSupportTickets(allTickets);
+
+    console.log(`Support ticket created: ${ticket.id} by ${userInfo.email}`);
+
+    return res.json({ 
+      success: true, 
+      ticketId: ticket.id,
+      message: 'Ticket submitted successfully'
+    });
+  } catch (err) {
+    console.error('Error submitting support ticket:', err);
+    return res.status(500).json({ error: 'Failed to submit ticket' });
+  }
+});
+
+// Get all support tickets (staff only - uses employeeId query param)
+app.get('/support/tickets', (req, res) => {
+  try {
+    const employeeId = req.query.employeeId;
+    const userEmail = req.query.userEmail;
+    
+    // If employeeId is provided, serve staff view
+    if (employeeId) {
+      // Verify the employee exists in staff.json
+      const staff = readStaff();
+      const isStaff = staff.employees && staff.employees.some(emp => emp.id === parseInt(employeeId));
+
+      console.log('Support tickets request - Employee ID:', employeeId, 'Is Staff:', isStaff);
+
+      if (!isStaff) {
+        console.log('Access denied - not a valid staff member');
+        return res.status(403).json({ error: 'Unauthorized - staff access required' });
+      }
+
+      const tickets = readSupportTickets();
+      console.log('Returning', tickets.length, 'support tickets');
+      const sortedTickets = tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      return res.json({ 
+        success: true, 
+        tickets: sortedTickets,
+        count: sortedTickets.length
+      });
+    }
+    
+    // If userEmail is provided, serve customer view
+    if (userEmail) {
+      const tickets = readSupportTickets();
+      const userTickets = tickets.filter(t => t.userEmail === userEmail).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      
+      return res.json({
+        success: true,
+        tickets: userTickets,
+        count: userTickets.length
+      });
+    }
+
+    return res.status(400).json({ error: 'employeeId or userEmail required' });
+  } catch (err) {
+    console.error('Error getting support tickets:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get single support ticket
+app.get('/support/ticket/:id', (req, res) => {
+  try {
+    const ticketId = req.params.id;
+    const employeeId = req.query.employeeId;
+    const tickets = readSupportTickets();
+    const ticket = tickets.find(t => t.id === ticketId || t.id === parseInt(ticketId));
+
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    // Check permission - staff can view all
+    if (employeeId) {
+      const isStaff = isUserStaff(employeeId);
+      if (!isStaff) {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+    }
+
+    return res.json({ success: true, ticket });
+  } catch (err) {
+    console.error('Error getting support ticket:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update ticket status (staff only)
+app.put('/support/ticket/:id/status', (req, res) => {
+  try {
+    const ticketId = req.params.id;
+    const { status, priority, employeeId } = req.body;
+
+    // Check if user is staff
+    if (!employeeId || !isUserStaff(employeeId)) {
+      return res.status(403).json({ error: 'Unauthorized - staff access required' });
+    }
+
+    const tickets = readSupportTickets();
+    const ticket = tickets.find(t => t.id === ticketId || t.id === parseInt(ticketId));
+
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    // Update status and/or priority
+    if (status && ['open', 'in-progress', 'resolved', 'closed'].includes(status)) {
+      ticket.status = status;
+    }
+    if (priority && ['low', 'normal', 'high', 'urgent'].includes(priority)) {
+      ticket.priority = priority;
+    }
+
+    ticket.updatedAt = new Date().toISOString();
+    writeSupportTickets(tickets);
+
+    return res.json({ success: true, ticket });
+  } catch (err) {
+    console.error('Error updating ticket status:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Add response to ticket (staff only)
+app.post('/support/ticket/:id/response', (req, res) => {
+  try {
+    const ticketId = req.params.id;
+    const { message, employeeId } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    // Check if user is staff
+    if (!employeeId || !isUserStaff(employeeId)) {
+      return res.status(403).json({ error: 'Unauthorized - staff access required' });
+    }
+
+    const tickets = readSupportTickets();
+    const ticket = tickets.find(t => t.id === ticketId || t.id === parseInt(ticketId));
+
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    // Get staff member info for response
+    const staff = readStaff();
+    const staffMember = staff.employees?.find(emp => emp.id === parseInt(employeeId));
+    const staffName = staffMember?.name || 'Staff';
+
+    // Add response
+    const response = {
+      id: Date.now(),
+      staffId: employeeId,
+      staffName: staffName,
+      message: message.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    if (!ticket.responses) {
+      ticket.responses = [];
+    }
+    ticket.responses.push(response);
+    ticket.updatedAt = new Date().toISOString();
+
+    writeSupportTickets(tickets);
+
+    // Create notification for customer
+    try {
+      const notifFile = path.join(__dirname, 'notifications.json');
+      let notifications = [];
+      if (fs.existsSync(notifFile)) {
+        const data = fs.readFileSync(notifFile, 'utf-8');
+        notifications = JSON.parse(data);
+      }
+
+      const notification = {
+        id: Date.now(),
+        userId: ticket.userId || 'anonymous',
+        userEmail: ticket.userEmail,
+        type: 'support_response',
+        title: 'Support Response Received',
+        message: `Staff replied to your ticket: "${ticket.title}"`,
+        ticketId: ticketId,
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+
+      notifications.push(notification);
+      fs.writeFileSync(notifFile, JSON.stringify(notifications, null, 2));
+      console.log(`Notification created for ticket ${ticketId} to ${ticket.userEmail}`);
+    } catch (notifErr) {
+      console.warn('Could not create notification:', notifErr.message);
+    }
+
+    console.log(`Response added to ticket ${ticketId} by ${staffName}`);
+
+    return res.json({ success: true, response, ticket });
+  } catch (err) {
+    console.error('Error adding ticket response:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Add customer response to ticket
+app.post('/support/ticket/:id/customer-response', (req, res) => {
+  try {
+    const ticketId = req.params.id;
+    const { message, userEmail } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const tickets = readSupportTickets();
+    const ticket = tickets.find(t => t.id === ticketId || t.id === parseInt(ticketId));
+
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    // Verify the email matches
+    if (ticket.userEmail !== userEmail) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    // Add customer response
+    const customerResponse = {
+      id: Date.now(),
+      message: message.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    if (!ticket.customerResponses) {
+      ticket.customerResponses = [];
+    }
+    ticket.customerResponses.push(customerResponse);
+    ticket.updatedAt = new Date().toISOString();
+
+    writeSupportTickets(tickets);
+
+    console.log(`Customer response added to ticket ${ticketId}`);
+
+    return res.json({ success: true, response: customerResponse, ticket });
+  } catch (err) {
+    console.error('Error adding customer response:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Close ticket (staff only)
+app.post('/support/ticket/:id/close', (req, res) => {
+  try {
+    const ticketId = req.params.id;
+    const { resolution, employeeId } = req.body;
+
+    // Check if user is staff
+    if (!employeeId || !isUserStaff(employeeId)) {
+      return res.status(403).json({ error: 'Unauthorized - staff access required' });
+    }
+
+    const tickets = readSupportTickets();
+    const ticket = tickets.find(t => t.id === ticketId || t.id === parseInt(ticketId));
+
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    // Get staff member name
+    const staff = readStaff();
+    const staffMember = staff.employees?.find(emp => emp.id === parseInt(employeeId));
+    const staffName = staffMember?.name || 'Staff';
+
+    ticket.status = 'closed';
+    ticket.closedBy = staffName;
+    ticket.resolution = resolution || '';
+    ticket.closedAt = new Date().toISOString();
+    ticket.updatedAt = new Date().toISOString();
+
+    writeSupportTickets(tickets);
+
+    return res.json({ success: true, ticket });
+  } catch (err) {
+    console.error('Error closing ticket:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Delete ticket (staff only)
+app.delete('/support/ticket/:id', (req, res) => {
+  try {
+    const ticketId = req.params.id;
+    const employeeId = req.query.employeeId;
+
+    // Check if user is staff
+    if (!employeeId || !isUserStaff(employeeId)) {
+      return res.status(403).json({ error: 'Unauthorized - staff access required' });
+    }
+
+    const tickets = readSupportTickets();
+    const ticketIdx = tickets.findIndex(t => t.id === ticketId || t.id === parseInt(ticketId));
+
+    if (ticketIdx === -1) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    // Remove ticket
+    const deletedTicket = tickets.splice(ticketIdx, 1)[0];
+    writeSupportTickets(tickets);
+
+    console.log(`Support ticket ${ticketId} deleted by employee ${employeeId}`);
+
+    return res.json({ success: true, message: 'Ticket deleted', ticketId: deletedTicket.id });
+  } catch (err) {
+    console.error('Error deleting ticket:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.listen(PORT, () => console.log(`Regaarder backend listening on ${PORT}`));
 

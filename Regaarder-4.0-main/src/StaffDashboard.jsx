@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Eye, EyeOff, Search, Users, Clock, Trash, Trash2, Ban, Crown, Gift, Megaphone, Filter, Plus, Copy, Home, Image as ImageIcon, AlertCircle, Maximize2, CheckCircle, AlertTriangle, Star } from 'lucide-react';
+import SupportTicketPanel from './SupportTicketPanel.jsx';
 
 // Utility: convert hex color to rgba string
 function hexToRgba(hex, alpha = 1) {
@@ -195,7 +196,9 @@ function BottomAdPreviewBar({ profileName, profileAvatar, textItems, textInterva
 export default function StaffDashboard() {
   const [staffSession, setStaffSession] = useState(null);
   const [staffNotifications, setStaffNotifications] = useState([]);
-  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'requests', 'comments', 'reports', 'users', 'creators', 'shadowDeleted', 'approvals', 'promotions', 'templates', 'ads', 'feedback', 'myProfile'
+  const [supportTickets, setSupportTickets] = useState([]);
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'requests', 'comments', 'reports', 'users', 'creators', 'shadowDeleted', 'approvals', 'promotions', 'templates', 'ads', 'feedback', 'support', 'myProfile'
   const [adAssets, setAdAssets] = useState([]);
   const [selectedAdVideo, setSelectedAdVideo] = useState(null);
   const [videoPreviewState, setVideoPreviewState] = useState({ isPlaying: false, currentTime: 0, videoDuration: 100, overlayPosition: { x: 50, y: 50 }, overlaySize: { width: 80, height: 60 }, isDragging: false, dragStart: { x: 0, y: 0 } });
@@ -923,6 +926,17 @@ export default function StaffDashboard() {
       if (commentsRes.ok) {
         const data = await commentsRes.json();
         setComments(data.comments || []);
+      }
+
+      // Load support tickets
+      const supportRes = await fetch(`http://localhost:4000/support/tickets?employeeId=${employee.id}`);
+      if (supportRes.ok) {
+        const data = await supportRes.json();
+        console.log('Support tickets loaded:', data.tickets?.length || 0);
+        setSupportTickets(data.tickets || []);
+      } else {
+        const errorText = await supportRes.text();
+        console.error('Support tickets fetch failed:', supportRes.status, errorText);
       }
 
       // Load pending accounts (admin only)
@@ -2159,6 +2173,29 @@ export default function StaffDashboard() {
               onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'feedback' ? '#eff6ff' : 'white'}
             >
               <Megaphone size={16} /> User Feedback
+            </button>
+            <button
+              onClick={() => navigateToTab('support', 'support')}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                textAlign: 'left',
+                backgroundColor: activeTab === 'support' ? '#eff6ff' : 'white',
+                color: activeTab === 'support' ? '#1e40af' : '#374151',
+                border: 'none',
+                borderBottom: '1px solid #e5e7eb',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: activeTab === 'support' ? 'bold' : 'normal',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'support' ? '#eff6ff' : 'white'}
+            >
+              Support Tickets ({supportTickets ? supportTickets.length : 0})
             </button>
             <button
               onClick={() => navigateToTab('shadowDeleted', 'shadowDeleted')}
@@ -6485,6 +6522,11 @@ export default function StaffDashboard() {
                     );
                 })()}
             </div>
+          )}
+
+          {/* Support Tickets Tab */}
+          {activeTab === 'support' && (
+            <SupportTicketPanel selectedLanguage={selectedLanguage} />
           )}
 
           {/* Ads Tab */}

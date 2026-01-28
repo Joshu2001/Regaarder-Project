@@ -6,8 +6,8 @@ import { useAuth } from './AuthContext.jsx';
 import * as eventBus from './eventbus.js';
 import Videoplayer from './Videoplayer.jsx';
 import StaffLoginModal from './StaffLoginModal.jsx';
-// Updated Lucide imports: Added Video, Sparkles, Pin, Bookmark, Info, EyeOff, Flag
-import { X, Menu, Bell, Settings, Search, Star, TrendingUp, Trophy, Home, FileText, Lightbulb, MoreHorizontal, MoreVertical, Heart, ThumbsDown, HeartOff, Eye, MessageSquare, Share, Share2, Palette, Shield, Globe, Gift, DollarSign, Users, Monitor, BookOpen, History, Scissors, Zap, CreditCard, Crown, Tag, User, Folder, Shuffle, Camera, Pencil, ShoppingBag, Video, Sparkles, Pin, Bookmark, Info, EyeOff, Flag, Check, AlertCircle, AlertTriangle, Sun, Moon, ChevronDown, ChevronLeft, ChevronRight, ListPlus, Music, Clock, Dumbbell } from 'lucide-react';
+// Updated Lucide imports: Added Video, Sparkles, Pin, Bookmark, Info, EyeOff, Flag, Headset
+import { X, Menu, Bell, Settings, Search, Star, TrendingUp, Trophy, Home, FileText, Lightbulb, MoreHorizontal, MoreVertical, Heart, ThumbsDown, HeartOff, Eye, MessageSquare, Share, Share2, Palette, Shield, Globe, Gift, DollarSign, Users, Monitor, BookOpen, History, Scissors, Zap, CreditCard, Crown, Tag, User, Folder, Shuffle, Camera, Pencil, ShoppingBag, Video, Sparkles, Pin, Bookmark, Info, EyeOff, Flag, Check, AlertCircle, AlertTriangle, Sun, Moon, ChevronDown, ChevronLeft, ChevronRight, ListPlus, Music, Clock, Dumbbell, Headphones } from 'lucide-react';
 import { useTheme } from './ThemeContext.jsx';
 import { getTranslation } from './translations.js';
 
@@ -2914,6 +2914,11 @@ const App = ({ overrideMiniPlayerData = null }) => {
         }
     });
 
+    // NEW: Support Ticket navigation
+    const handleOpenSupportTicket = () => {
+        navigate('/support');
+    };
+
     // Listen for mini player events from videoplayer
     useEffect(() => {
         const handleMiniPlayerRequest = (data) => {
@@ -3908,7 +3913,7 @@ const App = ({ overrideMiniPlayerData = null }) => {
             </div>
 
             {!(isSearchActive || (searchTerm && searchTerm.length > 0)) && (
-                <FloatingActionButton searchTerm={searchTerm} navigate={navigate} selectedLanguage={selectedLanguage} />
+                <FloatingActionButton searchTerm={searchTerm} navigate={navigate} selectedLanguage={selectedLanguage} onOpenSupportTicket={handleOpenSupportTicket} />
             )}
             <SideDrawer isDrawerOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} onOpenTheme={handleOpenTheme} onOpenLanguage={handleOpenLanguage} currentLanguageFlag={selectedLanguageFlag} onOpenCreator={handleOpenCreatorOnboarding} navigateTo={navigateTo} selectedLanguage={selectedLanguage} />
             <BottomBar selectedLanguage={selectedLanguage} />
@@ -4961,23 +4966,35 @@ const EngagementStats = ({ stats, selectedLanguage = 'English' }) => (
     </div>
 );
 
-const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => {
+const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate, selectedLanguage = 'English', onOpenSupportTicket }) => {
     const navigatedRef = useRef(false);
     const [pressed, setPressed] = useState(false);
     const [dismissed, setDismissed] = useState(() => {
         try { return window.localStorage.getItem('fab_dismissed') === '1'; } catch (e) { return false; }
     });
     const touchStartX = useRef(0);
+    const touchStartY = useRef(0);
     const translateX = useRef(0);
+    const translateY = useRef(0);
     const [tx, setTx] = useState(0);
+    const [ty, setTy] = useState(0);
     const [touching, setTouching] = useState(false);
-
-    const navigate = () => {
+    const [position, setPosition] = useState(() => {
         try {
-            const url = '/ideas' + (searchTerm ? `?q=${encodeURIComponent(searchTerm)}` : '');
-            routerNavigate(url);
+            const saved = window.localStorage.getItem('fab_position');
+            return saved ? JSON.parse(saved) : { x: 0, y: 0 };
         } catch (e) {
-            console.warn('FAB navigation failed', e);
+            return { x: 0, y: 0 };
+        }
+    });
+
+    const openSupportTicket = () => {
+        try {
+            if (typeof onOpenSupportTicket === 'function') {
+                onOpenSupportTicket();
+            }
+        } catch (e) {
+            console.warn('Support ticket modal open failed', e);
         }
     };
 
@@ -4986,6 +5003,12 @@ const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => 
         const onStorage = (e) => {
             if (e.key === 'fab_dismissed') {
                 try { setDismissed(window.localStorage.getItem('fab_dismissed') === '1'); } catch (err) { }
+            }
+            if (e.key === 'fab_position') {
+                try {
+                    const saved = window.localStorage.getItem('fab_position');
+                    if (saved) setPosition(JSON.parse(saved));
+                } catch (err) { }
             }
         };
         window.addEventListener('storage', onStorage);
@@ -4997,23 +5020,29 @@ const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => 
         setPressed(true);
         if (!navigatedRef.current) {
             navigatedRef.current = true;
-            navigate();
+            openSupportTicket();
         }
     };
 
     const handleTouchStart = (e) => {
         if (!e.touches || e.touches.length === 0) return;
         touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
         translateX.current = 0;
+        translateY.current = 0;
         setTx(0);
+        setTy(0);
         setTouching(true);
     };
 
     const handleTouchMove = (e) => {
         if (!touching || !e.touches || e.touches.length === 0) return;
         const dx = e.touches[0].clientX - touchStartX.current;
+        const dy = e.touches[0].clientY - touchStartY.current;
         translateX.current = dx;
+        translateY.current = dy;
         setTx(dx);
+        setTy(dy);
     };
 
     const handleDismiss = (dir) => {
@@ -5025,24 +5054,52 @@ const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => 
     const handleTouchEnd = (e) => {
         setTouching(false);
         const dx = translateX.current || 0;
+        const dy = translateY.current || 0;
         const THRESHOLD = 60; // px
+
+        // Check for horizontal dismiss (left/right)
         if (Math.abs(dx) > THRESHOLD) {
             // dismiss
             handleDismiss(dx > 0 ? 'right' : 'left');
         } else {
-            // snap back
-            translateX.current = 0;
-            setTx(0);
+            // Check if it was a drag (vertical movement)
+            if (Math.abs(dy) > 10) {
+                // Save new position
+                const newPosition = {
+                    x: position.x + dx,
+                    y: position.y + dy
+                };
+                setPosition(newPosition);
+                try {
+                    window.localStorage.setItem('fab_position', JSON.stringify(newPosition));
+                } catch (e) { }
+                // Reset drag visualization
+                translateX.current = 0;
+                translateY.current = 0;
+                setTx(0);
+                setTy(0);
+            } else {
+                // snap back
+                translateX.current = 0;
+                translateY.current = 0;
+                setTx(0);
+                setTy(0);
+            }
         }
     };
 
     if (dismissed) return null;
 
+    const bottomPos = Math.max(20, Math.min(window.innerHeight - 80, 110 + position.y));
+    const rightPos = Math.max(20, Math.min(window.innerWidth - 80, 24 + position.x));
+
     return (
         <button
-            className={`fixed bottom-[110px] right-6 w-14 h-14 rounded-full flex items-center justify-center z-20 transition-all duration-300 ${pressed ? 'scale-95 bg-gray-100' : ''}`}
+            className={`fixed w-11 h-11 rounded-full flex items-center justify-center z-20 transition-all duration-300 ${pressed ? 'scale-95 bg-gray-100' : ''}`}
             style={{
-                transform: `translateX(${tx}px)`,
+                bottom: `${bottomPos}px`,
+                right: `${rightPos}px`,
+                transform: touching ? `translateX(${tx}px) translateY(${ty}px)` : 'none',
                 backgroundColor: 'var(--color-gold)',
                 boxShadow: '0 4px 12px rgba(203, 138, 0, 0.6), 0 0 20px var(--color-gold-light)'
             }}
@@ -5052,9 +5109,10 @@ const FloatingActionButton = ({ searchTerm = '', navigate: routerNavigate }) => 
             onTouchEnd={handleTouchEnd}
             onMouseUp={() => setPressed(false)}
             onMouseLeave={() => setPressed(false)}
-            onClick={(e) => { if (navigatedRef.current) { navigatedRef.current = false; e.preventDefault(); return; } navigate(); }}
+            onClick={(e) => { if (navigatedRef.current) { navigatedRef.current = false; e.preventDefault(); return; } openSupportTicket(); }}
+            title="Contact Support"
         >
-            <Icon name="pencil" size={28} className="text-black" />
+            <Headphones size={22} className="text-black" />
         </button>
     );
 };

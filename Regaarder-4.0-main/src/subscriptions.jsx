@@ -151,26 +151,46 @@ const Subscriptions = () => {
         // Fetch current user plan from backend
         const fetchUserPlan = async () => {
             try {
-                const token = localStorage.getItem('regaarder_token');
+                const token = localStorage.getItem('regaarder_token') || localStorage.getItem('authToken');
                 if (!token) {
                     setLoading(false);
                     return;
                 }
 
-                const response = await fetch('http://localhost:4000/users/me', {
+                // Get backend URL dynamically
+                const protocol = window.location.protocol;
+                const hostname = window.location.hostname;
+                const backendUrl = window.__BACKEND_URL__ || `${protocol}//${hostname}:4000`;
+
+                // Fetch subscription status from payment endpoint
+                const response = await fetch(`${backendUrl}/payment/subscription`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
                 if (response.ok) {
                     const data = await response.json();
-                    setUserPlan(data.user);
-                    // Check if user has a subscription
-                    if (data.user.userPlan) {
-                        setCurrentPlan(data.user.userPlan);
+                    const subscription = data.subscription;
+                    
+                    if (subscription && subscription.active && subscription.tier) {
+                        setCurrentPlan(subscription.tier);
+                        setPlanDetails(subscription);
+                    }
+                    
+                    // Also try to fetch from user endpoint for compatibility
+                    const userResponse = await fetch(`${backendUrl}/users/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        setUserPlan(userData.user);
+                        if (userData.user.userPlan && !subscription?.tier) {
+                            setCurrentPlan(userData.user.userPlan);
+                        }
                     }
                 }
             } catch (err) {
-                console.error('Error fetching user plan:', err);
+                console.error('Error fetching subscription:', err);
             } finally {
                 setLoading(false);
             }
@@ -308,8 +328,26 @@ const Subscriptions = () => {
                     <div className="flex flex-col items-stretch text-center space-y-6 pt-8">
                         {(() => {
                             const plan = planDetailsMap[currentPlan];
+                            const expiryDate = planDetails?.expiryDate ? new Date(planDetails.expiryDate) : null;
+                            const daysRemaining = expiryDate ? Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24)) : null;
+                            
                             return (
                                 <>
+                                    {/* Subscription Status Banner */}
+                                    <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                                        <div className="flex items-center justify-center space-x-2 mb-2">
+                                            <Check className="w-5 h-5 text-green-600" />
+                                            <h3 className="font-semibold text-green-800">{t('Active Subscription')}</h3>
+                                        </div>
+                                        {expiryDate && (
+                                            <p className="text-sm text-green-700">
+                                                {daysRemaining > 0 
+                                                    ? t(`Renews in ${daysRemaining} days`)
+                                                    : t('Renewing soon')}
+                                            </p>
+                                        )}
+                                    </div>
+
                                     {/* Plan Card */}
                                     <div 
                                         className="rounded-2xl border-2 p-6 bg-white shadow-lg"
@@ -345,13 +383,61 @@ const Subscriptions = () => {
                                             ))}
                                         </div>
 
+                                        {/* Active Benefits Section */}
+                                        {planDetails?.benefits && planDetails.benefits.length > 0 && (
+                                            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                <h3 className="text-sm font-semibold text-blue-900 mb-3">{t('Your Active Benefits:')}</h3>
+                                                <ul className="text-sm text-blue-800 space-y-1">
+                                                    {planDetails.benefits.map((benefit, idx) => (
+                                                        <li key={idx} className="flex items-start space-x-2">
+                                                            <span className="text-blue-600 mt-1">✓</span>
+                                                            <span>{benefit}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+
                                         {/* Manage Subscription CTA */}
                                         <button 
                                             onClick={handleUpgrade}
-                                            className="w-full py-3 rounded-xl text-white font-semibold transition-all hover:opacity-90"
+                                            className="w-full py-3 rounded-xl text-white font-semibold transition-all hover:opacity-90 mb-3"
                                             style={{ backgroundColor: plan.color }}
                                         >
                                             {t('Manage Subscription')}
+                                        </button>
+
+                                        {/* Cancel Option */}
+                                        <button 
+                                            onClick={async () => {
+                                                if (confirm(t('Are you sure you want to cancel your subscription?'))) {
+                                                    try {
+                                                        const token = localStorage.getItem('authToken');
+                                                        const protocol = window.location.protocol;
+                                                        const hostname = window.location.hostname;
+                                                        const backendUrl = window.__BACKEND_URL__ || `${protocol}//${hostname}:4000`;
+                                                        
+                                                        const response = await fetch(`${backendUrl}/payment/subscription/cancel`, {
+                                                            method: 'POST',
+                                                            headers: {
+                                                                'Authorization': `Bearer ${token}`,
+                                                                'Content-Type': 'application/json'
+                                                            }
+                                                        });
+
+                                                        if (response.ok) {
+                                                            alert(t('Subscription cancelled successfully'));
+                                                            window.location.reload();
+                                                        }
+                                                    } catch (err) {
+                                                        console.error('Cancel subscription error:', err);
+                                                        alert(t('Failed to cancel subscription'));
+                                                    }
+                                                }
+                                            }}
+                                            className="w-full py-2 rounded-xl text-gray-600 font-semibold transition-all hover:bg-gray-100 border border-gray-200"
+                                        >
+                                            {t('Cancel Subscription')}
                                         </button>
                                     </div>
 
