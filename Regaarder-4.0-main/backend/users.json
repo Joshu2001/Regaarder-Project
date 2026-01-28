@@ -27,7 +27,8 @@
     "shadowBanned": true,
     "shadowBannedAt": "2026-01-20T05:55:37.115Z",
     "shadowBanReason": "Low-quality or repetitive content",
-    "followers": 1
+    "followers": 1,
+    "views": 2
   },
   {
     "id": "user-1767159330204",
@@ -1228,6 +1229,8 @@
     "token": "eba2803c75214fce8d89991ed4004ac9",
     "following": [
       "user-1766857658728"
-    ]
+    ],
+    "streak": 1,
+    "lastStreakDate": "2026-01-28"
   }
 ]
