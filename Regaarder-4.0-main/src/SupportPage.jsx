@@ -1,7 +1,90 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Upload, AlertCircle, Loader, FileIcon, ImageIcon, Trash2, MessageCircle, Send } from 'lucide-react';
+import { ChevronLeft, Upload, AlertCircle, Loader, FileIcon, ImageIcon, Trash2, MessageCircle, Send, Home, FileText, Pencil, MoreHorizontal } from 'lucide-react';
 import { getTranslation } from './translations.js';
+
+// Bottom Navigation Bar
+const BottomBar = ({ selectedLanguage = 'English' }) => {
+  const [activeTab, setActiveTab] = useState('More');
+
+  useEffect(() => {
+    if (window.setFooterTab) {
+      window.currentFooterSetTab = setActiveTab;
+    }
+  }, []);
+
+  const tabs = [
+    { name: 'Home', Icon: Home },
+    { name: 'Requests', Icon: FileText },
+    { name: 'Ideas', Icon: Pencil },
+    { name: 'More', Icon: MoreHorizontal },
+  ];
+
+  const inactiveColor = 'rgb(107 114 128)';
+
+  const switchTab = (tabName) => {
+    const tabMap = {
+      'Home': 'home',
+      'Requests': 'requests',
+      'Ideas': 'ideas',
+      'More': 'more'
+    };
+    const tabKey = tabMap[tabName];
+    if (window.setFooterTab) {
+      window.setFooterTab(tabKey);
+    }
+    setActiveTab(tabName);
+  };
+
+  return (
+    <div
+      className="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 shadow-2xl z-10"
+      style={{
+        paddingTop: '10px',
+        paddingBottom: 'calc(44px + env(safe-area-inset-bottom))'
+      }}
+    >
+      <div className="flex justify-around max-w-md mx-auto">
+        {tabs.map((tab) => {
+          const isSelected = tab.name === activeTab;
+
+          const activeColorStyle = isSelected
+            ? { color: 'var(--color-gold)' }
+            : { color: inactiveColor };
+
+          const textWeight = isSelected ? 'font-semibold' : 'font-normal';
+
+          let wrapperStyle = {};
+          if (isSelected) {
+            wrapperStyle.textShadow = `0 0 8px var(--color-gold-light)`;
+          }
+
+          return (
+            <div
+              key={tab.name}
+              className={`relative flex flex-col items-center w-1/4 focus:outline-none`}
+              style={wrapperStyle}
+            >
+              <button
+                className="flex flex-col items-center w-full"
+                onClick={() => {
+                  switchTab(tab.name);
+                }}
+              >
+                <div className="w-11 h-11 flex items-center justify-center">
+                  <tab.Icon size={22} strokeWidth={1.5} style={activeColorStyle} />
+                </div>
+                <span className={`text-[11px] md:text-xs mt-0 leading-none ${textWeight}`} style={activeColorStyle}>
+                  {getTranslation(tab.name, selectedLanguage)}
+                </span>
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 const SupportPage = ({ selectedLanguage = 'English' }) => {
   const navigate = useNavigate();
@@ -676,82 +759,86 @@ const SupportPage = ({ selectedLanguage = 'English' }) => {
 
   // List View
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center">
+      <div className="w-full max-w-xl flex flex-col flex-1" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate(-1)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ChevronLeft size={20} className="text-gray-700" />
+              </button>
+              <h1 className="text-xl font-semibold text-gray-900">{t.myTickets}</h1>
+            </div>
             <button
-              onClick={() => navigate(-1)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={() => {
+                setUserName('');
+                setTitle('');
+                setDescription('');
+                setAttachments([]);
+                setError('');
+                setView('form');
+              }}
+              className="px-4 py-2 rounded-lg font-semibold text-white text-xs"
+              style={{ backgroundColor: 'var(--color-gold)' }}
             >
-              <ChevronLeft size={20} className="text-gray-700" />
+              {t.newTicket}
             </button>
-            <h1 className="text-lg font-bold text-gray-900">{t.myTickets}</h1>
           </div>
-          <button
-            onClick={() => {
-              setUserName('');
-              setTitle('');
-              setDescription('');
-              setAttachments([]);
-              setError('');
-              setView('form');
-            }}
-            className="px-4 py-2 rounded-lg font-semibold text-white text-xs"
-            style={{ backgroundColor: 'var(--color-gold)' }}
-          >
-            {t.newTicket}
-          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="max-w-2xl mx-auto">
+            {isLoadingTickets ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader size={20} className="animate-spin text-gray-400" />
+              </div>
+            ) : tickets.length === 0 ? (
+              <div className="text-center py-12">
+                <MessageCircle size={32} className="mx-auto mb-3 text-gray-300" />
+                <p className="text-gray-600 text-sm font-medium">{t.noTickets}</p>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {tickets.map((ticket) => (
+                  <button
+                    key={ticket.id}
+                    onClick={() => {
+                      setSelectedTicket(ticket);
+                      setView('ticket-detail');
+                    }}
+                    className="w-full bg-white border border-gray-200 rounded-lg p-3 hover:border-[var(--color-gold)] hover:shadow-sm transition-all text-left"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 text-sm truncate">{ticket.title}</h3>
+                        <p className="text-xs text-gray-500 mt-0.5">Ticket #{String(ticket.id).slice(-10)} · {formatTime(ticket.createdAt)}</p>
+                      </div>
+                      <div className={`px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
+                        ticket.status === 'resolved' 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {ticket.status === 'resolved' ? t.resolved : t.pending}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <MessageCircle size={12} />
+                      <span>{ticket.responses?.length || 0} {t.replies}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-2xl mx-auto">
-          {isLoadingTickets ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader size={20} className="animate-spin text-gray-400" />
-            </div>
-          ) : tickets.length === 0 ? (
-            <div className="text-center py-12">
-              <MessageCircle size={32} className="mx-auto mb-3 text-gray-300" />
-              <p className="text-gray-600 text-sm font-medium">{t.noTickets}</p>
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {tickets.map((ticket) => (
-                <button
-                  key={ticket.id}
-                  onClick={() => {
-                    setSelectedTicket(ticket);
-                    setView('ticket-detail');
-                  }}
-                  className="w-full bg-white border border-gray-200 rounded-lg p-3 hover:border-[var(--color-gold)] hover:shadow-sm transition-all text-left"
-                >
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 text-sm truncate">{ticket.title}</h3>
-                      <p className="text-xs text-gray-500 mt-0.5">Ticket #{String(ticket.id).slice(-10)} · {formatTime(ticket.createdAt)}</p>
-                    </div>
-                    <div className={`px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
-                      ticket.status === 'resolved' 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {ticket.status === 'resolved' ? t.resolved : t.pending}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <MessageCircle size={12} />
-                    <span>{ticket.responses?.length || 0} {t.replies}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      <BottomBar selectedLanguage={selectedLanguage} />
     </div>
   );
 };
