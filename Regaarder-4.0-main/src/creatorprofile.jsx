@@ -279,40 +279,54 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
 
                 {type === 'select' && !isCustomInput && (
                     <div
-                        className="w-full flex items-center justify-between cursor-pointer"
+                        className="w-full flex items-center justify-between cursor-pointer px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm hover:shadow-md transition-all hover:border-blue-300"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                        <span className={`font-medium ${tempValue ? 'text-gray-900' : 'text-gray-400'}`}>
+                        <span className={`font-semibold text-base ${
+                            tempValue ? 'text-gray-900' : 'text-gray-500'
+                        }`}>
                             {tempValue || placeholder}
                         </span>
-                        <Icon name="chevronDown" className={`text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} size={20} />
+                        <Icon name="chevronDown" className={`text-blue-600 transition-transform duration-200 ${
+                            isDropdownOpen ? 'rotate-180' : ''
+                        }`} size={20} />
                     </div>
                 )}
 
                 {/* Custom Dropdown Menu */}
                 {type === 'select' && isDropdownOpen && !isCustomInput && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-150 z-50 max-h-64 overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-100">
-                        {options && options.map((opt, index) => (
-                            <div
-                                key={opt.value}
-                                onClick={() => handleOptionClick(opt.value)}
-                                className={`px-5 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer text-gray-900 font-medium text-sm flex items-center justify-between gap-3 min-h-11 group transition-colors ${
-                                    index !== (options?.length || 0) - 1 ? 'border-b border-gray-100' : ''
-                                }`}
-                            >
-                                <span className="flex-1 truncate">{opt.label}</span>
-                                {tempValue === opt.value && <div className="w-5 h-5 rounded-full bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0">
-                                    <Icon name="check" size={14} className="text-white" strokeWidth={3} />
-                                </div>}
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl border border-blue-100 z-50 max-h-72 overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-150">
+                        {options && options.length > 0 ? (
+                            <>
+                                {options.map((opt, index) => (
+                                    <div
+                                        key={opt.value}
+                                        onClick={() => handleOptionClick(opt.value)}
+                                        className={`px-5 py-3.5 hover:bg-gradient-to-r hover:from-blue-100 hover:to-indigo-100 cursor-pointer text-gray-900 font-semibold text-base flex items-center justify-between gap-4 min-h-12 group transition-all ${
+                                            index !== (options?.length || 0) - 1 ? 'border-b border-blue-50' : ''
+                                        }`}
+                                    >
+                                        <span className="flex-1 truncate text-gray-800 font-medium">{opt.label}</span>
+                                        {tempValue === opt.value && (
+                                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                <Icon name="check" size={16} className="text-white" strokeWidth={3} />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                                <div
+                                    onClick={handleCreateNewClick}
+                                    className="px-5 py-3.5 hover:bg-gradient-to-r hover:from-amber-100 hover:to-yellow-100 cursor-pointer text-blue-600 font-bold text-base flex items-center gap-3 border-t border-blue-100 sticky bottom-0 bg-white min-h-12 transition-all rounded-b-2xl group"
+                                >
+                                    <Icon name="pencilLine" size={18} className="flex-shrink-0 text-blue-500 group-hover:text-amber-600" />
+                                    <span className="truncate">Create new category</span>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="px-5 py-8 text-center text-gray-500 font-medium">
+                                No categories available
                             </div>
-                        ))}
-                        <div
-                            onClick={handleCreateNewClick}
-                            className="px-5 py-3 hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 cursor-pointer text-[var(--color-gold)] font-semibold text-sm flex items-center gap-3 border-t border-gray-200 sticky bottom-0 bg-white min-h-11 transition-colors rounded-b-2xl"
-                        >
-                            <Icon name="pencilLine" size={16} className="flex-shrink-0" />
-                            <span className="truncate">Create new category</span>
-                        </div>
+                        )}
                     </div>
                 )}
             </div>
