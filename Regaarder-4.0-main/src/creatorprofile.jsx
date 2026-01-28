@@ -931,39 +931,43 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                 ) : (
                     editingField === 'price' ? (
                         <div className="w-full mt-8 flex items-stretch gap-2">
-                            <div className="flex-grow bg-[var(--color-gold-light-bg)] rounded-xl px-4 py-3 flex items-center shadow-sm">
-                                <span className="mr-2 opacity-50 text-gray-800 font-semibold text-lg">$</span>
+                            <div className="flex-grow bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl px-5 py-4 flex items-center shadow-md border-2 border-blue-200">
+                                <span className="mr-2 text-blue-600 font-bold text-xl">$</span>
                                 <input
                                     type="number"
                                     value={tempPrice}
                                     onChange={(e) => setTempPrice(e.target.value)}
-                                    className="bg-transparent w-24 outline-none text-gray-800 font-semibold text-lg placeholder-gray-600"
+                                    className="bg-transparent w-24 outline-none text-gray-900 font-bold text-xl placeholder-gray-500"
                                     autoFocus
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') handlePriceSave();
                                     }}
                                 />
-                                <div className="h-6 w-px bg-black/10 mx-2"></div>
-                                <select
-                                    value={tempPricingType}
-                                    onChange={(e) => setTempPricingType(e.target.value)}
-                                    className="bg-transparent outline-none text-gray-800 font-semibold text-sm appearance-none flex-grow cursor-pointer"
-                                >
-                                    <option value="One Time">{getTranslation('One Time', selectedLanguage)}</option>
-                                    <option value="Series">Series</option>
-                                    <option value="Recurrent">Recurrent</option>
-                                </select>
-                                <Icon name="chevronDown" size={16} className="text-gray-800 opacity-50 ml-1 pointer-events-none" />
+                                <div className="h-8 w-px bg-blue-200 mx-3"></div>
+                                <div className="relative flex-grow">
+                                    <select
+                                        value={tempPricingType}
+                                        onChange={(e) => setTempPricingType(e.target.value)}
+                                        className="w-full bg-white/80 backdrop-blur-sm outline-none text-gray-900 font-bold text-base appearance-none cursor-pointer px-4 py-2 rounded-xl border border-blue-200 hover:border-blue-400 transition-all pr-10 shadow-sm"
+                                    >
+                                        <option value="One Time">{getTranslation('One Time', selectedLanguage)}</option>
+                                        <option value="Series">Series</option>
+                                        <option value="Recurrent">Recurrent</option>
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center pointer-events-none shadow-sm">
+                                        <Icon name="chevronDown" size={14} className="text-white" />
+                                    </div>
+                                </div>
                             </div>
-                            <button onClick={() => setEditingField(null)} className="p-3 text-gray-500 hover:text-gray-700 bg-white rounded-xl shadow-sm border border-gray-100 transition-colors">
-                                <Icon name="x" size={20} />
+                            <button onClick={() => setEditingField(null)} className="p-3 text-gray-500 hover:text-red-500 bg-white rounded-xl shadow-md border-2 border-gray-200 hover:border-red-200 transition-all">
+                                <Icon name="x" size={22} />
                             </button>
                             <button
                                 onClick={handlePriceSave}
-                                className="p-3 bg-black text-white rounded-xl shadow-sm hover:bg-gray-800 transition-colors flex items-center justify-center"
+                                className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center"
                                 title="Save price"
                             >
-                                <Icon name="check" size={20} strokeWidth={2.5} />
+                                <Icon name="check" size={22} strokeWidth={2.5} />
                             </button>
                         </div>
                     ) : (
