@@ -291,23 +291,27 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
 
                 {/* Custom Dropdown Menu */}
                 {type === 'select' && isDropdownOpen && !isCustomInput && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-64 overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-100">
-                        {options && options.map((opt) => (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-150 z-50 max-h-64 overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-100">
+                        {options && options.map((opt, index) => (
                             <div
                                 key={opt.value}
                                 onClick={() => handleOptionClick(opt.value)}
-                                className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer text-gray-900 font-medium text-sm border-b border-gray-100 last:border-0 flex items-center justify-between gap-3 min-h-10 group"
+                                className={`px-5 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer text-gray-900 font-medium text-sm flex items-center justify-between gap-3 min-h-11 group transition-colors ${
+                                    index !== (options?.length || 0) - 1 ? 'border-b border-gray-100' : ''
+                                }`}
                             >
                                 <span className="flex-1 truncate">{opt.label}</span>
-                                {tempValue === opt.value && <Icon name="check" size={16} className="text-[var(--color-gold)] flex-shrink-0" strokeWidth={2.5} />}
+                                {tempValue === opt.value && <div className="w-5 h-5 rounded-full bg-[var(--color-gold)] flex items-center justify-center flex-shrink-0">
+                                    <Icon name="check" size={14} className="text-white" strokeWidth={3} />
+                                </div>}
                             </div>
                         ))}
                         <div
                             onClick={handleCreateNewClick}
-                            className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer text-[var(--color-gold)] font-medium text-sm flex items-center gap-2 border-t border-gray-100 sticky bottom-0 bg-white min-h-10"
+                            className="px-5 py-3 hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 cursor-pointer text-[var(--color-gold)] font-semibold text-sm flex items-center gap-3 border-t border-gray-200 sticky bottom-0 bg-white min-h-11 transition-colors rounded-b-2xl"
                         >
                             <Icon name="pencilLine" size={16} className="flex-shrink-0" />
-                            <span className="truncate">Create new category...</span>
+                            <span className="truncate">Create new category</span>
                         </div>
                     </div>
                 )}
@@ -899,8 +903,8 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                     </>
                 ) : (
                     editingField === 'price' ? (
-                        <div className="w-full mt-8 flex items-center gap-2">
-                            <div className="flex-grow bg-[var(--color-gold-light-bg)] rounded-xl px-4 py-4 flex items-center shadow-sm">
+                        <div className="w-full mt-8 flex items-stretch gap-2">
+                            <div className="flex-grow bg-[var(--color-gold-light-bg)] rounded-xl px-4 py-3 flex items-center shadow-sm">
                                 <span className="mr-2 opacity-50 text-gray-800 font-semibold text-lg">$</span>
                                 <input
                                     type="number"
@@ -924,14 +928,15 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                 </select>
                                 <Icon name="chevronDown" size={16} className="text-gray-800 opacity-50 ml-1 pointer-events-none" />
                             </div>
-                            <button onClick={() => setEditingField(null)} className="p-3 text-gray-500 hover:text-gray-700 bg-white rounded-xl shadow-sm border border-gray-100">
-                                <Icon name="x" size={24} />
+                            <button onClick={() => setEditingField(null)} className="p-3 text-gray-500 hover:text-gray-700 bg-white rounded-xl shadow-sm border border-gray-100 transition-colors">
+                                <Icon name="x" size={20} />
                             </button>
                             <button
                                 onClick={handlePriceSave}
-                                className="p-3 bg-black text-white rounded-xl shadow-sm hover:bg-gray-800"
+                                className="p-3 bg-black text-white rounded-xl shadow-sm hover:bg-gray-800 transition-colors flex items-center justify-center"
+                                title="Save price"
                             >
-                                <Icon name="check" size={24} />
+                                <Icon name="check" size={20} strokeWidth={2.5} />
                             </button>
                         </div>
                     ) : (
