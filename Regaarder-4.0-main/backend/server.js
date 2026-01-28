@@ -27,6 +27,7 @@ const SPONSORS_FILE = path.join(__dirname, 'sponsors.json');
 const REQUESTS_FILE = path.join(__dirname, 'requests.json');
 const VIDEOS_FILE = path.join(__dirname, 'videos.json');
 const CATEGORIES_FILE = path.join(__dirname, 'categories.json');
+const ONBOARDING_FILE = path.join(__dirname, 'onboarding.json');
 
 const crypto = require('crypto');
 const multer = require('multer');
@@ -5643,6 +5644,97 @@ app.delete('/support/ticket/:id', (req, res) => {
     return res.json({ success: true, message: 'Ticket deleted', ticketId: deletedTicket.id });
   } catch (err) {
     console.error('Error deleting ticket:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Helper to read onboarding data
+const readOnboardingData = () => {
+  try {
+    if (!fs.existsSync(ONBOARDING_FILE)) return [];
+    return JSON.parse(fs.readFileSync(ONBOARDING_FILE, 'utf8'));
+  } catch (err) {
+    console.error('Error reading onboarding data:', err);
+    return [];
+  }
+};
+
+// Helper to write onboarding data
+const writeOnboardingData = (data) => {
+  try {
+    fs.writeFileSync(ONBOARDING_FILE, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Error writing onboarding data:', err);
+  }
+};
+
+// POST: Save creator onboarding info
+app.post('/staff/onboarding-info', (req, res) => {
+  try {
+    const { userId, userName, userEmail, creatorName, bio, introVideoUrl, socialMediaHandle, socialFollowers, completedAt, agreedTOS, agreedPrivacy } = req.body;
+
+    if (!userId || !creatorName || !userEmail) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const onboardingData = readOnboardingData();
+    
+    // Check if this user already has an onboarding record
+    const existingIndex = onboardingData.findIndex(o => o.userId === userId);
+    
+    const newRecord = {
+      id: existingIndex >= 0 ? onboardingData[existingIndex].id : Date.now(),
+      userId,
+      userName,
+      userEmail,
+      creatorName,
+      bio,
+      introVideoUrl,
+      socialMediaHandle,
+      socialFollowers: parseInt(socialFollowers) || 0,
+      completedAt: completedAt || new Date().toISOString(),
+      agreedTOS: agreedTOS || false,
+      agreedPrivacy: agreedPrivacy || false,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (existingIndex >= 0) {
+      // Update existing record
+      onboardingData[existingIndex] = newRecord;
+    } else {
+      // Add new record
+      onboardingData.push(newRecord);
+    }
+
+    writeOnboardingData(onboardingData);
+    console.log(`Onboarding info saved for user ${userId} (${creatorName})`);
+
+    return res.json({ success: true, message: 'Onboarding info saved', record: newRecord });
+  } catch (err) {
+    console.error('Error saving onboarding info:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET: Retrieve all creator onboarding info (staff only)
+app.get('/staff/onboarding-info', (req, res) => {
+  try {
+    const { employeeId } = req.query;
+
+    if (!employeeId || parseInt(employeeId) !== 1000) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const onboardingData = readOnboardingData();
+    const sortedData = onboardingData.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+
+    return res.json({ 
+      success: true, 
+      onboardingInfo: sortedData,
+      count: sortedData.length
+    });
+  } catch (err) {
+    console.error('Get onboarding info error:', err);
     return res.status(500).json({ error: 'Server error' });
   }
 });
