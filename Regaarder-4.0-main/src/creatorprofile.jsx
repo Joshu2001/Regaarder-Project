@@ -240,6 +240,7 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
     }, []);
 
     const handleOptionClick = (optValue) => {
+        console.log('🔧 Option clicked:', optValue, 'Options available:', options);
         setTempValue(optValue);
         setIsDropdownOpen(false);
     };
@@ -252,7 +253,9 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
 
     return (
         <div className="flex items-center w-full gap-3 mb-3 relative" ref={dropdownRef}>
-            <div className="flex-grow bg-gray-100 rounded-xl px-4 py-3 flex items-center relative">
+            <div className={`flex-grow rounded-xl px-4 py-3 flex items-center relative ${
+                type === 'select' ? '' : 'bg-gray-100'
+            }`}>
                 {prefix && <span className="text-gray-500 mr-1">{prefix}</span>}
 
                 {(type === 'text' || type === 'textarea' || (type === 'select' && isCustomInput)) && (
@@ -280,7 +283,10 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                 {type === 'select' && !isCustomInput && (
                     <div
                         className="w-full flex items-center justify-between cursor-pointer px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm hover:shadow-md transition-all hover:border-blue-300"
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        onClick={() => {
+                            console.log('📍 Dropdown trigger clicked! isDropdownOpen:', isDropdownOpen, 'tempValue:', tempValue, 'options:', options);
+                            setIsDropdownOpen(!isDropdownOpen);
+                        }}
                     >
                         <span className={`font-semibold text-base ${
                             tempValue ? 'text-gray-900' : 'text-gray-500'
@@ -298,6 +304,7 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                     <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl border border-blue-100 z-50 max-h-72 overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-150">
                         {options && options.length > 0 ? (
                             <>
+                                {console.log('📦 Rendering dropdown with options:', options)}
                                 {options.map((opt, index) => (
                                     <div
                                         key={opt.value}
