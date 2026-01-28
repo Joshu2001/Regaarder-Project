@@ -278,64 +278,52 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                 </div>
             )}
 
-            {/* For select dropdown - completely separate styled component */}
+            {/* For select dropdown - simple clean version */}
             {type === 'select' && !isCustomInput && (
                 <div className="flex-grow relative">
-                    {/* Styled Dropdown Trigger */}
                     <div
-                        className="w-full flex items-center justify-between cursor-pointer px-5 py-3.5 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl border-2 border-blue-200 shadow-md hover:shadow-lg transition-all duration-200 hover:border-blue-400 hover:from-blue-100 hover:via-indigo-100 hover:to-purple-100"
+                        className="w-full flex items-center justify-between cursor-pointer px-4 py-3 rounded-xl border border-gray-300 hover:border-gray-400 bg-white shadow-sm transition-colors"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                        <span className={`font-bold text-base ${
+                        <span className={`text-sm font-medium ${
                             tempValue ? 'text-gray-900' : 'text-gray-500'
                         }`}>
                             {tempValue || placeholder}
                         </span>
-                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm transition-transform duration-300 ${
+                        <Icon name="chevronDown" className={`text-gray-600 transition-transform ${
                             isDropdownOpen ? 'rotate-180' : ''
-                        }`}>
-                            <Icon name="chevronDown" className="text-white" size={18} />
-                        </div>
+                        }`} size={18} />
                     </div>
 
-                    {/* Custom Dropdown Menu */}
+                    {/* Dropdown Menu */}
                     {isDropdownOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 z-50 max-h-80 overflow-y-auto scrollbar-hide">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 z-50 max-h-64 overflow-y-auto">
                             {options && options.length > 0 ? (
                                 <>
-                                    <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 rounded-t-2xl">
-                                        <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">Select Category</span>
-                                    </div>
                                     {options.map((opt, index) => (
                                         <div
                                             key={opt.value}
                                             onClick={() => handleOptionClick(opt.value)}
-                                            className={`px-5 py-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer flex items-center justify-between gap-4 transition-all duration-150 ${
+                                            className={`px-4 py-2.5 cursor-pointer text-sm flex items-center justify-between hover:bg-gray-50 transition-colors ${
                                                 index !== (options?.length || 0) - 1 ? 'border-b border-gray-100' : ''
-                                            } ${tempValue === opt.value ? 'bg-gradient-to-r from-blue-50 to-indigo-50' : ''}`}
+                                            } ${tempValue === opt.value ? 'bg-blue-50 text-blue-700 font-medium' : ''}`}
                                         >
-                                            <span className={`flex-1 truncate text-base ${
-                                                tempValue === opt.value ? 'font-bold text-blue-700' : 'font-medium text-gray-800'
-                                            }`}>{opt.label}</span>
+                                            <span>{opt.label}</span>
                                             {tempValue === opt.value && (
-                                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-md">
-                                                    <Icon name="check" size={16} className="text-white" strokeWidth={3} />
-                                                </div>
+                                                <Icon name="check" size={16} className="text-blue-600" strokeWidth={3} />
                                             )}
                                         </div>
                                     ))}
                                     <div
                                         onClick={handleCreateNewClick}
-                                        className="px-5 py-4 hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 cursor-pointer text-blue-600 font-bold text-base flex items-center gap-3 border-t-2 border-blue-100 sticky bottom-0 bg-white rounded-b-2xl transition-all group"
+                                        className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-blue-600 font-medium flex items-center gap-2 border-t border-gray-100 transition-colors"
                                     >
-                                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
-                                            <Icon name="plus" size={16} className="text-white" strokeWidth={3} />
-                                        </div>
-                                        <span>Create new category</span>
+                                        <Icon name="plus" size={16} />
+                                        <span>Create new</span>
                                     </div>
                                 </>
                             ) : (
-                                <div className="px-5 py-8 text-center text-gray-500 font-medium">
+                                <div className="px-4 py-3 text-center text-gray-500 text-sm">
                                     No categories available
                                 </div>
                             )}
@@ -931,43 +919,39 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                 ) : (
                     editingField === 'price' ? (
                         <div className="w-full mt-8 flex items-stretch gap-2">
-                            <div className="flex-grow bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl px-5 py-4 flex items-center shadow-md border-2 border-blue-200">
-                                <span className="mr-2 text-blue-600 font-bold text-xl">$</span>
+                            <div className="flex-grow bg-[var(--color-gold-light-bg)] rounded-xl px-4 py-3 flex items-center shadow-sm">
+                                <span className="mr-2 opacity-50 text-gray-800 font-semibold text-lg">$</span>
                                 <input
                                     type="number"
                                     value={tempPrice}
                                     onChange={(e) => setTempPrice(e.target.value)}
-                                    className="bg-transparent w-24 outline-none text-gray-900 font-bold text-xl placeholder-gray-500"
+                                    className="bg-transparent w-24 outline-none text-gray-800 font-semibold text-lg placeholder-gray-600"
                                     autoFocus
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') handlePriceSave();
                                     }}
                                 />
-                                <div className="h-8 w-px bg-blue-200 mx-3"></div>
-                                <div className="relative flex-grow">
-                                    <select
-                                        value={tempPricingType}
-                                        onChange={(e) => setTempPricingType(e.target.value)}
-                                        className="w-full bg-white/80 backdrop-blur-sm outline-none text-gray-900 font-bold text-base appearance-none cursor-pointer px-4 py-2 rounded-xl border border-blue-200 hover:border-blue-400 transition-all pr-10 shadow-sm"
-                                    >
-                                        <option value="One Time">{getTranslation('One Time', selectedLanguage)}</option>
-                                        <option value="Series">Series</option>
-                                        <option value="Recurrent">Recurrent</option>
-                                    </select>
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center pointer-events-none shadow-sm">
-                                        <Icon name="chevronDown" size={14} className="text-white" />
-                                    </div>
-                                </div>
+                                <div className="h-6 w-px bg-black/10 mx-2"></div>
+                                <select
+                                    value={tempPricingType}
+                                    onChange={(e) => setTempPricingType(e.target.value)}
+                                    className="bg-transparent outline-none text-gray-800 font-semibold text-sm appearance-none flex-grow cursor-pointer"
+                                >
+                                    <option value="One Time">{getTranslation('One Time', selectedLanguage)}</option>
+                                    <option value="Series">Series</option>
+                                    <option value="Recurrent">Recurrent</option>
+                                </select>
+                                <Icon name="chevronDown" size={16} className="text-gray-800 opacity-50 ml-1 pointer-events-none" />
                             </div>
-                            <button onClick={() => setEditingField(null)} className="p-3 text-gray-500 hover:text-red-500 bg-white rounded-xl shadow-md border-2 border-gray-200 hover:border-red-200 transition-all">
-                                <Icon name="x" size={22} />
+                            <button onClick={() => setEditingField(null)} className="p-3 text-gray-500 hover:text-gray-700 bg-white rounded-xl shadow-sm border border-gray-100 transition-colors">
+                                <Icon name="x" size={20} />
                             </button>
                             <button
                                 onClick={handlePriceSave}
-                                className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center"
+                                className="p-3 bg-black text-white rounded-xl shadow-sm hover:bg-gray-800 transition-colors flex items-center justify-center"
                                 title="Save price"
                             >
-                                <Icon name="check" size={22} strokeWidth={2.5} />
+                                <Icon name="check" size={20} strokeWidth={2.5} />
                             </button>
                         </div>
                     ) : (
