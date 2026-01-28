@@ -2023,21 +2023,23 @@ export default function StaffDashboard() {
             borderRadius: '12px',
             boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
             zIndex: 50,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            maxHeight: '320px',
+            overflowY: 'auto'
           }}>
             <button
               onClick={() => navigateToTab('videos', 'videos')}
               style={{
                 display: 'block',
                 width: '100%',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 textAlign: 'left',
                 backgroundColor: activeTab === 'videos' ? '#eff6ff' : (!hasPermission('videos') ? '#fef2f2' : 'white'),
                 color: activeTab === 'videos' ? '#1e40af' : (!hasPermission('videos') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: activeTab === 'videos' ? 'bold' : 'normal',
                 transition: 'all 0.2s ease'
               }}
@@ -2051,14 +2053,14 @@ export default function StaffDashboard() {
               style={{
                 display: 'block',
                 width: '100%',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 textAlign: 'left',
                 backgroundColor: activeTab === 'requests' ? '#eff6ff' : (!hasPermission('requests') ? '#fef2f2' : 'white'),
                 color: activeTab === 'requests' ? '#1e40af' : (!hasPermission('requests') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: activeTab === 'requests' ? 'bold' : 'normal',
                 transition: 'all 0.2s ease'
               }}
@@ -2072,14 +2074,14 @@ export default function StaffDashboard() {
               style={{
                 display: 'block',
                 width: '100%',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 textAlign: 'left',
                 backgroundColor: activeTab === 'comments' ? '#eff6ff' : (!hasPermission('comments') ? '#fef2f2' : 'white'),
                 color: activeTab === 'comments' ? '#1e40af' : (!hasPermission('comments') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: activeTab === 'comments' ? 'bold' : 'normal',
                 transition: 'all 0.2s ease'
               }}
@@ -2093,14 +2095,14 @@ export default function StaffDashboard() {
               style={{
                 display: 'block',
                 width: '100%',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 textAlign: 'left',
                 backgroundColor: activeTab === 'reports' ? '#eff6ff' : (!hasPermission('reports') ? '#fef2f2' : 'white'),
                 color: activeTab === 'reports' ? '#1e40af' : (!hasPermission('reports') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: activeTab === 'reports' ? 'bold' : 'normal',
                 transition: 'all 0.2s ease'
               }}
@@ -2114,14 +2116,14 @@ export default function StaffDashboard() {
               style={{
                 display: 'block',
                 width: '100%',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 textAlign: 'left',
                 backgroundColor: activeTab === 'users' ? '#eff6ff' : (!hasPermission('users') ? '#fef2f2' : 'white'),
                 color: activeTab === 'users' ? '#1e40af' : (!hasPermission('users') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: activeTab === 'users' ? 'bold' : 'normal',
                 transition: 'all 0.2s ease'
               }}
@@ -2135,14 +2137,14 @@ export default function StaffDashboard() {
               style={{
                 display: 'block',
                 width: '100%',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 textAlign: 'left',
                 backgroundColor: activeTab === 'creators' ? '#eff6ff' : (!hasPermission('creators') ? '#fef2f2' : 'white'),
                 color: activeTab === 'creators' ? '#1e40af' : (!hasPermission('creators') ? '#dc2626' : '#374151'),
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: activeTab === 'creators' ? 'bold' : 'normal',
                 transition: 'all 0.2s ease'
               }}
@@ -2155,14 +2157,14 @@ export default function StaffDashboard() {
               onClick={() => navigateToTab('feedback', 'reports')}
               style={{
                 width: '100%',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 textAlign: 'left',
                 backgroundColor: activeTab === 'feedback' ? '#eff6ff' : 'white',
                 color: activeTab === 'feedback' ? '#1e40af' : '#374151',
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: activeTab === 'feedback' ? 'bold' : 'normal',
                 transition: 'all 0.2s ease',
                 display: 'flex',
@@ -2178,14 +2180,14 @@ export default function StaffDashboard() {
               onClick={() => navigateToTab('support', 'support')}
               style={{
                 width: '100%',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 textAlign: 'left',
                 backgroundColor: activeTab === 'support' ? '#eff6ff' : 'white',
                 color: activeTab === 'support' ? '#1e40af' : '#374151',
                 border: 'none',
                 borderBottom: '1px solid #e5e7eb',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: activeTab === 'support' ? 'bold' : 'normal',
                 transition: 'all 0.2s ease',
                 display: 'flex',

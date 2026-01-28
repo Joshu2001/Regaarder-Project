@@ -734,13 +734,48 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                         console.error('Upload failed', e);
                     } finally {
                         setUploadingIntro(false);
+                        // Send onboarding info to staff
+                        sendOnboardingToStaff();
                         onClose();
                     }
                 } else {
+                    // Send onboarding info to staff even without intro video
+                    sendOnboardingToStaff();
                     onClose();
                 }
             };
             doFinish();
+        }
+    };
+    
+    const sendOnboardingToStaff = async () => {
+        try {
+            const userData = auth?.user || JSON.parse(localStorage.getItem('regaarder_user') || '{}');
+            const onboardingData = {
+                userId: userData?.id,
+                userName: userData?.name || name,
+                userEmail: userData?.email,
+                creatorName: name,
+                bio: bio,
+                introVideoUrl: introUrl,
+                socialMediaHandle: socialHandle,
+                socialFollowers: socialFollowers,
+                completedAt: new Date().toISOString(),
+                agreedTOS: agreedTOS,
+                agreedPrivacy: agreedPrivacy
+            };
+            
+            const token = localStorage.getItem('regaarder_token');
+            await fetch(`${BACKEND}/staff/onboarding-info`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify(onboardingData)
+            });
+        } catch (e) {
+            console.error('Failed to send onboarding info to staff', e);
         }
     };
     const handleBack = () => {
