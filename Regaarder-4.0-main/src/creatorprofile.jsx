@@ -278,52 +278,79 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                 </div>
             )}
 
-            {/* For select dropdown - simple clean version */}
+            {/* For select dropdown - classy refined version */}
             {type === 'select' && !isCustomInput && (
                 <div className="flex-grow relative">
                     <div
-                        className="w-full flex items-center justify-between cursor-pointer px-4 py-3 rounded-xl border border-gray-300 hover:border-gray-400 bg-white shadow-sm transition-colors"
+                        className="w-full flex items-center justify-between cursor-pointer px-5 py-3 rounded-lg border border-gray-200 hover:border-blue-300 bg-gradient-to-r from-white to-gray-50 shadow-sm transition-all duration-200 hover:shadow-md"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                        <span className={`text-sm font-medium ${
-                            tempValue ? 'text-gray-900' : 'text-gray-500'
+                        <span className={`text-sm font-semibold ${
+                            tempValue ? 'text-gray-900' : 'text-gray-400'
                         }`}>
                             {tempValue || placeholder}
                         </span>
-                        <Icon name="chevronDown" className={`text-gray-600 transition-transform ${
+                        <Icon name="chevronDown" className={`text-gray-500 transition-transform duration-200 ${
                             isDropdownOpen ? 'rotate-180' : ''
                         }`} size={18} />
                     </div>
 
-                    {/* Dropdown Menu */}
+                    {/* Dropdown Menu - Classy refined styling */}
                     {isDropdownOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 z-50 max-h-64 overflow-y-auto">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-150 z-50 max-h-72 overflow-y-auto backdrop-blur-sm">
+                            {/* Header with divider */}
+                            <div className="px-5 py-3 border-b border-gray-100 sticky top-0 bg-white rounded-t-lg">
+                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Select Category</span>
+                            </div>
+                            
                             {options && options.length > 0 ? (
                                 <>
+                                    {/* Always add Catalogue first if not already present */}
+                                    {!options.some(opt => opt.label === 'Catalogue') && (
+                                        <div
+                                            onClick={() => handleOptionClick('Catalogue')}
+                                            className={`px-5 py-3 cursor-pointer text-sm font-medium flex items-center justify-between hover:bg-blue-50 transition-colors border-b border-gray-100 ${
+                                                tempValue === 'Catalogue' ? 'bg-blue-100 text-blue-700' : 'text-gray-800'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span>📚</span>
+                                                <span>Catalogue</span>
+                                            </div>
+                                            {tempValue === 'Catalogue' && (
+                                                <Icon name="check" size={18} className="text-blue-600 font-bold" strokeWidth={3} />
+                                            )}
+                                        </div>
+                                    )}
+                                    
                                     {options.map((opt, index) => (
                                         <div
                                             key={opt.value}
                                             onClick={() => handleOptionClick(opt.value)}
-                                            className={`px-4 py-2.5 cursor-pointer text-sm flex items-center justify-between hover:bg-gray-50 transition-colors ${
+                                            className={`px-5 py-3 cursor-pointer text-sm font-medium flex items-center justify-between hover:bg-blue-50 transition-colors ${
                                                 index !== (options?.length || 0) - 1 ? 'border-b border-gray-100' : ''
-                                            } ${tempValue === opt.value ? 'bg-blue-50 text-blue-700 font-medium' : ''}`}
+                                            } ${tempValue === opt.value ? 'bg-blue-100 text-blue-700' : 'text-gray-800'}`}
                                         >
                                             <span>{opt.label}</span>
                                             {tempValue === opt.value && (
-                                                <Icon name="check" size={16} className="text-blue-600" strokeWidth={3} />
+                                                <Icon name="check" size={18} className="text-blue-600 font-bold" strokeWidth={3} />
                                             )}
                                         </div>
                                     ))}
-                                    <div
-                                        onClick={handleCreateNewClick}
-                                        className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-blue-600 font-medium flex items-center gap-2 border-t border-gray-100 transition-colors"
-                                    >
-                                        <Icon name="plus" size={16} />
-                                        <span>Create new</span>
+                                    
+                                    {/* Create new button */}
+                                    <div className="border-t border-gray-100 sticky bottom-0 bg-white rounded-b-lg">
+                                        <div
+                                            onClick={handleCreateNewClick}
+                                            className="px-5 py-3 hover:bg-gray-50 cursor-pointer text-sm text-blue-600 font-semibold flex items-center gap-2 transition-colors"
+                                        >
+                                            <Icon name="plus" size={16} />
+                                            <span>Create New Category</span>
+                                        </div>
                                     </div>
                                 </>
                             ) : (
-                                <div className="px-4 py-3 text-center text-gray-500 text-sm">
+                                <div className="px-5 py-8 text-center text-gray-400 text-sm">
                                     No categories available
                                 </div>
                             )}
