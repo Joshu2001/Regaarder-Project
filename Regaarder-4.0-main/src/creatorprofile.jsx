@@ -282,75 +282,70 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
             {type === 'select' && !isCustomInput && (
                 <div className="flex-grow relative">
                     <div
-                        className="w-full flex items-center justify-between cursor-pointer px-5 py-3 rounded-lg border border-gray-200 hover:border-blue-300 bg-gradient-to-r from-white to-gray-50 shadow-sm transition-all duration-200 hover:shadow-md"
+                        className="w-full flex items-center justify-between cursor-pointer px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-blue-400 bg-gradient-to-r from-white to-gray-50 shadow-md hover:shadow-lg transition-all duration-200"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
                         <span className={`text-sm font-semibold ${
-                            tempValue ? 'text-gray-900' : 'text-gray-400'
+                            tempValue ? 'text-gray-900' : 'text-gray-600'
                         }`}>
                             {tempValue || placeholder}
                         </span>
-                        <Icon name="chevronDown" className={`text-gray-500 transition-transform duration-200 ${
-                            isDropdownOpen ? 'rotate-180' : ''
-                        }`} size={18} />
+                        <div className={`flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 transition-transform duration-300 ${
+                            isDropdownOpen ? 'rotate-180 bg-blue-500' : ''
+                        }`}>
+                            <Icon name="chevronDown" className={`transition-colors ${
+                                isDropdownOpen ? 'text-white' : 'text-blue-600'
+                            }`} size={16} />
+                        </div>
                     </div>
 
-                    {/* Dropdown Menu - Classy refined styling */}
+                    {/* Classy Dropdown Menu */}
                     {isDropdownOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-150 z-50 max-h-72 overflow-y-auto backdrop-blur-sm">
-                            {/* Header with divider */}
-                            <div className="px-5 py-3 border-b border-gray-100 sticky top-0 bg-white rounded-t-lg">
-                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Select Category</span>
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 z-50 max-h-80 overflow-y-auto backdrop-blur-sm">
+                            {/* Header */}
+                            <div className="px-4 pt-3 pb-2 border-b border-blue-100 sticky top-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
+                                <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Select Category</span>
                             </div>
                             
                             {options && options.length > 0 ? (
                                 <>
-                                    {/* Always add Catalogue first if not already present */}
-                                    {!options.some(opt => opt.label === 'Catalogue') && (
-                                        <div
-                                            onClick={() => handleOptionClick('Catalogue')}
-                                            className={`px-5 py-3 cursor-pointer text-sm font-medium flex items-center justify-between hover:bg-blue-50 transition-colors border-b border-gray-100 ${
-                                                tempValue === 'Catalogue' ? 'bg-blue-100 text-blue-700' : 'text-gray-800'
-                                            }`}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <span>📚</span>
-                                                <span>Catalogue</span>
-                                            </div>
-                                            {tempValue === 'Catalogue' && (
-                                                <Icon name="check" size={18} className="text-blue-600 font-bold" strokeWidth={3} />
-                                            )}
-                                        </div>
-                                    )}
-                                    
                                     {options.map((opt, index) => (
                                         <div
                                             key={opt.value}
                                             onClick={() => handleOptionClick(opt.value)}
-                                            className={`px-5 py-3 cursor-pointer text-sm font-medium flex items-center justify-between hover:bg-blue-50 transition-colors ${
-                                                index !== (options?.length || 0) - 1 ? 'border-b border-gray-100' : ''
-                                            } ${tempValue === opt.value ? 'bg-blue-100 text-blue-700' : 'text-gray-800'}`}
+                                            className={`px-4 py-3.5 cursor-pointer text-sm flex items-center justify-between hover:bg-blue-50 transition-all duration-150 ${
+                                                tempValue === opt.value 
+                                                    ? 'bg-gradient-to-r from-blue-100 to-indigo-50 border-l-4 border-blue-500 text-blue-900 font-semibold' 
+                                                    : 'text-gray-800 hover:pl-5'
+                                            }`}
                                         >
-                                            <span>{opt.label}</span>
+                                            <span className="flex items-center gap-2">
+                                                {tempValue === opt.value && (
+                                                    <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                                                )}
+                                                {opt.label}
+                                            </span>
                                             {tempValue === opt.value && (
-                                                <Icon name="check" size={18} className="text-blue-600 font-bold" strokeWidth={3} />
+                                                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                                                    <Icon name="check" size={14} className="text-white" strokeWidth={3} />
+                                                </div>
                                             )}
                                         </div>
                                     ))}
-                                    
-                                    {/* Create new button */}
-                                    <div className="border-t border-gray-100 sticky bottom-0 bg-white rounded-b-lg">
+                                    <div className="border-t-2 border-blue-100 mt-1">
                                         <div
                                             onClick={handleCreateNewClick}
-                                            className="px-5 py-3 hover:bg-gray-50 cursor-pointer text-sm text-blue-600 font-semibold flex items-center gap-2 transition-colors"
+                                            className="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm text-blue-600 font-semibold flex items-center gap-2 transition-all duration-150 hover:pl-5"
                                         >
-                                            <Icon name="plus" size={16} />
-                                            <span>Create New Category</span>
+                                            <div className="w-5 h-5 rounded-full border-2 border-blue-400 flex items-center justify-center">
+                                                <Icon name="plus" size={12} className="text-blue-400" />
+                                            </div>
+                                            <span>Create new category</span>
                                         </div>
                                     </div>
                                 </>
                             ) : (
-                                <div className="px-5 py-8 text-center text-gray-400 text-sm">
+                                <div className="px-4 py-6 text-center text-gray-500 text-sm font-medium">
                                     No categories available
                                 </div>
                             )}
@@ -3634,7 +3629,12 @@ const App = () => {
     ]);
 
     const creatorTags = categories
-        .filter(cat => !['custom', 'default', 'premium', 'personal', 'action', 'weekend', 'conversational', 'playful'].includes(cat.id))
+        .filter(cat => {
+            // Explicitly include catalogue, exclude specific categories
+            if (cat.id === 'catalogue') return true;
+            if (['custom', 'default', 'premium', 'personal', 'action', 'weekend', 'conversational', 'playful'].includes(cat.id)) return false;
+            return true;
+        })
         .sort((a, b) => {
             if (a.id === 'catalogue') return -1;
             if (b.id === 'catalogue') return 1;
@@ -3642,7 +3642,8 @@ const App = () => {
         })
         .map(cat => ({ value: cat.name, label: cat.name }));
     
-    console.log('DEBUG: creatorTags =', creatorTags);
+    console.log('DEBUG: All categories count:', categories.length);
+    console.log('DEBUG: Filtered creatorTags =', creatorTags);
     console.log('DEBUG: Catalogue in creatorTags?', creatorTags.some(tag => tag.label === 'Catalogue'));
 
     const [videos, setVideos] = useState([]);
