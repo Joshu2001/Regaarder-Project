@@ -163,7 +163,7 @@ const BottomBar = ({ selectedLanguage = 'English' }) => {
                                 return;
                             }
                             if (tabName === 'Ideas') {
-                                window.location.href = '/ideas.jsx';
+                                window.location.href = '/ideas';
                                 return;
                             }
                             if (tabName === 'More') {
@@ -1741,7 +1741,7 @@ const AllVideos = ({ selectedCTAs, profileName, onCTAClick, selectedLanguage = '
                         // show a brief active state so users perceive the press, then navigate
                         setCtaActive(true);
                         setTimeout(() => {
-                            navigate('/ideas.jsx');
+                            navigate('/ideas');
                             if (onCTAClick) onCTAClick();
                         }, 120);
                         // clear active state shortly after so it doesn't persist
@@ -2069,6 +2069,14 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
     const [customAmount, setCustomAmount] = useState('');
     const [selectedAmount, setSelectedAmount] = useState(null);
     const [showPayPal, setShowPayPal] = useState(false);
+    const [selectedFormat, setSelectedFormat] = useState('One Time');
+    const [showFormatDropdown, setShowFormatDropdown] = useState(false);
+    
+    // Pricing options with multipliers for recurring
+    const pricingFormats = [
+        { label: 'One Time', value: 'One Time', multiplier: 1 },
+        { label: 'Monthly', value: 'Monthly', multiplier: 0.8 }
+    ];
 
     const amountSelected = () => {
         // prefer selectedAmount (quick buttons) but allow customAmount if provided
@@ -2109,6 +2117,42 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                             <p className="text-gray-600 text-sm sm:text-base">{getTranslation('Sending tip to', selectedLanguage)}</p>
                             <p className="font-semibold text-gray-900 text-lg">{profile.name}</p>
                         </div>
+                    </div>
+
+                    {/* Pricing Format Dropdown */}
+                    <div className="relative">
+                        <h3 className="text-gray-600 text-sm mb-2 font-medium">{getTranslation('Select Tip Type', selectedLanguage)}</h3>
+                        <button
+                            onClick={() => setShowFormatDropdown(!showFormatDropdown)}
+                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                        >
+                            <span className="font-medium text-gray-900">{selectedFormat}</span>
+                            <Icon name={showFormatDropdown ? "chevron-up" : "chevron-down"} size={20} className="text-gray-400" />
+                        </button>
+                        
+                        {showFormatDropdown && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                                {pricingFormats.map((format) => (
+                                    <button
+                                        key={format.value}
+                                        onClick={() => {
+                                            setSelectedFormat(format.value);
+                                            setShowFormatDropdown(false);
+                                        }}
+                                        className={`w-full px-4 py-3 text-left transition-colors flex justify-between items-center ${
+                                            selectedFormat === format.value 
+                                                ? 'bg-[var(--color-gold-cream)] border-b border-gray-100' 
+                                                : 'hover:bg-gray-50 border-b border-gray-50 last:border-b-0'
+                                        }`}
+                                    >
+                                        <span className="font-medium text-gray-900">{format.label}</span>
+                                        {selectedFormat === format.value && (
+                                            <Icon name="check" size={18} className="text-[var(--color-gold)]" />
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Quick Amount */}
@@ -2161,7 +2205,11 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                         </div>
                         <div>
                             <p className="text-gray-900 font-medium mb-0.5">{getTranslation('100% to creator', selectedLanguage)}</p>
-                            <p className="text-gray-500 leading-snug">{getTranslation('No fees, goes directly to support their work', selectedLanguage)}</p>
+                            <p className="text-gray-500 leading-snug">
+                                {selectedFormat === 'One Time' 
+                                    ? getTranslation('No fees, goes directly to support their work', selectedLanguage)
+                                    : getTranslation('Monthly recurring, cancel anytime', selectedLanguage)}
+                            </p>
                         </div>
                     </div>
 
@@ -2175,7 +2223,7 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                             }}
                             disabled={!isActive}
                             className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-colors focus:outline-none ${isActive ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                            {isActive ? `${getTranslation('Continue', selectedLanguage)} \u2014 $${amountSelected() || '0'}` : getTranslation('Select an amount', selectedLanguage)}
+                            {isActive ? `${getTranslation('Continue', selectedLanguage)} \u2014 $${amountSelected() || '0'} / ${selectedFormat}` : getTranslation('Select an amount', selectedLanguage)}
                         </button>
                     </div>
                 </div>
