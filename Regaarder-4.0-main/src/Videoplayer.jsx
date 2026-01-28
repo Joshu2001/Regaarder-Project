@@ -4975,13 +4975,15 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							playsInline
 							webkit-playsinline="true"
 							crossOrigin="anonymous"
+							preload="metadata"
+							fetchPriority="high"
 							style={{ width: '100%', height: '100%', objectFit: 'contain' }}
 							onLoadedMetadata={(e) => {
 								try {
 									const v = e.target;
 									setDuration(v.duration || 0);
 									setNaturalAspect((v.videoWidth && v.videoHeight) ? (v.videoWidth / v.videoHeight) : (16 / 9));
-									// Auto-play video when metadata is loaded
+									// Auto-play video when metadata is loaded - faster startup
 									try {
 										v.muted = true;
 										const p = v.play();
@@ -4997,6 +4999,10 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 							onEnded={handleVideoEnded}
 							onPause={() => setIsPlaying(false)}
 							onPlay={() => setIsPlaying(true)}
+							onCanPlay={() => {
+								// Triggered when enough data is loaded to play - fastest feedback
+								try { if (videoRef.current) { /* playback ready */ } } catch { }
+							}}
 						/>
 					</div>
 
