@@ -163,7 +163,7 @@ const BottomBar = ({ selectedLanguage = 'English' }) => {
                                 return;
                             }
                             if (tabName === 'Ideas') {
-                                window.location.href = '/ideas';
+                                window.location.href = '/ideas.jsx';
                                 return;
                             }
                             if (tabName === 'More') {
@@ -1741,7 +1741,7 @@ const AllVideos = ({ selectedCTAs, profileName, onCTAClick, selectedLanguage = '
                         // show a brief active state so users perceive the press, then navigate
                         setCtaActive(true);
                         setTimeout(() => {
-                            navigate('/ideas');
+                            navigate('/ideas.jsx');
                             if (onCTAClick) onCTAClick();
                         }, 120);
                         // clear active state shortly after so it doesn't persist
@@ -2079,16 +2079,23 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
             { id: 4, amount: 50, emoji: '🚀' },
             { id: 5, amount: 100, emoji: '👑' }
         ],
-        'Monthly': [
+        'Series': [
             { id: 1, amount: 3, emoji: '☕' },
             { id: 2, amount: 7, emoji: '🎬' },
             { id: 3, amount: 15, emoji: '⭐' },
             { id: 4, amount: 35, emoji: '🚀' },
             { id: 5, amount: 75, emoji: '👑' }
+        ],
+        'Recurrent': [
+            { id: 1, amount: 4, emoji: '☕' },
+            { id: 2, amount: 9, emoji: '🎬' },
+            { id: 3, amount: 20, emoji: '⭐' },
+            { id: 4, amount: 40, emoji: '🚀' },
+            { id: 5, amount: 85, emoji: '👑' }
         ]
     };
 
-    const formatOptions = ['One Time', 'Monthly'];
+    const formatOptions = ['One Time', 'Series', 'Recurrent'];
     const currentPrices = pricingCatalog[selectedFormat] || pricingCatalog['One Time'];
 
     const amountSelected = () => {
@@ -2107,32 +2114,32 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center px-4 py-6">
             <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
-            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[92vh] flex flex-col overflow-hidden">
                 {/* Header */}
-                <div className="p-5 pb-3 border-b border-gray-100 bg-white z-10 relative flex-shrink-0">
+                <div className="px-5 pt-5 pb-3 border-b border-gray-100 bg-white flex-shrink-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[var(--color-gold)] font-semibold text-xl">$</span>
-                        <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
+                        <span className="text-[var(--color-gold)] font-semibold text-lg">$</span>
+                        <h2 className="text-2xl font-semibold text-gray-900">{getTranslation('Send Tip', selectedLanguage)}</h2>
                     </div>
-                    <p className="text-gray-600 text-xs sm:text-sm leading-snug mt-0.5">{getTranslation("Show appreciation for {name}'s work", selectedLanguage).replace('{name}', profile.name)}</p>
+                    <p className="text-gray-600 text-xs leading-tight">{getTranslation("Show appreciation for {name}'s work", selectedLanguage).replace('{name}', profile.name)}</p>
                 </div>
 
-                <div className="overflow-y-auto p-4 space-y-4 scrollbar-hide flex-1">
+                <div className="overflow-y-auto flex-1 px-4 pt-4 pb-4 space-y-3.5 scrollbar-hide">
                     {/* Creator Card */}
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-3 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 ring-2 ring-white">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-3 flex items-center gap-3 flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                             <img src={profile.image || "https://placehold.co/400x400/e2e8f0/1e293b?text=User"} alt="Profile" className="w-full h-full object-cover" />
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                             <p className="text-gray-500 text-xs">{getTranslation('Supporting', selectedLanguage)}</p>
                             <p className="font-semibold text-gray-900 text-sm truncate">{profile.name}</p>
                         </div>
                     </div>
 
                     {/* Format Selector Pills */}
-                    <div>
-                        <p className="text-gray-600 text-xs font-medium mb-2">{getTranslation('Select Tip Type', selectedLanguage)}</p>
-                        <div className="flex gap-2">
+                    <div className="flex-shrink-0">
+                        <p className="text-gray-600 text-xs font-semibold mb-2">{getTranslation('Tip Type', selectedLanguage)}</p>
+                        <div className="grid grid-cols-3 gap-2">
                             {formatOptions.map((format) => (
                                 <button
                                     key={format}
@@ -2141,9 +2148,9 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                                         setSelectedAmount(null);
                                         setCustomAmount('');
                                     }}
-                                    className={`flex-1 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                                    className={`px-2.5 py-2 rounded-lg font-medium text-xs transition-all duration-200 ${
                                         selectedFormat === format
-                                            ? 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-gold-darker)] text-white shadow-md scale-105'
+                                            ? 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-gold-darker)] text-white shadow-md'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
                                 >
@@ -2154,8 +2161,8 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                     </div>
 
                     {/* Pricing Catalog */}
-                    <div>
-                        <p className="text-gray-600 text-xs font-medium mb-2.5">{getTranslation('Choose Amount', selectedLanguage)}</p>
+                    <div className="flex-shrink-0">
+                        <p className="text-gray-600 text-xs font-semibold mb-2.5">{getTranslation('Amount', selectedLanguage)}</p>
                         <div className="grid grid-cols-2 gap-2">
                             {currentPrices.map((price) => {
                                 const isSelected = selectedAmount === price.amount;
@@ -2166,22 +2173,19 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                                             setSelectedAmount(price.amount);
                                             setCustomAmount('');
                                         }}
-                                        className={`relative overflow-hidden rounded-2xl py-4 px-3 transition-all duration-200 flex flex-col items-center justify-center gap-1.5 ${
+                                        className={`relative overflow-hidden rounded-2xl py-3 px-2 transition-all duration-200 flex flex-col items-center justify-center gap-1.5 ${
                                             isSelected
-                                                ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white ring-2 ring-blue-300 shadow-lg scale-105'
+                                                ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white ring-2 ring-blue-300 shadow-md'
                                                 : 'bg-white border-2 border-gray-200 text-gray-900 hover:border-[var(--color-gold)] hover:shadow-md'
                                         }`}
                                     >
                                         {isSelected && (
-                                            <div className="absolute top-1 right-1 bg-white rounded-full p-1 text-blue-600">
-                                                <Icon name="check" size={14} className="font-bold" />
+                                            <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-white rounded-full flex items-center justify-center text-blue-600">
+                                                <Icon name="check" size={12} className="font-bold" />
                                             </div>
                                         )}
-                                        <span className="text-lg">{price.emoji}</span>
-                                        <span className="font-bold text-base">${price.amount}</span>
-                                        <span className={`text-xs ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
-                                            {selectedFormat === 'Monthly' ? '/month' : ''}
-                                        </span>
+                                        <span className="text-base">{price.emoji}</span>
+                                        <span className="font-bold text-sm">${price.amount}</span>
                                     </button>
                                 );
                             })}
@@ -2189,10 +2193,10 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                     </div>
 
                     {/* Custom Amount */}
-                    <div>
-                        <p className="text-gray-600 text-xs font-medium mb-2">{getTranslation('Custom Amount', selectedLanguage)}</p>
-                        <div className="bg-white border-2 border-gray-200 rounded-xl px-3 py-3 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
-                            <span className="text-gray-400 mr-2 text-lg font-semibold">$</span>
+                    <div className="flex-shrink-0">
+                        <p className="text-gray-600 text-xs font-semibold mb-2">{getTranslation('Custom Amount', selectedLanguage)}</p>
+                        <div className="bg-white border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
+                            <span className="text-gray-400 mr-2 text-base font-semibold">$</span>
                             <input
                                 type="number"
                                 value={customAmount}
@@ -2201,29 +2205,25 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                                     setSelectedAmount(null);
                                 }}
                                 className="bg-transparent w-full outline-none text-gray-900 font-semibold text-sm"
-                                placeholder={getTranslation('Enter amount', selectedLanguage)}
+                                placeholder={getTranslation('Enter', selectedLanguage)}
                             />
                         </div>
                     </div>
 
                     {/* Info Banner */}
-                    <div className="bg-gradient-to-r from-[var(--color-gold-cream)]/50 to-[var(--color-gold-cream)]/20 rounded-xl p-3 flex gap-2.5 border border-[var(--color-gold-cream)]/60 text-xs">
+                    <div className="bg-gradient-to-r from-[var(--color-gold-cream)]/50 to-[var(--color-gold-cream)]/20 rounded-xl p-2.5 flex gap-2 border border-[var(--color-gold-cream)]/60 text-xs flex-shrink-0">
                         <div className="text-[var(--color-gold)] flex-shrink-0 pt-0.5">
-                            <Icon name="gift" size={18} />
+                            <Icon name="gift" size={16} />
                         </div>
                         <div>
-                            <p className="text-gray-900 font-semibold mb-0.5">{getTranslation('100% goes to creator', selectedLanguage)}</p>
-                            <p className="text-gray-600 leading-snug">
-                                {selectedFormat === 'One Time' 
-                                    ? getTranslation('One-time gift with no platform fees', selectedLanguage)
-                                    : getTranslation('Cancel subscription anytime', selectedLanguage)}
-                            </p>
+                            <p className="text-gray-900 font-semibold mb-0.5">{getTranslation('100% to creator', selectedLanguage)}</p>
+                            <p className="text-gray-600 leading-snug">{getTranslation('No platform fees', selectedLanguage)}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Footer with Button */}
-                <div className="p-4 pt-3 bg-gradient-to-t from-white to-white/80 border-t border-gray-100 flex-shrink-0">
+                <div className="px-4 py-3 bg-gradient-to-t from-white to-white/80 border-t border-gray-100 flex-shrink-0">
                     <button
                         onClick={() => {
                             const amt = amountSelected();
@@ -2231,14 +2231,14 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                             setShowPayPal(true);
                         }}
                         disabled={!isActive}
-                        className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-all duration-200 focus:outline-none ${
+                        className={`w-full px-3 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
                             isActive 
-                                ? 'bg-gradient-to-r from-gray-900 to-gray-800 text-white hover:shadow-lg hover:from-gray-800 hover:to-gray-700' 
+                                ? 'bg-gradient-to-r from-gray-900 to-gray-800 text-white hover:shadow-lg' 
                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         }`}>
                         {isActive 
-                            ? `${getTranslation('Send Tip', selectedLanguage)} \u2014 $${amountSelected()}${selectedFormat === 'Monthly' ? '/mo' : ''}` 
-                            : getTranslation('Select an amount', selectedLanguage)}
+                            ? `${getTranslation('Send Tip', selectedLanguage)} \u2014 $${amountSelected()}` 
+                            : getTranslation('Select amount', selectedLanguage)}
                     </button>
                 </div>
             </div>
