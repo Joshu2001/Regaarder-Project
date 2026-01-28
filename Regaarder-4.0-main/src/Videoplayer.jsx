@@ -1292,6 +1292,26 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 	const [noteText, setNoteText] = useState("");
 	const [linkNoteTimestamp, setLinkNoteTimestamp] = useState(true);
 
+	// Load video from localStorage quick_load (set by home.jsx when clicking a video card)
+	useEffect(() => {
+		try {
+			const quickLoadData = localStorage.getItem('videoplayer_quick_load');
+			if (quickLoadData) {
+				const data = JSON.parse(quickLoadData);
+				if (data.url) {
+					setVideoUrl(data.url);
+					if (data.title) setVideoTitle(data.title);
+					if (data.creator) setCreatorName(data.creator);
+					if (data.creatorName) setCreatorName(data.creatorName);
+				}
+				// Clear after loading so it doesn't persist
+				localStorage.removeItem('videoplayer_quick_load');
+			}
+		} catch (err) {
+			console.error('Failed to load quick video data:', err);
+		}
+	}, []);
+
 	// Persistent preference helpers (define early so usePref can be used below)
 	const prefKey = (k) => `vx:pref:${k}`;
 	const readPref = (key, defaultVal) => {

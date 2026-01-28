@@ -5315,6 +5315,25 @@ const MiniPlayer = React.memo(({ data, onClose, onExpand, onUpdateData, navigate
             const channel = data.creatorName || video.creator || video.author || video.channel || '';
             if (channel) params.set('channel', channel);
             if (typeof data.time === 'number') params.set('t', String(Math.floor(data.time || 0)));
+            
+            // Store video data in localStorage for immediate loading (near-instantaneous switch)
+            try {
+                const videoData = {
+                    id: idVal,
+                    url: srcVal,
+                    videoUrl: srcVal,
+                    src: srcVal,
+                    title: video.title || 'Video',
+                    creator: channel,
+                    creatorName: channel,
+                    imageUrl: video.imageUrl || data.imageUrl || null,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('videoplayer_quick_load', JSON.stringify(videoData));
+            } catch (err) {
+                console.error('Failed to store video data:', err);
+            }
+            
             if (onClose) onClose();
             try {
                 navigate(`/videoplayer?${params.toString()}`, { state: { miniPlayerData: data } });
