@@ -705,6 +705,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
         else {
             // final step: if there's an uploaded intro file, upload it to backend first
             const doFinish = async () => {
+                let uploadedVideoUrl = null;
                 if (introFile) {
                     setUploadingIntro(true);
                     try {
@@ -718,6 +719,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                         });
                         const json = await res.json();
                         if (res.ok && json && json.url) {
+                            uploadedVideoUrl = json.url;
                             // update local profile and auth context so creator profile shows the intro
                             try {
                                 const current = (auth && auth.user) ? auth.user : JSON.parse(localStorage.getItem('regaarder_user') || '{}');
@@ -734,8 +736,8 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                         console.error('Upload failed', e);
                     } finally {
                         setUploadingIntro(false);
-                        // Send onboarding info to staff
-                        sendOnboardingToStaff();
+                        // Send onboarding info to staff with the newly uploaded video URL
+                        sendOnboardingToStaff(uploadedVideoUrl);
                         onClose();
                     }
                 } else {
@@ -748,7 +750,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
         }
     };
     
-    const sendOnboardingToStaff = async () => {
+    const sendOnboardingToStaff = async (videoUrl) => {
         try {
             const userData = auth?.user || JSON.parse(localStorage.getItem('regaarder_user') || '{}');
             const onboardingData = {
@@ -757,7 +759,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                 userEmail: userData?.email,
                 creatorName: name,
                 bio: bio,
-                introVideoUrl: introUrl,
+                introVideoUrl: videoUrl || introUrl,
                 socialMediaHandle: socialHandle,
                 socialFollowers: socialFollowers,
                 completedAt: new Date().toISOString(),
@@ -766,7 +768,7 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
             };
             
             const token = localStorage.getItem('regaarder_token');
-            await fetch(`${BACKEND}/staff/onboarding-info`, {
+            const response = await fetch(`${BACKEND}/staff/onboarding-info`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -774,6 +776,12 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                 },
                 body: JSON.stringify(onboardingData)
             });
+            
+            if (response.ok) {
+                console.log('✓ Onboarding info sent to staff successfully');
+            } else {
+                console.error('Failed to send onboarding info:', response.status, response.statusText);
+            }
         } catch (e) {
             console.error('Failed to send onboarding info to staff', e);
         }
