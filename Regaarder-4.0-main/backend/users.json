@@ -28,7 +28,7 @@
     "shadowBannedAt": "2026-01-20T05:55:37.115Z",
     "shadowBanReason": "Low-quality or repetitive content",
     "followers": 1,
-    "views": 3
+    "views": 4
   },
   {
     "id": "user-1767159330204",
@@ -1203,7 +1203,8 @@
     "followers": 1,
     "pricingType": "Recurrent",
     "price": "50",
-    "tag": "Entertainment"
+    "tag": "Entertainment",
+    "views": 1
   },
   {
     "id": "user-1768222892161",

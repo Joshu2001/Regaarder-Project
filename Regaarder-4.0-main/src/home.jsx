@@ -833,8 +833,8 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
     }, [step]);
 
     return (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onClose && onClose(); }}>
-            <div className="bg-white rounded-2xl w-full max-w-md h-[90vh] overflow-hidden relative" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[160] flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", transition: "backdrop-filter 240ms ease, -webkit-backdrop-filter 240ms ease, background 240ms ease" }} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onClose && onClose(); }}>
+            <div className="rounded-2xl w-full max-w-md overflow-hidden relative flex flex-col" onClick={(e) => e.stopPropagation()} style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95))", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 20px 60px rgba(0,0,0,0.08)", height: `${window.innerHeight * 0.58}px` }}>
                 {/* Agreement required toast (centered, no red outline, title black) */}
                 {showAgreementError && (
                     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 pointer-events-auto animate-in slide-in-from-top-4 duration-300 min-w-[360px] sm:min-w-[480px] max-w-[92%]">
@@ -880,63 +880,65 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                 )}
 
                 {/* Header */}
-                <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-b from-[rgba(203,138,0,0.08)] to-transparent">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb,203,138,0),0.14), rgba(var(--color-gold-rgb,203,138,0),0.04))', boxShadow: '0 6px 18px rgba(0,0,0,0.06)' }}>
+                <div className="px-6 py-5 border-b border-gray-100 bg-white/40 backdrop-blur-sm">
+                    <div className="flex items-center justify-start mb-4">
+                        <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.04))' }}>
                                 <Icon name="crown" size={20} style={{ color: 'var(--color-gold)' }} />
                             </div>
                             <div>
                                 <div className="text-base font-semibold text-gray-900">{getTranslation('Become a Regaardien', selectedLanguage)}</div>
-                                <div className="text-xs text-gray-500">{getTranslation('Step', selectedLanguage)} {step} {getTranslation('of', selectedLanguage)} {TOTAL_STEPS}</div>
+                                <div className="text-xs text-gray-500 mt-0.5">{getTranslation('Step', selectedLanguage)} {step} {getTranslation('of', selectedLanguage)} {TOTAL_STEPS}</div>
                             </div>
                         </div>
-                        <button onClick={onClose} className="p-2 text-gray-500"><Icon name="x" size={18} /></button>
                     </div>
-                    <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div className="h-full bg-[var(--color-gold)] transition-all" style={{ width: `${(step / TOTAL_STEPS) * 100}%` }} />
                     </div>
                 </div>
 
                 {/* Scrollable content */}
-                <div className="p-6 overflow-y-auto creator-onboard-scroll" style={{ maxHeight: 'calc(90vh - 140px)' }}>
+                <div className="px-6 py-8 overflow-y-auto creator-onboard-scroll flex-1 space-y-8" style={{ maxHeight: `calc(${window.innerHeight * 0.58}px - 160px)` }}>
 
                     {step === 1 && (
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-4" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', boxShadow: '0 8px 24px rgba(0,0,0,0.06)' }}>
-                                <Icon name="star" size={28} style={{ color: 'var(--color-gold)' }} />
+                        <div className="flex flex-col items-center text-center space-y-8">
+                            <div className="w-20 h-20 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(180deg, rgba(var(--color-gold-rgb,203,138,0),0.12), rgba(var(--color-gold-rgb,203,138,0),0.03))', boxShadow: '0 8px 24px rgba(0,0,0,0.06)' }}>
+                                <Icon name="star" size={36} style={{ color: 'var(--color-gold)' }} />
                             </div>
 
-                            <h2 className="text-xl font-bold text-gray-900 mb-2">{getTranslation("Let's Get Started!", selectedLanguage)}</h2>
-                            <p className="text-sm text-gray-600 mb-6">{getTranslation('Set up your creator profile to join the Regaardiens', selectedLanguage)}</p>
+                            <div className="space-y-3">
+                                <h2 className="text-2xl font-bold text-gray-900">{getTranslation("Let's Get Started!", selectedLanguage)}</h2>
+                                <p className="text-base text-gray-600">{getTranslation('Set up your creator profile to join the Regaardiens', selectedLanguage)}</p>
+                            </div>
 
-                            <div className="mb-6">
-                                <div className="relative w-28 h-28 rounded-full mx-auto" >
-                                    <img src={photo || `https://placehold.co/160x160/efefef/aaaaaa?text=${getTranslation('Photo', selectedLanguage)}`} alt="avatar" className="w-full h-full object-cover rounded-full border-4" style={{ borderColor: 'var(--color-gold)' }} />
-                                    <button onClick={handlePickPhoto} className="absolute -right-1 -bottom-1 bg-white rounded-full p-2 shadow-lg">
-                                        <Icon name="camera" size={18} style={{ color: 'var(--color-gold)' }} />
-                                    </button>
-                                    <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                            <div className="w-full space-y-6">
+                                <div>
+                                    <div className="relative w-32 h-32 rounded-full mx-auto mb-4">
+                                        <img src={photo || `https://placehold.co/160x160/efefef/aaaaaa?text=${getTranslation('Photo', selectedLanguage)}`} alt="avatar" className="w-full h-full object-cover rounded-full border-4" style={{ borderColor: 'var(--color-gold)' }} />
+                                        <button onClick={handlePickPhoto} className="absolute -right-1 -bottom-1 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow">
+                                            <Icon name="camera" size={20} style={{ color: 'var(--color-gold)' }} />
+                                        </button>
+                                        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                                    </div>
+                                    <div className="text-sm text-gray-600">{getTranslation('Click the camera icon to change your profile picture', selectedLanguage)}</div>
                                 </div>
-                                <div className="text-sm text-gray-600 mt-3">{getTranslation('Click the camera icon to change your profile picture', selectedLanguage)}</div>
-                            </div>
 
-                            <div className="w-full">
-                                <label className="text-sm font-medium text-gray-700">{getTranslation('Creator Name', selectedLanguage)} <span className="text-red-500">*</span></label>
-                                <div className="mt-2">
-                                    <input ref={nameRef} value={name} onChange={(e) => setName(e.target.value)} placeholder={getTranslation('Enter your creator name', selectedLanguage)} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none text-base" />
-                                    <div className="text-xs text-gray-400 mt-2">{getTranslation('This is how your audience will know you', selectedLanguage)}</div>
+                                <div className="pt-4 space-y-4">
+                                    <div>
+                                        <label className="text-sm font-semibold text-gray-700 block mb-3">{getTranslation('Creator Name', selectedLanguage)} <span className="text-red-500">*</span></label>
+                                        <input ref={nameRef} value={name} onChange={(e) => setName(e.target.value)} placeholder={getTranslation('Enter your creator name', selectedLanguage)} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-[var(--color-gold)] text-base transition-colors" />
+                                        <div className="text-xs text-gray-500 mt-2">{getTranslation('This is how your audience will know you', selectedLanguage)}</div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-sm font-semibold text-gray-700 block mb-3">{getTranslation('Write a short bio', selectedLanguage)}</label>
+                                        <textarea ref={bioRef} value={bio} onChange={(e) => setBio(e.target.value)} placeholder={getTranslation('Tell your audience who you are and what you create...', selectedLanguage)} maxLength={200} className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-base text-gray-700 h-28 resize-none focus:outline-none focus:border-[var(--color-gold)] focus:bg-white transition-colors" />
+                                        <div className="text-xs text-gray-500 text-right mt-2">{bio.length}/200</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="w-full mt-6">
-                                <label className="text-sm font-medium text-gray-700">{getTranslation('Write a short bio', selectedLanguage)}</label>
-                                <textarea ref={bioRef} value={bio} onChange={(e) => setBio(e.target.value)} placeholder={getTranslation('Tell your audience who you are and what you create...', selectedLanguage)} maxLength={200} className="w-full mt-2 p-3 rounded-xl bg-gray-100 text-base text-gray-700 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-gray-300" />
-                                <div className="text-xs text-gray-400 text-right mt-2">{bio.length}/200</div>
-                            </div>
-
-                            <div className="h-8" />
-                            <div className="text-xs text-gray-500">{getTranslation('You can complete more steps after getting started.', selectedLanguage)}</div>
+                            <div className="pt-2 text-xs text-gray-500">{getTranslation('You can complete more steps after getting started.', selectedLanguage)}</div>
                         </div>
                     )}
 
@@ -1366,18 +1368,18 @@ const CreatorOnboardingDialog = ({ onClose, selectedLanguage = 'English' }) => {
                 </div>
 
                 {/* Footer fixed */}
-                <div className="px-4 py-3 border-t border-gray-100 bg-white flex items-center justify-between">
-                    <button onClick={handleBack} className="text-gray-600">{getTranslation('Back', selectedLanguage)}</button>
-                    <div className="flex items-center space-x-3">
-                        <div className="flex items-center space-x-1">
+                <div className="px-6 py-4 border-t border-gray-100 bg-white/50 backdrop-blur-sm flex items-center justify-between">
+                    <button onClick={handleBack} className="text-gray-600 hover:text-gray-900 transition-colors font-medium text-sm">{getTranslation('Back', selectedLanguage)}</button>
+                    <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
                             {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-                                <div key={i} className={`w-2 h-2 rounded-full ${i + 1 === step ? 'bg-[var(--color-gold)]' : 'bg-gray-200'}`} />
+                                <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i + 1 === step ? 'bg-[var(--color-gold)]' : 'bg-gray-200'}`} />
                             ))}
                         </div>
                         <button
                             onClick={handleNext}
                             disabled={uploadingIntro}
-                            className={`py-2 px-4 font-semibold transition-all ${step === TOTAL_STEPS ? 'rounded-lg shadow-lg' : 'rounded-lg'} ${uploadingIntro ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            className={`py-2.5 px-5 font-semibold rounded-lg transition-all ${step === TOTAL_STEPS ? 'rounded-lg' : 'rounded-lg'} ${uploadingIntro ? 'opacity-60 cursor-not-allowed' : ''}`}
                             style={step === TOTAL_STEPS ? { backgroundColor: 'var(--color-final, #7C3AED)', color: 'var(--color-final-text, #fff)' } : { backgroundColor: 'var(--color-accent-safe, var(--color-gold))', color: 'var(--color-accent-text, black)' }}
                         >
                             {uploadingIntro ? getTranslation('Uploading...', selectedLanguage) : (step < TOTAL_STEPS ? getTranslation('Next', selectedLanguage) : getTranslation('Complete Setup', selectedLanguage))}
