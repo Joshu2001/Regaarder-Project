@@ -1211,42 +1211,6 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 	const selectedLanguage = typeof window !== 'undefined' ? (localStorage.getItem('regaarder_language') || 'English') : 'English';
 	const auth = useAuth();
-    
-    // Feedback logic for Requester (User)
-    const [showRequesterFeedback, setShowRequesterFeedback] = useState(false);
-
-    useEffect(() => {
-        try {
-            // Check if current video is a request made by this user
-            // We assume 'videoInfo' or 'currentVideo' has requesterName 
-            // AND we only show if not already given feedback
-            // Since we don't have perfect signal, we'll mimic: if user viewing has same name as requester
-            if (videoInfo && auth.user && 
-                (videoInfo.requesterName === auth.user.name || videoInfo.requesterName === auth.user.username)) {
-                
-                const feedbackKey = `feedback_requester_${videoInfo.id || 'current'}`;
-                if (!localStorage.getItem(feedbackKey)) {
-                     // Show after delay to ensure they watched a bit
-                     const t = setTimeout(() => {
-                         setShowRequesterFeedback(true);
-                     }, 3000); 
-                     return () => clearTimeout(t);
-                }
-            }
-        } catch (e) {
-            console.error('Feedback check failed', e);
-        }
-    }, [videoInfo, auth.user]);
-
-    const handleRequesterFeedbackSubmit = (answers) => {
-        try {
-            console.log('Requester Feedback:', answers);
-            if (videoInfo) {
-                const feedbackKey = `feedback_requester_${videoInfo.id || 'current'}`;
-                localStorage.setItem(feedbackKey, JSON.stringify(answers));
-            }
-        } catch(e) {}
-    };
 
 	const { accentColor: themeAccentColor } = useTheme(); // Get theme accent color
 	const [searchParams] = useSearchParams();
@@ -1316,6 +1280,42 @@ export default function MobileVideoPlayer({ discoverItems = null, initialVideo =
 
 	// Local video info state (was missing causing ReferenceError)
 	const [videoInfo, setVideoInfo] = useState(initialVideo || null);
+
+	// Feedback logic for Requester (User)
+	const [showRequesterFeedback, setShowRequesterFeedback] = useState(false);
+
+	useEffect(() => {
+		try {
+			// Check if current video is a request made by this user
+			// We assume 'videoInfo' or 'currentVideo' has requesterName 
+			// AND we only show if not already given feedback
+			// Since we don't have perfect signal, we'll mimic: if user viewing has same name as requester
+			if (videoInfo && auth.user && 
+				(videoInfo.requesterName === auth.user.name || videoInfo.requesterName === auth.user.username)) {
+				
+				const feedbackKey = `feedback_requester_${videoInfo.id || 'current'}`;
+				if (!localStorage.getItem(feedbackKey)) {
+					 // Show after delay to ensure they watched a bit
+					 const t = setTimeout(() => {
+						 setShowRequesterFeedback(true);
+					 }, 3000); 
+					 return () => clearTimeout(t);
+				}
+			}
+		} catch (e) {
+			console.error('Feedback check failed', e);
+		}
+	}, [videoInfo, auth.user]);
+
+	const handleRequesterFeedbackSubmit = (answers) => {
+		try {
+			console.log('Requester Feedback:', answers);
+			if (videoInfo) {
+				const feedbackKey = `feedback_requester_${videoInfo.id || 'current'}`;
+				localStorage.setItem(feedbackKey, JSON.stringify(answers));
+			}
+		} catch(e) {}
+	};
 
 	// start with no custom URL so the built-in fallback video is shown
 	const [videoUrl, setVideoUrl] = useState("");
