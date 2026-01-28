@@ -2065,21 +2065,33 @@ const Toast = ({ data, onClose }) => {
 const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLanguage = 'English' }) => {
     if (!isOpen) return null;
 
-    const quickAmounts = [5, 10, 25, 50, 100];
-    const [customAmount, setCustomAmount] = useState('');
     const [selectedAmount, setSelectedAmount] = useState(null);
+    const [customAmount, setCustomAmount] = useState('');
     const [showPayPal, setShowPayPal] = useState(false);
     const [selectedFormat, setSelectedFormat] = useState('One Time');
-    const [showFormatDropdown, setShowFormatDropdown] = useState(false);
     
-    // Pricing options with multipliers for recurring
-    const pricingFormats = [
-        { label: 'One Time', value: 'One Time', multiplier: 1 },
-        { label: 'Monthly', value: 'Monthly', multiplier: 0.8 }
-    ];
+    // Pricing catalog - different prices per format
+    const pricingCatalog = {
+        'One Time': [
+            { id: 1, amount: 5, emoji: '☕' },
+            { id: 2, amount: 10, emoji: '🎬' },
+            { id: 3, amount: 25, emoji: '⭐' },
+            { id: 4, amount: 50, emoji: '🚀' },
+            { id: 5, amount: 100, emoji: '👑' }
+        ],
+        'Monthly': [
+            { id: 1, amount: 3, emoji: '☕' },
+            { id: 2, amount: 7, emoji: '🎬' },
+            { id: 3, amount: 15, emoji: '⭐' },
+            { id: 4, amount: 35, emoji: '🚀' },
+            { id: 5, amount: 75, emoji: '👑' }
+        ]
+    };
+
+    const formatOptions = ['One Time', 'Monthly'];
+    const currentPrices = pricingCatalog[selectedFormat] || pricingCatalog['One Time'];
 
     const amountSelected = () => {
-        // prefer selectedAmount (quick buttons) but allow customAmount if provided
         if (selectedAmount) return selectedAmount;
         const parsed = Number(customAmount);
         return parsed > 0 ? parsed : null;
@@ -2087,89 +2099,89 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
 
     const isActive = !!amountSelected();
 
-    // If showing PayPal, navigate to the payment page
     if (showPayPal) {
-        // Redirect to PayPal payment page in the same window
         window.location.href = "https://www.paypal.com/ncp/payment/LABFRAJUV5B9J";
         return null;
     }
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4 py-6">
             <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
-            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[85vh] flex flex-col overflow-hidden">
+            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col overflow-hidden">
                 {/* Header */}
-                <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
+                <div className="p-5 pb-3 border-b border-gray-100 bg-white z-10 relative flex-shrink-0">
                     <div className="flex items-center gap-2 mb-1">
                         <span className="text-[var(--color-gold)] font-semibold text-xl">$</span>
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
+                        <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
                     </div>
-                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1">{getTranslation("Show your appreciation and support {name}'s work", selectedLanguage).replace('{name}', profile.name)}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm leading-snug mt-0.5">{getTranslation("Show appreciation for {name}'s work", selectedLanguage).replace('{name}', profile.name)}</p>
                 </div>
 
-                <div className="overflow-y-auto p-5 pt-2 space-y-4 scrollbar-hide flex-1">
+                <div className="overflow-y-auto p-4 space-y-4 scrollbar-hide flex-1">
                     {/* Creator Card */}
-                    <div className="bg-gray-50 rounded-2xl p-4 flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-3 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 ring-2 ring-white">
                             <img src={profile.image || "https://placehold.co/400x400/e2e8f0/1e293b?text=User"} alt="Profile" className="w-full h-full object-cover" />
                         </div>
-                        <div>
-                            <p className="text-gray-600 text-sm sm:text-base">{getTranslation('Sending tip to', selectedLanguage)}</p>
-                            <p className="font-semibold text-gray-900 text-lg">{profile.name}</p>
+                        <div className="min-w-0">
+                            <p className="text-gray-500 text-xs">{getTranslation('Supporting', selectedLanguage)}</p>
+                            <p className="font-semibold text-gray-900 text-sm truncate">{profile.name}</p>
                         </div>
                     </div>
 
-                    {/* Pricing Format Dropdown */}
-                    <div className="relative">
-                        <h3 className="text-gray-600 text-sm mb-2 font-medium">{getTranslation('Select Tip Type', selectedLanguage)}</h3>
-                        <button
-                            onClick={() => setShowFormatDropdown(!showFormatDropdown)}
-                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                        >
-                            <span className="font-medium text-gray-900">{selectedFormat}</span>
-                            <Icon name={showFormatDropdown ? "chevron-up" : "chevron-down"} size={20} className="text-gray-400" />
-                        </button>
-                        
-                        {showFormatDropdown && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
-                                {pricingFormats.map((format) => (
-                                    <button
-                                        key={format.value}
-                                        onClick={() => {
-                                            setSelectedFormat(format.value);
-                                            setShowFormatDropdown(false);
-                                        }}
-                                        className={`w-full px-4 py-3 text-left transition-colors flex justify-between items-center ${
-                                            selectedFormat === format.value 
-                                                ? 'bg-[var(--color-gold-cream)] border-b border-gray-100' 
-                                                : 'hover:bg-gray-50 border-b border-gray-50 last:border-b-0'
-                                        }`}
-                                    >
-                                        <span className="font-medium text-gray-900">{format.label}</span>
-                                        {selectedFormat === format.value && (
-                                            <Icon name="check" size={18} className="text-[var(--color-gold)]" />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                    {/* Format Selector Pills */}
+                    <div>
+                        <p className="text-gray-600 text-xs font-medium mb-2">{getTranslation('Select Tip Type', selectedLanguage)}</p>
+                        <div className="flex gap-2">
+                            {formatOptions.map((format) => (
+                                <button
+                                    key={format}
+                                    onClick={() => {
+                                        setSelectedFormat(format);
+                                        setSelectedAmount(null);
+                                        setCustomAmount('');
+                                    }}
+                                    className={`flex-1 px-3 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                                        selectedFormat === format
+                                            ? 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-gold-darker)] text-white shadow-md scale-105'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    {format}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Quick Amount */}
+                    {/* Pricing Catalog */}
                     <div>
-                        <h3 className="text-gray-600 text-sm mb-2 font-medium">{getTranslation('Quick Amount', selectedLanguage)}</h3>
-                        <div className="grid grid-cols-3 gap-2">
-                            {quickAmounts.map((amount) => {
-                                const active = selectedAmount === amount;
+                        <p className="text-gray-600 text-xs font-medium mb-2.5">{getTranslation('Choose Amount', selectedLanguage)}</p>
+                        <div className="grid grid-cols-2 gap-2">
+                            {currentPrices.map((price) => {
+                                const isSelected = selectedAmount === price.amount;
                                 return (
                                     <button
-                                        key={amount}
+                                        key={price.id}
                                         onClick={() => {
-                                            setSelectedAmount(amount);
+                                            setSelectedAmount(price.amount);
                                             setCustomAmount('');
                                         }}
-                                        className={`rounded-xl py-3 flex flex-col items-center justify-center transition-colors border text-sm ${active ? 'bg-[#173A66] text-white border-[#173A66]' : 'bg-gray-50 hover:bg-gray-100 border-gray-100'}`}>
-                                        <span className={`font-semibold`}>${amount}</span>
+                                        className={`relative overflow-hidden rounded-2xl py-4 px-3 transition-all duration-200 flex flex-col items-center justify-center gap-1.5 ${
+                                            isSelected
+                                                ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white ring-2 ring-blue-300 shadow-lg scale-105'
+                                                : 'bg-white border-2 border-gray-200 text-gray-900 hover:border-[var(--color-gold)] hover:shadow-md'
+                                        }`}
+                                    >
+                                        {isSelected && (
+                                            <div className="absolute top-1 right-1 bg-white rounded-full p-1 text-blue-600">
+                                                <Icon name="check" size={14} className="font-bold" />
+                                            </div>
+                                        )}
+                                        <span className="text-lg">{price.emoji}</span>
+                                        <span className="font-bold text-base">${price.amount}</span>
+                                        <span className={`text-xs ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
+                                            {selectedFormat === 'Monthly' ? '/month' : ''}
+                                        </span>
                                     </button>
                                 );
                             })}
@@ -2178,54 +2190,56 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
 
                     {/* Custom Amount */}
                     <div>
-                        <h3 className="text-gray-600 text-sm mb-2 font-medium">{getTranslation('Custom Amount', selectedLanguage)}</h3>
-                        <div className="flex gap-2">
-                            <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
-                                <span className="text-gray-400 mr-2 text-lg">$</span>
-                                <input
-                                    type="number"
-                                    value={customAmount}
-                                    onChange={(e) => {
-                                        setCustomAmount(e.target.value);
-                                        setSelectedAmount(null);
-                                    }}
-                                    className="bg-transparent w-full outline-none text-gray-900 font-semibold text-sm"
-                                    placeholder={getTranslation('Amount', selectedLanguage)}
-                                />
-                            </div>
+                        <p className="text-gray-600 text-xs font-medium mb-2">{getTranslation('Custom Amount', selectedLanguage)}</p>
+                        <div className="bg-white border-2 border-gray-200 rounded-xl px-3 py-3 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
+                            <span className="text-gray-400 mr-2 text-lg font-semibold">$</span>
+                            <input
+                                type="number"
+                                value={customAmount}
+                                onChange={(e) => {
+                                    setCustomAmount(e.target.value);
+                                    setSelectedAmount(null);
+                                }}
+                                className="bg-transparent w-full outline-none text-gray-900 font-semibold text-sm"
+                                placeholder={getTranslation('Enter amount', selectedLanguage)}
+                            />
                         </div>
                     </div>
 
-                    {/* Support Info - condensed */}
-                    <div className="bg-[var(--color-gold-cream)]/40 rounded-xl p-3 flex gap-3 border border-[var(--color-gold-cream)]/50 text-xs">
-                        <div className="text-[var(--color-gold)] flex-shrink-0">
-                            <div className="w-6 h-6 bg-[var(--color-gold-cream)] rounded-md flex items-center justify-center">
-                                <span className="font-bold text-sm">$</span>
-                            </div>
+                    {/* Info Banner */}
+                    <div className="bg-gradient-to-r from-[var(--color-gold-cream)]/50 to-[var(--color-gold-cream)]/20 rounded-xl p-3 flex gap-2.5 border border-[var(--color-gold-cream)]/60 text-xs">
+                        <div className="text-[var(--color-gold)] flex-shrink-0 pt-0.5">
+                            <Icon name="gift" size={18} />
                         </div>
                         <div>
-                            <p className="text-gray-900 font-medium mb-0.5">{getTranslation('100% to creator', selectedLanguage)}</p>
-                            <p className="text-gray-500 leading-snug">
+                            <p className="text-gray-900 font-semibold mb-0.5">{getTranslation('100% goes to creator', selectedLanguage)}</p>
+                            <p className="text-gray-600 leading-snug">
                                 {selectedFormat === 'One Time' 
-                                    ? getTranslation('No fees, goes directly to support their work', selectedLanguage)
-                                    : getTranslation('Monthly recurring, cancel anytime', selectedLanguage)}
+                                    ? getTranslation('One-time gift with no platform fees', selectedLanguage)
+                                    : getTranslation('Cancel subscription anytime', selectedLanguage)}
                             </p>
                         </div>
                     </div>
+                </div>
 
-                    {/* Primary CTA */}
-                    <div className="sticky bottom-0 pt-3 bg-white border-t border-gray-100">
-                        <button
-                            onClick={() => {
-                                const amt = amountSelected();
-                                if (!amt) return;
-                                setShowPayPal(true);
-                            }}
-                            disabled={!isActive}
-                            className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-colors focus:outline-none ${isActive ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                            {isActive ? `${getTranslation('Continue', selectedLanguage)} \u2014 $${amountSelected() || '0'} / ${selectedFormat}` : getTranslation('Select an amount', selectedLanguage)}
-                        </button>
-                    </div>
+                {/* Footer with Button */}
+                <div className="p-4 pt-3 bg-gradient-to-t from-white to-white/80 border-t border-gray-100 flex-shrink-0">
+                    <button
+                        onClick={() => {
+                            const amt = amountSelected();
+                            if (!amt) return;
+                            setShowPayPal(true);
+                        }}
+                        disabled={!isActive}
+                        className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-all duration-200 focus:outline-none ${
+                            isActive 
+                                ? 'bg-gradient-to-r from-gray-900 to-gray-800 text-white hover:shadow-lg hover:from-gray-800 hover:to-gray-700' 
+                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        }`}>
+                        {isActive 
+                            ? `${getTranslation('Send Tip', selectedLanguage)} \u2014 $${amountSelected()}${selectedFormat === 'Monthly' ? '/mo' : ''}` 
+                            : getTranslation('Select an amount', selectedLanguage)}
+                    </button>
                 </div>
             </div>
         </div>
