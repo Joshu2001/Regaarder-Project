@@ -163,7 +163,7 @@ const BottomBar = ({ selectedLanguage = 'English' }) => {
                                 return;
                             }
                             if (tabName === 'Ideas') {
-                                window.location.href = '/ideas.jsx';
+                                window.location.href = '/ideas';
                                 return;
                             }
                             if (tabName === 'More') {
@@ -291,23 +291,23 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
 
                 {/* Custom Dropdown Menu */}
                 {type === 'select' && isDropdownOpen && !isCustomInput && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-60 overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-100">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-64 overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-100">
                         {options && options.map((opt) => (
                             <div
                                 key={opt.value}
                                 onClick={() => handleOptionClick(opt.value)}
-                                className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-gray-900 font-medium text-sm border-b border-gray-50 last:border-0 flex items-center justify-between"
+                                className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer text-gray-900 font-medium text-sm border-b border-gray-100 last:border-0 flex items-center justify-between gap-3 min-h-10 group"
                             >
-                                {opt.label}
-                                {tempValue === opt.value && <Icon name="check" size={14} className="text-[var(--color-gold)]" />}
+                                <span className="flex-1 truncate">{opt.label}</span>
+                                {tempValue === opt.value && <Icon name="check" size={16} className="text-[var(--color-gold)] flex-shrink-0" strokeWidth={2.5} />}
                             </div>
                         ))}
                         <div
                             onClick={handleCreateNewClick}
-                            className="px-4 py-3 hover:bg-gray-50 cursor-pointer text-[var(--color-gold)] font-medium text-sm flex items-center border-t border-gray-100 sticky bottom-0 bg-white"
+                            className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer text-[var(--color-gold)] font-medium text-sm flex items-center gap-2 border-t border-gray-100 sticky bottom-0 bg-white min-h-10"
                         >
-                            <Icon name="pencilLine" size={14} className="mr-2" />
-                            Create new category...
+                            <Icon name="pencilLine" size={16} className="flex-shrink-0" />
+                            <span className="truncate">Create new category...</span>
                         </div>
                     </div>
                 )}
@@ -759,7 +759,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                     <div className="flex space-x-2 mb-2">
                         <StatCard label={getTranslation("Followers", selectedLanguage)} value={profile.followers || profile.followerCount || 0} selectedLanguage={selectedLanguage} />
                         <StatCard label={getTranslation("Views", selectedLanguage)} value={profile.views || 0} selectedLanguage={selectedLanguage} />
-                        <StatCard label={getTranslation("Comments", selectedLanguage)} value={profile.comments || 0} selectedLanguage={selectedLanguage} />
+                        <StatCard label={getTranslation("Fulfilled", selectedLanguage)} value={profile.comments || 0} selectedLanguage={selectedLanguage} />
                     </div>
                 </div>
 
@@ -1741,7 +1741,7 @@ const AllVideos = ({ selectedCTAs, profileName, onCTAClick, selectedLanguage = '
                         // show a brief active state so users perceive the press, then navigate
                         setCtaActive(true);
                         setTimeout(() => {
-                            navigate('/ideas.jsx');
+                            navigate('/ideas');
                             if (onCTAClick) onCTAClick();
                         }, 120);
                         // clear active state shortly after so it doesn't persist
@@ -2065,40 +2065,21 @@ const Toast = ({ data, onClose }) => {
 const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLanguage = 'English' }) => {
     if (!isOpen) return null;
 
-    const [selectedAmount, setSelectedAmount] = useState(null);
+    const quickAmounts = [5, 10, 25, 50, 100];
     const [customAmount, setCustomAmount] = useState('');
+    const [selectedAmount, setSelectedAmount] = useState(null);
     const [showPayPal, setShowPayPal] = useState(false);
     const [selectedFormat, setSelectedFormat] = useState('One Time');
+    const [showFormatDropdown, setShowFormatDropdown] = useState(false);
     
-    // Pricing catalog - different prices per format
-    const pricingCatalog = {
-        'One Time': [
-            { id: 1, amount: 5, emoji: '☕' },
-            { id: 2, amount: 10, emoji: '🎬' },
-            { id: 3, amount: 25, emoji: '⭐' },
-            { id: 4, amount: 50, emoji: '🚀' },
-            { id: 5, amount: 100, emoji: '👑' }
-        ],
-        'Series': [
-            { id: 1, amount: 3, emoji: '☕' },
-            { id: 2, amount: 7, emoji: '🎬' },
-            { id: 3, amount: 15, emoji: '⭐' },
-            { id: 4, amount: 35, emoji: '🚀' },
-            { id: 5, amount: 75, emoji: '👑' }
-        ],
-        'Recurrent': [
-            { id: 1, amount: 4, emoji: '☕' },
-            { id: 2, amount: 9, emoji: '🎬' },
-            { id: 3, amount: 20, emoji: '⭐' },
-            { id: 4, amount: 40, emoji: '🚀' },
-            { id: 5, amount: 85, emoji: '👑' }
-        ]
-    };
-
-    const formatOptions = ['One Time', 'Series', 'Recurrent'];
-    const currentPrices = pricingCatalog[selectedFormat] || pricingCatalog['One Time'];
+    // Pricing options with multipliers for recurring
+    const pricingFormats = [
+        { label: 'One Time', value: 'One Time', multiplier: 1 },
+        { label: 'Monthly', value: 'Monthly', multiplier: 0.8 }
+    ];
 
     const amountSelected = () => {
+        // prefer selectedAmount (quick buttons) but allow customAmount if provided
         if (selectedAmount) return selectedAmount;
         const parsed = Number(customAmount);
         return parsed > 0 ? parsed : null;
@@ -2106,86 +2087,89 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
 
     const isActive = !!amountSelected();
 
+    // If showing PayPal, navigate to the payment page
     if (showPayPal) {
+        // Redirect to PayPal payment page in the same window
         window.location.href = "https://www.paypal.com/ncp/payment/LABFRAJUV5B9J";
         return null;
     }
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4 py-6">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
             <div className={isPreview ? "absolute inset-0 bg-black/90" : "absolute inset-0 bg-black/60 backdrop-blur-sm"} onClick={onClose}></div>
-            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[92vh] flex flex-col overflow-hidden">
+            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[85vh] flex flex-col overflow-hidden">
                 {/* Header */}
-                <div className="px-5 pt-5 pb-3 border-b border-gray-100 bg-white flex-shrink-0">
+                <div className="p-6 pb-4 border-b border-gray-50 bg-white z-10 relative">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[var(--color-gold)] font-semibold text-lg">$</span>
-                        <h2 className="text-2xl font-semibold text-gray-900">{getTranslation('Send Tip', selectedLanguage)}</h2>
+                        <span className="text-[var(--color-gold)] font-semibold text-xl">$</span>
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">{getTranslation('Send Tip', selectedLanguage)}</h2>
                     </div>
-                    <p className="text-gray-600 text-xs leading-tight">{getTranslation("Show appreciation for {name}'s work", selectedLanguage).replace('{name}', profile.name)}</p>
+                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed mt-1">{getTranslation("Show your appreciation and support {name}'s work", selectedLanguage).replace('{name}', profile.name)}</p>
                 </div>
 
-                <div className="overflow-y-auto flex-1 px-4 pt-4 pb-4 space-y-3.5 scrollbar-hide">
+                <div className="overflow-y-auto p-5 pt-2 space-y-4 scrollbar-hide flex-1">
                     {/* Creator Card */}
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-3 flex items-center gap-3 flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                    <div className="bg-gray-50 rounded-2xl p-4 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                             <img src={profile.image || "https://placehold.co/400x400/e2e8f0/1e293b?text=User"} alt="Profile" className="w-full h-full object-cover" />
                         </div>
-                        <div className="min-w-0 flex-1">
-                            <p className="text-gray-500 text-xs">{getTranslation('Supporting', selectedLanguage)}</p>
-                            <p className="font-semibold text-gray-900 text-sm truncate">{profile.name}</p>
+                        <div>
+                            <p className="text-gray-600 text-sm sm:text-base">{getTranslation('Sending tip to', selectedLanguage)}</p>
+                            <p className="font-semibold text-gray-900 text-lg">{profile.name}</p>
                         </div>
                     </div>
 
-                    {/* Format Selector Pills */}
-                    <div className="flex-shrink-0">
-                        <p className="text-gray-600 text-xs font-semibold mb-2">{getTranslation('Tip Type', selectedLanguage)}</p>
-                        <div className="grid grid-cols-3 gap-2">
-                            {formatOptions.map((format) => (
-                                <button
-                                    key={format}
-                                    onClick={() => {
-                                        setSelectedFormat(format);
-                                        setSelectedAmount(null);
-                                        setCustomAmount('');
-                                    }}
-                                    className={`px-2.5 py-2 rounded-lg font-medium text-xs transition-all duration-200 ${
-                                        selectedFormat === format
-                                            ? 'bg-gradient-to-br from-[var(--color-gold)] to-[var(--color-gold-darker)] text-white shadow-md'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
-                                >
-                                    {format}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Pricing Catalog */}
-                    <div className="flex-shrink-0">
-                        <p className="text-gray-600 text-xs font-semibold mb-2.5">{getTranslation('Amount', selectedLanguage)}</p>
-                        <div className="grid grid-cols-2 gap-2">
-                            {currentPrices.map((price) => {
-                                const isSelected = selectedAmount === price.amount;
-                                return (
+                    {/* Pricing Format Dropdown */}
+                    <div className="relative">
+                        <h3 className="text-gray-600 text-sm mb-2 font-medium">{getTranslation('Select Tip Type', selectedLanguage)}</h3>
+                        <button
+                            onClick={() => setShowFormatDropdown(!showFormatDropdown)}
+                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                        >
+                            <span className="font-medium text-gray-900">{selectedFormat}</span>
+                            <Icon name={showFormatDropdown ? "chevron-up" : "chevron-down"} size={20} className="text-gray-400" />
+                        </button>
+                        
+                        {showFormatDropdown && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                                {pricingFormats.map((format) => (
                                     <button
-                                        key={price.id}
+                                        key={format.value}
                                         onClick={() => {
-                                            setSelectedAmount(price.amount);
-                                            setCustomAmount('');
+                                            setSelectedFormat(format.value);
+                                            setShowFormatDropdown(false);
                                         }}
-                                        className={`relative overflow-hidden rounded-2xl py-3 px-2 transition-all duration-200 flex flex-col items-center justify-center gap-1.5 ${
-                                            isSelected
-                                                ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white ring-2 ring-blue-300 shadow-md'
-                                                : 'bg-white border-2 border-gray-200 text-gray-900 hover:border-[var(--color-gold)] hover:shadow-md'
+                                        className={`w-full px-4 py-3 text-left transition-colors flex justify-between items-center ${
+                                            selectedFormat === format.value 
+                                                ? 'bg-[var(--color-gold-cream)] border-b border-gray-100' 
+                                                : 'hover:bg-gray-50 border-b border-gray-50 last:border-b-0'
                                         }`}
                                     >
-                                        {isSelected && (
-                                            <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-white rounded-full flex items-center justify-center text-blue-600">
-                                                <Icon name="check" size={12} className="font-bold" />
-                                            </div>
+                                        <span className="font-medium text-gray-900">{format.label}</span>
+                                        {selectedFormat === format.value && (
+                                            <Icon name="check" size={18} className="text-[var(--color-gold)]" />
                                         )}
-                                        <span className="text-base">{price.emoji}</span>
-                                        <span className="font-bold text-sm">${price.amount}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Quick Amount */}
+                    <div>
+                        <h3 className="text-gray-600 text-sm mb-2 font-medium">{getTranslation('Quick Amount', selectedLanguage)}</h3>
+                        <div className="grid grid-cols-3 gap-2">
+                            {quickAmounts.map((amount) => {
+                                const active = selectedAmount === amount;
+                                return (
+                                    <button
+                                        key={amount}
+                                        onClick={() => {
+                                            setSelectedAmount(amount);
+                                            setCustomAmount('');
+                                        }}
+                                        className={`rounded-xl py-3 flex flex-col items-center justify-center transition-colors border text-sm ${active ? 'bg-[#173A66] text-white border-[#173A66]' : 'bg-gray-50 hover:bg-gray-100 border-gray-100'}`}>
+                                        <span className={`font-semibold`}>${amount}</span>
                                     </button>
                                 );
                             })}
@@ -2193,53 +2177,55 @@ const SendTipPopup = ({ isOpen, onClose, profile, isPreview = false, selectedLan
                     </div>
 
                     {/* Custom Amount */}
-                    <div className="flex-shrink-0">
-                        <p className="text-gray-600 text-xs font-semibold mb-2">{getTranslation('Custom Amount', selectedLanguage)}</p>
-                        <div className="bg-white border-2 border-gray-200 rounded-xl px-3 py-2.5 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
-                            <span className="text-gray-400 mr-2 text-base font-semibold">$</span>
-                            <input
-                                type="number"
-                                value={customAmount}
-                                onChange={(e) => {
-                                    setCustomAmount(e.target.value);
-                                    setSelectedAmount(null);
-                                }}
-                                className="bg-transparent w-full outline-none text-gray-900 font-semibold text-sm"
-                                placeholder={getTranslation('Enter', selectedLanguage)}
-                            />
+                    <div>
+                        <h3 className="text-gray-600 text-sm mb-2 font-medium">{getTranslation('Custom Amount', selectedLanguage)}</h3>
+                        <div className="flex gap-2">
+                            <div className="flex-grow bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 flex items-center focus-within:border-[var(--color-gold)] transition-colors">
+                                <span className="text-gray-400 mr-2 text-lg">$</span>
+                                <input
+                                    type="number"
+                                    value={customAmount}
+                                    onChange={(e) => {
+                                        setCustomAmount(e.target.value);
+                                        setSelectedAmount(null);
+                                    }}
+                                    className="bg-transparent w-full outline-none text-gray-900 font-semibold text-sm"
+                                    placeholder={getTranslation('Amount', selectedLanguage)}
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    {/* Info Banner */}
-                    <div className="bg-gradient-to-r from-[var(--color-gold-cream)]/50 to-[var(--color-gold-cream)]/20 rounded-xl p-2.5 flex gap-2 border border-[var(--color-gold-cream)]/60 text-xs flex-shrink-0">
-                        <div className="text-[var(--color-gold)] flex-shrink-0 pt-0.5">
-                            <Icon name="gift" size={16} />
+                    {/* Support Info - condensed */}
+                    <div className="bg-[var(--color-gold-cream)]/40 rounded-xl p-3 flex gap-3 border border-[var(--color-gold-cream)]/50 text-xs">
+                        <div className="text-[var(--color-gold)] flex-shrink-0">
+                            <div className="w-6 h-6 bg-[var(--color-gold-cream)] rounded-md flex items-center justify-center">
+                                <span className="font-bold text-sm">$</span>
+                            </div>
                         </div>
                         <div>
-                            <p className="text-gray-900 font-semibold mb-0.5">{getTranslation('100% to creator', selectedLanguage)}</p>
-                            <p className="text-gray-600 leading-snug">{getTranslation('No platform fees', selectedLanguage)}</p>
+                            <p className="text-gray-900 font-medium mb-0.5">{getTranslation('100% to creator', selectedLanguage)}</p>
+                            <p className="text-gray-500 leading-snug">
+                                {selectedFormat === 'One Time' 
+                                    ? getTranslation('No fees, goes directly to support their work', selectedLanguage)
+                                    : getTranslation('Monthly recurring, cancel anytime', selectedLanguage)}
+                            </p>
                         </div>
                     </div>
-                </div>
 
-                {/* Footer with Button */}
-                <div className="px-4 py-3 bg-gradient-to-t from-white to-white/80 border-t border-gray-100 flex-shrink-0">
-                    <button
-                        onClick={() => {
-                            const amt = amountSelected();
-                            if (!amt) return;
-                            setShowPayPal(true);
-                        }}
-                        disabled={!isActive}
-                        className={`w-full px-3 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
-                            isActive 
-                                ? 'bg-gradient-to-r from-gray-900 to-gray-800 text-white hover:shadow-lg' 
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        }`}>
-                        {isActive 
-                            ? `${getTranslation('Send Tip', selectedLanguage)} \u2014 $${amountSelected()}` 
-                            : getTranslation('Select amount', selectedLanguage)}
-                    </button>
+                    {/* Primary CTA */}
+                    <div className="sticky bottom-0 pt-3 bg-white border-t border-gray-100">
+                        <button
+                            onClick={() => {
+                                const amt = amountSelected();
+                                if (!amt) return;
+                                setShowPayPal(true);
+                            }}
+                            disabled={!isActive}
+                            className={`w-full px-4 py-3 rounded-2xl text-base font-semibold transition-colors focus:outline-none ${isActive ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                            {isActive ? `${getTranslation('Continue', selectedLanguage)} \u2014 $${amountSelected() || '0'} / ${selectedFormat}` : getTranslation('Select an amount', selectedLanguage)}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2868,6 +2854,7 @@ const App = () => {
     }, []);
 
     const [isPreviewMode, setIsPreviewMode] = useState(false);
+    const [isProfileOwner, setIsProfileOwner] = useState(false);
     const [showCompleteProfile, setShowCompleteProfile] = useState(false);
     const [showWelcomePopup, setShowWelcomePopup] = useState(false);
     const [showWelcomeConfig, setShowWelcomeConfig] = useState(false);
@@ -2934,6 +2921,18 @@ const App = () => {
                     setIsSharedLink(true);
                 }
 
+                // Get current logged-in user to check ownership
+                const getCurrentUser = () => {
+                    try {
+                        const stored = JSON.parse(localStorage.getItem('regaarder_user') || 'null');
+                        return stored;
+                    } catch (e) {
+                        return null;
+                    }
+                };
+
+                const currentUser = getCurrentUser();
+
                 const fetchUserWithStats = async (userId, handle) => {
                     // Fetch user data
                     let res;
@@ -2994,6 +2993,9 @@ const App = () => {
                         const user = await fetchUserWithStats(id, null);
                         if (user) {
                             setProfile(prev => ({ ...prev, ...user }));
+                            // Check if this is the current user's profile
+                            const isOwner = currentUser && (currentUser.id === user.id || currentUser.email === user.email || (currentUser.name && currentUser.name.toLowerCase() === user.name.toLowerCase()));
+                            setIsProfileOwner(isOwner);
                             if (user.introVideo) setFeaturedVideo({ url: user.introVideo });
                             if (user.categories && Array.isArray(user.categories)) {
                                 try { setCategories(user.categories); } catch (e) { /* ignore */ }
@@ -3008,6 +3010,9 @@ const App = () => {
                         const user = await fetchUserWithStats(null, finalHandle);
                         if (user) {
                             setProfile(prev => ({ ...prev, ...user }));
+                            // Check if this is the current user's profile
+                            const isOwner = currentUser && (currentUser.id === user.id || currentUser.email === user.email || (currentUser.name && currentUser.name.toLowerCase() === user.name.toLowerCase()));
+                            setIsProfileOwner(isOwner);
                             if (user.introVideo) setFeaturedVideo({ url: user.introVideo });
                             if (user.categories && Array.isArray(user.categories)) {
                                 try { setCategories(user.categories); } catch (e) { /* ignore */ }
@@ -3048,6 +3053,8 @@ const App = () => {
                         }
                         
                         setProfile(prev => ({ ...prev, ...safeStored }));
+                        // This is the owner's own profile
+                        setIsProfileOwner(true);
                         if (stored.introVideo) {
                             setFeaturedVideo({ url: stored.introVideo });
                         }
@@ -3077,9 +3084,49 @@ const App = () => {
         tryLoad();
     }, []);
 
-    // Refresh stats when comments are added or watch history is updated
+    // Refresh all profile stats (followers, views, fulfilled) periodically to keep them in sync
+    useEffect(() => {
+        const refreshProfileStats = async () => {
+            try {
+                if (!profile.id) return;
+
+                const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
+                
+                // Fetch fresh user data to get updated stats
+                const res = await fetch(`${BACKEND}/users/${encodeURIComponent(profile.id)}`);
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && json.user) {
+                        const updates = {};
+                        if (json.user.followers !== undefined) updates.followers = json.user.followers;
+                        if (json.user.views !== undefined) updates.views = json.user.views;
+                        if (json.user.comments !== undefined) updates.comments = json.user.comments;
+                        
+                        if (Object.keys(updates).length > 0) {
+                            setProfile(prev => ({ ...prev, ...updates }));
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error refreshing profile stats:', err);
+            }
+        };
+
+        // Set up interval to refresh stats every 3 seconds
+        const interval = setInterval(refreshProfileStats, 3000);
+        
+        return () => clearInterval(interval);
+    }, [profile.id]);
+
+    // Refresh stats when comments are added or watch history is updated (only for visitors, not profile owner)
     useEffect(() => {
         const refreshStats = async () => {
+            // Only refresh stats if this is NOT the profile owner (i.e., a visitor is viewing the profile)
+            if (isProfileOwner) {
+                console.log('Stats refresh skipped: viewing own profile');
+                return;
+            }
+
             try {
                 const BACKEND = (window && window.__BACKEND_URL__) || 'http://localhost:4000';
                 
@@ -3131,7 +3178,7 @@ const App = () => {
             window.removeEventListener('request:comment_added', handleCommentAdded);
             window.removeEventListener('watchhistory:updated', handleWatchHistoryUpdated);
         };
-    }, [profile.id, profile.email, profile.name]);
+    }, [profile.id, profile.email, profile.name, isProfileOwner]);
 
     const [categories, setCategories] = useState([
         {
@@ -3504,6 +3551,19 @@ const App = () => {
             ]
         },
         {
+            id: 'catalogue',
+            name: 'Catalogue',
+            emoji: '📚',
+            description: "Curated collection of creator works",
+            isOpen: false,
+            templates: [
+                { id: 'cat1', text: "Browse {creator}'s full portfolio", selected: false },
+                { id: 'cat2', text: "View all of {creator}'s creations", selected: false },
+                { id: 'cat3', text: "Explore {creator}'s collection", selected: false },
+                { id: 'cat4', text: "See {creator}'s complete works", selected: false }
+            ]
+        },
+        {
             id: 'health',
             name: 'Health & Fitness',
             emoji: '🧬',
@@ -3526,6 +3586,11 @@ const App = () => {
 
     const creatorTags = categories
         .filter(cat => !['custom', 'default', 'premium', 'personal', 'action', 'weekend', 'conversational', 'playful'].includes(cat.id))
+        .sort((a, b) => {
+            if (a.id === 'catalogue') return -1;
+            if (b.id === 'catalogue') return 1;
+            return a.name.localeCompare(b.name);
+        })
         .map(cat => ({ value: cat.name, label: cat.name }));
 
     const [videos, setVideos] = useState([]);
