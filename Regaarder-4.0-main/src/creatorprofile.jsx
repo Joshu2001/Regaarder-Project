@@ -252,13 +252,11 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
 
     return (
         <div className="flex items-center w-full gap-3 mb-3 relative" ref={dropdownRef}>
-            <div className={`flex-grow rounded-xl px-4 py-3 flex items-center relative ${
-                type === 'select' ? '' : 'bg-gray-100'
-            }`}>
-                {prefix && <span className="text-gray-500 mr-1">{prefix}</span>}
-
-                {(type === 'text' || type === 'textarea' || (type === 'select' && isCustomInput)) && (
-                    type === 'textarea' ? (
+            {/* For text/textarea inputs - use the gray wrapper */}
+            {(type === 'text' || type === 'textarea' || (type === 'select' && isCustomInput)) && (
+                <div className="flex-grow bg-gray-100 rounded-xl px-4 py-3 flex items-center relative">
+                    {prefix && <span className="text-gray-500 mr-1">{prefix}</span>}
+                    {type === 'textarea' ? (
                         <textarea
                             value={tempValue}
                             onChange={(e) => setTempValue(e.target.value)}
@@ -276,62 +274,75 @@ const EditableField = ({ value, onSave, onCancel, type = 'text', placeholder, pr
                             placeholder={isCustomInput ? "Enter new category name" : placeholder}
                             autoFocus={type === 'text' || isCustomInput}
                         />
-                    )
-                )}
+                    )}
+                </div>
+            )}
 
-                {type === 'select' && !isCustomInput && (
+            {/* For select dropdown - completely separate styled component */}
+            {type === 'select' && !isCustomInput && (
+                <div className="flex-grow relative">
+                    {/* Styled Dropdown Trigger */}
                     <div
-                        className="w-full flex items-center justify-between cursor-pointer px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm hover:shadow-md transition-all hover:border-blue-300"
+                        className="w-full flex items-center justify-between cursor-pointer px-5 py-3.5 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl border-2 border-blue-200 shadow-md hover:shadow-lg transition-all duration-200 hover:border-blue-400 hover:from-blue-100 hover:via-indigo-100 hover:to-purple-100"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                        <span className={`font-semibold text-base ${
+                        <span className={`font-bold text-base ${
                             tempValue ? 'text-gray-900' : 'text-gray-500'
                         }`}>
                             {tempValue || placeholder}
                         </span>
-                        <Icon name="chevronDown" className={`text-blue-600 transition-transform duration-200 ${
+                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm transition-transform duration-300 ${
                             isDropdownOpen ? 'rotate-180' : ''
-                        }`} size={20} />
+                        }`}>
+                            <Icon name="chevronDown" className="text-white" size={18} />
+                        </div>
                     </div>
-                )}
 
-                {/* Custom Dropdown Menu */}
-                {type === 'select' && isDropdownOpen && !isCustomInput && (
-                    <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl border border-blue-100 z-50 max-h-72 overflow-y-auto scrollbar-hide animate-in fade-in zoom-in-95 duration-150">
-                        {options && options.length > 0 ? (
-                            <>
-                                {options.map((opt, index) => (
-                                    <div
-                                        key={opt.value}
-                                        onClick={() => handleOptionClick(opt.value)}
-                                        className={`px-5 py-3.5 hover:bg-gradient-to-r hover:from-blue-100 hover:to-indigo-100 cursor-pointer text-gray-900 font-semibold text-base flex items-center justify-between gap-4 min-h-12 group transition-all ${
-                                            index !== (options?.length || 0) - 1 ? 'border-b border-blue-50' : ''
-                                        }`}
-                                    >
-                                        <span className="flex-1 truncate text-gray-800 font-medium">{opt.label}</span>
-                                        {tempValue === opt.value && (
-                                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-                                                <Icon name="check" size={16} className="text-white" strokeWidth={3} />
-                                            </div>
-                                        )}
+                    {/* Custom Dropdown Menu */}
+                    {isDropdownOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border-2 border-blue-100 z-50 max-h-80 overflow-y-auto scrollbar-hide">
+                            {options && options.length > 0 ? (
+                                <>
+                                    <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 rounded-t-2xl">
+                                        <span className="text-sm font-bold text-blue-700 uppercase tracking-wide">Select Category</span>
                                     </div>
-                                ))}
-                                <div
-                                    onClick={handleCreateNewClick}
-                                    className="px-5 py-3.5 hover:bg-gradient-to-r hover:from-amber-100 hover:to-yellow-100 cursor-pointer text-blue-600 font-bold text-base flex items-center gap-3 border-t border-blue-100 sticky bottom-0 bg-white min-h-12 transition-all rounded-b-2xl group"
-                                >
-                                    <Icon name="pencilLine" size={18} className="flex-shrink-0 text-blue-500 group-hover:text-amber-600" />
-                                    <span className="truncate">Create new category</span>
+                                    {options.map((opt, index) => (
+                                        <div
+                                            key={opt.value}
+                                            onClick={() => handleOptionClick(opt.value)}
+                                            className={`px-5 py-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer flex items-center justify-between gap-4 transition-all duration-150 ${
+                                                index !== (options?.length || 0) - 1 ? 'border-b border-gray-100' : ''
+                                            } ${tempValue === opt.value ? 'bg-gradient-to-r from-blue-50 to-indigo-50' : ''}`}
+                                        >
+                                            <span className={`flex-1 truncate text-base ${
+                                                tempValue === opt.value ? 'font-bold text-blue-700' : 'font-medium text-gray-800'
+                                            }`}>{opt.label}</span>
+                                            {tempValue === opt.value && (
+                                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-md">
+                                                    <Icon name="check" size={16} className="text-white" strokeWidth={3} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <div
+                                        onClick={handleCreateNewClick}
+                                        className="px-5 py-4 hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 cursor-pointer text-blue-600 font-bold text-base flex items-center gap-3 border-t-2 border-blue-100 sticky bottom-0 bg-white rounded-b-2xl transition-all group"
+                                    >
+                                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
+                                            <Icon name="plus" size={16} className="text-white" strokeWidth={3} />
+                                        </div>
+                                        <span>Create new category</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="px-5 py-8 text-center text-gray-500 font-medium">
+                                    No categories available
                                 </div>
-                            </>
-                        ) : (
-                            <div className="px-5 py-8 text-center text-gray-500 font-medium">
-                                No categories available
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
 
             <button onClick={(e) => { e.stopPropagation(); onCancel(); }} className="p-2 text-gray-500 hover:text-gray-700">
                 <Icon name="x" size={24} />
