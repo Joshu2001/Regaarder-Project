@@ -333,12 +333,9 @@ const MorePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div
-      className="min-h-screen bg-gray-50 flex flex-col items-center"
-    >
-      <div className="w-full max-w-xl min-h-screen flex flex-col" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
-
-        <header className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center overflow-hidden">
+      <div className="w-full max-w-xl h-screen flex flex-col overflow-hidden">
+        <header className="bg-white border-b border-gray-100 p-4 sticky top-0 z-20 flex-shrink-0">
           <div className="flex items-center space-x-4">
             <ChevronLeft
               className="w-6 h-6 text-gray-700 cursor-pointer transition hover:text-gray-900"
@@ -348,16 +345,17 @@ const MorePage = () => {
           </div>
         </header>
 
-        <p className="text-sm text-gray-500 px-4 pt-3 pb-2">
+        <p className="text-sm text-gray-500 px-4 pt-3 pb-2 flex-shrink-0">
           {getTranslation('Settings and options', selectedLanguage)}
         </p>
 
-        <main className="flex-grow flex items-center justify-center p-4">
-          {/* Main content area centers the card vertically and horizontally */}
-          {auth.user ? <SettingsList /> : <SignInCard />}
+        <main className="flex-1 flex flex-col items-center p-4 overflow-y-auto">
+          {/* Main content area scrolls content on small screens to ensure logout button is visible */}
+          <div className="w-full flex flex-col pb-8">
+            {auth.user ? <SettingsList /> : <SignInCard />}
+          </div>
         </main>
       </div>
-
 
       <BottomBar selectedLanguage={selectedLanguage} />
     </div>

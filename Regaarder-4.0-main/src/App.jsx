@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from
 import * as eventBus from './eventbus.js';
 import React, { useState, useEffect, useTransition, Suspense, lazy } from 'react';
 import PageLoadingSkeleton from './PageLoadingSkeleton.jsx';
+import LaunchScreen from './LaunchScreen.jsx';
 
 // Lazy load all page components for faster initial load
 const Home = lazy(() => import('./home.jsx'));
@@ -82,6 +83,7 @@ function App() {
   const [overrideView, setOverrideView] = useState(null);
   const [overridePayload, setOverridePayload] = useState(null);
   const [isPending, startTransition] = useTransition();
+  const [showLaunchScreen, setShowLaunchScreen] = useState(true);
 
   useEffect(() => {
     const off = eventBus.on('switchToHomeOnly', (data) => {
@@ -224,6 +226,9 @@ function App() {
 
   return (
     <BrowserRouter>
+      {showLaunchScreen && (
+        <LaunchScreen onLoadComplete={() => setShowLaunchScreen(false)} />
+      )}
       {isPending ? (
         <PageLoadingSkeleton />
       ) : overrideView === 'home' ? (

@@ -26,7 +26,8 @@
     "lastWarning": "2026-01-20T04:14:21.492Z",
     "shadowBanned": true,
     "shadowBannedAt": "2026-01-20T05:55:37.115Z",
-    "shadowBanReason": "Low-quality or repetitive content"
+    "shadowBanReason": "Low-quality or repetitive content",
+    "followers": 1
   },
   {
     "id": "user-1767159330204",
@@ -1224,6 +1225,9 @@
     "referralCount": 0,
     "createdAt": "2026-01-28T05:24:03.824Z",
     "passwordChangedAt": "2026-01-28T05:24:03.824Z",
-    "token": "eba2803c75214fce8d89991ed4004ac9"
+    "token": "eba2803c75214fce8d89991ed4004ac9",
+    "following": [
+      "user-1766857658728"
+    ]
   }
 ]
