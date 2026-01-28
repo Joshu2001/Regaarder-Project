@@ -918,7 +918,7 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                     </>
                 ) : (
                     editingField === 'price' ? (
-                        <div className="w-full mt-8 flex items-stretch gap-2">
+                        <div className="w-full mt-8 flex flex-col gap-3">
                             <div className="flex-grow bg-[var(--color-gold-light-bg)] rounded-xl px-4 py-3 flex items-center shadow-sm">
                                 <span className="mr-2 opacity-50 text-gray-800 font-semibold text-lg">$</span>
                                 <input
@@ -943,16 +943,18 @@ const ProfileHeader = ({ profile, onUpdate, isPreviewMode, onTogglePreview, onTi
                                 </select>
                                 <Icon name="chevronDown" size={16} className="text-gray-800 opacity-50 ml-1 pointer-events-none" />
                             </div>
-                            <button onClick={() => setEditingField(null)} className="p-3 text-gray-500 hover:text-gray-700 bg-white rounded-xl shadow-sm border border-gray-100 transition-colors">
-                                <Icon name="x" size={20} />
-                            </button>
-                            <button
-                                onClick={handlePriceSave}
-                                className="p-3 bg-black text-white rounded-xl shadow-sm hover:bg-gray-800 transition-colors flex items-center justify-center"
-                                title="Save price"
-                            >
-                                <Icon name="check" size={20} strokeWidth={2.5} />
-                            </button>
+                            <div className="flex gap-2 justify-end">
+                                <button onClick={() => setEditingField(null)} className="px-4 py-2 text-gray-500 hover:text-gray-700 bg-white rounded-xl shadow-sm border border-gray-100 transition-colors">
+                                    <Icon name="x" size={20} />
+                                </button>
+                                <button
+                                    onClick={handlePriceSave}
+                                    className="px-6 py-2 bg-[var(--color-gold)] text-black rounded-xl shadow-sm hover:bg-[var(--color-gold-dark)] transition-colors font-semibold"
+                                    title="Save price"
+                                >
+                                    Save
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <div className="w-full mt-8 relative">
@@ -3612,6 +3614,9 @@ const App = () => {
             return a.name.localeCompare(b.name);
         })
         .map(cat => ({ value: cat.name, label: cat.name }));
+    
+    console.log('DEBUG: creatorTags =', creatorTags);
+    console.log('DEBUG: Catalogue in creatorTags?', creatorTags.some(tag => tag.label === 'Catalogue'));
 
     const [videos, setVideos] = useState([]);
 
