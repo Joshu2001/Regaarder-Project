@@ -198,7 +198,8 @@ export default function StaffDashboard() {
   const [staffNotifications, setStaffNotifications] = useState([]);
   const [supportTickets, setSupportTickets] = useState([]);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
-  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'requests', 'comments', 'reports', 'users', 'creators', 'shadowDeleted', 'approvals', 'promotions', 'templates', 'ads', 'feedback', 'support', 'myProfile'
+  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'requests', 'comments', 'reports', 'users', 'creators', 'shadowDeleted', 'approvals', 'promotions', 'templates', 'ads', 'feedback', 'support', 'myProfile', 'onboarding'
+  const [onboardingList, setOnboardingList] = useState([]);
   const [adAssets, setAdAssets] = useState([]);
   const [selectedAdVideo, setSelectedAdVideo] = useState(null);
   const [videoPreviewState, setVideoPreviewState] = useState({ isPlaying: false, currentTime: 0, videoDuration: 100, overlayPosition: { x: 50, y: 50 }, overlaySize: { width: 80, height: 60 }, isDragging: false, dragStart: { x: 0, y: 0 } });
@@ -937,6 +938,13 @@ export default function StaffDashboard() {
       } else {
         const errorText = await supportRes.text();
         console.error('Support tickets fetch failed:', supportRes.status, errorText);
+      }
+
+      // Load onboarding info
+      const onboardingRes = await fetch(`http://localhost:4000/staff/onboarding-info?employeeId=${employee.id}`);
+      if (onboardingRes.ok) {
+        const data = await onboardingRes.json();
+        setOnboardingList(data.onboardingInfo || []);
       }
 
       // Load pending accounts (admin only)
@@ -2198,6 +2206,29 @@ export default function StaffDashboard() {
               onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'support' ? '#eff6ff' : 'white'}
             >
               Support Tickets ({supportTickets ? supportTickets.length : 0})
+            </button>
+            <button
+              onClick={() => navigateToTab('onboarding', 'onboarding')}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                textAlign: 'left',
+                backgroundColor: activeTab === 'onboarding' ? '#eff6ff' : 'white',
+                color: activeTab === 'onboarding' ? '#1e40af' : '#374151',
+                border: 'none',
+                borderBottom: '1px solid #e5e7eb',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: activeTab === 'onboarding' ? 'bold' : 'normal',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f9ff'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = activeTab === 'onboarding' ? '#eff6ff' : 'white'}
+            >
+              Creator Onboarding Info
             </button>
             <button
               onClick={() => navigateToTab('shadowDeleted', 'shadowDeleted')}
@@ -6529,6 +6560,122 @@ export default function StaffDashboard() {
           {/* Support Tickets Tab */}
           {activeTab === 'support' && (
             <SupportTicketPanel selectedLanguage={selectedLanguage} />
+          )}
+
+          {/* Onboarding Tab */}
+          {activeTab === 'onboarding' && (
+            <div>
+              <div style={{ marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '0 0 8px 0', color: '#1f2937' }}>Creator Onboarding Information</h2>
+                <p style={{ color: '#6b7280', margin: '0', fontSize: '14px' }}>View all creators who have completed onboarding registration</p>
+              </div>
+
+              {onboardingList.length === 0 ? (
+                <div style={{
+                  padding: '48px 32px',
+                  textAlign: 'center',
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '10px',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db'
+                }}>
+                  <div style={{ 
+                    width: '72px',
+                    height: '72px',
+                    backgroundColor: 'rgba(79,70,229,0.1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px'
+                  }}>
+                    <Users size={36} style={{ color: '#4f46e5' }} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+                    No Onboarding Data Yet
+                  </p>
+                  <p style={{ margin: '0', fontSize: '13px', color: '#6b7280' }}>
+                    Creator onboarding information will appear here when creators complete registration
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                    Showing {onboardingList.length} onboarded creator(s)
+                  </p>
+                  {onboardingList.map((onboarding, idx) => (
+                    <div key={idx} style={{
+                      padding: '16px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      backgroundColor: '#fff',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                    }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '12px' }}>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase' }}>Creator Name</label>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+                            {onboarding.creatorName || 'N/A'}
+                          </p>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase' }}>Email</label>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#374151' }}>
+                            {onboarding.userEmail || 'N/A'}
+                          </p>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase' }}>Bio</label>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#374151' }}>
+                            {onboarding.bio || 'No bio provided'}
+                          </p>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase' }}>Social Handle</label>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#374151' }}>
+                            @{onboarding.socialMediaHandle || 'N/A'}
+                          </p>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase' }}>Social Followers</label>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+                            {onboarding.socialFollowers ? onboarding.socialFollowers.toLocaleString() : '0'}
+                          </p>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase' }}>Intro Video URL</label>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#3b82f6', wordBreak: 'break-all' }}>
+                            {onboarding.introVideoUrl ? (
+                              <a href={onboarding.introVideoUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline' }}>
+                                View Video
+                              </a>
+                            ) : 'Not provided'}
+                          </p>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase' }}>Onboarded At</label>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#374151' }}>
+                            {onboarding.completedAt ? new Date(onboarding.completedAt).toLocaleDateString() : 'N/A'}
+                          </p>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase' }}>Terms Agreed</label>
+                          <p style={{ margin: '4px 0 0 0', fontSize: '14px' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px', borderRadius: '6px', backgroundColor: onboarding.agreedTOS ? '#dcfce7' : '#fee2e2' }}>
+                              {onboarding.agreedTOS ? '✓' : '✗'} <span style={{ fontSize: '12px' }}>TOS</span>
+                            </span>
+                            {' '}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px', borderRadius: '6px', backgroundColor: onboarding.agreedPrivacy ? '#dcfce7' : '#fee2e2' }}>
+                              {onboarding.agreedPrivacy ? '✓' : '✗'} <span style={{ fontSize: '12px' }}>Privacy</span>
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Ads Tab */}
